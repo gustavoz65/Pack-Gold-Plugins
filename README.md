@@ -2,16 +2,35 @@
 
 Plugins Java da GoldSuite para o [Nukkit Gold](https://github.com/gustavoz65/Nukkit-Gold-Edition) (MCPE 0.15.10, protocolo 84). Este repositório tem só os plugins; o core do servidor fica no repositório do Nukkit Gold.
 
-| Plugin | Função | Guia |
+| Plugin | Função | Comandos principais |
 | --- | --- | --- |
-| GoldCore | SQLite assíncrono, assinatura de itens, viagens com transição, efeitos de partículas e menus em baú virtual | este arquivo |
-| GoldAuth | Registro, login e troca de senha | [gold-auth](gold-auth/README.md) |
-| GoldPerms | Grupos, herança e expiração de permissões | [gold-perms](gold-perms/README.md) |
-| GoldEconomy | Money, cash, `/pagar`, `/topmoney` | [gold-economy](gold-economy/README.md) |
-| GoldNPC | NPCs estilo Slapper com destinos e transições | [gold-npc](gold-npc/README.md) |
-| GoldHG | Hunger Games com 36 kits, feast, bússola e sopa para celular | [gold-hg](gold-hg/README.md) |
+| GoldCore | SQLite assíncrono, assinatura de itens, viagens com transição, partículas e menus em baú | (base de todos) |
+| GoldAuth | Registro e login, partículas ao entrar | `/registrar`, `/login` |
+| GoldPerms | Grupos, herança e expiração | `/grupo` |
+| GoldEconomy | Money, cash e ranking | `/money`, `/pagar`, `/topmoney` |
+| GoldEssentials | Homes, warps, spawn, tpa, back, fly | `/home`, `/warp`, `/spawn`, `/tpa`, `/back` |
+| GoldChat | Formato por grupo, anti-spam, privado, mute | `/tell`, `/r`, `/mute`, `/chat` |
+| GoldProtect | Áreas, proteção por mundo, anti-void, alerta de x-ray | `/area`, `/mundoprotecao`, `/antivoid` |
+| GoldStaff | Report, ajuda, clearlag, restart, agendamentos | `/report`, `/ajuda`, `/restart`, `/agendar` |
+| GoldKits | Kits com recarga | `/kits`, `/kit` |
+| GoldVip | Chaves de VIP e anúncio de VIP | `/vip ativar`, `/vip tempo` |
+| GoldShop | Placas de compra e venda, lojas de jogador, `/vender` | `[comprar]`, `[vender]`, `[loja]` |
+| GoldMarket | Leilão | `/leilao` |
+| GoldVault | Baú pessoal | `/ec` |
+| GoldHud | Barra com coordenadas, dinheiro e armadura | `/hud`, `/id` |
+| GoldPvP | Combat log, perfil, creeper sem quebrar blocos | `/perfil`, `/topkills` |
+| GoldCrates | Caixas com chaves assinadas | `/caixa` |
+| GoldFactions | Facções com território | `/f` |
+| GoldEnchant | Encantador pago | `/encantar` |
+| GoldBreaker | Obsidiana e bedrock com TNT, reparo, envio | `/reparar`, `/enviar` |
+| GoldWorld | Mundos, hora real, fundir, spawners, mobs empilhados | `/mundo`, `/fundir` |
+| GoldBuild | Edição de mundo em fatias por tick | `/we` |
+| GoldNPC | NPCs estilo Slapper com transições | `/npc` |
+| GoldHG | Hunger Games com 36 kits | `/hg`, `/hgkits`, `/sopa` |
 
-O que falta está no [roadmap](ROADMAP.md).
+Guias detalhados: [GoldNPC](gold-npc/README.md), [GoldHG](gold-hg/README.md), [GoldAuth](gold-auth/README.md), [GoldPerms](gold-perms/README.md), [GoldEconomy](gold-economy/README.md).
+
+O [roadmap](ROADMAP.md) mostra a origem de cada módulo.
 
 ## Compilar
 
@@ -25,7 +44,7 @@ bash scripts/obter-nukkit.sh
 .\scripts\obter-nukkit.ps1
 ```
 
-2. Compile, rode os testes e gere os jars em `dist/` (`GoldCore-0.1.0.jar`, `GoldAuth-0.1.0.jar`...):
+2. Compile, rode os testes e gere os jars em `dist/` (`GoldCore-0.2.0.jar`, `GoldAuth-0.2.0.jar`...):
 
 ```bash
 bash gradlew --offline check dist
