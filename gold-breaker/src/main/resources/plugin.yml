@@ -1,0 +1,15 @@
+name: GoldBreaker
+main: br.goldsuite.breaker.GoldBreaker
+version: "0.1.0"
+api: ["1.0.0"]
+softdepend: [GoldEconomy]
+author: gustavoz65
+description: Obsidiana e bedrock quebram com TNT, /reparar e /enviar
+commands:
+ reparar: {description: Repara o item da mao ou tudo, usage: "/reparar [tudo]", aliases: [repair, fix], permission: goldbreaker.reparar}
+ enviar: {description: Envia o item da mao a outro jogador, usage: "/enviar <jogador>", aliases: [send], permission: goldbreaker.enviar}
+permissions:
+ goldbreaker.reparar: {default: true, description: Usa /reparar pago}
+ goldbreaker.reparar.tudo: {default: op, description: Repara inventario e armadura de uma vez}
+ goldbreaker.reparar.gratis: {default: op, description: Repara sem pagar}
+ goldbreaker.enviar: {default: true, description: Usa /enviar}
