@@ -41,6 +41,8 @@ public final class GoldPvP extends PluginBase implements Listener {
     private final LinkedHashMap<Player, Long> queue = new LinkedHashMap<>();
     private final Map<Player, Match> matches = new IdentityHashMap<>();
     private final Set<String> busyArenas = new HashSet<>();
+    private final Fraud fraud = new Fraud();
+    private int pruneTick;
     /** Perdedores que devolvem o inventario guardado ao renascer. */
     private final Set<Player> restoreOnRespawn = Collections.newSetFromMap(new IdentityHashMap<>());
 
@@ -48,6 +50,9 @@ public final class GoldPvP extends PluginBase implements Listener {
         final Player a, b; final String arena; final long startAt = System.currentTimeMillis() + COUNTDOWN_MS; boolean ready, over;
         Match(Player a, Player b, String arena) { this.a = a; this.b = b; this.arena = arena; }
         Player other(Player p) { return p == a ? b : a; }
+        /** Dano causado por a e por b no duelo (meios coracoes), para detectar quem entrega a partida. */
+        final long[] dealt = new long[2];
+        long dealt(Player p) { return dealt[p == a ? 0 : 1]; }
         boolean fighting() { return ready && !over && System.currentTimeMillis() >= startAt; }
     }
 
@@ -59,7 +64,7 @@ public final class GoldPvP extends PluginBase implements Listener {
         RankingService ranking = getServer().getServiceManager().load(RankingService.class);
         if (ranking != null) {
             ranking.register("pvp", limit -> top(b -> b.kills, limit, v -> v + " abates"));
-            ranking.register("ranked", limit -> top(b -> b.rating, limit, v -> v + " " + Profile.tier(v)));
+            ranking.register("ranked", this::topRanked);
         }
         for (Player p : getServer().getOnlinePlayers().values()) { load(p); }
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldPvP>(this) { @Override public void onRun(int tick) { second(); } }, 20);
@@ -85,6 +90,28 @@ public final class GoldPvP extends PluginBase implements Listener {
         return out;
     }
 
+    /** Top por pontos de rank; os 10 primeiros Imortais aparecem como Divino. */
+    private List<RankingService.Entry> topRanked(int limit) {
+        if (!boards.isLoaded()) { return Collections.emptyList(); }
+        List<RankingService.Entry> out = new ArrayList<>();
+        List<Map.Entry<String, Integer>> sorted = boards.read(b -> Boards.sorted(b.ladder));
+        for (int i = 0; i < sorted.size() && out.size() < limit; i++) {
+            int v = sorted.get(i).getValue();
+            boolean divine = v >= Ranks.IMMORTAL && i < Ranks.DIVINE_SLOTS;
+            out.add(new RankingService.Entry(sorted.get(i).getKey(), v, "§" + Ranks.COLORS[Ranks.tier(v, divine)] + Ranks.name(v, divine) + " §7" + Ranks.points(v) + " PR"));
+        }
+        return out;
+    }
+
+    /** Divino: Imortal entre os 10 com mais pontos do servidor. */
+    private boolean divine(String name, int ladder) {
+        if (ladder < Ranks.IMMORTAL || !boards.isLoaded()) { return false; }
+        int pos = boards.read(b -> Boards.position(b.ladder, name));
+        return pos > 0 && pos <= Ranks.DIVINE_SLOTS;
+    }
+
+    private String rankText(String name, Profile pr) { return Ranks.display(pr.ladder, divine(name, pr.ladder), pr.games()); }
+
     // ---------- perfis ----------
 
     private void load(Player p) {
@@ -98,6 +125,7 @@ public final class GoldPvP extends PluginBase implements Listener {
             }
             profiles.put(p, profile);
             giveMenuItem(p);
+            rank(p);
         });
         // Guardado de um duelo interrompido (queda do servidor ou saida no meio): devolve agora.
         core.getStore().get(STASH, name).whenComplete((value, error) -> {
@@ -123,9 +151,9 @@ public final class GoldPvP extends PluginBase implements Listener {
         Profile pr = profile(p);
         if (pr == null) { return; }
         String name = key(p);
-        int kills = pr.kills, rating = pr.rating;
-        boolean ranked = pr.rankedWins + pr.rankedLosses + pr.rankedDraws > 0;
-        boards.change(b -> { if (kills > 0) { Boards.offer(b.kills, name, kills); } if (ranked) { Boards.offer(b.rating, name, rating); } });
+        int kills = pr.kills, ladder = pr.ladder;
+        boards.change(b -> { if (kills > 0) { Boards.offer(b.kills, name, kills); } if (ladder >= 0) { Boards.offer(b.ladder, name, ladder); } })
+                .thenRun(() -> { if (p.isOnline() && divine(name, ladder)) { reward(p, "pingente_divino", "trilha_divina", "cor_divina"); } });
     }
 
     // ---------- combate aberto ----------
@@ -153,7 +181,8 @@ public final class GoldPvP extends PluginBase implements Listener {
         Profile pv = profile(victim), pa = profile(attacker);
         if (pv != null) { pv.damageTaken += half; touch(victim); }
         if (pa != null) { pa.damageDealt += half; touch(attacker); }
-        if (matches.containsKey(victim)) { return; }
+        Match duel = matches.get(victim);
+        if (duel != null) { if (duel == matches.get(attacker)) { duel.dealt[duel.a == attacker ? 0 : 1] += half; } return; }
         long until = System.currentTimeMillis() + TAG_MS;
         for (Player p : new Player[] {victim, attacker}) {
             if (!tagged(p)) { p.sendPopup("§cEm combate! Nao saia por 15 s."); }
@@ -197,6 +226,14 @@ public final class GoldPvP extends PluginBase implements Listener {
         if (!(cause instanceof EntityDamageByEntityEvent) || !(((EntityDamageByEntityEvent) cause).getDamager() instanceof Player)) { return; }
         Player killer = (Player) ((EntityDamageByEntityEvent) cause).getDamager();
         if (killer == victim) { return; }
+        // Abate entre contas do mesmo IP ou a mesma dupla repetindo nao conta; repetir vira advertencia.
+        boolean sameIp = Fraud.sameIp(ip(killer), ip(victim));
+        boolean counts = fraud.killCounts(key(killer), key(victim), System.currentTimeMillis());
+        if (sameIp || !counts) {
+            killer.sendMessage(PREFIX + "§cEste abate nao conta" + (sameIp ? " (mesmo IP da vitima)." : " (abates repetidos na mesma pessoa)."));
+            if (!counts) { flag(killer, "abates repetidos em " + victim.getName()); flag(victim, "morreu varias vezes para " + killer.getName()); }
+            return;
+        }
         Profile pk = profile(killer), pv = profile(victim);
         if (pk != null) { pk.kill(); touch(killer); rank(killer); if (pk.streak >= 5 && pk.streak % 5 == 0) { getServer().broadcastMessage(PREFIX + "§6" + killer.getName() + " esta com " + pk.streak + " abates seguidos!"); } }
         if (pv != null) { pv.death(); touch(victim); }
@@ -224,6 +261,7 @@ public final class GoldPvP extends PluginBase implements Listener {
         Player p = event.getPlayer();
         queue.remove(p);
         restoreOnRespawn.remove(p);
+        lastHeld.remove(p);
         Match match = matches.get(p);
         // Sair durante a contagem cancela sem ELO: impede farmar rating com uma segunda conta.
         if (match != null) {
@@ -275,6 +313,9 @@ public final class GoldPvP extends PluginBase implements Listener {
         getServer().getScheduler().scheduleDelayedTask(new PluginTask<GoldPvP>(this) { @Override public void onRun(int tick) { giveMenuItem(p); } }, 5);
     }
 
+    /** Ultimo slot da hotbar usado antes do livro, para devolver a selecao. */
+    private final Map<Player, Integer> lastHeld = new IdentityHashMap<>();
+
     @EventHandler(priority = EventPriority.LOW)
     public void interact(PlayerInteractEvent event) {
         if (event.getAction() == PlayerInteractEvent.PHYSICAL || !isMenuItem(event.getPlayer().getInventory().getItemInHand())) { return; }
@@ -282,43 +323,101 @@ public final class GoldPvP extends PluginBase implements Listener {
         menu(event.getPlayer(), event.getPlayer());
     }
 
+    /**
+     * No 0.15 tocar no ar com um livro nao chega ao servidor: o livro so ficava selecionado.
+     * Agora selecionar o livro ja abre o perfil, e a hotbar volta para o slot anterior; tocar de novo reabre.
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void held(PlayerItemHeldEvent event) {
+        Player p = event.getPlayer();
+        if (!isMenuItem(event.getItem())) { lastHeld.put(p, p.getInventory().getHeldItemIndex()); return; }
+        Integer before = lastHeld.get(p);
+        int back = before == null || before == p.getInventory().getHeldItemIndex() ? (p.getInventory().getHeldItemIndex() == 0 ? 1 : 0) : before;
+        menu(p, p);
+        getServer().getScheduler().scheduleDelayedTask(new PluginTask<GoldPvP>(this) {
+            @Override public void onRun(int tick) {
+                if (!p.isOnline() || !isMenuItem(p.getInventory().getItemInHand())) { return; }
+                p.getInventory().setHeldItemIndex(back);
+                p.getInventory().sendHeldItem(p);
+            }
+        }, 2);
+    }
+
+    /** Elo antes do nome no chat para quem ativou no perfil. */
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void chat(PlayerChatEvent event) {
+        Profile pr = profile(event.getPlayer());
+        if (pr == null || !pr.showElo || pr.ladder < 0) { return; }
+        String tag = Ranks.chatTag(pr.ladder, divine(key(event.getPlayer()), pr.ladder));
+        event.setFormat(event.getFormat().replace("{%0}", tag + "§r {%0}"));
+    }
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void drop(PlayerDropItemEvent event) { if (isMenuItem(event.getItem())) { event.setCancelled(); } }
 
-    /** Perfil detalhado em bau: estatisticas, liga, posicao e botoes do ranked. */
+    /** Perfil detalhado em bau: estatisticas, elo, posicao, botoes do ranked, lista de elos e cosmeticos. */
     private void menu(Player viewer, Player target) {
         Profile pr = profile(target);
         if (pr == null) { viewer.sendMessage(PREFIX + "Perfil ainda carregando."); return; }
         String name = key(target);
-        int killPos = boards.read(b -> Boards.position(b.kills, name)), ratingPos = boards.read(b -> Boards.position(b.rating, name));
+        int killPos = boards.read(b -> Boards.position(b.kills, name)), rankPos = boards.read(b -> Boards.position(b.ladder, name));
+        boolean divine = divine(name, pr.ladder);
+        String rank = Ranks.display(pr.ladder, divine, pr.games());
         Map<Integer, Item> icons = new HashMap<>();
-        icons.put(4, icon(397, 3, "§e" + target.getName() + "\n" + Profile.tier(pr.rating) + " §7(" + pr.rating + ")\n§7Jogando desde " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new Date(pr.firstSeen))));
+        icons.put(4, icon(397, 3, "§e" + target.getName() + "\n" + rank + "\n§7Jogando desde " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new Date(pr.firstSeen))));
         icons.put(10, icon(276, 0, "§aAbates: §f" + pr.kills + "\n§7Posicao: " + (killPos == 0 ? "-" : "#" + killPos)));
         icons.put(11, icon(352, 0, "§cMortes: §f" + pr.deaths));
         icons.put(12, icon(266, 0, "§6KDR: §f" + pr.kdr()));
         icons.put(13, icon(377, 0, "§eSequencia: §f" + pr.streak + "\n§7Melhor: " + pr.bestStreak));
-        icons.put(14, icon(388, 0, "§bRanked: " + Profile.tier(pr.rating) + "\n§fRating " + pr.rating + " §7(pico " + pr.peakRating + ")\n§7Posicao: " + (ratingPos == 0 ? "-" : "#" + ratingPos)));
+        int tierIcon = pr.ladder < 0 ? 388 : Ranks.ICONS[Ranks.tier(pr.ladder, divine)];
+        icons.put(14, icon(tierIcon, 0, "§bElo: " + rank + "\n§7Pico: " + (pr.peakLadder < 0 ? "-" : Ranks.name(pr.peakLadder, false)) + "\n§7Posicao: " + (rankPos == 0 ? "-" : "#" + rankPos)));
         icons.put(15, icon(267, 0, "§dDuelos: §a" + pr.rankedWins + "V §c" + pr.rankedLosses + "D §7" + pr.rankedDraws + "E\n§fVitorias: " + pr.winRate()));
         icons.put(16, icon(331, 0, "§4Dano causado: §f" + pr.damageDealt / 2 + " coracoes\n§4Dano recebido: §f" + pr.damageTaken / 2 + " coracoes"));
-        if (viewer == target) {
+        boolean own = viewer == target;
+        if (own) {
             boolean waiting = queue.containsKey(viewer);
-            icons.put(20, icon(35, waiting ? 14 : 5, waiting ? "§cSair da fila do ranked" : "§aJogar ranked 1v1\n§7Pareamento pelo rating"));
+            icons.put(19, icon(35, waiting ? 14 : 5, waiting ? "§cSair da fila do ranked" : "§aJogar ranked 1v1\n§7Pareamento pelo MMR"));
+            icons.put(20, icon(351, pr.showElo ? 10 : 8, "§fElo no chat: " + (pr.showElo ? "§aligado" : "§cdesligado") + "\n§7Toque para " + (pr.showElo ? "esconder" : "mostrar")));
+            if (getServer().getServiceManager().load(CosmeticService.class) != null) { icons.put(25, icon(377, 0, "§dCosmeticos\n§7Pingentes, trilhas e efeitos")); }
         }
-        icons.put(22, icon(339, 0, "§eTop 10 ranked"));
+        icons.put(21, icon(323, 0, "§6Lista de elos\n§7Como funciona Imortal e Divino"));
+        icons.put(23, icon(339, 0, "§eTop 10 ranked"));
         icons.put(24, icon(339, 0, "§eTop 10 abates"));
         getServer().getServiceManager().load(MenuService.class).open(viewer, "Perfil de " + target.getName(), icons, (who, slot) -> {
-            if (slot == 20 && who == target) { try { toggleQueue(who); } catch (RuntimeException e) { who.sendMessage(PREFIX + "\u00a7c" + e.getMessage()); } }
-            else if (slot == 22) { topMenu(who, "ranked"); }
-            else if (slot == 24) { topMenu(who, "pvp"); }
+            if (slot == 19 && own) { try { toggleQueue(who); } catch (RuntimeException e) { who.sendMessage(PREFIX + "§c" + e.getMessage()); } }
+            else if (slot == 20 && own) { pr.showElo = !pr.showElo; dirty.add(who); who.sendMessage(PREFIX + "Elo no chat " + (pr.showElo ? "§aligado" : "§cdesligado") + "§f."); menu(who, target); }
+            else if (slot == 21) { elosMenu(who, target); }
+            else if (slot == 23) { topMenu(who, target, "ranked"); }
+            else if (slot == 24) { topMenu(who, target, "pvp"); }
+            else if (slot == 25 && own) { CosmeticService c = getServer().getServiceManager().load(CosmeticService.class); if (c != null) { c.openMenu(who); } }
         });
     }
 
-    private void topMenu(Player p, String board) {
+    private void topMenu(Player p, Player back, String board) {
         RankingService ranking = getServer().getServiceManager().load(RankingService.class);
         List<RankingService.Entry> top = ranking == null ? Collections.emptyList() : ranking.top(board, 10);
         Map<Integer, Item> icons = new HashMap<>();
-        for (int i = 0; i < top.size(); i++) { icons.put(i < 5 ? 11 + i : 15 + i, icon(i == 0 ? 266 : i < 3 ? 265 : 336, 0, "§e#" + (i + 1) + " §f" + top.get(i).player + "\n§7" + top.get(i).label)); }
-        getServer().getServiceManager().load(MenuService.class).open(p, board.equals("ranked") ? "Top ranked" : "Top abates", icons, (who, slot) -> menu(who, who));
+        for (int i = 0; i < top.size(); i++) { icons.put(i < 5 ? 2 + i : 6 + i, icon(i == 0 ? 266 : i < 3 ? 265 : 336, 0, "§e#" + (i + 1) + " §f" + top.get(i).player + "\n§7" + top.get(i).label)); }
+        icons.put(22, icon(262, 0, "§fVoltar ao perfil"));
+        getServer().getServiceManager().load(MenuService.class).open(p, board.equals("ranked") ? "Top ranked" : "Top abates", icons, (who, slot) -> menu(who, back.isOnline() ? back : who));
+    }
+
+    /** Todos os elos, do Ferro ao Divino, com os pontos de cada um; o do jogador aparece marcado. */
+    private void elosMenu(Player p, Player back) {
+        Profile pr = profile(back.isOnline() ? back : p);
+        int mine = pr == null || pr.ladder < 0 ? -1 : Ranks.tier(pr.ladder, divine(key(back), pr.ladder));
+        Map<Integer, Item> icons = new HashMap<>();
+        for (int t = 0; t < Ranks.NAMES.length; t++) {
+            String color = "§" + Ranks.COLORS[t] + (t == 8 ? "§l" : "");
+            String info;
+            if (t < 7) { info = "§7Divisoes 1, 2 e 3\n§7100 PR por divisao (" + t * 300 + " a " + (t * 300 + 299) + " pontos)"; }
+            else if (t == 7) { info = "§7A partir de " + Ranks.IMMORTAL + " pontos\n§7Sem teto: os PR acumulam\n§7Imortal 2 com " + Ranks.IMMORTAL_2 + " PR, Imortal 3 com " + Ranks.IMMORTAL_3 + " PR"; }
+            else { info = "§7So os " + Ranks.DIVINE_SLOTS + " Imortais com mais PR\n§7do servidor. Quem passar um\n§7Divino toma a vaga dele."; }
+            icons.put(t < 7 ? 1 + t : t == 7 ? 12 : 14, icon(Ranks.ICONS[t], 0, color + Ranks.NAMES[t] + (t == mine ? " §a<- voce" : "") + "\n" + info));
+        }
+        icons.put(18, icon(388, 0, "§fComo funciona\n§7" + Ranks.PLACEMENTS + " classificatorias definem o elo inicial\n§7(no maximo Ascendente 1).\n§7Vitoria +PR, derrota -PR; o MMR oculto\n§7decide quanto cada partida vale."));
+        icons.put(22, icon(262, 0, "§fVoltar ao perfil"));
+        getServer().getServiceManager().load(MenuService.class).open(p, "Elos do ranked", icons, (who, slot) -> menu(who, back.isOnline() ? back : who));
     }
 
     private static Item icon(int id, int meta, String name) { Item item = Item.get(id, meta, 1); item.setCustomName(name); return item; }
@@ -330,14 +429,17 @@ public final class GoldPvP extends PluginBase implements Listener {
         if (matches.containsKey(p)) { throw new IllegalArgumentException("Voce ja esta num duelo."); }
         if (tagged(p)) { throw new IllegalArgumentException("Saia do combate antes."); }
         if (profile(p) == null) { throw new IllegalArgumentException("Perfil ainda carregando."); }
+        long ban = profile(p).rankedBanUntil - System.currentTimeMillis();
+        if (ban > 0) { throw new IllegalArgumentException("Ranked bloqueado por fraude por mais " + (ban / 3_600_000 + 1) + " h."); }
         if (boards.read(b -> b.arenas.isEmpty())) { throw new IllegalArgumentException("Nenhuma arena de ranked configurada."); }
         queue.put(p, System.currentTimeMillis());
-        p.sendMessage(PREFIX + "Na fila do ranked (" + Profile.tier(profile(p).rating) + "§f). Procurando oponente...");
+        p.sendMessage(PREFIX + "Na fila do ranked (" + rankText(key(p), profile(p)) + "§f). Procurando oponente...");
     }
 
     /** A cada segundo: contagem dos duelos, tempo limite e pareamento da fila. */
     private void second() {
         long now = System.currentTimeMillis();
+        if (++pruneTick >= 60) { pruneTick = 0; fraud.prune(now); }
         for (Match m : new HashSet<>(matches.values())) {
             if (!m.ready || m.over) { continue; }
             long left = m.startAt - now;
@@ -356,6 +458,8 @@ public final class GoldPvP extends PluginBase implements Listener {
             int bestGap = Integer.MAX_VALUE;
             for (Player b : waiting) {
                 if (b == a || taken.contains(b) || !b.isOnline() || profile(a) == null || profile(b) == null) { continue; }
+                // Nunca pareia contas do mesmo IP nem a dupla que ja se enfrentou demais agora.
+                if (Fraud.sameIp(ip(a), ip(b)) || !fraud.canPair(key(a), key(b), now)) { continue; }
                 int gap = Math.abs(profile(a).rating - profile(b).rating);
                 if (gap <= window && gap < bestGap) { best = b; bestGap = gap; }
             }
@@ -387,8 +491,8 @@ public final class GoldPvP extends PluginBase implements Listener {
             prepare(a, spots.a, kit); prepare(b, spots.b, kit);
             m.ready = true;
             Profile pa = profile(a), pb = profile(b);
-            a.sendMessage(PREFIX + "§6Duelo contra " + b.getName() + " " + Profile.tier(pb.rating) + " §7(" + pb.rating + ")");
-            b.sendMessage(PREFIX + "§6Duelo contra " + a.getName() + " " + Profile.tier(pa.rating) + " §7(" + pa.rating + ")");
+            a.sendMessage(PREFIX + "§6Duelo contra " + b.getName() + " " + rankText(key(b), pb));
+            b.sendMessage(PREFIX + "§6Duelo contra " + a.getName() + " " + rankText(key(a), pa));
         });
     }
 
@@ -434,16 +538,34 @@ public final class GoldPvP extends PluginBase implements Listener {
         busyArenas.remove(m.arena);
         Profile pa = profile(m.a), pb = profile(m.b);
         boolean started = m.ready && System.currentTimeMillis() >= m.startAt;
+        long duration = System.currentTimeMillis() - m.startAt;
+        if (started) { fraud.recordMatch(key(m.a), key(m.b), System.currentTimeMillis()); }
+        // Partida entregue (derrota rapida sem reacao) ou empate sem ninguem lutar: anulada, sem pontos.
+        boolean fed = started && winner != null && Fraud.feeding(duration, m.dealt(m.other(winner)));
+        boolean idle = started && winner == null && m.dealt[0] < Fraud.FEED_DAMAGE && m.dealt[1] < Fraud.FEED_DAMAGE;
+        if (fed || idle) {
+            started = false;
+            for (Player p : new Player[] {m.a, m.b}) {
+                if (p.isOnline()) { p.sendMessage(PREFIX + "§cPartida anulada: suspeita de fraude (" + (fed ? "derrota entregue" : "ninguem lutou") + "). Nao vale pontos."); }
+                // Quem perdeu sem reagir sempre leva advertencia; o vencedor so quando a dupla repete (combinado).
+                boolean repeat = !fraud.canPair(key(m.a), key(m.b), System.currentTimeMillis());
+                if (idle || p != winner || repeat) { flag(p, fed ? "partida entregue contra " + m.other(p).getName() : "duelo parado contra " + m.other(p).getName()); }
+            }
+        }
         if (started && pa != null && pb != null) {
-            if (winner == null) { pa.rankedDraws++; pb.rankedDraws++; }
-            else {
+            if (winner == null) {
+                pa.rankedDraws++; pb.rankedDraws++;
+                for (Player p : new Player[] {m.a, m.b}) { if (p.isOnline()) { p.sendMessage(PREFIX + "§7Empate."); } applyRank(p, profile(p), 0); }
+            } else {
                 Player loser = m.other(winner);
                 Profile pw = profile(winner), pl = profile(loser);
                 int delta = Profile.eloDelta(pw.rating, pl.rating);
                 pw.rating += delta; pw.peakRating = Math.max(pw.peakRating, pw.rating); pw.rankedWins++;
                 pl.rating = Math.max(0, pl.rating - delta); pl.rankedLosses++;
-                winner.sendMessage(PREFIX + "§aVitoria! +" + delta + " §f(" + pw.rating + " " + Profile.tier(pw.rating) + "§f)");
-                if (loser.isOnline()) { loser.sendMessage(PREFIX + "§cDerrota. -" + delta + " §f(" + pl.rating + " " + Profile.tier(pl.rating) + "§f)"); }
+                winner.sendMessage(PREFIX + "§aVitoria!");
+                if (loser.isOnline()) { loser.sendMessage(PREFIX + "§cDerrota."); }
+                applyRank(winner, pw, 1);
+                applyRank(loser, pl, -1);
                 EffectService effects = getServer().getServiceManager().load(EffectService.class);
                 if (effects != null) { effects.follow(winner, EffectService.Shape.CELEBRACAO, 40); }
             }
@@ -453,6 +575,76 @@ public final class GoldPvP extends PluginBase implements Listener {
         for (Player p : new Player[] {m.a, m.b}) {
             if (!p.isOnline() || restoreOnRespawn.contains(p)) { continue; }
             core.getStore().get(STASH, key(p)).whenComplete((value, error) -> { if (error == null && value.isPresent() && p.isOnline()) { restore(p, value.get(), true); } });
+        }
+    }
+
+    static String ip(Player p) { return p.getAddress(); }
+
+    /** Advertencia por fraude: aviso, staff alertada; 3 em 24 h expulsa, 4 bloqueia o ranked por 24 h. */
+    private void flag(Player p, String reason) {
+        String name = key(p);
+        int count = fraud.strike(name, System.currentTimeMillis());
+        getLogger().warning("Fraude PvP: " + name + " - " + reason + " (" + count + "/" + Fraud.KICK_AT + ")");
+        for (Player staff : getServer().getOnlinePlayers().values()) {
+            if (staff.hasPermission("goldpvp.admin")) { staff.sendMessage(PREFIX + "§e[Anti-fraude] §f" + p.getName() + ": " + reason + " §7(" + count + "/" + Fraud.KICK_AT + ")"); }
+        }
+        if (count >= Fraud.BAN_AT) {
+            Profile pr = profile(p);
+            if (pr != null) { pr.rankedBanUntil = System.currentTimeMillis() + Fraud.RANKED_BAN_MS; dirty.add(p); }
+        }
+        if (!p.isOnline()) { return; }
+        if (count >= Fraud.KICK_AT) {
+            Player target = p;
+            // Expulsa no tick seguinte para nao derrubar o jogador no meio do evento atual.
+            getServer().getScheduler().scheduleDelayedTask(new PluginTask<GoldPvP>(this) {
+                @Override public void onRun(int tick) { if (target.isOnline()) { target.kick("Fraude no PvP detectada (" + reason + ")." + (count >= Fraud.BAN_AT ? " Ranked bloqueado por 24 h." : " Na proxima o ranked sera bloqueado."), false); } }
+            }, 1);
+        } else {
+            p.sendMessage(PREFIX + "§c§lAdvertencia " + count + "/" + Fraud.KICK_AT + ": §r§c" + reason + ". Repetir expulsa do servidor.");
+        }
+    }
+
+    /** Classificatorias, PR ganho ou perdido, subida/queda de elo e recompensas cosmeticas. */
+    private void applyRank(Player p, Profile pr, int result) {
+        String name = key(p);
+        int oldTier = pr.ladder < 0 ? -1 : Ranks.tier(pr.ladder, false);
+        if (pr.ladder < 0) {
+            if (pr.games() < Ranks.PLACEMENTS) { if (p.isOnline()) { p.sendMessage(PREFIX + "§7Classificatoria " + pr.games() + "/" + Ranks.PLACEMENTS + "."); } return; }
+            pr.ladder = Ranks.placement(pr.rating);
+            if (p.isOnline()) { p.sendMessage(PREFIX + "§6Classificatorias concluidas! §fSeu elo: " + Ranks.display(pr.ladder, false, pr.games())); }
+        } else {
+            int change = result > 0 ? Ranks.winGain(pr.rating, pr.ladder) : result < 0 ? -Ranks.lossCost(pr.rating, pr.ladder) : Ranks.drawChange(pr.rating, pr.ladder);
+            pr.ladder = Math.max(0, pr.ladder + change);
+            if (p.isOnline()) { p.sendMessage(PREFIX + (change >= 0 ? "§a+" : "§c") + change + " PR §f-> " + Ranks.display(pr.ladder, false, pr.games())); }
+        }
+        pr.peakLadder = Math.max(pr.peakLadder, pr.ladder);
+        int newTier = Ranks.tier(pr.ladder, false);
+        if (oldTier >= 0 && newTier != oldTier && p.isOnline()) {
+            String tier = "§" + Ranks.COLORS[newTier] + Ranks.NAMES[newTier];
+            if (newTier > oldTier) {
+                p.sendMessage(PREFIX + "§6Voce subiu para " + tier + "§6!");
+                if (newTier >= 6) { getServer().broadcastMessage(PREFIX + "§e" + p.getName() + " §falcancou " + tier + "§f!"); }
+            } else { p.sendMessage(PREFIX + "§cVoce caiu para " + tier + "§c."); }
+        }
+        // Pingentes de cada elo ja alcancado (pico) e de vitorias.
+        List<String> ids = new ArrayList<>();
+        for (int t = 0; t <= Ranks.tier(pr.peakLadder, false) && t < 8; t++) { ids.add("pingente_" + Ranks.NAMES[t].toLowerCase(Locale.ROOT)); }
+        if (pr.peakLadder >= Ranks.IMMORTAL) { ids.add("abate_imortal"); }
+        for (int wins : new int[] {10, 50, 100}) { if (pr.rankedWins >= wins) { ids.add("pingente_vitorias_" + wins); } }
+        if (p.isOnline()) { reward(p, ids.toArray(new String[0])); }
+    }
+
+    /** Libera cosmeticos pelo GoldCosmetics (se instalado) e avisa os que forem novos. */
+    private void reward(Player p, String... ids) {
+        CosmeticService cosmetics = getServer().getServiceManager().load(CosmeticService.class);
+        if (cosmetics == null) { return; }
+        for (String id : ids) {
+            if (!cosmetics.exists(id)) { continue; }
+            cosmetics.unlock(key(p), id).thenAccept(fresh -> {
+                if (!fresh || !p.isOnline()) { return; }
+                p.sendMessage(PREFIX + "§dNovo cosmetico desbloqueado: §f" + id.replace('_', ' ') + "§d. Veja em /cosmeticos.");
+                if (id.equals("pingente_divino")) { getServer().broadcastMessage(PREFIX + "§6§l" + p.getName() + " entrou para os Divinos!"); }
+            });
         }
     }
 
@@ -486,6 +678,19 @@ public final class GoldPvP extends PluginBase implements Listener {
             switch (command.getName()) {
                 case "topkills": printTop(sender, "pvp"); return true;
                 case "topranked": printTop(sender, "ranked"); return true;
+                case "elos": {
+                    if (sender instanceof Player) { elosMenu((Player) sender, (Player) sender); return true; }
+                    for (int t = 0; t < Ranks.NAMES.length; t++) { sender.sendMessage("§" + Ranks.COLORS[t] + Ranks.NAMES[t]); }
+                    return true;
+                }
+                case "elochat": {
+                    if (!(sender instanceof Player)) { return true; }
+                    Profile pr = profile((Player) sender);
+                    if (pr == null) { return true; }
+                    pr.showElo = !pr.showElo; dirty.add((Player) sender);
+                    sender.sendMessage(PREFIX + "Elo no chat " + (pr.showElo ? "§aligado" : "§cdesligado") + "§f.");
+                    return true;
+                }
                 case "perfil": {
                     Player target = args.length > 0 ? getServer().getPlayerExact(args[0]) : (sender instanceof Player ? (Player) sender : null);
                     if (target != null && sender instanceof Player) { menu((Player) sender, target); return true; }
@@ -494,7 +699,7 @@ public final class GoldPvP extends PluginBase implements Listener {
                     core.getStore().get(PROFILES, name).whenComplete((value, error) -> {
                         if (error != null || !value.isPresent()) { sender.sendMessage(PREFIX + "Perfil nao encontrado."); return; }
                         Profile pr = GSON.fromJson(value.get(), Profile.class);
-                        sender.sendMessage(PREFIX + "§6" + name + " §f- " + Profile.tier(pr.rating) + " §7(" + pr.rating + ")");
+                        sender.sendMessage(PREFIX + "§6" + name + " §f- " + rankText(name, pr) + " §7(pico " + (pr.peakLadder < 0 ? "-" : Ranks.name(pr.peakLadder, false)) + ")");
                         sender.sendMessage("§fAbates " + pr.kills + " | Mortes " + pr.deaths + " | KDR " + pr.kdr() + " | Melhor sequencia " + pr.bestStreak);
                         sender.sendMessage("§fRanked " + pr.rankedWins + "V " + pr.rankedLosses + "D " + pr.rankedDraws + "E (" + pr.winRate() + ")");
                     });

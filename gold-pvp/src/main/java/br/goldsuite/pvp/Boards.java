@@ -8,7 +8,10 @@ import java.util.*;
 public final class Boards {
     public static final int SIZE = 100;
     public Map<String, Integer> kills = new HashMap<>();
+    /** MMR das versoes antigas; mantido so para ler dados antigos. */
     public Map<String, Integer> rating = new HashMap<>();
+    /** Top 100 por pontos de rank (elos). */
+    public Map<String, Integer> ladder = new HashMap<>();
     public Map<String, Arena> arenas = new TreeMap<>();
     public List<ItemData> kit = new ArrayList<>();
     /** Mundos onde o item de perfil aparece na hotbar. */
@@ -39,9 +42,11 @@ public final class Boards {
     }
 
     public static void validate(Boards s) {
+        if (s != null && s.ladder == null) { s.ladder = new HashMap<>(); }
         if (s == null || s.kills == null || s.rating == null || s.arenas == null || s.kit == null || s.lobbyWorlds == null
-                || s.kills.size() > SIZE || s.rating.size() > SIZE || s.arenas.size() > 20 || s.kit.size() > 40 || s.lobbyWorlds.size() > 16) { throw new IllegalArgumentException("Rankings invalidos."); }
+                || s.kills.size() > SIZE || s.rating.size() > SIZE || s.ladder.size() > SIZE || s.arenas.size() > 20 || s.kit.size() > 40 || s.lobbyWorlds.size() > 16) { throw new IllegalArgumentException("Rankings invalidos."); }
         for (String n : s.kills.keySet()) { if (!n.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException("Nome invalido."); } }
+        for (String n : s.ladder.keySet()) { if (!n.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException("Nome invalido."); } }
         for (String n : s.rating.keySet()) { if (!n.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException("Nome invalido."); } }
         for (Map.Entry<String, Arena> e : s.arenas.entrySet()) {
             Arena a = e.getValue();

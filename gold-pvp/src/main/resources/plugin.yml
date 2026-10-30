@@ -4,11 +4,14 @@ version: "0.3.0"
 api: ["1.0.0"]
 depend: [GoldCore]
 author: gustavoz65
-description: Combat log, perfil detalhado, rankings, ranked 1v1 com ELO e creepers sem destruicao
+softdepend: [GoldCosmetics]
+description: Combat log, perfil detalhado, ranked 1v1 com elos estilo Valorant (Imortal e Divino), rankings e creepers sem destruicao
 commands:
  perfil: {description: Perfil detalhado, usage: "/perfil [jogador]", aliases: [stats]}
  topkills: {description: Ranking de abates, usage: "/topkills", aliases: [topabates]}
  topranked: {description: Ranking do ranked, usage: "/topranked", aliases: [toprank]}
  ranked: {description: Modo ranked 1v1, usage: "/ranked [fila|sair]", aliases: [rank, x1]}
+ elos: {description: Lista de elos do ranked, usage: "/elos", aliases: [ranks]}
+ elochat: {description: Mostra ou esconde o elo no chat, usage: "/elochat"}
 permissions:
  goldpvp.admin: {default: op, description: Configura o ranked e ignora o combat log}
