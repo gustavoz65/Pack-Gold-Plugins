@@ -125,7 +125,8 @@ final class NpcView {
     }
 
     private DataPacket move(float yaw, float pitch) {
-        double y = data.y + eyeHeight();
+        // So o pacote de jogador usa a altura dos olhos; criaturas usam os pes (somar fazia o NPC flutuar).
+        double y = human() ? data.y + eyeHeight() : data.y;
         if (human()) {
             MovePlayerPacket packet = new MovePlayerPacket();
             packet.eid = eid; packet.x = (float) data.x; packet.y = (float) y; packet.z = (float) data.z;
