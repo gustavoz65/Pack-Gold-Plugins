@@ -1,2 +1,2 @@
 rootProject.name = 'GoldSuite'
-include 'gold-api', 'gold-core', 'gold-auth', 'gold-perms', 'gold-economy', 'gold-npc', 'gold-hg', 'gold-essentials', 'gold-chat', 'gold-protect', 'gold-staff', 'gold-kits', 'gold-vip'
+include 'gold-api', 'gold-core', 'gold-auth', 'gold-perms', 'gold-economy', 'gold-npc', 'gold-hg', 'gold-essentials', 'gold-chat', 'gold-protect', 'gold-staff', 'gold-kits', 'gold-vip', 'gold-shop'

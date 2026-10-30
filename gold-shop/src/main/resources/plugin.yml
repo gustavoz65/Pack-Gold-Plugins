@@ -1,0 +1,12 @@
+name: GoldShop
+main: br.goldsuite.shop.GoldShop
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore, GoldEconomy]
+author: gustavoz65
+description: Placas de compra e venda, lojas de bau de jogadores e /vender
+commands:
+ vender: {description: Vende o item da mao ou tudo pela tabela de precos, usage: "/vender [tudo]", aliases: [venderall, sell]}
+ preco: {description: Define o preco de venda de um item, usage: "/preco <id[:meta]> <valor|remover>", permission: goldshop.admin}
+permissions:
+ goldshop.admin: {default: op, description: Cria placas de compra e venda e gerencia lojas}
