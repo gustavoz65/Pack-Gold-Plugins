@@ -15,6 +15,9 @@ public final class CosmeticsTest {
         }
         // Recompensas que o GoldPvP entrega precisam existir.
         for (String id : new String[] {"pingente_ferro", "pingente_imortal", "pingente_divino", "trilha_divina", "cor_divina", "abate_imortal", "pingente_vitorias_100"}) { check(Catalog.ALL.containsKey(id), "Falta " + id); }
+        Catalog.Cosmetic cloud = Catalog.ALL.get("montaria_nuvem");
+        check(cloud != null && cloud.cash && cloud.forSale() && cloud.type == Catalog.Type.MONTARIA && Catalog.price(cloud, 500).equals("500 cash"), "Nuvem deve ser vendida em cash.");
+        check(Catalog.ALL.get("pingente_divino").icon == 396 && Catalog.ALL.get("pingente_platina").icon == 351 && Catalog.ALL.get("pingente_platina").meta == 4, "Icones dos pingentes errados.");
         check(Catalog.price(150_000).equals("$1500.00") && Catalog.price(5).equals("$0.05"), "Preco errado.");
 
         Wardrobe w = new Wardrobe();

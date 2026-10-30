@@ -377,8 +377,8 @@ public final class GoldPvP extends PluginBase implements Listener {
         icons.put(11, icon(352, 0, "§cMortes: §f" + pr.deaths));
         icons.put(12, icon(266, 0, "§6KDR: §f" + pr.kdr()));
         icons.put(13, icon(377, 0, "§eSequencia: §f" + pr.streak + "\n§7Melhor: " + pr.bestStreak));
-        int tierIcon = pr.ladder < 0 ? 388 : Ranks.ICONS[Ranks.tier(pr.ladder, divine)];
-        icons.put(14, icon(tierIcon, 0, "§bElo: " + rank + "\n§7Pico: " + (pr.peakLadder < 0 ? "-" : Ranks.name(pr.peakLadder, false)) + "\n§7Posicao: " + (rankPos == 0 ? "-" : "#" + rankPos)));
+        int tier = pr.ladder < 0 ? -1 : Ranks.tier(pr.ladder, divine);
+        icons.put(14, icon(tier < 0 ? 388 : Ranks.ICONS[tier], tier < 0 ? 0 : Ranks.ICON_META[tier], "§bElo: " + rank + "\n§7Pico: " + (pr.peakLadder < 0 ? "-" : Ranks.name(pr.peakLadder, false)) + "\n§7Posicao: " + (rankPos == 0 ? "-" : "#" + rankPos)));
         icons.put(15, icon(267, 0, "§dDuelos: §a" + pr.rankedWins + "V §c" + pr.rankedLosses + "D §7" + pr.rankedDraws + "E\n§fVitorias: " + pr.winRate()));
         icons.put(16, icon(331, 0, "§4Dano causado: §f" + pr.damageDealt / 2 + " coracoes\n§4Dano recebido: §f" + pr.damageTaken / 2 + " coracoes"));
         boolean own = viewer == target;
@@ -421,7 +421,7 @@ public final class GoldPvP extends PluginBase implements Listener {
             if (t < 7) { info = "§7Divisoes 1, 2 e 3\n§7100 PR por divisao (" + t * 300 + " a " + (t * 300 + 299) + " pontos)"; }
             else if (t == 7) { info = "§7A partir de " + Ranks.IMMORTAL + " pontos\n§7Sem teto: os PR acumulam\n§7Imortal 2 com " + Ranks.IMMORTAL_2 + " PR, Imortal 3 com " + Ranks.IMMORTAL_3 + " PR"; }
             else { info = "§7So os " + Ranks.DIVINE_SLOTS + " Imortais com mais PR\n§7do servidor. Quem passar um\n§7Divino toma a vaga dele."; }
-            icons.put(t < 7 ? 1 + t : t == 7 ? 12 : 14, icon(Ranks.ICONS[t], 0, color + Ranks.NAMES[t] + (t == mine ? " §a<- voce" : "") + "\n" + info));
+            icons.put(t < 7 ? 1 + t : t == 7 ? 12 : 14, icon(Ranks.ICONS[t], Ranks.ICON_META[t], color + Ranks.NAMES[t] + (t == mine ? " §a<- voce" : "") + "\n" + info));
         }
         icons.put(18, icon(388, 0, "§fComo funciona\n§7" + Ranks.PLACEMENTS + " classificatorias definem o elo inicial\n§7(no maximo Ascendente 1).\n§7Vitoria +PR, derrota -PR; o MMR oculto\n§7decide quanto cada partida vale."));
         icons.put(22, icon(262, 0, "§fVoltar ao perfil"));

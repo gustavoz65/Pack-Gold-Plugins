@@ -4,10 +4,17 @@
 
 | Tipo | Onde aparece | Loja | Só no ranked |
 |---|---|---|---|
-| Pingente | antes do nome no chat | Coração, Estrela, Música, Raio, Caveira, Coroa | um por elo (Ferro ao Imortal), Divino, 10/50/100 vitórias |
+| Pingente (chaveiro 3D) | item com brilho flutuando e girando ao lado do ombro (lobby) | Coração, Estrela, Música, Raio, Caveira, Coroa | um por elo: Ferro (barra de ferro), Bronze (tijolo), Prata (quartzo), Ouro (barra de ouro), Platina (lápis-lazúli), Diamante, Ascendente (esmeralda), Imortal (redstone), Divino (cenoura dourada); 10/50/100 vitórias |
 | Trilha | partículas nos pés ao andar | Fumaça, Respingos, Redstone, Encantada, Portal, Corações, Chamas | Divina |
 | Efeito de abate | onde a vítima morreu | Corações, Lava, Explosão | Coroa Imortal |
 | Cor do nome | nome no chat | Verde, Azul, Rosa, Amarelo, Vermelho | Dourado Divino |
+| Montaria 3D | modelo de blocos que segue o jogador (lobby) | **Nuvem Voadora** (paga em **cash**) | - |
+
+O chat mostra só a cor do nome (e o elo, pelo GoldPvP); os pingentes aparecem em 3D.
+
+**Modelos 3D:** a nuvem e os chaveiros são blocos/itens que existem só em pacotes: o servidor não cria entidade, física nem colisão. Vão só para quem está a até 32 blocos, são reenviados apenas quando o dono anda ou gira, aparecem só no lobby (mundo padrão) e somem com TPS abaixo de 15. Ainda precisam de teste no cliente 0.15 (o cliente pode puxar os blocos para baixo entre as atualizações).
+
+**Preços e mensagens no /painel** (GoldCosmetics): `preco.<id>` de cada item da loja (centavos para dinheiro, inteiro para cash), `msg.sem_saldo` e `msg.recarregar` (como o jogador recarrega o cash).
 
 Admin: `/cosmeticos lista`, `/cosmeticos dar <jogador> <id>`.
 

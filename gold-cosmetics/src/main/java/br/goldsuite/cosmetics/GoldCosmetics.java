@@ -43,6 +43,11 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
     /** Ultima posicao de quem tem trilha, para so soltar particulas quando anda. */
     private final Map<Player, double[]> lastPos = new IdentityHashMap<>();
     private int trailTick;
+    /** Modelos 3D em pacotes (nuvem e chaveiro) de cada jogador. */
+    private final Map<Player, PacketModel> mounts = new IdentityHashMap<>(), keychains = new IdentityHashMap<>();
+    /** Precos editaveis no /painel (centavos ou cash). */
+    private final Map<String, Long> prices = new HashMap<>();
+    private String noBalance, rechargeHint;
 
     @Override public void onEnable() {
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
@@ -52,9 +57,44 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
         getServer().getPluginManager().registerEvents(this, this);
         for (Player p : getServer().getOnlinePlayers().values()) { load(p); }
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldCosmetics>(this) { @Override public void onRun(int tick) { trails(); } }, 4);
+        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldCosmetics>(this) { @Override public void onRun(int tick) { models(); } }, 2);
+        for (Cosmetic c : Catalog.ALL.values()) {
+            if (c.forSale()) { Settings.number(this, "preco." + c.id, c.price, "Preco de " + c.name + (c.cash ? " (cash)" : " (centavos: 10000 = $100.00)"), v -> prices.put(c.id, Math.max(1, v))); }
+        }
+        Settings.text(this, "msg.sem_saldo", "{erro}Saldo insuficiente: {item} custa {preco}.", "Aviso de saldo insuficiente ({item}, {preco})", v -> noBalance = v);
+        Settings.text(this, "msg.recarregar", "{destaque}Recarregue seu cash para comprar. Fale com a staff ou use a loja do servidor.", "Como recarregar o cash (itens pagos em cash)", v -> rechargeHint = v);
     }
 
-    @Override public void onDisable() { online.clear(); lastPos.clear(); buying.clear(); }
+    long price(Cosmetic c) { return prices.getOrDefault(c.id, c.price); }
+
+    @Override public void onDisable() {
+        for (PacketModel m : mounts.values()) { m.remove(getServer()); }
+        for (PacketModel m : keychains.values()) { m.remove(getServer()); }
+        mounts.clear(); keychains.clear(); online.clear(); lastPos.clear(); buying.clear();
+    }
+
+    /**
+     * A cada 2 ticks: nuvem e chaveiro de quem tem e esta no lobby (mundo padrao). Fora do lobby, em espectador
+     * ou com TPS abaixo de 15 os modelos somem; nada disso existe no servidor, so em pacotes.
+     */
+    private void models() {
+        boolean healthy = getServer().getTicksPerSecond() >= 15;
+        for (Map.Entry<Player, Wardrobe> e : online.entrySet()) {
+            Player p = e.getKey();
+            boolean show = healthy && p.spawned && p.level != null && p.level == getServer().getDefaultLevel() && p.getGamemode() != Player.SPECTATOR;
+            String mount = show ? e.getValue().equipped(Type.MONTARIA) : null, badge = show ? e.getValue().equipped(Type.PINGENTE) : null;
+            sync(mounts, p, mount, () -> PacketModel.cloud(p));
+            Cosmetic c = badge == null ? null : Catalog.ALL.get(badge);
+            sync(keychains, p, badge, () -> PacketModel.keychain(p, c.icon, c.meta));
+        }
+    }
+
+    private void sync(Map<Player, PacketModel> map, Player p, String id, java.util.function.Supplier<PacketModel> make) {
+        PacketModel m = map.get(p);
+        if (id == null) { if (m != null) { m.remove(getServer()); map.remove(p); } return; }
+        if (m == null) { m = make.get(); map.put(p, m); }
+        m.update(getServer());
+    }
 
     static String key(String name) { return name.toLowerCase(Locale.ROOT); }
 
@@ -116,7 +156,14 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
     @Override public boolean exists(String id) { return Catalog.ALL.containsKey(id); }
 
     @EventHandler(priority = EventPriority.MONITOR) public void join(PlayerJoinEvent e) { load(e.getPlayer()); }
-    @EventHandler(priority = EventPriority.MONITOR) public void quit(PlayerQuitEvent e) { online.remove(e.getPlayer()); lastPos.remove(e.getPlayer()); }
+    @EventHandler(priority = EventPriority.MONITOR) public void quit(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+        online.remove(p); lastPos.remove(p);
+        PacketModel m = mounts.remove(p); if (m != null) { m.remove(getServer()); }
+        m = keychains.remove(p); if (m != null) { m.remove(getServer()); }
+        for (PacketModel other : mounts.values()) { other.forget(p); }
+        for (PacketModel other : keychains.values()) { other.forget(p); }
+    }
 
     private Cosmetic equipped(Player p, Type type) {
         Wardrobe w = online.get(p);
@@ -129,9 +176,9 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
     /** Pingente antes do nome e cor do nome no chat. */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void chat(PlayerChatEvent e) {
-        Cosmetic badge = equipped(e.getPlayer(), Type.PINGENTE), color = equipped(e.getPlayer(), Type.COR);
-        if (badge == null && color == null) { return; }
-        e.setFormat(e.getFormat().replace("{%0}", (badge == null ? "" : badge.display + "§r ") + (color == null ? "" : color.display) + "{%0}§r"));
+        Cosmetic color = equipped(e.getPlayer(), Type.COR);
+        if (color == null) { return; }
+        e.setFormat(e.getFormat().replace("{%0}", color.display + "{%0}§r"));
     }
 
     /** A cada 4 ticks, uma particula nos pes de quem tem trilha e se mexeu. Desliga sozinho com TPS baixo. */
@@ -205,7 +252,7 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
             icons.put(slot, icon(type.icon, type.meta, "§d" + type.title + "\n§7Voce tem " + have + "/" + Catalog.of(type).size() + "\n§7Equipado: §f" + (on == null ? "nenhum" : on.name)));
             slot += 2;
         }
-        menus().open(p, "Cosmeticos", icons, (who, s) -> { if (s >= 10 && s <= 16 && s % 2 == 0) { category(who, Type.values()[(s - 10) / 2]); } });
+        menus().open(p, "Cosmeticos", icons, (who, s) -> { if (s >= 10 && s <= 18 && s % 2 == 0) { category(who, Type.values()[(s - 10) / 2]); } });
     }
 
     private void category(Player p, Type type) {
@@ -217,9 +264,11 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
         for (int i = 0; i < list.size() && i < 18; i++) {
             Cosmetic c = list.get(i);
             String state = c.id.equals(on) ? "§a[EQUIPADO] toque para tirar" : w.owned.contains(c.id) ? "§eToque para equipar"
-                    : c.forSale() ? "§6Comprar por " + Catalog.price(c.price) : "§cBloqueado\n§7" + c.source;
-            String preview = type == Type.PINGENTE ? "\n§7No chat: " + c.display + " §f" + p.getName() : type == Type.COR ? "\n§7No chat: " + c.display + p.getName() : "";
-            icons.put(i, icon(c.icon, c.meta, "§f" + c.name + preview + "\n" + state));
+                    : c.forSale() ? "§6Comprar por " + Catalog.price(c, price(c)) : "§cBloqueado\n§7" + c.source;
+            String preview = type == Type.PINGENTE ? "\n§7Chaveiro 3D girando ao seu lado (lobby)" : type == Type.COR ? "\n§7No chat: " + c.display + p.getName()
+                    : type == Type.MONTARIA ? "\n§7Modelo 3D que te acompanha no lobby" : "";
+            Item item = icon(c.icon, c.meta, "§f" + c.name + preview + "\n" + state);
+            icons.put(i, type == Type.PINGENTE || type == Type.MONTARIA ? PacketModel.glint(item) : item);
         }
         icons.put(22, icon(325, 0, "§cTirar " + type.title.toLowerCase(Locale.ROOT)));
         icons.put(26, icon(262, 0, "§fVoltar"));
@@ -243,7 +292,7 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
 
     private void confirm(Player p, Cosmetic c) {
         Map<Integer, Item> icons = new HashMap<>();
-        icons.put(11, icon(35, 5, "§aComprar " + c.name + "\n§f" + Catalog.price(c.price)));
+        icons.put(11, icon(35, 5, "§aComprar " + c.name + "\n§f" + Catalog.price(c, price(c))));
         icons.put(13, icon(c.icon, c.meta, "§f" + c.name + "\n§7" + c.type.title));
         icons.put(15, icon(35, 14, "§cCancelar"));
         menus().open(p, "Confirmar compra", icons, (who, slot) -> { if (slot == 11) { buy(who, c); } else { category(who, c.type); } });
@@ -257,14 +306,21 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
         if (!buying.add(name)) { p.sendMessage(PREFIX + "§cCompra em andamento."); return; }
         Wardrobe w = online.get(p);
         if (w != null && w.owned.contains(c.id)) { buying.remove(name); p.sendMessage(PREFIX + "Voce ja tem."); return; }
-        if (economy.balance(name, EconomyService.Currency.MONEY) < c.price) { buying.remove(name); p.sendMessage(PREFIX + "§cDinheiro insuficiente: custa " + Catalog.price(c.price) + "."); return; }
+        EconomyService.Currency currency = c.cash ? EconomyService.Currency.CASH : EconomyService.Currency.MONEY;
+        long cost = price(c);
+        if (economy.balance(name, currency) < cost) {
+            buying.remove(name);
+            p.sendMessage(PREFIX + noBalance.replace("{item}", c.name).replace("{preco}", Catalog.price(c, cost)));
+            if (c.cash) { p.sendMessage(PREFIX + rechargeHint); }
+            return;
+        }
         boolean[] paid = new boolean[1];
-        economy.debit(name, EconomyService.Currency.MONEY, c.price)
+        economy.debit(name, currency, cost)
                 .thenCompose(v -> { paid[0] = true; return modify(name, x -> x.owned.add(c.id) && x.toggle(c)); })
                 .whenComplete((v, e) -> {
                     buying.remove(name);
                     if (e != null) {
-                        if (paid[0]) { economy.credit(name, EconomyService.Currency.MONEY, c.price); }
+                        if (paid[0]) { economy.credit(name, currency, cost); }
                         if (p.isOnline()) { p.sendMessage(PREFIX + "§cCompra nao concluida: " + root(e) + (paid[0] ? " (dinheiro devolvido)" : "")); }
                         return;
                     }

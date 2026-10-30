@@ -9,7 +9,9 @@ final class Ranks {
     static final String[] NAMES = {"Ferro", "Bronze", "Prata", "Ouro", "Platina", "Diamante", "Ascendente", "Imortal", "Divino"};
     static final char[] COLORS = {'8', '6', '7', 'e', '3', 'b', 'a', 'c', '6'};
     /** Item de cada elo no menu. */
-    static final int[] ICONS = {265, 336, 406, 266, 370, 264, 388, 331, 466};
+    static final int[] ICONS = {265, 336, 406, 266, 351, 264, 388, 331, 396};
+    /** Meta de cada icone (Platina usa o lapis-lazuli: tinta 351:4). */
+    static final int[] ICON_META = {0, 0, 0, 0, 4, 0, 0, 0, 0};
     static final int PLACEMENTS = 5, DIVISION = 100, IMMORTAL = 2100, DIVINE_SLOTS = 10, PLACEMENT_CAP = 1800;
     /** Pontos de Imortal para Imortal 2 e Imortal 3. */
     static final int IMMORTAL_2 = 90, IMMORTAL_3 = 200;
