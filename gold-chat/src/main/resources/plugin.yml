@@ -1,0 +1,21 @@
+name: GoldChat
+main: br.goldsuite.chat.GoldChat
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldAuth, GoldPerms]
+author: gustavoz65
+description: Chat com grupos, anti-spam, mensagens privadas, mute e anuncios
+commands:
+ tell: {description: Mensagem privada, usage: "/tell <jogador> <mensagem>", aliases: [msg, w]}
+ r: {description: Responde a ultima mensagem privada, usage: "/r <mensagem>", aliases: [responder]}
+ tellon: {description: Liga ou desliga mensagens privadas, usage: "/tellon", aliases: [desativartell]}
+ chat: {description: Liga ou desliga o chat, usage: "/chat on|off", permission: goldchat.staff}
+ limparchat: {description: Limpa o chat, usage: "/limparchat", aliases: [cc], permission: goldchat.staff}
+ mute: {description: Silencia um jogador, usage: "/mute <jogador> [minutos, 0 = sempre]", permission: goldchat.staff}
+ desmute: {description: Tira o silencio, usage: "/desmute <jogador>", permission: goldchat.staff}
+ anuncio: {description: Anuncio para todos, usage: "/anuncio <texto>", aliases: [bc], permission: goldchat.staff}
+permissions:
+ goldchat.staff: {default: op, description: Ignora anti-spam e modera o chat}
+ goldchat.cores: {default: op, description: Usa & para cores no chat}
+ goldchat.links: {default: op, description: Pode enviar links}
