@@ -1,6 +1,6 @@
 # Reescrita dos plugins
 
-Suíte Gradle com um jar por módulo, neste repositório (Pack-Gold-Plugins). O mapa abaixo preserva a decisão de reescrever os plugins em Java; todos os módulos foram implementados (versão atual 0.3.0); falta testá-los com o cliente MCPE real.
+Suíte Gradle com um jar por módulo, neste repositório (Pack-Gold-Plugins). O mapa abaixo preserva a decisão de reescrever os plugins em Java; todos os módulos foram implementados (versão atual 0.3.1); falta testá-los com o cliente MCPE real.
 
 | Módulo | Situação | Originais ou responsabilidade |
 | --- | --- | --- |

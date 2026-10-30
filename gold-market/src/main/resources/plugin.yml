@@ -1,6 +1,6 @@
 name: GoldMarket
 main: br.goldsuite.market.GoldMarket
-version: "0.3.0"
+version: "0.3.1"
 api: ["1.0.0"]
 depend: [GoldCore, GoldEconomy]
 softdepend: [GoldAuth]
