@@ -18,6 +18,7 @@ def regressoes = [
     'gold-essentials': 'br.goldsuite.essentials.EssentialsTest',
     'gold-chat'   : 'br.goldsuite.chat.ChatTest',
     'gold-protect': 'br.goldsuite.protect.ProtectTest',
+    'gold-staff'  : 'br.goldsuite.staff.StaffTest',
 ]
 
 subprojects {
@@ -75,7 +76,7 @@ project(':gold-core') {
 
 // Copia os plugins prontos para dist/ com o nome usado no servidor (GoldCore-0.1.0.jar...).
 tasks.register('dist') {
-    def nomes = ['gold-core': 'GoldCore', 'gold-auth': 'GoldAuth', 'gold-perms': 'GoldPerms', 'gold-economy': 'GoldEconomy', 'gold-npc': 'GoldNPC', 'gold-hg': 'GoldHG', 'gold-essentials': 'GoldEssentials', 'gold-chat': 'GoldChat', 'gold-protect': 'GoldProtect']
+    def nomes = ['gold-core': 'GoldCore', 'gold-auth': 'GoldAuth', 'gold-perms': 'GoldPerms', 'gold-economy': 'GoldEconomy', 'gold-npc': 'GoldNPC', 'gold-hg': 'GoldHG', 'gold-essentials': 'GoldEssentials', 'gold-chat': 'GoldChat', 'gold-protect': 'GoldProtect', 'gold-staff': 'GoldStaff']
     dependsOn nomes.keySet().collect { ":$it:jar" }
     doLast {
         def destino = rootProject.file('dist')

@@ -1,0 +1,18 @@
+name: GoldStaff
+main: br.goldsuite.staff.GoldStaff
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+author: gustavoz65
+description: Report, ajuda, giveall, bloqueio de comandos, restart, clearlag e comandos agendados
+commands:
+ ajuda: {description: Mostra a ajuda do servidor, usage: "/ajuda", aliases: [comandos]}
+ report: {description: Denuncia um jogador, usage: "/report <jogador> <motivo>", aliases: [denunciar]}
+ reports: {description: Lista ou fecha denuncias, usage: "/reports [fechar <id>]", permission: goldstaff.admin}
+ giveall: {description: Da um item a todos, usage: "/giveall <id[:meta]> [quantidade]", permission: goldstaff.admin}
+ bloquearcmd: {description: Bloqueia ou libera um comando para jogadores, usage: "/bloquearcmd [comando]", permission: goldstaff.admin}
+ clearlag: {description: Remove itens no chao agora, usage: "/clearlag", permission: goldstaff.admin}
+ agendar: {description: Comando de console repetido, usage: "/agendar <minutos|remover> <comando>", permission: goldstaff.admin}
+ restart: {description: Reinicia o servidor com aviso, usage: "/restart [segundos] | /restart auto <horas>", permission: goldstaff.admin}
+permissions:
+ goldstaff.admin: {default: op, description: Ferramentas da staff e comandos bloqueados}
