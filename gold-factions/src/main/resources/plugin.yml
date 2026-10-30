@@ -1,6 +1,6 @@
 name: GoldFactions
 main: br.goldsuite.factions.GoldFactions
-version: "0.3.1"
+version: "0.3.2"
 api: ["1.0.0"]
 depend: [GoldCore]
 softdepend: [GoldChat]

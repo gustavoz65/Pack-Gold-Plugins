@@ -57,7 +57,7 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
         getServer().getPluginManager().registerEvents(this, this);
         for (Player p : getServer().getOnlinePlayers().values()) { load(p); }
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldCosmetics>(this) { @Override public void onRun(int tick) { trails(); } }, 4);
-        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldCosmetics>(this) { @Override public void onRun(int tick) { models(); } }, 2);
+        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldCosmetics>(this) { @Override public void onRun(int tick) { models(); } }, 1);
         for (Cosmetic c : Catalog.ALL.values()) {
             if (c.forSale()) { Settings.number(this, "preco." + c.id, c.price, "Preco de " + c.name + (c.cash ? " (cash)" : " (centavos: 10000 = $100.00)"), v -> prices.put(c.id, Math.max(1, v))); }
         }
@@ -74,7 +74,7 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
     }
 
     /**
-     * A cada 2 ticks: nuvem e chaveiro de quem tem e esta no lobby (mundo padrao). Fora do lobby, em espectador
+     * Todo tick (o cliente puxa os modelos para baixo se ficarem sem atualizacao): nuvem e chaveiro de quem tem e esta no lobby (mundo padrao). Fora do lobby, em espectador
      * ou com TPS abaixo de 15 os modelos somem; nada disso existe no servidor, so em pacotes.
      */
     private void models() {
@@ -241,18 +241,36 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
 
     // ---------- menus ----------
 
+    /** Explica o menu em um icone: tocar para usar, tocar de novo para tirar, loja pede confirmacao. */
+    private static Item help() {
+        return icon(323, 0, "§eComo usar\n§a1. §fToque num cosmetico que voce tem para §aUSAR\n§c2. §fToque no que esta §a[USANDO] §fpara §cTIRAR\n§63. §fItens da loja: toque e confirme a compra\n§74. §fBloqueados mostram como ganhar");
+    }
+
     @Override public void openMenu(Player p) {
         Wardrobe w = online.get(p);
         if (w == null) { p.sendMessage(PREFIX + "Carregando, tente de novo."); return; }
         Map<Integer, Item> icons = new HashMap<>();
+        icons.put(4, help());
         int slot = 10;
         for (Type type : Type.values()) {
             Cosmetic on = equipped(p, type);
             int have = 0; for (Cosmetic c : Catalog.of(type)) { if (w.owned.contains(c.id)) { have++; } }
-            icons.put(slot, icon(type.icon, type.meta, "§d" + type.title + "\n§7Voce tem " + have + "/" + Catalog.of(type).size() + "\n§7Equipado: §f" + (on == null ? "nenhum" : on.name)));
+            Item item = icon(type.icon, type.meta, "§d§l" + type.title + "\n§7Voce tem " + have + " de " + Catalog.of(type).size()
+                    + "\n" + (on == null ? "§7Usando: nenhum" : "§aUsando: §f" + on.name) + "\n§eToque para abrir");
+            icons.put(slot, on == null ? item : PacketModel.glint(item));
             slot += 2;
         }
-        menus().open(p, "Cosmeticos", icons, (who, s) -> { if (s >= 10 && s <= 18 && s % 2 == 0) { category(who, Type.values()[(s - 10) / 2]); } });
+        boolean any = !w.equipped.isEmpty();
+        if (any) { icons.put(22, icon(35, 14, "§c§lTirar tudo\n§7Para de usar todos os cosmeticos")); }
+        menus().open(p, "Cosmeticos", icons, (who, s) -> {
+            if (s >= 10 && s <= 18 && s % 2 == 0) { category(who, Type.values()[(s - 10) / 2]); }
+            else if (s == 22 && any) { takeOffAll(who); }
+        });
+    }
+
+    private void takeOffAll(Player who) {
+        modify(key(who.getName()), x -> { boolean had = !x.equipped.isEmpty(); x.equipped.clear(); return had; })
+                .whenComplete((v, e) -> { if (who.isOnline()) { who.sendMessage(PREFIX + (e != null ? "§c" + root(e) : "Voce tirou todos os cosmeticos.")); } });
     }
 
     private void category(Player p, Type type) {
@@ -263,30 +281,39 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
         String on = w.equipped(type);
         for (int i = 0; i < list.size() && i < 18; i++) {
             Cosmetic c = list.get(i);
-            String state = c.id.equals(on) ? "§a[EQUIPADO] toque para tirar" : w.owned.contains(c.id) ? "§eToque para equipar"
-                    : c.forSale() ? "§6Comprar por " + Catalog.price(c, price(c)) : "§cBloqueado\n§7" + c.source;
-            String preview = type == Type.PINGENTE ? "\n§7Chaveiro 3D girando ao seu lado (lobby)" : type == Type.COR ? "\n§7No chat: " + c.display + p.getName()
-                    : type == Type.MONTARIA ? "\n§7Modelo 3D que te acompanha no lobby" : "";
-            Item item = icon(c.icon, c.meta, "§f" + c.name + preview + "\n" + state);
-            icons.put(i, type == Type.PINGENTE || type == Type.MONTARIA ? PacketModel.glint(item) : item);
+            boolean using = c.id.equals(on), owned = w.owned.contains(c.id);
+            String state = using ? "§a§l[USANDO]\n§cToque para TIRAR"
+                    : owned ? "§e[VOCE TEM]\n§aToque para USAR"
+                    : c.forSale() ? "§6[A VENDA] " + Catalog.price(c, price(c)) + "\n§fToque para comprar"
+                    : "§c[BLOQUEADO]\n§7Como ganhar: " + c.source;
+            String preview = type == Type.PINGENTE ? "§7Chaveiro 3D ao seu lado (lobby)" : type == Type.COR ? "§7No chat: " + c.display + p.getName()
+                    : type == Type.MONTARIA ? "§7Modelo 3D que te acompanha (lobby)" : type == Type.TRILHA ? "§7Particulas por onde voce anda" : "§7Efeito onde sua vitima cai";
+            Item item = icon(c.icon, c.meta, (using ? "§a" : owned ? "§f" : "§7") + c.name + "\n" + preview + "\n" + state);
+            // So o que esta em uso brilha: fica facil achar.
+            icons.put(i, using ? PacketModel.glint(item) : item);
         }
-        icons.put(22, icon(325, 0, "§cTirar " + type.title.toLowerCase(Locale.ROOT)));
+        Cosmetic current = on == null ? null : Catalog.ALL.get(on);
+        icons.put(18, help());
+        if (current != null) { icons.put(22, icon(35, 14, "§c§lTirar " + current.name + "\n§7Para de usar este " + type.title.toLowerCase(Locale.ROOT))); }
         icons.put(26, icon(262, 0, "§fVoltar"));
         menus().open(p, type.title, icons, (who, slot) -> {
             if (slot == 26) { openMenu(who); return; }
             String name = key(who.getName());
-            if (slot == 22) { modify(name, x -> x.equipped.remove(type.name()) != null).whenComplete((v, e) -> { if (who.isOnline()) { who.sendMessage(PREFIX + "Pronto."); category(who, type); } }); return; }
+            if (slot == 22 && current != null) {
+                modify(name, x -> x.equipped.remove(type.name()) != null).whenComplete((v, e) -> { if (who.isOnline()) { who.sendMessage(PREFIX + (e != null ? "§c" + root(e) : "Voce tirou " + current.name + ".")); category(who, type); } });
+                return;
+            }
             if (slot >= list.size() || slot >= 18) { return; }
             Cosmetic c = list.get(slot);
             Wardrobe now = online.get(who);
             if (now != null && now.owned.contains(c.id)) {
                 modify(name, x -> x.toggle(c)).whenComplete((equippedNow, e) -> {
                     if (!who.isOnline()) { return; }
-                    who.sendMessage(PREFIX + (e != null ? "§c" + root(e) : equippedNow ? "§a" + c.name + " equipado." : c.name + " removido."));
+                    who.sendMessage(PREFIX + (e != null ? "§c" + root(e) : equippedNow ? "§aVoce esta usando " + c.name + ". §7Toque nele de novo para tirar." : "Voce tirou " + c.name + "."));
                     category(who, type);
                 });
             } else if (c.forSale()) { confirm(who, c); }
-            else { who.sendMessage(PREFIX + "§c" + c.name + " e exclusivo. " + c.source + "."); category(who, type); }
+            else { who.sendMessage(PREFIX + "§c" + c.name + " e exclusivo. Como ganhar: " + c.source + "."); }
         });
     }
 
@@ -324,7 +351,8 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
                         if (p.isOnline()) { p.sendMessage(PREFIX + "§cCompra nao concluida: " + root(e) + (paid[0] ? " (dinheiro devolvido)" : "")); }
                         return;
                     }
-                    if (p.isOnline()) { p.sendMessage(PREFIX + "§aVoce comprou e equipou " + c.name + "!"); category(p, c.type); }
+                    // Nao reabre o menu aqui: o cliente ainda fecha a janela de confirmacao e o HUD podia sumir.
+                    if (p.isOnline()) { p.sendMessage(PREFIX + "§aVoce comprou e equipou " + c.name + "! §7(/cosmeticos para trocar)"); }
                 });
     }
 
@@ -337,6 +365,7 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
             unlock(args[1], id).whenComplete((fresh, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : fresh ? "Entregue." : "Ele ja tinha.")));
             return true;
         }
+        if (args.length >= 1 && args[0].equalsIgnoreCase("tirar") && sender instanceof Player) { takeOffAll((Player) sender); return true; }
         if (args.length >= 1 && args[0].equalsIgnoreCase("lista")) {
             for (Type t : Type.values()) {
                 StringBuilder line = new StringBuilder("§d" + t.title + ":§f");

@@ -1,6 +1,6 @@
 allprojects {
     group = 'br.goldsuite'
-    version = '0.3.1'
+    version = '0.3.2'
 }
 
 // O core fica no repositorio Nukkit-Gold-Edition; baixe com scripts/obter-nukkit.sh (ou .ps1)

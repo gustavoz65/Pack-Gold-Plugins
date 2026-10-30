@@ -38,15 +38,14 @@ final class PacketModel {
                 block(0, y - 0.1, -2, ORANGE), block(1, y + 0.2, -3, ORANGE), block(1.6, y + 0.8, -3.6, ORANGE)));
     }
 
-    /** Chaveiro: o item do pingente flutuando e girando ao lado do ombro direito. */
-    static PacketModel keychain(Player owner, int id, int meta) { return new PacketModel(owner, Collections.singletonList(new Part(0.7, 1.05, -0.25, true, id, meta))); }
+    /** Chaveiro: o item do pingente flutuando no lado superior direito do jogador, na altura da cabeca. */
+    static PacketModel keychain(Player owner, int id, int meta) { return new PacketModel(owner, Collections.singletonList(new Part(0.65, 1.7, -0.1, true, id, meta))); }
 
     private final Player owner;
     private final List<Part> parts;
     private final long[] ids;
     private final Set<Player> viewers = Collections.newSetFromMap(new IdentityHashMap<>());
-    private double lx = Double.NaN, ly, lz, lyaw;
-    private int idle;
+    private int tick;
 
     private PacketModel(Player owner, List<Part> parts) {
         this.owner = owner; this.parts = parts; this.ids = new long[parts.size()];
@@ -66,31 +65,37 @@ final class PacketModel {
         return out;
     }
 
-    /** A cada 2 ticks: acerta quem ve e move o modelo se o dono se mexeu. */
+    /**
+     * Todo tick. O cliente 0.15 aplica gravidade em itens e blocos soltos: sem nada, eles caem.
+     * Por isso cada tick reposiciona as partes e zera a velocidade (um SetEntityMotion so para todas):
+     * o maximo que o cliente consegue puxar para baixo entre dois ticks e 4 cm, e a interpolacao suaviza.
+     * Quem ve e recalculado a cada 10 ticks.
+     */
     void update(Server server) {
-        Set<Player> now = Collections.newSetFromMap(new IdentityHashMap<>());
-        for (Player p : owner.level.getPlayers().values()) { if (p.spawned && p.distanceSquared(owner) <= RANGE * RANGE) { now.add(p); } }
-        for (Iterator<Player> it = viewers.iterator(); it.hasNext(); ) {
-            Player p = it.next();
-            if (!now.contains(p)) { if (p.isOnline()) { despawn(server, p); } it.remove(); }
+        if (++tick % 10 == 1 || viewers.isEmpty()) {
+            Set<Player> now = Collections.newSetFromMap(new IdentityHashMap<>());
+            for (Player p : owner.level.getPlayers().values()) { if (p.spawned && p.distanceSquared(owner) <= RANGE * RANGE) { now.add(p); } }
+            for (Iterator<Player> it = viewers.iterator(); it.hasNext(); ) {
+                Player p = it.next();
+                if (!now.contains(p)) { if (p.isOnline()) { despawn(server, p); } it.remove(); }
+            }
+            List<Player> fresh = new ArrayList<>();
+            for (Player p : now) { if (viewers.add(p)) { fresh.add(p); } }
+            if (!fresh.isEmpty()) { server.batchPackets(fresh.toArray(new Player[0]), spawnPackets(positions()), false); }
         }
-        double[][] pos = positions();
-        List<Player> fresh = new ArrayList<>();
-        for (Player p : now) { if (viewers.add(p)) { fresh.add(p); } }
-        if (!fresh.isEmpty()) { server.batchPackets(fresh.toArray(new Player[0]), spawnPackets(pos), false); }
-        boolean moved = Double.isNaN(lx) || Math.abs(owner.x - lx) + Math.abs(owner.y - ly) + Math.abs(owner.z - lz) > 0.02 || Math.abs(owner.yaw - lyaw) > 2;
-        // Parado, reforca a posicao a cada meio segundo (o cliente pode puxar o bloco ou item para baixo).
-        if (!moved && ++idle < 5) { return; }
-        idle = 0;
-        lx = owner.x; ly = owner.y; lz = owner.z; lyaw = owner.yaw;
         if (viewers.isEmpty()) { return; }
-        DataPacket[] moves = new DataPacket[ids.length];
+        double[][] pos = positions();
+        DataPacket[] packets = new DataPacket[ids.length + 1];
+        SetEntityMotionPacket stop = new SetEntityMotionPacket();
+        stop.entities = new SetEntityMotionPacket.Entry[ids.length];
         for (int i = 0; i < ids.length; i++) {
             MoveEntityPacket m = new MoveEntityPacket();
             m.eid = ids[i]; m.x = pos[i][0]; m.y = pos[i][1]; m.z = pos[i][2];
-            moves[i] = m;
+            packets[i] = m;
+            stop.entities[i] = new SetEntityMotionPacket.Entry(ids[i], 0, 0, 0);
         }
-        server.batchPackets(viewers.toArray(new Player[0]), moves, false);
+        packets[ids.length] = stop;
+        server.batchPackets(viewers.toArray(new Player[0]), packets, false);
     }
 
     private DataPacket[] spawnPackets(double[][] pos) {
@@ -129,7 +134,7 @@ final class PacketModel {
     void remove(Server server) {
         for (Player p : viewers) { if (p.isOnline()) { despawn(server, p); } }
         viewers.clear();
-        lx = Double.NaN;
+        tick = 0;
     }
 
     void forget(Player p) { viewers.remove(p); }

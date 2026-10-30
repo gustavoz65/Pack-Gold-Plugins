@@ -29,6 +29,8 @@ import java.util.function.Consumer;
 final class MenuEngine implements MenuService {
     private final Plugin plugin;
     private final Map<Player, Menu> open = new IdentityHashMap<>();
+    /** Tick em que o ultimo menu do jogador fechou: reabrir rapido demais deixava o cliente sem HUD. */
+    private final Map<Player, Integer> closedAt = new IdentityHashMap<>();
 
     MenuEngine(Plugin plugin) { this.plugin = plugin; }
 
@@ -61,13 +63,19 @@ final class MenuEngine implements MenuService {
         player.getServer().batchPackets(new Player[] {player}, new DataPacket[] {block, tile}, false);
         plugin.getServer().getScheduler().scheduleDelayedTask(new cn.nukkit.scheduler.PluginTask<Plugin>(plugin) {
             @Override public void onRun(int tick) { if (open.get(player) == menu && player.isOnline()) { player.addWindow(menu); } }
-        }, 3);
+        }, recentlyClosed(player) ? 10 : 3);
         return true;
+    }
+
+    private boolean recentlyClosed(Player player) {
+        Integer at = closedAt.get(player);
+        return at != null && plugin.getServer().getTick() - at < 10;
     }
 
     @Override public void close(Player player) {
         Menu menu = open.remove(player);
         if (menu == null) { return; }
+        closedAt.put(player, plugin.getServer().getTick());
         if (player.getWindowId(menu) >= 0) { player.removeWindow(menu); }
         restore(player, menu);
     }
@@ -98,7 +106,7 @@ final class MenuEngine implements MenuService {
         return true;
     }
 
-    void forget(Player player) { open.remove(player); }
+    void forget(Player player) { open.remove(player); closedAt.remove(player); }
 
     private static void restore(Player player, Menu menu) {
         if (player.isOnline() && player.level != null) { player.level.sendBlocks(new Player[] {player}, new Vector3[] {menu.holder}); }

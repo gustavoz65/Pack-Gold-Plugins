@@ -1,12 +1,12 @@
 name: GoldCosmetics
 main: br.goldsuite.cosmetics.GoldCosmetics
-version: "0.3.1"
+version: "0.3.2"
 api: ["1.0.0"]
 depend: [GoldCore]
 softdepend: [GoldEconomy]
 author: gustavoz65
 description: Cosmeticos - pingentes, cor do nome, trilhas e efeitos de abate (loja e recompensas do ranked)
 commands:
- cosmeticos: {description: Menu de cosmeticos, usage: "/cosmeticos [lista|dar <jogador> <id>]", aliases: [cosmetico, cos]}
+ cosmeticos: {description: Menu de cosmeticos, usage: "/cosmeticos [tirar|lista|dar <jogador> <id>]", aliases: [cosmetico, cos]}
 permissions:
  goldcosmetics.admin: {default: op, description: Entrega cosmeticos}

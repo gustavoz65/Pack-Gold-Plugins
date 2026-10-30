@@ -1,6 +1,6 @@
 name: GoldBuild
 main: br.goldsuite.build.GoldBuild
-version: "0.3.1"
+version: "0.3.2"
 api: ["1.0.0"]
 author: gustavoz65
 description: Edicao de mundo em fatias por tick (set, replace, walls, esfera, undo)
