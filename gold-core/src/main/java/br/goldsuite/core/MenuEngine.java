@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /** Bau falso enviado so ao jogador; cliques chegam como ContainerSetSlotPacket e sao cancelados antes do core. */
 final class MenuEngine implements MenuService {
@@ -32,11 +33,19 @@ final class MenuEngine implements MenuService {
     MenuEngine(Plugin plugin) { this.plugin = plugin; }
 
     @Override public boolean open(Player player, String title, Map<Integer, Item> icons, BiConsumer<Player, Integer> onClick) {
+        return show(player, title, icons, onClick, null);
+    }
+
+    @Override public boolean openStorage(Player player, String title, Map<Integer, Item> contents, Consumer<Map<Integer, Item>> onChange) {
+        return show(player, title, contents, null, onChange);
+    }
+
+    private boolean show(Player player, String title, Map<Integer, Item> icons, BiConsumer<Player, Integer> onClick, Consumer<Map<Integer, Item>> onChange) {
         if (!player.isOnline() || !player.spawned) { return false; }
         close(player);
         int x = player.getFloorX(), z = player.getFloorZ();
         int y = player.getFloorY() - 2 >= 1 ? player.getFloorY() - 2 : player.getFloorY() + 3;
-        Menu menu = new Menu(new Holder(x, y, z), title, onClick);
+        Menu menu = new Menu(new Holder(x, y, z), title, onClick, onChange);
         for (Map.Entry<Integer, Item> icon : icons.entrySet()) {
             if (icon.getKey() >= 0 && icon.getKey() < SIZE) { menu.setItem(icon.getKey(), icon.getValue().clone()); }
         }
@@ -69,7 +78,8 @@ final class MenuEngine implements MenuService {
     boolean intercept(Player player, DataPacket packet) {
         if (packet.pid() != ProtocolInfo.CONTAINER_SET_SLOT_PACKET) { return false; }
         Menu menu = open.get(player);
-        if (menu == null) { return false; }
+        // Bau de armazenamento: o Nukkit trata as trocas normalmente.
+        if (menu == null || menu.onChange != null) { return false; }
         ContainerSetSlotPacket slot = (ContainerSetSlotPacket) packet;
         int windowId = player.getWindowId(menu);
         // Com o menu aberto, nenhum item pode entrar ou sair do inventario do jogador.
@@ -102,15 +112,27 @@ final class MenuEngine implements MenuService {
     private final class Menu extends ContainerInventory {
         final Holder holder;
         final BiConsumer<Player, Integer> onClick;
-        boolean clicked;
-        Menu(Holder holder, String title, BiConsumer<Player, Integer> onClick) {
+        final Consumer<Map<Integer, Item>> onChange;
+        boolean clicked, saveQueued;
+        Menu(Holder holder, String title, BiConsumer<Player, Integer> onClick, Consumer<Map<Integer, Item>> onChange) {
             super(holder, InventoryType.CHEST, new HashMap<>(), SIZE, title);
-            this.holder = holder; this.onClick = onClick;
+            this.holder = holder; this.onClick = onClick; this.onChange = onChange;
         }
+        /** Varias mudancas no mesmo tick viram uma gravacao so. */
+        @Override public void onSlotChange(int index, Item before) {
+            super.onSlotChange(index, before);
+            if (onChange == null || saveQueued) { return; }
+            saveQueued = true;
+            plugin.getServer().getScheduler().scheduleDelayedTask(new cn.nukkit.scheduler.PluginTask<Plugin>(plugin) {
+                @Override public void onRun(int tick) { flush(); }
+            }, 1);
+        }
+        void flush() { saveQueued = false; if (onChange != null) { onChange.accept(new HashMap<>(getContents())); } }
         /** Fechado pelo cliente (botao X): limpa o estado e devolve o bloco verdadeiro. */
         @Override public void onClose(Player who) {
             super.onClose(who);
             if (open.get(who) == this) { open.remove(who); restore(who, this); }
+            if (onChange != null) { flush(); }
         }
     }
 }

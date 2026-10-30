@@ -1,0 +1,13 @@
+name: GoldVault
+main: br.goldsuite.vault.GoldVault
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldAuth]
+author: gustavoz65
+description: Bau pessoal (EnderChest) gravado a cada mudanca
+commands:
+ ec: {description: Abre seu bau pessoal, usage: "/ec [jogador]", aliases: [bau, enderchest], permission: goldvault.usar}
+permissions:
+ goldvault.usar: {default: true, description: Usa o bau pessoal}
+ goldvault.admin: {default: op, description: Abre o bau de outros jogadores}
