@@ -1,0 +1,10 @@
+name: GoldBuild
+main: br.goldsuite.build.GoldBuild
+version: "0.1.0"
+api: ["1.0.0"]
+author: gustavoz65
+description: Edicao de mundo em fatias por tick (set, replace, walls, esfera, undo)
+commands:
+ we: {description: Edicao de mundo, usage: "/we pos1|pos2|set|walls|replace|esfera|undo", aliases: [worldedit, magicwe], permission: goldbuild.admin}
+permissions:
+ goldbuild.admin: {default: op, description: Usa a edicao de mundo}
