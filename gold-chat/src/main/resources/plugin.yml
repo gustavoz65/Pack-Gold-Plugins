@@ -1,6 +1,6 @@
 name: GoldChat
 main: br.goldsuite.chat.GoldChat
-version: "0.2.0"
+version: "0.3.0"
 api: ["1.0.0"]
 depend: [GoldCore]
 softdepend: [GoldAuth, GoldPerms]
