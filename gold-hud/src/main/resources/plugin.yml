@@ -1,0 +1,13 @@
+name: GoldHud
+main: br.goldsuite.hud.GoldHud
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldAuth, GoldEconomy, GoldPerms]
+author: gustavoz65
+description: Barra com coordenadas, direcao, dinheiro, grupo e armadura
+commands:
+ hud: {description: Liga ou desliga a barra, usage: "/hud | /hud mundo <mundo>", aliases: [cordenadas, coords]}
+ id: {description: Mostra o id do item na mao, usage: "/id", aliases: [itemid]}
+permissions:
+ goldhud.admin: {default: op, description: Esconde a barra em mundos}

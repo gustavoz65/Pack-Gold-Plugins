@@ -1,0 +1,12 @@
+name: GoldPvP
+main: br.goldsuite.pvp.GoldPvP
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+author: gustavoz65
+description: Combat log, perfil de PvP e creepers que nao quebram blocos
+commands:
+ perfil: {description: Abates, mortes e KDR, usage: "/perfil [jogador]", aliases: [stats]}
+ topkills: {description: Ranking de abates, usage: "/topkills", aliases: [topabates]}
+permissions:
+ goldpvp.admin: {default: op, description: Ignora o combat log}
