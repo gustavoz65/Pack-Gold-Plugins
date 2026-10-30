@@ -1,0 +1,12 @@
+name: GoldMarket
+main: br.goldsuite.market.GoldMarket
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore, GoldEconomy]
+softdepend: [GoldAuth]
+author: gustavoz65
+description: Leilao com menu em bau, prazo de 48 h e coleta de itens
+commands:
+ leilao: {description: Leilao de itens, usage: "/leilao [vender <preco> | meus | cancelar <id> | coletar]", aliases: [olx, ah, mercado]}
+permissions:
+ goldmarket.admin: {default: op, description: Cancela anuncios de outros}
