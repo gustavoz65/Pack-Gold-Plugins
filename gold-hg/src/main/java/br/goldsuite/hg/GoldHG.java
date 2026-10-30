@@ -32,7 +32,7 @@ public final class GoldHG extends PluginBase {
     static final String PREFIX = "§7[§fH§cG§7]§f ";
     static final int SELECTOR = 54;
     private static final int PER_PAGE = 21;
-    private static final Set<String> ALLOWED_COMMANDS = new HashSet<>(Arrays.asList("hg", "kit", "kits", "sopa", "tell", "msg", "w", "r", "login", "l", "registrar"));
+    private static final Set<String> ALLOWED_COMMANDS = new HashSet<>(Arrays.asList("hg", "hgkit", "hgkits", "sopa", "tell", "msg", "w", "r", "login", "l", "registrar"));
 
     PersistentState<HgState> data;
     MapStore maps;
@@ -391,8 +391,8 @@ public final class GoldHG extends PluginBase {
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try {
             switch (command.getName()) {
-                case "kits": if (!(sender instanceof Player)) { return true; } openKits((Player) sender, 0); return true;
-                case "kit":
+                case "hgkits": if (!(sender instanceof Player)) { return true; } openKits((Player) sender, 0); return true;
+                case "hgkit":
                     if (!(sender instanceof Player)) { return true; }
                     if (args.length == 0) { openKits((Player) sender, 0); } else { choose((Player) sender, Kit.parse(String.join(" ", args))); }
                     return true;
@@ -490,7 +490,7 @@ public final class GoldHG extends PluginBase {
     }
 
     private void help(CommandSender sender) {
-        sender.sendMessage(PREFIX + "/hg entrar [arena], /hg sair, /hg lista, /kits, /kit <nome>, /sopa (alterna sopa ao selecionar)");
+        sender.sendMessage(PREFIX + "/hg entrar [arena], /hg sair, /hg lista, /hgkits, /hgkit <nome>, /sopa (alterna sopa ao selecionar)");
         if (sender.hasPermission("goldhg.admin")) { sender.sendMessage(PREFIX + "Admin: /hg criar <mundo>, spawn, desfazer, final, salvar, iniciar, batalhafinal, remover <arena>, /sopa mundo <mundo>"); }
     }
 

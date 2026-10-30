@@ -10,12 +10,12 @@ commands:
  hg:
   description: Hunger Games
   usage: "/hg entrar [arena] | sair | lista"
- kit:
+ hgkit:
   description: Escolhe o kit do HG
-  usage: "/kit [nome]"
- kits:
-  description: Abre o menu de kits
-  usage: "/kits"
+  usage: "/hgkit [nome]"
+ hgkits:
+  description: Abre o menu de kits do HG
+  usage: "/hgkits"
  sopa:
   description: Liga ou desliga tomar sopa ao selecionar o slot
   usage: "/sopa"

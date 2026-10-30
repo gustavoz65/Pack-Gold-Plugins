@@ -125,7 +125,7 @@ enum Kit {
     static Kit parse(String text) {
         String wanted = text.toUpperCase(Locale.ROOT);
         for (Kit kit : values()) { if (kit.name().equals(wanted) || kit.title.equalsIgnoreCase(text)) { return kit; } }
-        throw new IllegalArgumentException("Kit inexistente. Use /kits para ver a lista.");
+        throw new IllegalArgumentException("Kit inexistente. Use /hgkits para ver a lista.");
     }
 
     /** Copia: Enchantment.get devolve a instancia global. */

@@ -24,7 +24,7 @@ A **bússola** aponta para o inimigo mais próximo e mostra nome e distância. Q
 
 ## Kits (36 + Sem kit + Surpresa)
 
-Menu em baú virtual com duas páginas (`/kits` ou o baú da hotbar); `/kit <nome>` também funciona.
+Menu em baú virtual com duas páginas (o baú da hotbar ou `/hgkits`); `/hgkit <nome>` também funciona.
 
 | Categoria | Kits |
 | --- | --- |
@@ -44,7 +44,7 @@ Adaptações à 0.15.10: a vara de pesca existe, mas sem anzol, então o Grapple
 
 ## Comandos
 
-Jogadores: `/hg entrar [arena]`, `/hg sair`, `/hg lista`, `/kits`, `/kit <nome>`, `/sopa`.
+Jogadores: `/hg entrar [arena]`, `/hg sair`, `/hg lista`, `/hgkits`, `/hgkit <nome>`, `/sopa`.
 
 Admin (`goldhg.admin`):
 

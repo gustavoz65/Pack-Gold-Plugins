@@ -1,0 +1,13 @@
+name: GoldKits
+main: br.goldsuite.kits.GoldKits
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldAuth]
+author: gustavoz65
+description: Kits com recarga criados a partir do inventario
+commands:
+ kit: {description: Resgata ou cria kits, usage: "/kit <nome> | criar <nome> <minutos> [restrito] | apagar <nome>"}
+ kits: {description: Menu de kits, usage: "/kits"}
+permissions:
+ goldkits.admin: {default: op, description: Cria e apaga kits e usa todos}
