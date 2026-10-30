@@ -32,6 +32,8 @@ public final class NpcState {
         public String transition = "PORTAL";
         /** Comando executado como o jogador; {jogador} vira o nome de quem clicou. */
         public String command = "";
+        /** "quadro:posicao" (ex.: "ranked:1"): nome e skin seguem o jogador naquela posicao do ranking. */
+        public String ranking = "";
 
         public Transition transition() { return Transition.valueOf(transition); }
     }
@@ -81,6 +83,7 @@ public final class NpcState {
             type(npc.type);
             Destination.position(npc.world, npc.x, npc.y, npc.z, npc.yaw, npc.pitch);
             if (npc.name == null || npc.name.length() > MAX_NAME || npc.skin == null || !npc.skin.matches("|[0-9a-f]{64}") || npc.command == null || npc.command.length() > MAX_COMMAND) { throw new IllegalArgumentException("NPC " + entry.getKey() + " invalido."); }
+            if (npc.ranking == null || !npc.ranking.matches("|[a-z0-9_-]{1,24}:([1-9]|10)")) { throw new IllegalArgumentException("Ranking do NPC invalido."); }
             if (npc.itemId < 0 || npc.itemId > 511 || npc.itemMeta < 0 || npc.itemMeta > 32767) { throw new IllegalArgumentException("Item do NPC invalido."); }
             Transition.valueOf(npc.transition);
             if (npc.destination != null) { npc.destination.validate(); }

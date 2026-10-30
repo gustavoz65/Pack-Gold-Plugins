@@ -28,7 +28,13 @@ NPCs no estilo Slapper das versões novas: humanos com skin ou criaturas, nome e
 /npc nome &aLinha 1|&fLinha 2                 | quebra a linha, & vira cor; até 5 linhas
 /npc skin [jogador]   /npc item   /npc mover   /npc olhar sim|nao   /npc tipo <tipo>
 /npc lista   /npc info   /npc tp [id]   /npc remover
+/npc ranking ranked 1                         NPC do 1o lugar do ranked (pvp = abates)
+/npc ranking nenhum
 ```
+
+## NPCs de ranking (top 3)
+
+Ligado a uma posicao de um ranking (`ranked` ou `pvp`, publicados pelo GoldPvP), o NPC mostra a medalha, o nome e o valor (ex.: "#1 Gustavo / 1620 Platina") e veste a skin de quem esta naquela posicao. A cada 30 s o ranking e consultado; o NPC so e reconstruido quando o dono da posicao muda. A skin de cada jogador e guardada ao entrar no servidor (uma copia por conteudo), entao o NPC mostra a skin certa mesmo com o jogador offline. Exemplo de podio: tres NPCs com `/npc ranking ranked 1`, `2` e `3`.
 
 ## Transições
 

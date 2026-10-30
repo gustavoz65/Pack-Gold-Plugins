@@ -41,6 +41,11 @@ public final class GoldNPC extends PluginBase implements Listener {
     private final Map<Player, Integer> selected = new IdentityHashMap<>();
     private final Set<Player> picking = Collections.newSetFromMap(new IdentityHashMap<>());
     private boolean anyLooking, anyDynamic;
+    private static final String PLAYER_SKINS = "goldnpc-jogadores";
+    /** NPCs de ranking: id -> jogador mostrado agora, e a skin/nome usados na visao. */
+    private final Map<Integer, String> rankShown = new HashMap<>();
+    private final Map<Integer, Skin> rankSkin = new HashMap<>();
+    private final Map<Integer, String> rankName = new HashMap<>();
 
     @Override public void onEnable() {
         core = getServer().getServiceManager().load(CoreService.class);
@@ -56,7 +61,8 @@ public final class GoldNPC extends PluginBase implements Listener {
         // Visibilidade a cada 10 ticks, olhar a cada 2 e placeholders a cada 40; cada tarefa sai cedo se nao houver trabalho.
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldNPC>(this) { @Override public void onRun(int tick) { visibility(); } }, 10);
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldNPC>(this) { @Override public void onRun(int tick) { if (anyLooking) { for (NpcView view : views.values()) { if (view.data.lookAt && !view.viewers.isEmpty()) { view.look(); } } } } }, 2);
-        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldNPC>(this) { @Override public void onRun(int tick) { if (anyDynamic) { for (NpcView view : views.values()) { if (view.dynamicName) { view.updateName(placeholders(view.data.name)); } } } } }, 40);
+        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldNPC>(this) { @Override public void onRun(int tick) { rankings(); } }, 20 * 30);
+        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldNPC>(this) { @Override public void onRun(int tick) { if (anyDynamic) { for (NpcView view : views.values()) { if (view.dynamicName && view.data.ranking.isEmpty()) { view.updateName(placeholders(view.data.name)); } } } } }, 40);
     }
 
     @Override public void onDisable() {
@@ -99,8 +105,8 @@ public final class GoldNPC extends PluginBase implements Listener {
     }
 
     private void addView(int id, NpcState.Npc npc) {
-        Skin skin = npc.type.equals("humano") ? skins.getOrDefault(npc.skin, DefaultSkin.get()) : null;
-        NpcView view = new NpcView(id, npc, skin, placeholders(npc.name));
+        Skin skin = npc.type.equals("humano") ? rankSkin.getOrDefault(id, skins.getOrDefault(npc.skin, DefaultSkin.get())) : null;
+        NpcView view = new NpcView(id, npc, skin, rankName.getOrDefault(id, placeholders(npc.name)));
         views.put(id, view);
         byEid.put(view.eid, view);
     }
@@ -148,6 +154,63 @@ public final class GoldNPC extends PluginBase implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR) public void quit(PlayerQuitEvent event) { forget(event.getPlayer(), false); }
+
+    /** Guarda a skin de quem entra (uma copia por conteudo) para os NPCs de ranking mostrarem quem esta offline. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void join(cn.nukkit.event.player.PlayerJoinEvent event) {
+        Player p = event.getPlayer();
+        Skin skin = p.getSkin();
+        if (skin == null || !skin.isValid()) { return; }
+        String name = p.getName().toLowerCase(Locale.ROOT);
+        saveSkin(skin).thenCompose(hash -> core.getStore().put(PLAYER_SKINS, name, hash)).whenComplete((v, e) -> {
+            if (e == null && rankShown.containsValue(name)) { rankings(); }
+        });
+    }
+
+    // ---------- NPCs de ranking ----------
+
+    /** Atualiza nome e skin dos NPCs ligados a uma posicao de ranking; so reconstroi quando o dono da posicao muda. */
+    private void rankings() {
+        RankingService ranking = getServer().getServiceManager().load(RankingService.class);
+        if (ranking == null || !data.isLoaded()) { return; }
+        for (NpcView view : new ArrayList<>(views.values())) {
+            String spec = view.data.ranking;
+            if (spec.isEmpty()) { continue; }
+            int id = view.id, colon = spec.indexOf(':');
+            String board = spec.substring(0, colon);
+            int position = Integer.parseInt(spec.substring(colon + 1));
+            List<RankingService.Entry> top = ranking.top(board, position);
+            RankingService.Entry entry = top.size() >= position ? top.get(position - 1) : null;
+            String name = medal(position) + (entry == null ? "\u00a77(vago)" : "\u00a7f" + entry.player + "\n\u00a7e" + entry.label);
+            String player = entry == null ? null : entry.player;
+            if (Objects.equals(player, rankShown.get(id)) && name.equals(rankName.get(id))) { continue; }
+            if (Objects.equals(player, rankShown.get(id))) { rankName.put(id, name); view.updateName(name); continue; }
+            if (player == null) { rankShown.remove(id); rankSkin.remove(id); rankName.put(id, name); rebuild(id); continue; }
+            rankShown.put(id, player);
+            rankName.put(id, name);
+            core.getStore().get(PLAYER_SKINS, player).thenCompose(hash -> hash.isPresent() ? skinFor(hash.get()) : CompletableFuture.completedFuture((Skin) null))
+                    .whenComplete((skin, e) -> {
+                        if (!isEnabled() || !player.equals(rankShown.get(id))) { return; }
+                        if (skin != null) { rankSkin.put(id, skin); } else { rankSkin.remove(id); }
+                        rebuild(id);
+                    });
+        }
+    }
+
+    private static String medal(int position) {
+        return (position == 1 ? "\u00a76\u00a7l#1 " : position == 2 ? "\u00a77\u00a7l#2 " : position == 3 ? "\u00a7c\u00a7l#3 " : "\u00a7e#" + position + " ") + "\u00a7r";
+    }
+
+    /** Skin pelo hash: da memoria, ou carregada uma vez do banco. */
+    private CompletableFuture<Skin> skinFor(String hash) {
+        Skin cached = skins.get(hash);
+        if (cached != null) { return CompletableFuture.completedFuture(cached); }
+        return core.getStore().get(SKINS, hash).thenApply(v -> {
+            Skin skin = v.isPresent() ? decodeSkin(v.get()) : null;
+            if (skin != null) { skins.put(hash, skin); }
+            return skin;
+        });
+    }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void level(EntityLevelChangeEvent event) { if (event.getEntity() instanceof Player) { forget((Player) event.getEntity(), true); } }
@@ -230,6 +293,25 @@ public final class GoldNPC extends PluginBase implements Listener {
                 case "olhar": { boolean on = args.length > 1 && (args[1].equalsIgnoreCase("sim") || args[1].equalsIgnoreCase("on")); edit(player, npc -> npc.lookAt = on); return true; }
                 case "mover": edit(player, npc -> place(npc, player)); return true;
                 case "item": { Item hand = player.getInventory().getItemInHand(); edit(player, npc -> { npc.itemId = hand.getId(); npc.itemMeta = Math.max(0, hand.getDamage()); }); return true; }
+                case "ranking": {
+                    if (args.length < 2) { player.sendMessage("Uso: /npc ranking <quadro> <posicao 1-10> | nenhum. Quadros: " + rankingBoards()); return true; }
+                    String spec;
+                    if (args[1].equalsIgnoreCase("nenhum")) { spec = ""; }
+                    else {
+                        String board = args[1].toLowerCase(Locale.ROOT);
+                        if (!rankingBoards().contains(board)) { player.sendMessage("Quadro inexistente. Disponiveis: " + rankingBoards()); return true; }
+                        int position = args.length > 2 ? parseId(args[2]) : 1;
+                        if (position < 1 || position > 10) { player.sendMessage("Posicao de 1 a 10."); return true; }
+                        spec = board + ":" + position;
+                    }
+                    int id = selection(player);
+                    result(player, data.change(s -> { NpcState.Npc npc = s.require(id); npc.ranking = spec; if (!spec.isEmpty()) { npc.type = "humano"; } }), () -> {
+                        rankShown.remove(id); rankSkin.remove(id); rankName.remove(id);
+                        rebuild(id); rankings();
+                        player.sendMessage(spec.isEmpty() ? "NPC desligado do ranking." : "NPC #" + id + " agora mostra a posicao " + spec.replace(":", " #") + ". Atualiza a cada 30 s.");
+                    });
+                    return true;
+                }
                 case "comando": {
                     if (args.length < 2) { player.sendMessage("Uso: /npc comando <comando sem /> ou /npc comando limpar"); return true; }
                     String cmd = args[1].equalsIgnoreCase("limpar") ? "" : NpcState.command(rest);
@@ -324,6 +406,11 @@ public final class GoldNPC extends PluginBase implements Listener {
         } catch (java.security.NoSuchAlgorithmException error) { throw new IllegalStateException(error); }
     }
 
+    private List<String> rankingBoards() {
+        RankingService ranking = getServer().getServiceManager().load(RankingService.class);
+        return ranking == null ? Collections.emptyList() : ranking.boards();
+    }
+
     private static String describe(int id, NpcState.Npc npc) {
         return "#" + id + " " + npc.type + " em " + npc.world + String.format(Locale.ROOT, " %.0f %.0f %.0f", npc.x, npc.y, npc.z)
                 + " | destino: " + (npc.destination == null ? "nenhum" : npc.destination) + " | transicao: " + npc.transition.toLowerCase(Locale.ROOT)
@@ -332,7 +419,7 @@ public final class GoldNPC extends PluginBase implements Listener {
 
     private static void help(Player player) {
         player.sendMessage("NPC: /npc criar <tipo> [nome], selecionar [id], lista, info, nome <texto, | quebra linha>, tipo <tipo>, skin [jogador], item, mover,"
-                + " olhar sim|nao, destino mundo <m>|aqui|servidor <s>|nenhum, transicao <instantanea|portal|espiral|escurecer|contagem|explosao>, comando <cmd>|limpar, tp [id], remover");
+                + " olhar sim|nao, ranking <quadro> <posicao>|nenhum, destino mundo <m>|aqui|servidor <s>|nenhum, transicao <instantanea|portal|espiral|escurecer|contagem|explosao>, comando <cmd>|limpar, tp [id], remover");
     }
 
     private static int parseId(String text) {

@@ -30,6 +30,11 @@ public final class NpcTest {
         rejects(() -> NpcState.name("a|b|c|d|e|f"));
         rejects(() -> NpcState.command("say oi\nop todos"));
         check(NpcState.command("/warp hg").equals("warp hg"), "Barra inicial nao removida.");
+        back.ranking = "ranked:1";
+        NpcState.validate(reopened);
+        back.ranking = "ranked:11";
+        rejects(() -> NpcState.validate(reopened));
+        back.ranking = "";
         back.skin = "../../etc";
         rejects(() -> NpcState.validate(reopened));
         back.skin = "";
