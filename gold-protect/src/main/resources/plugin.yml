@@ -1,0 +1,13 @@
+name: GoldProtect
+main: br.goldsuite.protect.GoldProtect
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+author: gustavoz65
+description: Areas protegidas, protecao por mundo, efeitos de area, anti-void e alerta de x-ray
+commands:
+ area: {description: Gerencia areas protegidas, usage: "/area", aliases: [protecao], permission: goldprotect.admin}
+ mundoprotecao: {description: Protecao de um mundo inteiro, usage: "/mundoprotecao <mundo> <construir|pvp|interagir|dano> <on|off>", permission: goldprotect.admin}
+ antivoid: {description: Liga ou desliga o anti-void, usage: "/antivoid [mundo]", permission: goldprotect.admin}
+permissions:
+ goldprotect.admin: {default: op, description: Ignora protecoes e cria areas}
