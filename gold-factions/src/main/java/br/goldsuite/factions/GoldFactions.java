@@ -36,7 +36,7 @@ import java.util.function.Consumer;
  */
 public final class GoldFactions extends PluginBase implements Listener {
     /** Visual proprio, sem escrever "faccao": as mensagens se distinguem das de outros plugins pelo estilo. */
-    static final String PREFIX = "§4§l»§c» §r§f";
+    static String PREFIX = "§4§l»§c» §r§f";
     private static final long INVITE_MS = 120_000;
     private PersistentState<FactionState> data;
     private MiniMap miniMap;
@@ -47,6 +47,7 @@ public final class GoldFactions extends PluginBase implements Listener {
     private final Map<Player, String> lastChunk = new IdentityHashMap<>();
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldFactions."); }
         data = new PersistentState<>(core.getStore(), "goldfactions", FactionState.class, FactionState::new, FactionState::validate);

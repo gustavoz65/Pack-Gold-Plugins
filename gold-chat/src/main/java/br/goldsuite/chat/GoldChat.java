@@ -16,7 +16,7 @@ import java.util.*;
 
 /** Formato por grupo, anti-spam, mensagens privadas, mute e anuncios automaticos. */
 public final class GoldChat extends PluginBase implements Listener {
-    static final String PREFIX = "§b[§3Chat§b]§f ";
+    static String PREFIX = "§b[§3Chat§b]§f ";
     private static final long MIN_INTERVAL_MS = 1500, REPEAT_WINDOW_MS = 30_000;
 
     private PersistentState<ChatState> data;
@@ -26,6 +26,7 @@ public final class GoldChat extends PluginBase implements Listener {
     private int announceIndex, announceElapsed;
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldChat."); }
         data = new PersistentState<>(core.getStore(), "goldchat", ChatState.class, ChatState::new, ChatState::validate);

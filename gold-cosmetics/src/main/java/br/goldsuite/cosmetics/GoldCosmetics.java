@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
  * Uns se compram com dinheiro do GoldEconomy; outros so se ganham no ranked (GoldPvP libera pelo CosmeticService).
  */
 public final class GoldCosmetics extends PluginBase implements Listener, CosmeticService {
-    static final String PREFIX = "§5[§dCosmeticos§5]§f ";
+    static String PREFIX = "§5[§dCosmeticos§5]§f ";
     static final String STORE = "goldcos-guarda-roupa";
     private static final Gson GSON = new Gson();
 
@@ -45,6 +45,7 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
     private int trailTick;
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldCosmetics."); }
         getServer().getServiceManager().register(CosmeticService.class, this, this);

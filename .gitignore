@@ -1,5 +1,6 @@
 .gradle/
-**/build/
+/build/
+/*/build/
 /dist/
 /lib/nukkit-gold.jar
 *.class

@@ -5,3 +5,8 @@ api: ["1.0.0"]
 load: POSTWORLD
 author: gustavoz65
 description: Base comum da GoldSuite com armazenamento assincrono e itens assinados
+commands:
+ painel: {description: Painel de configuracao do servidor (cores, mensagens, valores, Discord), usage: "/painel [ver|set|discord]", aliases: [config, gpainel]}
+permissions:
+ goldcore.painel: {default: op, description: Abre e edita o painel de configuracao}
+ goldcore.alertas: {default: op, description: Recebe os alertas da staff (anti-fraude e outros)}

@@ -20,7 +20,7 @@ import java.util.*;
 
 /** Obsidiana e bedrock quebram com varias explosoes, /reparar pago e /enviar. */
 public final class GoldBreaker extends PluginBase implements Listener {
-    static final String PREFIX = "§7[§8Breaker§7]§f ";
+    static String PREFIX = "§7[§8Breaker§7]§f ";
     static final int OBSIDIAN_HITS = 3, BEDROCK_HITS = 10, BEDROCK_FLOOR = 4;
     /** Centavos por ponto de durabilidade reparado. */
     static final long REPAIR_CENTS_PER_POINT = 50;
@@ -30,7 +30,8 @@ public final class GoldBreaker extends PluginBase implements Listener {
     };
     private final Set<String> busy = new HashSet<>();
 
-    @Override public void onEnable() { getServer().getPluginManager().registerEvents(this, this); }
+    @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v); getServer().getPluginManager().registerEvents(this, this); }
     @Override public void onDisable() { hits.clear(); busy.clear(); }
 
     /** Explosoes nao listam blocos resistentes; procura obsidiana e bedrock num raio de 2 do centro. */

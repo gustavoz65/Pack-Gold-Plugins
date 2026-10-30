@@ -13,12 +13,13 @@ import java.util.*;
 
 /** Leilao: anuncios com prazo, compra pelo menu em bau e coleta de itens devolvidos. */
 public final class GoldMarket extends PluginBase {
-    static final String PREFIX = "§6[§eLeilao§6]§f ";
+    static String PREFIX = "§6[§eLeilao§6]§f ";
     private static final int PER_PAGE = 21;
     private PersistentState<MarketState> data;
     private final Set<String> busy = new HashSet<>();
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldMarket."); }
         data = new PersistentState<>(core.getStore(), "goldmarket", MarketState.class, MarketState::new, MarketState::validate);

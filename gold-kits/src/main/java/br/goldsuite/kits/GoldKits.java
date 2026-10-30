@@ -10,12 +10,13 @@ import java.util.*;
 
 /** Kits com recarga, criados a partir do inventario do admin (AdvancedKits). */
 public final class GoldKits extends PluginBase {
-    static final String PREFIX = "§a[§2Kits§a]§f ";
+    static String PREFIX = "§a[§2Kits§a]§f ";
     private PersistentState<KitState> data;
     /** Jogadores com resgate gravando; impede dois resgates no mesmo instante. */
     private final Set<String> claiming = new HashSet<>();
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldKits."); }
         data = new PersistentState<>(core.getStore(), "goldkits", KitState.class, KitState::new, KitState::validate);

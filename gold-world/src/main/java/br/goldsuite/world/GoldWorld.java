@@ -34,7 +34,7 @@ import java.util.*;
 
 /** Mundos (ManyWorlds), hora real (RealTime), /fundir (MegaFornalha), SilkSpawners, StackingMobs e AutoInv. */
 public final class GoldWorld extends PluginBase implements Listener {
-    static final String PREFIX = "§2[§aMundos§2]§f ";
+    static String PREFIX = "§2[§aMundos§2]§f ";
     static final int STACK_RADIUS = 6, STACK_MAX = 50;
     private static final ZoneId BRASILIA = ZoneId.of("America/Sao_Paulo");
     private PersistentState<WorldState> data;
@@ -53,6 +53,7 @@ public final class GoldWorld extends PluginBase implements Listener {
     }
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldWorld."); }
         data = new PersistentState<>(core.getStore(), "goldworld", WorldState.class, WorldState::new, WorldState::validate);

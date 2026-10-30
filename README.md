@@ -33,6 +33,15 @@ Guias detalhados: [GoldPvP](gold-pvp/README.md), [GoldCosmetics](gold-cosmetics/
 
 O [roadmap](ROADMAP.md) mostra a origem de cada módulo.
 
+## Painel de configuração (GoldCore)
+
+`/painel` (só OP) abre um menu com todos os plugins: paleta de cores do servidor, prefixos, mensagens e valores. Toque numa opção e digite o novo valor no chat (`padrao` restaura, `cancelar` sai). Nada precisa ser editado dentro dos jars.
+
+- Textos aceitam `&` para cores e os tokens da paleta `{primaria} {secundaria} {destaque} {sucesso} {erro} {texto}`: mudar a paleta muda tudo que usa os tokens.
+- Console: `/painel ver <plugin>`, `/painel set <plugin> <chave> <valor|padrao>`.
+- **Discord:** `/painel discord <url do webhook>` (ou pelo menu), `/painel discord teste`, `/painel discord off`. Alertas da staff (ex.: anti-fraude) vão para o canal; só URLs oficiais do Discord são aceitas e menções são bloqueadas.
+- Permissões: `goldcore.painel` (editar) e `goldcore.alertas` (receber alertas), ambas OP por padrão.
+
 ## Compilar
 
 1. Baixe o core usado só para compilar (fica em `lib/`, fora do Git):

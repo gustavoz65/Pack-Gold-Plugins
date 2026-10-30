@@ -19,7 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /** Caixas com chaves assinadas (HMAC do GoldCore): nome de item copiado nao abre caixa. */
 public final class GoldCrates extends PluginBase implements Listener {
-    static final String PREFIX = "§d[§5Caixas§d]§f ";
+    static String PREFIX = "§d[§5Caixas§d]§f ";
     static final int KEY_ITEM = 131;
     private CoreService core;
     private PersistentState<CrateState> data;
@@ -28,6 +28,7 @@ public final class GoldCrates extends PluginBase implements Listener {
     private final Map<Player, Integer> lastOpen = new IdentityHashMap<>();
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldCrates."); }
         data = new PersistentState<>(core.getStore(), "goldcrates", CrateState.class, CrateState::new, CrateState::validate);

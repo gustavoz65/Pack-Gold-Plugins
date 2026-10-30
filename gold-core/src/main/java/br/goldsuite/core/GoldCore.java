@@ -6,6 +6,7 @@ import br.goldsuite.api.EffectService;
 import br.goldsuite.api.ItemSigner;
 import br.goldsuite.api.MenuService;
 import br.goldsuite.api.RankingService;
+import br.goldsuite.api.SettingsService;
 import br.goldsuite.api.TravelService;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
@@ -31,6 +32,7 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
     private EffectEngine effects;
     private TravelEngine travel;
     private MenuEngine menus;
+    private SettingsEngine settings;
 
     @Override
     public void onEnable() {
@@ -73,6 +75,10 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
             this.ready.complete(null);
             getLogger().info("Base da GoldSuite pronta: SQLite assincrono e assinatura de itens.");
         });
+        // Painel de configuracao: registrado ja, os valores salvos chegam quando o banco abre.
+        this.settings = new SettingsEngine(this);
+        getServer().getServiceManager().register(SettingsService.class, this.settings, this);
+        getServer().getPluginManager().registerEvents(this.settings, this);
     }
 
     @Override public CompletableFuture<Void> whenReady() { return this.ready; }
@@ -102,7 +108,15 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
     }
 
     @Override
+    public boolean onCommand(cn.nukkit.command.CommandSender sender, cn.nukkit.command.Command command, String label, String[] args) {
+        return this.settings == null || this.settings.command(sender, args);
+    }
+
+    static String root(Throwable e) { while (e.getCause() != null) { e = e.getCause(); } return e.getMessage(); }
+
+    @Override
     public void onDisable() {
+        if (this.settings != null) { this.settings.close(); }
         if (this.travel != null) { this.travel.close(); }
         if (this.effects != null) { this.effects.close(); }
         if (this.dispatcher != null && !this.dispatcher.closeAndDrain()) {

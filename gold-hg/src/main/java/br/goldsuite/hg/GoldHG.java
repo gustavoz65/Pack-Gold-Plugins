@@ -29,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class GoldHG extends PluginBase {
-    static final String PREFIX = "§7[§fH§cG§7]§f ";
+    static String PREFIX = "§7[§fH§cG§7]§f ";
     static final int SELECTOR = 54;
     private static final int PER_PAGE = 21;
     private static final Set<String> ALLOWED_COMMANDS = new HashSet<>(Arrays.asList("hg", "hgkit", "hgkits", "sopa", "tell", "msg", "w", "r", "login", "l", "registrar"));
@@ -47,6 +47,7 @@ public final class GoldHG extends PluginBase {
     private Abilities abilities;
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldHG."); }
         maps = new MapStore(getServer(), getDataFolder().toPath());

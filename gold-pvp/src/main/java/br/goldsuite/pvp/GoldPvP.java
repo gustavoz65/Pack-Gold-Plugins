@@ -24,7 +24,7 @@ import java.util.*;
 
 /** Combat log, perfis detalhados, rankings (publicados para NPCs), ranked 1v1 com ELO e creepers sem destruicao. */
 public final class GoldPvP extends PluginBase implements Listener {
-    static final String PREFIX = "§4[§cPvP§4]§f ";
+    static String PREFIX = "§4[§cPvP§4]§f ";
     static final String PROFILES = "goldpvp-perfil", STASH = "goldpvp-guardado";
     static final int MENU_ITEM = 340, MENU_SLOT = 8;
     static final String MENU_NAME = "§r§6Perfil e Ranked §7(toque)";
@@ -42,6 +42,9 @@ public final class GoldPvP extends PluginBase implements Listener {
     private final Map<Player, Match> matches = new IdentityHashMap<>();
     private final Set<String> busyArenas = new HashSet<>();
     private final Fraud fraud = new Fraud();
+    /** Textos e limites do anti-fraude, editaveis no /painel. */
+    private String fraudWarning, fraudKick;
+    private int kickAt = Fraud.KICK_AT, banAt = Fraud.BAN_AT;
     private int pruneTick;
     /** Perdedores que devolvem o inventario guardado ao renascer. */
     private final Set<Player> restoreOnRespawn = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -57,6 +60,11 @@ public final class GoldPvP extends PluginBase implements Listener {
     }
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
+        Settings.text(this, "fraude.advertencia", "{erro}&lAdvertencia {n}/{max}: &r{erro}{motivo}. Repetir expulsa do servidor.", "Aviso ao jogador ({n}, {max}, {motivo})", v -> fraudWarning = v);
+        Settings.text(this, "fraude.expulsao", "Fraude no PvP detectada ({motivo}).", "Motivo da expulsao ({motivo})", v -> fraudKick = v);
+        Settings.number(this, "fraude.advertencias_para_expulsar", Fraud.KICK_AT, "Advertencias em 24 h que expulsam", v -> kickAt = (int) Math.max(1, v));
+        Settings.number(this, "fraude.advertencias_para_bloquear", Fraud.BAN_AT, "Advertencias em 24 h que bloqueiam o ranked por 24 h", v -> banAt = (int) Math.max(1, v));
         core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldPvP."); }
         boards = new PersistentState<>(core.getStore(), "goldpvp-ranking", Boards.class, Boards::new, Boards::validate);
@@ -584,23 +592,21 @@ public final class GoldPvP extends PluginBase implements Listener {
     private void flag(Player p, String reason) {
         String name = key(p);
         int count = fraud.strike(name, System.currentTimeMillis());
-        getLogger().warning("Fraude PvP: " + name + " - " + reason + " (" + count + "/" + Fraud.KICK_AT + ")");
-        for (Player staff : getServer().getOnlinePlayers().values()) {
-            if (staff.hasPermission("goldpvp.admin")) { staff.sendMessage(PREFIX + "§e[Anti-fraude] §f" + p.getName() + ": " + reason + " §7(" + count + "/" + Fraud.KICK_AT + ")"); }
-        }
-        if (count >= Fraud.BAN_AT) {
+        // Staff online (goldcore.alertas) e Discord, se configurado no /painel.
+        Settings.alert("Anti-fraude PvP", p.getName() + ": " + reason + " (" + count + "/" + kickAt + ")" + (count >= kickAt ? " - expulso" : "") + (count >= banAt ? ", ranked bloqueado 24 h" : ""));
+        if (count >= banAt) {
             Profile pr = profile(p);
             if (pr != null) { pr.rankedBanUntil = System.currentTimeMillis() + Fraud.RANKED_BAN_MS; dirty.add(p); }
         }
         if (!p.isOnline()) { return; }
-        if (count >= Fraud.KICK_AT) {
+        if (count >= kickAt) {
             Player target = p;
             // Expulsa no tick seguinte para nao derrubar o jogador no meio do evento atual.
             getServer().getScheduler().scheduleDelayedTask(new PluginTask<GoldPvP>(this) {
-                @Override public void onRun(int tick) { if (target.isOnline()) { target.kick("Fraude no PvP detectada (" + reason + ")." + (count >= Fraud.BAN_AT ? " Ranked bloqueado por 24 h." : " Na proxima o ranked sera bloqueado."), false); } }
+                @Override public void onRun(int tick) { if (target.isOnline()) { target.kick(fraudKick.replace("{motivo}", reason) + (count >= banAt ? " Ranked bloqueado por 24 h." : " Na proxima o ranked sera bloqueado."), false); } }
             }, 1);
         } else {
-            p.sendMessage(PREFIX + "§c§lAdvertencia " + count + "/" + Fraud.KICK_AT + ": §r§c" + reason + ". Repetir expulsa do servidor.");
+            p.sendMessage(PREFIX + fraudWarning.replace("{n}", String.valueOf(count)).replace("{max}", String.valueOf(kickAt)).replace("{motivo}", reason));
         }
     }
 

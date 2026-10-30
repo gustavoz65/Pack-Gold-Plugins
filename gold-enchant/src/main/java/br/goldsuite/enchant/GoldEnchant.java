@@ -13,7 +13,7 @@ import java.util.*;
 
 /** Encantador (Encantar, Mago): sobe um nivel por vez, pago com dinheiro. */
 public final class GoldEnchant extends PluginBase {
-    static final String PREFIX = "§5[§dEncantar§5]§f ";
+    static String PREFIX = "§5[§dEncantar§5]§f ";
     private PersistentState<Prices> data;
     private final Set<String> busy = new HashSet<>();
 
@@ -35,6 +35,7 @@ public final class GoldEnchant extends PluginBase {
     }
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldEnchant."); }
         data = new PersistentState<>(core.getStore(), "goldenchant", Prices.class, Prices::new, Prices::validate);

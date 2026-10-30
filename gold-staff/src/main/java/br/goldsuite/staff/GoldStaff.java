@@ -20,12 +20,13 @@ import java.util.*;
 
 /** Report, ajuda, giveall, bloqueio de comandos, restart, clearlag e comandos agendados. */
 public final class GoldStaff extends PluginBase implements Listener {
-    static final String PREFIX = "§4[§cStaff§4]§f ";
+    static String PREFIX = "§4[§cStaff§4]§f ";
     private PersistentState<StaffState> data;
     private int minute, clearlagIn, restartIn = -1;
     private final Map<Player, Long> lastReport = new IdentityHashMap<>();
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldStaff."); }
         data = new PersistentState<>(core.getStore(), "goldstaff", StaffState.class, StaffState::new, StaffState::validate);

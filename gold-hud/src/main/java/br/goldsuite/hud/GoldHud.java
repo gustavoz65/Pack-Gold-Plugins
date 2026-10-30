@@ -16,7 +16,7 @@ import java.util.*;
 
 /** Barra acima da hotbar: coordenadas, dinheiro, grupo e armadura (superBAR, Cordenadas, Status Armor, itemID). */
 public final class GoldHud extends PluginBase implements Listener {
-    static final String PREFIX = "§9[§bHUD§9]§f ";
+    static String PREFIX = "§9[§bHUD§9]§f ";
     /** Durabilidade maxima por id de armadura da 0.15 (couro, malha, ferro, diamante, ouro). */
     private static final Map<Integer, Integer> ARMOR = new HashMap<>();
     static {
@@ -35,6 +35,7 @@ public final class GoldHud extends PluginBase implements Listener {
     }
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldHud."); }
         data = new PersistentState<>(core.getStore(), "goldhud", HudState.class, HudState::new, HudState::validate);

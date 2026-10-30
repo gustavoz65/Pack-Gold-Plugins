@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 /** Homes, warps, spawn, tpa, back, fly e tpall. */
 public final class GoldEssentials extends PluginBase implements Listener {
-    static final String PREFIX = "§6[§eGold§6]§f ";
+    static String PREFIX = "§6[§eGold§6]§f ";
     private static final String HOMES = "goldessentials-homes";
     private static final long TPA_TIMEOUT_MS = 60_000;
     private static final Gson GSON = new Gson();
@@ -36,6 +36,7 @@ public final class GoldEssentials extends PluginBase implements Listener {
     }
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldEssentials."); }
         places = new PersistentState<>(core.getStore(), "goldessentials", Places.class, Places::new, Places::validate);

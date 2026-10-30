@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 
 /** Placas de compra e venda do servidor, lojas de bau de jogadores e /vender. */
 public final class GoldShop extends PluginBase implements Listener {
-    static final String PREFIX = "§2[§aLoja§2]§f ";
+    static String PREFIX = "§2[§aLoja§2]§f ";
     private static final long CONFIRM_MS = 3000;
     private PersistentState<ShopState> data;
     /** Primeiro toque: placa e instante; o segundo toque em ate 3 s confirma. */
@@ -37,6 +37,7 @@ public final class GoldShop extends PluginBase implements Listener {
     private final Set<String> busy = new HashSet<>();
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldShop."); }
         data = new PersistentState<>(core.getStore(), "goldshop", ShopState.class, ShopState::new, ShopState::validate);

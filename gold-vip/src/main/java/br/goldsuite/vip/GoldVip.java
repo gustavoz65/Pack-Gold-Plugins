@@ -15,11 +15,12 @@ import java.util.*;
 
 /** Chaves de VIP com tempo somado (sobre o GoldPerms) e anuncio de VIP entrando. */
 public final class GoldVip extends PluginBase implements Listener {
-    static final String PREFIX = "§6[§eVIP§6]§f ";
+    static String PREFIX = "§6[§eVIP§6]§f ";
     private PersistentState<VipState> data;
     private final Set<String> redeeming = new HashSet<>();
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldVip."); }
         data = new PersistentState<>(core.getStore(), "goldvip", VipState.class, VipState::new, VipState::validate);

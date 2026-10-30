@@ -22,7 +22,7 @@ import java.util.*;
 
 /** Areas protegidas, protecao por mundo, efeitos por area, anti-void e alerta de x-ray. */
 public final class GoldProtect extends PluginBase implements Listener {
-    static final String PREFIX = "§2[§aProtecao§2]§f ";
+    static String PREFIX = "§2[§aProtecao§2]§f ";
     private static final Set<Integer> INTERACTIVE = new HashSet<>(Arrays.asList(54, 61, 62, 64, 71, 96, 107, 117, 130, 145, 146, 183, 184, 185, 186, 187, 193, 194, 195, 196, 197, 69, 77, 143, 25, 116, 58, 138, 154));
     private static final Set<Integer> RARE_ORES = new HashSet<>(Arrays.asList(56, 129, 14));
 
@@ -35,6 +35,7 @@ public final class GoldProtect extends PluginBase implements Listener {
     private final Map<Player, long[]> mining = new IdentityHashMap<>();
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldProtect."); }
         data = new PersistentState<>(core.getStore(), "goldprotect", ProtectState.class, ProtectState::new, ProtectState::validate);

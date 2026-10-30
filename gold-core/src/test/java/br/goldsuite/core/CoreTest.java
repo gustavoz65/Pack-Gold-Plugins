@@ -61,7 +61,20 @@ public final class CoreTest {
             if (new HmacItemSigner(new byte[32]).verify(signed, "goldcrates:chave")) {
                 throw new AssertionError("Chave de outro servidor foi aceita.");
             }
-            System.out.println("GoldCore: SQLite persistente, entrada SQL, UTF-8, HMAC e adulteracoes verificados.");
+            // Painel: validacao por tipo, cores da paleta e webhook so do Discord.
+            SettingsEngine.Def cor = new SettingsEngine.Def(SettingsEngine.SERVER, "cor.primaria", br.goldsuite.api.SettingsService.Kind.TEXTO, "&6", "");
+            SettingsEngine.Def num = new SettingsEngine.Def("GoldPvP", "limite", br.goldsuite.api.SettingsService.Kind.NUMERO, "3", "");
+            SettingsEngine.Def txt = new SettingsEngine.Def("GoldPvP", "msg", br.goldsuite.api.SettingsService.Kind.TEXTO, "oi", "");
+            if (!SettingsEngine.check(cor, "&6&l").equals("&6&l") || !SettingsEngine.check(num, " 42 ").equals("42") || !SettingsEngine.check(txt, "&aOla {primaria}x").equals("&aOla {primaria}x")) { throw new AssertionError("Valores validos recusados."); }
+            for (Object[] bad : new Object[][] {{cor, "vermelho"}, {cor, "&z"}, {num, "-1"}, {num, "abc"}, {txt, ""}, {txt, new String(new char[201]).replace('\0', 'a')}}) {
+                try { SettingsEngine.check((SettingsEngine.Def) bad[0], (String) bad[1]); throw new AssertionError("Valor invalido aceito: " + bad[1]); } catch (IllegalArgumentException expected) { }
+            }
+            if (!DiscordWebhook.valid("") || !DiscordWebhook.valid("https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyzABCD_-12")
+                    || DiscordWebhook.valid("http://discord.com/api/webhooks/1/x") || DiscordWebhook.valid("https://evil.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyz")
+                    || DiscordWebhook.valid("https://discord.com.evil.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyz")) { throw new AssertionError("Webhook mal validado."); }
+            if (!DiscordWebhook.json("a\"b\\c\nd").equals("\"a\\\"b\\\\c\\nd\"")) { throw new AssertionError("JSON do Discord mal escapado."); }
+            if (!SettingsEngine.strip("\u00a76ola\u00a7r!").equals("ola!")) { throw new AssertionError("Cores nao removidas."); }
+            System.out.println("GoldCore: SQLite persistente, entrada SQL, UTF-8, HMAC, painel e webhook verificados.");
         } finally {
             Path root = directory.toRealPath();
             if (!root.getParent().equals(java.nio.file.Paths.get(System.getProperty("java.io.tmpdir")).toRealPath())) {

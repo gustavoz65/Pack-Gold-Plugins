@@ -17,7 +17,7 @@ import java.util.*;
 
 /** Bau pessoal (EnderChest) gravado a cada mudanca, sem ficar em memoria depois de fechado. */
 public final class GoldVault extends PluginBase implements Listener {
-    static final String PREFIX = "§5[§dBau§5]§f ";
+    static String PREFIX = "§5[§dBau§5]§f ";
     static final String NAMESPACE = "goldvault";
     private static final Gson GSON = new Gson();
     private static final Type TYPE = new TypeToken<TreeMap<Integer, ItemData>>() { }.getType();
@@ -28,6 +28,7 @@ public final class GoldVault extends PluginBase implements Listener {
     private final Map<Player, String> viewing = new IdentityHashMap<>();
 
     @Override public void onEnable() {
+        Settings.prefix(this, PREFIX, v -> PREFIX = v);
         core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldVault."); }
         getServer().getPluginManager().registerEvents(this, this);
