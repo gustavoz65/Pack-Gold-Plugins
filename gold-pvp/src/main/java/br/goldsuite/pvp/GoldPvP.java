@@ -225,7 +225,12 @@ public final class GoldPvP extends PluginBase implements Listener {
         queue.remove(p);
         restoreOnRespawn.remove(p);
         Match match = matches.get(p);
-        if (match != null) { end(match, match.other(p)); }
+        // Sair durante a contagem cancela sem ELO: impede farmar rating com uma segunda conta.
+        if (match != null) {
+            boolean fighting = match.fighting();
+            end(match, fighting ? match.other(p) : null);
+            if (!fighting && match.other(p).isOnline()) { match.other(p).sendMessage(PREFIX + "Oponente saiu antes do inicio. Duelo cancelado."); }
+        }
         boolean wasTagged = tagged(p);
         taggedUntil.remove(p);
         if (match == null && wasTagged && p.isAlive() && !p.hasPermission("goldpvp.admin")) {
@@ -377,6 +382,7 @@ public final class GoldPvP extends PluginBase implements Listener {
             if (m.over) { return; }
             if (error != null || !a.isOnline() || !b.isOnline()) { getLogger().warning("Duelo cancelado: " + (error == null ? "jogador saiu" : error.getMessage())); end(m, null); return; }
             Boards.Arena spots = boards.read(s -> s.arenas.get(arena));
+            if (spots == null || getServer().getLevelByName(spots.a.target) == null || getServer().getLevelByName(spots.b.target) == null) { getLogger().warning("Duelo cancelado: arena " + arena + " indisponivel."); end(m, null); return; }
             List<ItemData> kit = boards.read(s -> s.kit);
             prepare(a, spots.a, kit); prepare(b, spots.b, kit);
             m.ready = true;
@@ -427,7 +433,8 @@ public final class GoldPvP extends PluginBase implements Listener {
         matches.remove(m.a); matches.remove(m.b);
         busyArenas.remove(m.arena);
         Profile pa = profile(m.a), pb = profile(m.b);
-        if (m.ready && pa != null && pb != null) {
+        boolean started = m.ready && System.currentTimeMillis() >= m.startAt;
+        if (started && pa != null && pb != null) {
             if (winner == null) { pa.rankedDraws++; pb.rankedDraws++; }
             else {
                 Player loser = m.other(winner);
@@ -525,6 +532,7 @@ public final class GoldPvP extends PluginBase implements Listener {
                 String name = args[1].toLowerCase(Locale.ROOT);
                 if (!name.matches("[a-z0-9_-]{1,20}")) { throw new IllegalArgumentException("Nome invalido."); }
                 String what = args[2].toLowerCase(Locale.ROOT);
+                if (busyArenas.contains(name)) { throw new IllegalArgumentException("Arena em uso; espere o duelo acabar."); }
                 Destination here = Destination.position(p.level.getFolderName(), p.x, p.y, p.z, (float) p.yaw, (float) p.pitch);
                 boards.change(b -> {
                     if (what.equals("remover")) { b.arenas.remove(name); return; }

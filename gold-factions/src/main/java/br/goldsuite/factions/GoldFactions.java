@@ -16,6 +16,7 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.entity.EntityExplodeEvent;
 import cn.nukkit.event.entity.EntityLevelChangeEvent;
 import cn.nukkit.event.player.PlayerChatEvent;
 import cn.nukkit.event.player.PlayerDeathEvent;
@@ -95,6 +96,13 @@ public final class GoldFactions extends PluginBase implements Listener {
         if (!data.isLoaded() || !data.read(s -> s.claims.containsKey(key))) { return; }
         data.change(s -> { if (!s.claims.containsKey(key)) { return; } int n = Math.max(0, s.spawners.getOrDefault(key, 0) + delta); if (n == 0) { s.spawners.remove(key); } else { s.spawners.put(key, n); } })
                 .thenRun(() -> mapDirty = true);
+    }
+
+    /** Spawners destruidos por explosao (TNT, creeper) tambem saem da contagem. */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void explode(EntityExplodeEvent e) {
+        if (e.getBlockList() == null) { return; }
+        for (Block b : e.getBlockList()) { if (b.getId() == Block.MONSTER_SPAWNER && b.level != null) { countSpawner(b, -1); } }
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
