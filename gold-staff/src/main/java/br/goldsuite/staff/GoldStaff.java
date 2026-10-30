@@ -50,7 +50,7 @@ public final class GoldStaff extends PluginBase implements Listener {
             if (restartIn == 600 || restartIn == 300 || restartIn == 60 || restartIn == 30 || (restartIn <= 10 && restartIn > 0)) {
                 getServer().broadcastMessage(PREFIX + "§cO servidor reinicia em " + (restartIn >= 60 ? restartIn / 60 + " min" : restartIn + " s") + ".");
             }
-            if (restartIn == 0) { getServer().broadcastMessage(PREFIX + "§cReiniciando..."); getServer().shutdown(); }
+            if (restartIn == 0) { getServer().broadcastMessage(PREFIX + "§cReiniciando..."); markRestart(); getServer().shutdown(); }
         }
         if (++minute % 60 == 0) {
             int now = minute / 60;
@@ -58,6 +58,12 @@ public final class GoldStaff extends PluginBase implements Listener {
                 if (now % e.getValue() == 0) { getServer().dispatchCommand(getServer().getConsoleSender(), e.getKey()); }
             }
         }
+    }
+
+    /** O iniciador do Nukkit Gold reabre o servidor quando encontra este arquivo; um stop normal nao o cria. */
+    private void markRestart() {
+        try { java.nio.file.Files.write(java.nio.file.Paths.get(getServer().getDataPath(), "reiniciar.servidor"), new byte[0]); }
+        catch (java.io.IOException e) { getLogger().warning("Nao foi possivel marcar o restart: " + e.getMessage()); }
     }
 
     /** Remove itens no chao, orbes de XP e flechas cravadas; nunca mobs, NPCs ou jogadores. */
