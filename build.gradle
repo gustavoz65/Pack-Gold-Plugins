@@ -25,6 +25,7 @@ def regressoes = [
     'gold-vault'  : 'br.goldsuite.vault.VaultTest',
     'gold-hud'    : 'br.goldsuite.hud.HudTest',
     'gold-pvp'    : 'br.goldsuite.pvp.PvpTest',
+    'gold-crates' : 'br.goldsuite.crates.CratesTest',
 ]
 
 subprojects {
@@ -82,7 +83,7 @@ project(':gold-core') {
 
 // Copia os plugins prontos para dist/ com o nome usado no servidor (GoldCore-0.1.0.jar...).
 tasks.register('dist') {
-    def nomes = ['gold-core': 'GoldCore', 'gold-auth': 'GoldAuth', 'gold-perms': 'GoldPerms', 'gold-economy': 'GoldEconomy', 'gold-npc': 'GoldNPC', 'gold-hg': 'GoldHG', 'gold-essentials': 'GoldEssentials', 'gold-chat': 'GoldChat', 'gold-protect': 'GoldProtect', 'gold-staff': 'GoldStaff', 'gold-kits': 'GoldKits', 'gold-vip': 'GoldVip', 'gold-shop': 'GoldShop', 'gold-vault': 'GoldVault', 'gold-hud': 'GoldHud', 'gold-pvp': 'GoldPvP']
+    def nomes = ['gold-core': 'GoldCore', 'gold-auth': 'GoldAuth', 'gold-perms': 'GoldPerms', 'gold-economy': 'GoldEconomy', 'gold-npc': 'GoldNPC', 'gold-hg': 'GoldHG', 'gold-essentials': 'GoldEssentials', 'gold-chat': 'GoldChat', 'gold-protect': 'GoldProtect', 'gold-staff': 'GoldStaff', 'gold-kits': 'GoldKits', 'gold-vip': 'GoldVip', 'gold-shop': 'GoldShop', 'gold-vault': 'GoldVault', 'gold-hud': 'GoldHud', 'gold-pvp': 'GoldPvP', 'gold-crates': 'GoldCrates']
     dependsOn nomes.keySet().collect { ":$it:jar" }
     doLast {
         def destino = rootProject.file('dist')

@@ -1,0 +1,11 @@
+name: GoldCrates
+main: br.goldsuite.crates.GoldCrates
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+author: gustavoz65
+description: Caixas com premios por peso e chaves assinadas
+commands:
+ caixa: {description: Gerencia caixas e entrega chaves, usage: "/caixa", aliases: [crate, caixas], permission: goldcrates.admin}
+permissions:
+ goldcrates.admin: {default: op, description: Cria caixas e da chaves}
