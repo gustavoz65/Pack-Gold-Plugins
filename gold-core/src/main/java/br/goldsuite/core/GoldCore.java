@@ -5,6 +5,7 @@ import br.goldsuite.api.CoreService;
 import br.goldsuite.api.EffectService;
 import br.goldsuite.api.ItemSigner;
 import br.goldsuite.api.MenuService;
+import br.goldsuite.api.RankingService;
 import br.goldsuite.api.TravelService;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
@@ -45,6 +46,7 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
         getServer().getServiceManager().register(TravelService.class, this.travel, this);
         this.menus = new MenuEngine(this);
         getServer().getServiceManager().register(MenuService.class, this.menus, this);
+        getServer().getServiceManager().register(RankingService.class, new RankingRegistry(), this);
         getServer().getPluginManager().registerEvents(this, this);
         this.dispatcher.submit(() -> {
             this.backend.initialize();

@@ -4,9 +4,11 @@ version: "0.2.0"
 api: ["1.0.0"]
 depend: [GoldCore]
 author: gustavoz65
-description: Combat log, perfil de PvP e creepers que nao quebram blocos
+description: Combat log, perfil detalhado, rankings, ranked 1v1 com ELO e creepers sem destruicao
 commands:
- perfil: {description: Abates, mortes e KDR, usage: "/perfil [jogador]", aliases: [stats]}
+ perfil: {description: Perfil detalhado, usage: "/perfil [jogador]", aliases: [stats]}
  topkills: {description: Ranking de abates, usage: "/topkills", aliases: [topabates]}
+ topranked: {description: Ranking do ranked, usage: "/topranked", aliases: [toprank]}
+ ranked: {description: Modo ranked 1v1, usage: "/ranked [fila|sair]", aliases: [rank, x1]}
 permissions:
- goldpvp.admin: {default: op, description: Ignora o combat log}
+ goldpvp.admin: {default: op, description: Configura o ranked e ignora o combat log}
