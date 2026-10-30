@@ -14,6 +14,7 @@ def regressoes = [
     'gold-perms'  : 'br.goldsuite.perms.PermissionTest',
     'gold-economy': 'br.goldsuite.economy.EconomyTest',
     'gold-npc'    : 'br.goldsuite.npc.NpcTest',
+    'gold-hg'     : 'br.goldsuite.hg.HgTest',
 ]
 
 subprojects {
@@ -71,7 +72,7 @@ project(':gold-core') {
 
 // Copia os plugins prontos para dist/ com o nome usado no servidor (GoldCore-0.1.0.jar...).
 tasks.register('dist') {
-    def nomes = ['gold-core': 'GoldCore', 'gold-auth': 'GoldAuth', 'gold-perms': 'GoldPerms', 'gold-economy': 'GoldEconomy', 'gold-npc': 'GoldNPC']
+    def nomes = ['gold-core': 'GoldCore', 'gold-auth': 'GoldAuth', 'gold-perms': 'GoldPerms', 'gold-economy': 'GoldEconomy', 'gold-npc': 'GoldNPC', 'gold-hg': 'GoldHG']
     dependsOn nomes.keySet().collect { ":$it:jar" }
     doLast {
         def destino = rootProject.file('dist')

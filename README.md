@@ -4,11 +4,12 @@ Plugins Java da GoldSuite para o [Nukkit Gold](https://github.com/gustavoz65/Nuk
 
 | Plugin | Função | Guia |
 | --- | --- | --- |
-| GoldCore | SQLite assíncrono, assinatura de itens, viagens com transição e efeitos de partículas | este arquivo |
+| GoldCore | SQLite assíncrono, assinatura de itens, viagens com transição, efeitos de partículas e menus em baú virtual | este arquivo |
 | GoldAuth | Registro, login e troca de senha | [gold-auth](gold-auth/README.md) |
 | GoldPerms | Grupos, herança e expiração de permissões | [gold-perms](gold-perms/README.md) |
 | GoldEconomy | Money, cash, `/pagar`, `/topmoney` | [gold-economy](gold-economy/README.md) |
 | GoldNPC | NPCs estilo Slapper com destinos e transições | [gold-npc](gold-npc/README.md) |
+| GoldHG | Hunger Games com 36 kits, feast, bússola e sopa para celular | [gold-hg](gold-hg/README.md) |
 
 O que falta está no [roadmap](ROADMAP.md).
 

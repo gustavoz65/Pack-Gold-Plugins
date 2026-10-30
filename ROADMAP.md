@@ -5,7 +5,7 @@ Suíte Gradle com um jar por módulo, neste repositório (Pack-Gold-Plugins). O 
 | Módulo | Situação | Originais ou responsabilidade |
 | --- | --- | --- |
 | gold-api | Base inicial | Interfaces dos serviços comuns |
-| GoldCore | Parcial | SQLite assíncrono, HMAC, viagens com transição e efeitos de partículas prontos; menus, hologramas e cooldowns pendentes; aFloatingText |
+| GoldCore | Parcial | SQLite assíncrono, HMAC, viagens com transição e efeitos de partículas prontos; menus em baú virtual prontos; hologramas e cooldowns pendentes; aFloatingText |
 | GoldAuth | Inicial implementado e testado com jogadores simulados | ServerAuth, ChatLogin, OpLogin; falta validar cliente real e ampliar configuração |
 | GoldPerms | Implementado | PurePerms |
 | GoldVip | Pendente | Key, Vips, VipJoin |
@@ -25,18 +25,10 @@ Suíte Gradle com um jar por módulo, neste repositório (Pack-Gold-Plugins). O 
 | GoldWorld | Pendente | ManyWorlds, AlphaVille, RealTime, MegaFornalha, SilkSpawners, StackingMobs, AutoInv |
 | GoldBuild | Pendente | MagicWE refeito do zero, BlockSniper, Montanhas |
 | GoldNPC | Implementado (falta cliente real) | Slapper e SlapperRotation |
-| GoldHG | Próximo | Hunger Games em mundo separado, entrada pelo GoldNPC; sopa com UX para celular (ver abaixo) |
+| GoldHG | Implementado (falta cliente real) | HG-PLUS reescrito: 36 kits, feast, bússola, sopa para celular, reset do mapa |
 | GoldHud | Pendente | superBAR, Cordenadas, itemID, Status Armor |
 | GoldStaff | Pendente | Report, ajuda, GiveAllPN, CommandBlocker, Restart, ClearLagg, TimeCommander |
 
 DevTools fica fora da suíte por ser ferramenta de empacotamento PHP. GoldScoreboard, GoldDaily, GoldAntiCheat e GoldMenu permanecem opcionais para uma segunda fase.
 
-## GoldHG: sopa no celular
-
-No HG clássico a sopa cura na hora ao usar o item. No celular isso é ruim: tocar no ar nem sempre dispara o uso, e trocar de slot e tocar de novo é lento. Plano:
-
-- **Tocar em qualquer lugar:** a sopa funciona tocando no ar, num bloco ou até num jogador, sem segurar.
-- **Modo "selecionar e tomar"** (opcional por jogador, `/sopa modo`): tocar no slot da sopa na hotbar já cura, se faltar vida. É o jeito mais rápido no touch.
-- **Tigela some sozinha** (ou vai para um slot fixo), para a hotbar não encher de tigelas.
-- **Não gasta sopa com vida cheia**, e um som/partícula curto confirma a cura.
-- **Validação no servidor:** no máximo uma sopa a cada 3 ticks por jogador, então macro não dá vantagem e quem joga no touch não fica atrás.
+A sopa para celular está descrita em [gold-hg](gold-hg/README.md).

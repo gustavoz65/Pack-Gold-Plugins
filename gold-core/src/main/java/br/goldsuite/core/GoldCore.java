@@ -4,6 +4,7 @@ import br.goldsuite.api.AsyncStore;
 import br.goldsuite.api.CoreService;
 import br.goldsuite.api.EffectService;
 import br.goldsuite.api.ItemSigner;
+import br.goldsuite.api.MenuService;
 import br.goldsuite.api.TravelService;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
@@ -11,6 +12,7 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.entity.EntityLevelChangeEvent;
 import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
+import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.Player;
 import cn.nukkit.plugin.PluginBase;
 import java.nio.file.Files;
@@ -27,6 +29,7 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
     private ItemSigner signer;
     private EffectEngine effects;
     private TravelEngine travel;
+    private MenuEngine menus;
 
     @Override
     public void onEnable() {
@@ -40,6 +43,8 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
         this.travel = new TravelEngine(this, this.effects);
         getServer().getServiceManager().register(EffectService.class, this.effects, this);
         getServer().getServiceManager().register(TravelService.class, this.travel, this);
+        this.menus = new MenuEngine(this);
+        getServer().getServiceManager().register(MenuService.class, this.menus, this);
         getServer().getPluginManager().registerEvents(this, this);
         this.dispatcher.submit(() -> {
             this.backend.initialize();
@@ -85,7 +90,10 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
         return this.ready.thenCompose(ignored -> this.dispatcher.submit(() -> { this.backend.delete(namespace, key); return null; }));
     }
 
-    @EventHandler(priority = EventPriority.MONITOR) public void quit(PlayerQuitEvent event) { this.travel.cancel(event.getPlayer()); this.effects.stop(event.getPlayer()); }
+    @EventHandler(priority = EventPriority.MONITOR) public void quit(PlayerQuitEvent event) { this.travel.cancel(event.getPlayer()); this.effects.stop(event.getPlayer()); this.menus.forget(event.getPlayer()); }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true) public void packet(DataPacketReceiveEvent event) {
+        if (this.menus.intercept(event.getPlayer(), event.getPacket())) { event.setCancelled(); }
+    }
     @EventHandler(priority = EventPriority.MONITOR) public void death(PlayerDeathEvent event) { this.travel.cancel(event.getEntity()); this.effects.stop(event.getEntity()); }
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true) public void level(EntityLevelChangeEvent event) {
         if (event.getEntity() instanceof Player && !this.travel.isTraveling((Player) event.getEntity())) { this.effects.stop((Player) event.getEntity()); }
