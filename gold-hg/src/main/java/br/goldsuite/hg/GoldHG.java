@@ -42,6 +42,8 @@ public final class GoldHG extends PluginBase {
     final Map<Player, Kit> kits = new IdentityHashMap<>();
     /** Eliminados que devem nascer no lobby. */
     final Set<Player> returning = Collections.newSetFromMap(new IdentityHashMap<>());
+    /** Quem entrou durante a invencibilidade e ainda escolhe o kit: jogador -> prazo. */
+    private final Map<Player, Long> lateKit = new IdentityHashMap<>();
     private Abilities abilities;
 
     @Override public void onEnable() {
@@ -55,6 +57,9 @@ public final class GoldHG extends PluginBase {
         data.ready().whenComplete((unused, error) -> {
             if (!isEnabled()) { return; }
             if (error != null) { getLogger().error("Falha ao carregar o HG.", error); getServer().getPluginManager().disablePlugin(this); return; }
+            if (rules().startRev < 1) {
+                data.change(s -> { s.rules.minPlayers = 5; s.rules.waitSeconds = 50; s.rules.graceSeconds = 120; s.rules.startRev = 1; });
+            }
             for (String arena : data.read(s -> new ArrayList<>(s.arenas.keySet()))) {
                 if (getServer().getLevelByName(arena) == null && getServer().isLevelGenerated(arena)) { getServer().loadLevel(arena); }
                 games.put(arena, new Game(arena, rules().waitSeconds));
@@ -66,7 +71,7 @@ public final class GoldHG extends PluginBase {
 
     @Override public void onDisable() {
         for (Game game : games.values()) { for (Player player : game.online()) { strip(player); } }
-        games.clear(); inGame.clear(); kits.clear(); returning.clear();
+        games.clear(); inGame.clear(); kits.clear(); returning.clear(); lateKit.clear();
         if (abilities != null) { abilities.clear(); }
         if (data != null) { data.close(); }
     }
@@ -93,16 +98,25 @@ public final class GoldHG extends PluginBase {
             List<Player> players = game.online();
             switch (game.phase) {
                 case AGUARDANDO:
-                    if (players.size() >= rules.minPlayers) { game.phase = Phase.CONTAGEM; game.seconds = rules.waitSeconds; }
-                    for (Player p : players) { p.sendTip("§eAguardando jogadores §f" + players.size() + "/" + rules.minPlayers + "§e | toque no bau para escolher o kit"); }
+                    if (players.size() >= rules.minPlayers) {
+                        game.phase = Phase.CONTAGEM; game.seconds = rules.waitSeconds;
+                        broadcast(game, "§aMinimo de jogadores atingido! §fA partida comeca em §e" + rules.waitSeconds + "s§f.");
+                    }
+                    for (Player p : players) { p.sendTip("§eAguardando jogadores §f" + players.size() + "/" + rules.minPlayers + "§7 | §fbau da hotbar: kits"); }
                     break;
-                case CONTAGEM:
-                    if (players.size() < rules.minPlayers) { game.phase = Phase.AGUARDANDO; break; }
+                case CONTAGEM: {
+                    // Faltou gente: a contagem para e recomeca do inicio quando o minimo voltar.
+                    if (players.size() < rules.minPlayers && !game.forced) { game.phase = Phase.AGUARDANDO; game.seconds = rules.waitSeconds; broadcast(game, "§cJogadores insuficientes. Contagem cancelada."); break; }
+                    // Sala cheia: nao faz sentido esperar mais.
+                    if (game.players.size() >= spawns(game).size() && game.seconds > 10) { game.seconds = 10; broadcast(game, "§aSala cheia! Comecando em 10s."); }
                     game.seconds--;
-                    for (Player p : players) { p.sendPopup("§aA partida comeca em §f" + Game.clock(game.seconds) + "§7 | kit: §e" + kit(p).title); }
-                    if (game.seconds <= 10 && game.seconds > 0) { for (Player p : players) { level.addSound(new ClickSound(p), p); } }
-                    if (game.seconds <= 0) { start(game, level, players, rules); }
+                    for (Player p : players) { p.sendTip("§aIniciando em §f" + Game.clock(game.seconds) + "§7 | §f" + players.size() + "/" + spawns(game).size() + "§7 | kit: §e" + kit(p).title); }
+                    int s = game.seconds;
+                    if (s == 30 || s == 15 || (s <= 5 && s > 0)) { broadcast(game, "§fA partida comeca em §e" + s + "§f segundo" + (s == 1 ? "" : "s") + "."); }
+                    if (s <= 10 && s > 0) { for (Player p : players) { level.addSound(new ClickSound(p), p); } }
+                    if (s <= 0) { start(game, level, players, rules); }
                     break;
+                }
                 case INVENCIVEL:
                 case LUTA:
                     running(game, level, players, rules);
@@ -116,24 +130,31 @@ public final class GoldHG extends PluginBase {
         game.phase = Phase.INVENCIVEL;
         game.seconds = rules.gameSeconds;
         fillChests(level, rules.chestItems);
-        for (Player p : players) {
-            Kit kit = kit(p);
-            if (kit == Kit.SURPRESA) { kit = Kit.random(); kits.put(p, kit); p.sendMessage(PREFIX + "Seu kit surpresa e §e" + kit.title); }
-            p.getInventory().clearAll();
-            p.setGamemode(Player.SURVIVAL);
-            p.setHealth(p.getMaxHealth());
-            p.getFoodData().setLevel(20);
-            p.removeAllEffects();
-            p.getInventory().addItem(Item.get(Kit.COMPASS, 0, 1));
-            for (Item item : kit.items()) { p.getInventory().addItem(item); }
-            abilities.onStart(p, kit);
-            level.addSound(new AnvilUseSound(p), p);
-            p.sendMessage(PREFIX + "§6A partida comecou! §bPvP em §f" + Game.clock(rules.graceSeconds) + "§b. Boa sorte!");
-        }
+        for (Player p : players) { equip(p, level); p.sendMessage(PREFIX + "§6A partida comecou! §bPvP em §f" + Game.clock(rules.graceSeconds) + "§b. Ainda da para entrar ate o PvP ser liberado."); }
+    }
+
+    /** Inventario limpo, bussola e itens do kit; usado no inicio e por quem entra durante a invencibilidade. */
+    private void equip(Player p, Level level) {
+        lateKit.remove(p);
+        Kit kit = kit(p);
+        if (kit == Kit.SURPRESA) { kit = Kit.random(); kits.put(p, kit); p.sendMessage(PREFIX + "Seu kit surpresa e §e" + kit.title); }
+        p.getInventory().clearAll();
+        p.setGamemode(Player.SURVIVAL);
+        p.setHealth(p.getMaxHealth());
+        p.getFoodData().setLevel(20);
+        p.removeAllEffects();
+        p.getInventory().addItem(Item.get(Kit.COMPASS, 0, 1));
+        for (Item item : kit.items()) { p.getInventory().addItem(item); }
+        abilities.onStart(p, kit);
+        level.addSound(new AnvilUseSound(p), p);
     }
 
     private void running(Game game, Level level, List<Player> players, HgState.Rules rules) {
         int elapsed = rules.gameSeconds - game.seconds;
+        if (!lateKit.isEmpty()) {
+            long now = System.currentTimeMillis();
+            for (Player p : players) { Long until = lateKit.get(p); if (until != null && (now >= until || game.phase != Phase.INVENCIVEL)) { equip(p, level); p.sendMessage(PREFIX + "Kit entregue: §e" + kit(p).title); } }
+        }
         if (game.phase == Phase.INVENCIVEL) {
             int left = rules.graceSeconds - elapsed;
             if (left <= 0) {
@@ -252,11 +273,11 @@ public final class GoldHG extends PluginBase {
         } else {
             // Prefere a sala mais cheia que ainda aceita gente, para as partidas comecarem logo.
             for (Game g : games.values()) {
-                if (g.waiting() && spawns(g).size() > g.players.size() && (game == null || g.players.size() > game.players.size())) { game = g; }
+                if (g.open() && spawns(g).size() > g.players.size() && (game == null || g.players.size() > game.players.size())) { game = g; }
             }
             if (game == null) { throw new IllegalArgumentException("Nenhuma sala aberta agora."); }
         }
-        if (!game.waiting()) { throw new IllegalArgumentException("A partida ja comecou."); }
+        if (!game.open()) { throw new IllegalArgumentException("O PvP ja foi liberado nessa sala. Espere a proxima."); }
         List<double[]> spawns = spawns(game);
         int slot = game.freeSpawn(spawns.size());
         if (slot < 0) { throw new IllegalArgumentException("Sala cheia."); }
@@ -273,13 +294,20 @@ public final class GoldHG extends PluginBase {
             player.setHealth(player.getMaxHealth());
             player.getInventory().setItem(0, selector());
             broadcast(target, "§a" + player.getName() + "§f entrou (" + target.players.size() + "/" + spawns.size() + ")");
+            if (target.phase == Phase.INVENCIVEL) {
+                // Chegou com a partida rolando: 15 s para escolher o kit, depois recebe o escolhido.
+                lateKit.put(player, System.currentTimeMillis() + 15_000);
+                player.sendMessage(PREFIX + "§eA partida ja comecou, mas o PvP ainda nao. Escolha o kit em 15s (bau da hotbar).");
+                openKits(player, 0);
+            }
         });
     }
 
     void leave(Player player) {
         Game game = inGame.get(player);
         if (game == null) { throw new IllegalArgumentException("Voce nao esta numa partida."); }
-        if (game.waiting()) { game.players.remove(player); inGame.remove(player); strip(player); toLobby(player); broadcast(game, "§f" + player.getName() + " saiu da sala."); }
+        if (game.waiting()) { game.players.remove(player); inGame.remove(player); lateKit.remove(player); strip(player); toLobby(player); broadcast(game, "§f" + player.getName() + " saiu da sala."); }
+        else if (game.phase == Phase.INVENCIVEL) { lateKit.remove(player); eliminate(player, game, "§f" + player.getName() + "§7 saiu antes do PvP"); strip(player); toLobby(player); }
         else { eliminate(player, game, "§f" + player.getName() + "§7 desistiu"); strip(player); toLobby(player); }
     }
 
@@ -287,6 +315,7 @@ public final class GoldHG extends PluginBase {
     void eliminate(Player player, Game game, String message) {
         game.players.remove(player);
         inGame.remove(player);
+        lateKit.remove(player);
         abilities.forget(player);
         broadcast(game, message + " §7(" + game.players.size() + " restantes)");
         if (!game.waiting() && game.players.size() <= 1) { end(game, game.players.isEmpty() ? null : game.players.keySet().iterator().next()); }
@@ -350,6 +379,8 @@ public final class GoldHG extends PluginBase {
 
     boolean isArena(Level level) { return level != null && games.containsKey(level.getFolderName()); }
 
+    boolean choosingLate(Player player) { return lateKit.containsKey(player); }
+
     static Item selector() { Item item = Item.get(SELECTOR, 0, 1); item.setCustomName("§r§eKits §7(toque)"); return item; }
 
     void openKits(Player player, int page) {
@@ -373,9 +404,11 @@ public final class GoldHG extends PluginBase {
 
     void choose(Player player, Kit kit) {
         Game game = inGame.get(player);
-        if (game != null && !game.waiting()) { player.sendMessage(PREFIX + "A partida ja comecou; o kit nao pode mudar."); return; }
+        boolean late = lateKit.containsKey(player);
+        if (game != null && !game.waiting() && !late) { player.sendMessage(PREFIX + "A partida ja comecou; o kit nao pode mudar."); return; }
         kits.put(player, kit);
         player.sendMessage(PREFIX + "Kit escolhido: §e" + kit.title + "§7 - " + kit.description);
+        if (late) { Level level = getServer().getLevelByName(game.arena); if (level != null) { equip(player, level); } }
     }
 
     private static Item named(Item item, String name) { item.setCustomName(name); return item; }
@@ -470,7 +503,21 @@ public final class GoldHG extends PluginBase {
                 result(sender, maps.backup(g.arena), "Copia do mapa atualizada.");
                 return true;
             }
-            case "iniciar": { Game g = arenaArg(args); if (g.waiting() && !g.players.isEmpty()) { g.phase = Phase.CONTAGEM; g.seconds = Math.min(g.seconds, 10); } sender.sendMessage(PREFIX + "Comecando em 10 s."); return true; }
+            case "iniciar": { Game g = arenaArg(args); if (g.waiting() && !g.players.isEmpty()) { g.forced = true; g.phase = Phase.CONTAGEM; g.seconds = Math.min(g.seconds, 10); } sender.sendMessage(PREFIX + "Comecando em 10 s."); return true; }
+            case "regras": {
+                if (args.length < 3) { HgState.Rules r = rules(); sender.sendMessage(PREFIX + "Minimo §e" + r.minPlayers + "§f jogadores, contagem §e" + r.waitSeconds + "s§f, PvP apos §e" + r.graceSeconds + "s§f. Mude com /hg regras <minimo|espera|pvp> <valor>"); return true; }
+                String what = args[1].toLowerCase(Locale.ROOT);
+                int value = Integer.parseInt(args[2]);
+                result(sender, data.change(s -> {
+                    switch (what) {
+                        case "minimo": s.rules.minPlayers = value; break;
+                        case "espera": s.rules.waitSeconds = value; break;
+                        case "pvp": s.rules.graceSeconds = value; break;
+                        default: throw new IllegalArgumentException("Use minimo, espera ou pvp.");
+                    }
+                }), "Regra " + what + " = " + value + ".");
+                return true;
+            }
             case "batalhafinal": { Game g = arenaArg(args); if (!g.waiting() && g.phase != Phase.RESETANDO) { g.seconds = Math.min(g.seconds, rules().finaleAt + 10); } sender.sendMessage(PREFIX + "Batalha final em 10 s."); return true; }
             case "remover": {
                 Game g = arenaArg(args);
@@ -491,7 +538,7 @@ public final class GoldHG extends PluginBase {
 
     private void help(CommandSender sender) {
         sender.sendMessage(PREFIX + "/hg entrar [arena], /hg sair, /hg lista, /hgkits, /hgkit <nome>, /sopa (alterna sopa ao selecionar)");
-        if (sender.hasPermission("goldhg.admin")) { sender.sendMessage(PREFIX + "Admin: /hg criar <mundo>, spawn, desfazer, final, salvar, iniciar, batalhafinal, remover <arena>, /sopa mundo <mundo>"); }
+        if (sender.hasPermission("goldhg.admin")) { sender.sendMessage(PREFIX + "Admin: /hg criar <mundo>, spawn, desfazer, final, salvar, iniciar, regras, batalhafinal, remover <arena>, /sopa mundo <mundo>"); }
     }
 
     private void result(CommandSender sender, CompletableFuture<?> operation, String success) { result(sender, operation, success, null); }

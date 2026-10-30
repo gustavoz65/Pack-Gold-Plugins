@@ -156,7 +156,7 @@ final class Abilities implements Listener {
         if (hand.getId() == SOUP && soupAllowed(p)) { drink(p, p.getInventory().getHeldItemIndex()); event.setCancelled(); return; }
         Game game = plugin.inGame.get(p);
         if (game == null) { return; }
-        if (game.waiting()) {
+        if (game.waiting() || plugin.choosingLate(p)) {
             event.setCancelled();
             if (hand.getId() == GoldHG.SELECTOR) { plugin.openKits(p, 0); }
             return;
@@ -480,14 +480,8 @@ final class Abilities implements Listener {
         Player p = event.getPlayer();
         Game game = plugin.inGame.get(p);
         if (game == null) { return; }
-        if (game.waiting()) {
-            if (plugin.isArena(p.level)) {
-                Location from = event.getFrom(), to = event.getTo();
-                double dx = to.x - from.x, dz = to.z - from.z;
-                if (dx * dx + dz * dz > 0.0001) { event.setTo(new Location(from.x, from.y, from.z, to.yaw, to.pitch, from.level)); }
-            }
-            return;
-        }
+        // Na sala de espera todos andam livres pelo mapa (sem dano nem quebrar blocos), como no HG do PC.
+        if (game.waiting()) { return; }
         Kit kit = plugin.kit(p);
         if (kit == Kit.CANGURU && p.isOnGround()) { kangarooAir.remove(p); }
         else if (kit == Kit.ARANHA && p.isSneaking()) {

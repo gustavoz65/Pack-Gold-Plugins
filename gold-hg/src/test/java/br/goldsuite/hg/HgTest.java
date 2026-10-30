@@ -22,6 +22,13 @@ public final class HgTest {
 
         Game game = new Game("hg", 10);
         check(game.freeSpawn(2) == 0 && game.waiting() && game.protectedPhase(), "Estado inicial incorreto.");
+        check(state.rules.minPlayers == 5 && state.rules.waitSeconds == 50 && state.rules.graceSeconds == 120, "Padroes do inicio estilo PC errados.");
+        game.phase = Game.Phase.INVENCIVEL;
+        check(game.open() && !game.waiting() && game.protectedPhase(), "Invencibilidade deve aceitar entradas sem PvP.");
+        game.phase = Game.Phase.LUTA;
+        check(!game.open() && game.pvp(), "Com PvP liberado a sala fecha.");
+        game.forced = true; game.reset(50);
+        check(!game.forced && game.seconds == 50 && game.waiting(), "Reset nao limpou a partida.");
 
         // Kits: nomes unicos, descricao, Surpresa nunca sorteia a si mesmo nem Sem kit.
         Set<String> titles = new HashSet<>();

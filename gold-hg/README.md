@@ -4,9 +4,9 @@ Hunger Games no estilo do HG clássico do Java 1.8, feito para o MCPE 0.15.10. P
 
 ## Partida
 
-1. **Sala:** até 24 jogadores. Com o mínimo (2), começa a contagem de 3 min. Os jogadores ficam congelados no spawn e escolhem o kit tocando no **baú da hotbar**.
+1. **Sala (igual ao HG do PC):** até 24 jogadores. Com o mínimo (5) começa a contagem de 50 s; se a sala lotar, cai para 10 s. Na espera todos andam livres pelo mapa, sem dano e sem quebrar blocos, escolhendo o kit no **baú da hotbar**. Dá para entrar e sair à vontade; se ficar abaixo do mínimo, a contagem é cancelada e recomeça do zero quando o mínimo voltar.
 2. **Início:** inventário limpo, bússola, itens do kit, baús do mapa reabastecidos.
-3. **Invencibilidade:** 3 min sem dano.
+3. **Invencibilidade:** 2 min sem dano. Ainda dá para entrar nesse período: quem chega tem 15 s para escolher o kit. Sair antes do PvP não tem punição além de deixar a partida.
 4. **Feast:** aparece no centro faltando 13 min (anunciado 5 min, 1 min, 30 s e 10 s antes, com as coordenadas): plataforma com 8 baús de equipamento bom.
 5. **Reabastecimento** dos baús faltando 7 min, e **batalha final** faltando 3 min: todos são levados em círculo para o centro.
 6. **Fim:** o último vivo vence (prêmio pelo GoldEconomy e partículas); se o tempo acabar, ninguém vence. O mapa é restaurado da cópia em segundo plano.
@@ -54,7 +54,8 @@ Admin (`goldhg.admin`):
 /hg desfazer           remove o último spawn
 /hg final              centro do feast e da batalha final
 /hg salvar [arena]     atualiza a cópia do mapa depois de editar
-/hg iniciar [arena]    começa em 10 s
+/hg iniciar [arena]    começa em 10 s (mesmo abaixo do mínimo)
+/hg regras [minimo|espera|pvp] [valor]   jogadores mínimos, contagem e invencibilidade (segundos)
 /hg batalhafinal       batalha final em 10 s
 /hg remover <arena>
 ```

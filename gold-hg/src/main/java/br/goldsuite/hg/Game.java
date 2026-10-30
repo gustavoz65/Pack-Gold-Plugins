@@ -12,9 +12,9 @@ final class Game {
     enum Phase {
         /** Menos jogadores que o minimo. */
         AGUARDANDO,
-        /** Contagem para comecar; jogadores congelados. */
+        /** Contagem para comecar; jogadores andam livres, sem dano, e podem entrar e sair. */
         CONTAGEM,
-        /** Partida comecou, PvP desligado. */
+        /** Partida comecou, PvP desligado; ainda aceita quem chega (estilo HG do PC). */
         INVENCIVEL,
         /** PvP ligado. */
         LUTA,
@@ -29,10 +29,14 @@ final class Game {
     /** Jogador -> indice do spawn reservado. */
     final Map<Player, Integer> players = new IdentityHashMap<>();
     boolean finaleDone, refillDone, feastDone;
+    /** /hg iniciar: comeca mesmo abaixo do minimo. */
+    boolean forced;
 
     Game(String arena, int waitSeconds) { this.arena = arena; this.seconds = waitSeconds; }
 
     boolean waiting() { return phase == Phase.AGUARDANDO || phase == Phase.CONTAGEM; }
+    /** Entrar e sair sem punicao enquanto o PvP nao foi liberado. */
+    boolean open() { return waiting() || phase == Phase.INVENCIVEL; }
     boolean pvp() { return phase == Phase.LUTA; }
     boolean protectedPhase() { return phase != Phase.LUTA; }
 
@@ -54,7 +58,7 @@ final class Game {
         players.clear();
         phase = Phase.AGUARDANDO;
         seconds = waitSeconds;
-        finaleDone = false; refillDone = false; feastDone = false;
+        finaleDone = false; refillDone = false; feastDone = false; forced = false;
     }
 
     static String clock(int seconds) { return String.format("%d:%02d", seconds / 60, seconds % 60); }

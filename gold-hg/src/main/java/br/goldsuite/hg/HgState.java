@@ -30,9 +30,11 @@ public final class HgState {
 
     /** Tempos em segundos; valores padrao do HG-PLUS original. */
     public static final class Rules {
-        public int minPlayers = 2;
-        public int waitSeconds = 180;
-        public int graceSeconds = 180;
+        public int minPlayers = 5;
+        public int waitSeconds = 50;
+        public int graceSeconds = 120;
+        /** Versao dos padroes de inicio; 1 = estilo HG do PC (5 jogadores, 50 s, PvP em 2 min). */
+        public int startRev;
         public int gameSeconds = 1380;
         /** Segundos restantes quando todos vao para a batalha final. */
         public int finaleAt = 180;
