@@ -1,0 +1,32 @@
+name: GoldEssentials
+main: br.goldsuite.essentials.GoldEssentials
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldAuth]
+author: gustavoz65
+description: Homes, warps, spawn, tpa, back, fly e tpall
+commands:
+ sethome: {description: Salva uma home, usage: "/sethome [nome]"}
+ home: {description: Vai para uma home, usage: "/home [nome]", aliases: [casa]}
+ delhome: {description: Apaga uma home, usage: "/delhome <nome>"}
+ warp: {description: Lista ou usa warps, usage: "/warp [nome]", aliases: [warps]}
+ setwarp: {description: Cria warp, usage: "/setwarp <nome>", permission: goldessentials.admin}
+ delwarp: {description: Apaga warp, usage: "/delwarp <nome>", permission: goldessentials.admin}
+ spawn: {description: Vai ao spawn, usage: "/spawn", aliases: [lobby]}
+ setspawn: {description: Define o spawn, usage: "/setspawn", permission: goldessentials.admin}
+ tpa: {description: Pede para ir ate um jogador, usage: "/tpa <jogador>"}
+ tpahere: {description: Pede para um jogador vir ate voce, usage: "/tpahere <jogador>"}
+ tpaccept: {description: Aceita pedido de teleporte, usage: "/tpaccept", aliases: [tpaceitar]}
+ tpdeny: {description: Recusa pedido de teleporte, usage: "/tpdeny", aliases: [tprecusar]}
+ back: {description: Volta ao ultimo local, usage: "/back", aliases: [voltar], permission: goldessentials.back}
+ fly: {description: Liga ou desliga o voo, usage: "/fly [jogador]", aliases: [voar], permission: goldessentials.fly}
+ tpall: {description: Traz todos ate voce, usage: "/tpall", permission: goldessentials.admin}
+permissions:
+ goldessentials.admin: {default: op, description: Warps, spawn e tpall}
+ goldessentials.back: {default: true, description: Usa /back}
+ goldessentials.fly: {default: op, description: Usa /fly (dar ao grupo vip pelo GoldPerms)}
+ goldessentials.fly.outros: {default: op, description: Liga o voo de outro jogador}
+ goldessentials.instantaneo: {default: op, description: Teleporta sem contagem}
+ goldessentials.warp.todas: {default: true, description: Usa todas as warps}
+ goldessentials.homes.vip: {default: false, description: 5 homes em vez de 2}
