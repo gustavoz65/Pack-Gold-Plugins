@@ -1,0 +1,33 @@
+name: GoldEconomy
+main: br.goldsuite.economy.GoldEconomy
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldAuth]
+author: gustavoz65
+description: Contas, cash e transferencias persistentes
+commands:
+ money:
+  description: Consulta moedas
+  usage: "/money [jogador]"
+  aliases: [saldo]
+ cash:
+  description: Consulta cash
+  usage: "/cash [jogador]"
+ pagar:
+  description: Transfere moedas
+  usage: "/pagar <jogador> <valor>"
+ trocarcash:
+  description: Troca cada cash por 100 moedas
+  usage: "/trocarcash <quantidade>"
+ topmoney:
+  description: Mostra os dez maiores saldos
+  usage: "/topmoney"
+ economia:
+  description: Administra moedas e cash
+  usage: "/economia <adicionar/retirar/definir> <money/cash> <jogador> <valor>"
+  permission: goldeconomy.admin
+permissions:
+ goldeconomy.admin:
+  default: op
+  description: Altera os saldos de outras contas

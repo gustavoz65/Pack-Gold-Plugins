@@ -1,0 +1,18 @@
+name: GoldNPC
+main: br.goldsuite.npc.GoldNPC
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldAuth]
+author: gustavoz65
+description: NPCs estilo Slapper so de pacotes, com destinos e transicoes
+commands:
+ npc:
+  description: Cria e configura NPCs
+  usage: "/npc"
+  aliases: [slapper]
+  permission: goldnpc.admin
+permissions:
+ goldnpc.admin:
+  default: op
+  description: Cria, edita e remove NPCs

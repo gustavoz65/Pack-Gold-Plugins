@@ -1,0 +1,17 @@
+name: GoldPerms
+main: br.goldsuite.perms.GoldPerms
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldAuth]
+author: gustavoz65
+description: Grupos, heranca e permissoes persistentes
+commands:
+ grupo:
+  description: Administra grupos e permissoes
+  usage: "/grupo listar|ver <jogador>|criar <grupo>|herdar <grupo> <pai/nenhum>|permissao <grupo> <no> <true/false/remover>|jogador <nome> <grupo>|apagar <grupo>"
+  permission: goldperms.admin
+permissions:
+ goldperms.admin:
+  default: op
+  description: Administra grupos e permissoes

@@ -1,0 +1,35 @@
+name: GoldAuth
+main: br.goldsuite.auth.GoldAuth
+version: "0.1.0"
+api: ["1.0.0"]
+load: POSTWORLD
+depend: [GoldCore]
+author: gustavoz65
+description: Registro e login locais com senhas protegidas e bloqueio antes da autenticacao
+commands:
+ registrar:
+  description: Cria sua conta neste servidor
+  usage: "/registrar <senha> <confirmacao>"
+  aliases: [register, reg]
+  permission: goldauth.use
+ login:
+  description: Autentica sua conta neste servidor
+  usage: "/login <senha>"
+  aliases: [l]
+  permission: goldauth.use
+ senha:
+  description: Altera a senha da sua conta
+  usage: "/senha <senha_atual> <nova_senha>"
+  aliases: [changepassword]
+  permission: goldauth.use
+ authreset:
+  description: Remove o registro local de uma conta
+  usage: "/authreset <jogador>"
+  permission: goldauth.admin
+permissions:
+ goldauth.use:
+  description: Permite registrar e autenticar sua propria conta
+  default: true
+ goldauth.admin:
+  description: Permite remover o registro de outras contas
+  default: op

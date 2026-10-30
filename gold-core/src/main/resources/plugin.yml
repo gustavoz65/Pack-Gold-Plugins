@@ -1,0 +1,7 @@
+name: GoldCore
+main: br.goldsuite.core.GoldCore
+version: "0.1.0"
+api: ["1.0.0"]
+load: POSTWORLD
+author: gustavoz65
+description: Base comum da GoldSuite com armazenamento assincrono e itens assinados

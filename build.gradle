@@ -1,0 +1,87 @@
+allprojects {
+    group = 'br.goldsuite'
+    version = '0.1.0'
+}
+
+// O core fica no repositorio Nukkit-Gold-Edition; baixe com scripts/obter-nukkit.sh (ou .ps1)
+// ou informe outro caminho com -PnukkitJar=...
+def nukkitJar = rootProject.file(findProperty('nukkitJar') ?: 'lib/nukkit-gold.jar')
+
+// Modulo -> classe do teste de regressao (programas Java comuns, sem framework de testes).
+def regressoes = [
+    'gold-core'   : 'br.goldsuite.core.CoreTest',
+    'gold-auth'   : 'br.goldsuite.auth.AuthTest',
+    'gold-perms'  : 'br.goldsuite.perms.PermissionTest',
+    'gold-economy': 'br.goldsuite.economy.EconomyTest',
+    'gold-npc'    : 'br.goldsuite.npc.NpcTest',
+]
+
+subprojects {
+    apply plugin: 'java-library'
+    java {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.release = 8
+    }
+    dependencies {
+        compileOnly files(nukkitJar)
+        testImplementation files(nukkitJar)
+    }
+    tasks.withType(Jar).configureEach {
+        preserveFileTimestamps = false
+        reproducibleFileOrder = true
+    }
+    if (name != 'gold-api') {
+        if (name != 'gold-core') {
+            // A API vai embutida no GoldCore; os demais modulos so compilam contra ela.
+            dependencies {
+                compileOnly project(':gold-api')
+                testImplementation project(':gold-api')
+            }
+        }
+        tasks.named('test') { enabled = false }
+        def principal = regressoes[name]
+        if (principal) {
+            tasks.register('regression', JavaExec) {
+                dependsOn testClasses
+                classpath = sourceSets.test.runtimeClasspath
+                mainClass = principal
+                jvmArgs '-ea'
+            }
+            check.dependsOn regression
+        }
+    }
+}
+
+project(':gold-core') {
+    dependencies {
+        implementation project(':gold-api')
+        implementation files(rootProject.file('lib/sqlite-jdbc-3.54.1.0.jar'))
+    }
+    jar {
+        dependsOn configurations.runtimeClasspath
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+        exclude 'META-INF/*.SF', 'META-INF/*.RSA', 'META-INF/*.DSA', 'META-INF/MANIFEST.MF'
+    }
+}
+
+// Copia os plugins prontos para dist/ com o nome usado no servidor (GoldCore-0.1.0.jar...).
+tasks.register('dist') {
+    def nomes = ['gold-core': 'GoldCore', 'gold-auth': 'GoldAuth', 'gold-perms': 'GoldPerms', 'gold-economy': 'GoldEconomy', 'gold-npc': 'GoldNPC']
+    dependsOn nomes.keySet().collect { ":$it:jar" }
+    doLast {
+        def destino = rootProject.file('dist')
+        destino.mkdirs()
+        nomes.each { modulo, nome ->
+            copy {
+                from project(":$modulo").tasks.jar.archiveFile
+                into destino
+                rename { "$nome-${version}.jar" }
+            }
+        }
+    }
+}
