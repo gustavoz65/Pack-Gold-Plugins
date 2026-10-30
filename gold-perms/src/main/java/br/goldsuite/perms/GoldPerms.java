@@ -39,6 +39,7 @@ public final class GoldPerms extends PluginBase implements Listener, PermissionS
         attachments.clear();
     }
     @Override public String getGroup(String player) { long now = System.currentTimeMillis(); return data.read(s -> s.group(player, now)); }
+    @Override public long getExpiry(String player) { long now = System.currentTimeMillis(); return data.read(s -> s.expiry(player, now)); }
     @Override public Map<String, Boolean> getPermissions(String player) { long now = System.currentTimeMillis(); return data.read(s -> s.permissions(player, now)); }
     @Override public CompletableFuture<Void> setGroup(String player, String group, long expiresAt) {
         return change(state -> state.assign(player, group, expiresAt)).thenRun(this::refresh);

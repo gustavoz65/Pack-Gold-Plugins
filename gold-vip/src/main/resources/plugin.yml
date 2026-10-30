@@ -1,0 +1,12 @@
+name: GoldVip
+main: br.goldsuite.vip.GoldVip
+version: "0.1.0"
+api: ["1.0.0"]
+depend: [GoldCore, GoldPerms]
+softdepend: [GoldAuth]
+author: gustavoz65
+description: Chaves de VIP, tempo de VIP e anuncio de VIP entrando
+commands:
+ vip: {description: Ativa chaves e mostra o tempo de VIP, usage: "/vip ativar <chave> | tempo", aliases: [chave, key]}
+permissions:
+ goldvip.admin: {default: op, description: Gera chaves e da VIP}

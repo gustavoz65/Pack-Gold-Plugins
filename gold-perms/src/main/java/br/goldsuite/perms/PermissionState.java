@@ -29,6 +29,10 @@ public final class PermissionState {
         Member member = members.get(player(name));
         return member == null || (member.expiresAt != 0 && member.expiresAt <= now) ? "padrao" : member.group;
     }
+    public long expiry(String name, long now) {
+        Member member = members.get(player(name));
+        return member == null || (member.expiresAt != 0 && member.expiresAt <= now) ? 0 : member.expiresAt;
+    }
     public Map<String, Boolean> permissions(String name, long now) { return resolve(group(name, now), new HashSet<>()); }
     /** Vincula ou, para padrao, remove o vinculo; nao guarda entradas redundantes. */
     public void assign(String name, String group, long expiresAt) {
