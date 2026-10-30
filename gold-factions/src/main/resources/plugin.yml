@@ -5,8 +5,8 @@ api: ["1.0.0"]
 depend: [GoldCore]
 softdepend: [GoldChat]
 author: gustavoz65
-description: Faccoes com cargos, territorio, home, chat e ranking
+description: Faccoes com cargos, territorio, poder com pesos, invasao, mini mapa, home, chat e ranking
 commands:
  f: {description: Faccoes, usage: "/f", aliases: [faccao, fac]}
 permissions:
- goldfactions.admin: {default: op, description: Ignora territorio de faccoes}
+ goldfactions.admin: {default: op, description: Ignora territorio e configura mundos, pesos e mini mapa}

@@ -15,7 +15,7 @@ Suíte Gradle com um jar por módulo, neste repositório (Pack-Gold-Plugins). O 
 | GoldEssentials | Implementado (falta cliente real) | BasicHomes, essentialsTP, Back, Fly, TPALL, MSpawns, RespawnLobby, ArenaFactions, TpFavela, Vip_and_Loja, IpGold |
 | GoldChat | Implementado (falta cliente real) | PureChat, AntiSpam, DesabilitaChat, Limpar_Chat, DesativarTell, TellCustom, AutoMensagem, CustomAlerts, Bloozt_TIP |
 | GoldProtect | Implementado (falta cliente real) | WorldProtect/ForceFieldSnipTM/Proteção, iProtector, AreaEfeitos, Ant-Void, anti-XRay |
-| GoldFactions | Implementado (falta cliente real) | FactionsPro, TopFacs |
+| GoldFactions | Implementado (falta cliente real): poder com pesos, invasão, mini mapa | FactionsPro, TopFacs |
 | GoldPvP | Implementado (falta cliente real) | CombateL, Perfil, QuebrarArmadura, Creeper |
 | GoldCrates | Implementado (falta cliente real) | CaixaS, ImpleCaixaS |
 | GoldKits | Implementado (falta cliente real) | AdvancedKits |

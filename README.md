@@ -18,9 +18,9 @@ Plugins Java da GoldSuite para o [Nukkit Gold](https://github.com/gustavoz65/Nuk
 | GoldMarket | Leilão | `/leilao` |
 | GoldVault | Baú pessoal | `/ec` |
 | GoldHud | Barra com coordenadas, dinheiro e armadura | `/hud`, `/id` |
-| GoldPvP | Combat log, perfil, creeper sem quebrar blocos | `/perfil`, `/topkills` |
+| GoldPvP | Combat log, perfil detalhado (livro na hotbar), ranked 1v1 com ELO e tiers | `/perfil`, `/ranked`, `/topranked`, `/topkills` |
 | GoldCrates | Caixas com chaves assinadas | `/caixa` |
-| GoldFactions | Facções com território | `/f` |
+| GoldFactions | Facções com poder (terras, membros, spawners, abates, mortes), invasão de borda, mini mapa no mundo | `/f` |
 | GoldEnchant | Encantador pago | `/encantar` |
 | GoldBreaker | Obsidiana e bedrock com TNT, reparo, envio | `/reparar`, `/enviar` |
 | GoldWorld | Mundos, hora real, fundir, spawners, mobs empilhados | `/mundo`, `/fundir` |
@@ -28,7 +28,7 @@ Plugins Java da GoldSuite para o [Nukkit Gold](https://github.com/gustavoz65/Nuk
 | GoldNPC | NPCs estilo Slapper com transições | `/npc` |
 | GoldHG | Hunger Games com 36 kits | `/hg`, `/hgkits`, `/sopa` |
 
-Guias detalhados: [GoldNPC](gold-npc/README.md), [GoldHG](gold-hg/README.md), [GoldAuth](gold-auth/README.md), [GoldPerms](gold-perms/README.md), [GoldEconomy](gold-economy/README.md).
+Guias detalhados: [GoldPvP](gold-pvp/README.md), [GoldFactions](gold-factions/README.md), [GoldNPC](gold-npc/README.md), [GoldHG](gold-hg/README.md), [GoldAuth](gold-auth/README.md), [GoldPerms](gold-perms/README.md), [GoldEconomy](gold-economy/README.md).
 
 O [roadmap](ROADMAP.md) mostra a origem de cada módulo.
 
