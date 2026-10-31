@@ -1,6 +1,6 @@
 name: GoldVault
 main: br.goldsuite.vault.GoldVault
-version: "0.4.0"
+version: "0.4.2"
 api: ["1.0.0"]
 depend: [GoldCore]
 softdepend: [GoldAuth]

@@ -1,6 +1,6 @@
 name: GoldBreaker
 main: br.goldsuite.breaker.GoldBreaker
-version: "0.4.0"
+version: "0.4.2"
 api: ["1.0.0"]
 softdepend: [GoldEconomy]
 author: gustavoz65
