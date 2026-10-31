@@ -1,6 +1,6 @@
 name: GoldSkyWars
 main: br.goldsuite.skywars.GoldSkyWars
-version: "0.4.2"
+version: "0.4.3"
 api: ["1.0.0"]
 depend: [GoldCore]
 softdepend: [GoldEconomy, GoldNPC]

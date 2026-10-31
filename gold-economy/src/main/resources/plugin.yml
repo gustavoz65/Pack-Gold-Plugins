@@ -1,6 +1,6 @@
 name: GoldEconomy
 main: br.goldsuite.economy.GoldEconomy
-version: "0.4.2"
+version: "0.4.3"
 api: ["1.0.0"]
 depend: [GoldCore]
 softdepend: [GoldAuth]

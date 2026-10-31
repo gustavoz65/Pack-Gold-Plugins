@@ -1,6 +1,6 @@
 name: GoldStaff
 main: br.goldsuite.staff.GoldStaff
-version: "0.4.2"
+version: "0.4.3"
 api: ["1.0.0"]
 depend: [GoldCore]
 softdepend: [GoldPerms]
