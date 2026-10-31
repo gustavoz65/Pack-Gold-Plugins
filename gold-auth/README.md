@@ -36,3 +36,16 @@ O plugin não escreve senhas em logs. Outros plugins instalados precisam respeit
 Testes executados no Windows/JDK 17: hash com sal individual, senha certa e errada, hash malformado/custo excessivo, janela de IP, registro e login no servidor isolado, reconexão com nome em outra capitalização, rejeição de senha antiga após troca, login pelo chat, reset administrativo, bloqueios anteriores ao login, cinco erros encerrando a sessão, API desativada e evento de autenticação sem duplicação. O teste também confere que as senhas usadas não aparecem no console. O prazo completo de 120 segundos ainda não foi exercitado num teste de cliente.
 
 O teste integrado usa objetos Player simulados e SQLite real. O fluxo com a interface e a rede de um cliente MCPE 0.15.10 real ainda precisa ser validado.
+
+## Verificação em duas etapas (2FA)
+Protege a conta mesmo que alguém descubra a senha ou use o seu nick (o MCPE 0.15 não tem conta Xbox: o nome sozinho não prova nada).
+1. Logado, use `/2fa ativar`: o servidor mostra uma chave de 32 letras.
+2. No Google Authenticator, Authy ou Microsoft Authenticator: adicionar conta > inserir chave manualmente (baseada em tempo).
+3. `/2fa confirmar <codigo>`. Pronto: este aparelho fica confiável.
+
+Depois disso, **no mesmo aparelho só o `/login`**. Em um aparelho novo, depois da senha certa o servidor pede o código de 6 números do app (`/2fa <codigo>` ou digitar no chat); confirmado, esse aparelho também passa a ser confiável (até 10).
+
+- O aparelho é identificado pela identidade e pelo id da instalação que o cliente manda no login, guardados só como hash. O MAC não chega ao servidor em nenhuma versão do Minecraft (a internet não repassa).
+- `/2fa aparelhos limpar` deixa só o aparelho atual; `/2fa desativar <codigo>` desliga.
+- Perdeu o celular: a staff usa `/2fa reset <jogador>`.
+- Códigos errados contam no mesmo limite por IP das senhas; 5 erros derrubam a conexão.

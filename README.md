@@ -5,7 +5,7 @@ Plugins Java da GoldSuite para o [Nukkit Gold](https://github.com/gustavoz65/Nuk
 | Plugin | Função | Comandos principais |
 | --- | --- | --- |
 | GoldCore | SQLite assíncrono, assinatura de itens, viagens com transição, partículas e menus em baú | (base de todos) |
-| GoldAuth | Registro e login, partículas ao entrar | `/registrar`, `/login` |
+| GoldAuth | Registro e login, verificação em duas etapas (app autenticador) e aparelhos confiáveis | `/registrar`, `/login`, `/2fa` |
 | GoldPerms | Grupos, herança e expiração | `/grupo` |
 | GoldEconomy | Money, cash e ranking | `/money`, `/pagar`, `/topmoney` |
 | GoldEssentials | Homes, warps, spawn, tpa, back, fly | `/home`, `/warp`, `/spawn`, `/tpa`, `/back` |
@@ -19,6 +19,8 @@ Plugins Java da GoldSuite para o [Nukkit Gold](https://github.com/gustavoz65/Nuk
 | GoldVault | Baú pessoal | `/ec` |
 | GoldHud | Barra com coordenadas, dinheiro e armadura | `/hud`, `/id` |
 | GoldPvP | Combat log, perfil (livro na hotbar), ranked 1v1 com elos estilo Valorant (Imortal e Divino), anti-fraude | `/perfil`, `/ranked`, `/elos`, `/elochat`, `/topranked` |
+| GoldDevice | Plataforma (Windows 10/Android/iOS), modo leve `/fps`, limite de CPS por plataforma | `/fps`, `/plataforma` |
+| GoldKeys | Keys de liberação (cash, dinheiro, cosméticos, VIP), pedidos com Pix confirmado pela staff | `/key` |
 | GoldCosmetics | Pingentes, trilhas, efeitos de abate e cor do nome (loja e recompensas do ranked) | `/cosmeticos` |
 | GoldCrates | Caixas com chaves assinadas | `/caixa` |
 | GoldFactions | Facções com poder (terras, membros, spawners, abates, mortes), invasão de borda, mini mapa no mundo | `/f` |
