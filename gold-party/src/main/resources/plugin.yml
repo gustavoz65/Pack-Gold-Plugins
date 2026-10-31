@@ -1,0 +1,12 @@
+name: GoldParty
+main: br.goldsuite.party.GoldParty
+version: "0.4.3"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldEconomy, GoldComandos]
+author: gustavoz65
+description: Party com provas sorteadas (corridas, sobrevivencia e pontos), salas simultaneas e ranking final
+commands:
+ party: {description: Party de minigames, usage: "/party entrar|sair|top|stats [nick]|salas"}
+permissions:
+ goldparty.admin: {default: op, description: Forca o inicio e reconstroi as arenas do Party}
