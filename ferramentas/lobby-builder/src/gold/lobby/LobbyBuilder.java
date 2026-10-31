@@ -66,6 +66,13 @@ public final class LobbyBuilder extends PluginBase {
         // Ceu de por do sol parado, como na arte.
         w.setTime(12300);
         w.stopTime();
+        // Marca os chunks como gerados e populados: sem isso o Nukkit os recria vazios ao carregar (mapa "nao carregava").
+        for (int cx = -6; cx <= 5; cx++) {
+            for (int cz = -6; cz <= 5; cz++) {
+                cn.nukkit.level.format.FullChunk c = w.getChunk(cx, cz, false);
+                if (c != null) { c.setGenerated(true); c.setPopulated(true); c.setChanged(true); }
+            }
+        }
         w.save(true);
         getLogger().info("Lobby construido em " + (System.currentTimeMillis() - t) / 1000 + " s.");
         Render.top(w, getDataFolder(), R + 2, G);
