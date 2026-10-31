@@ -3,16 +3,30 @@ main: br.goldsuite.staff.GoldStaff
 version: "0.4.2"
 api: ["1.0.0"]
 depend: [GoldCore]
+softdepend: [GoldPerms]
 author: gustavoz65
-description: Report, ajuda, giveall, bloqueio de comandos, restart, clearlag e comandos agendados
+description: Suporte com triagem por IA, metricas da equipe, report, ajuda, giveall, bloqueio de comandos, restart, clearlag e comandos agendados
 commands:
+ suporte: {description: Abre um ticket de atendimento com a equipe, usage: "/suporte [mensagem] | /suporte sair | /suporte cancelar", aliases: [ticket, atendimento]}
+ atender: {description: Atende um ticket do suporte, usage: "/atender [numero]", permission: goldstaff.suporte}
+ finalizar: {description: Finaliza o atendimento atual, usage: "/finalizar [resultado]"}
+ avaliar: {description: Avalia o ultimo atendimento, usage: "/avaliar <1 a 5>"}
+ tickets: {description: Fila, historico e metricas do suporte, usage: "/tickets [ver <n>|fechar <n> [motivo]|metricas [dias]]", permission: goldstaff.suporte}
  ajuda: {description: Mostra a ajuda do servidor, usage: "/ajuda", aliases: [comandos]}
  report: {description: Denuncia um jogador, usage: "/report <jogador> <motivo>", aliases: [denunciar]}
- reports: {description: Lista ou fecha denuncias, usage: "/reports [fechar <id>]", permission: goldstaff.admin}
+ reports: {description: Lista ou fecha denuncias, usage: "/reports [fechar <id>]", permission: goldstaff.reports}
  giveall: {description: Da um item a todos, usage: "/giveall <id[:meta]> [quantidade]", permission: goldstaff.admin}
  bloquearcmd: {description: Bloqueia ou libera um comando para jogadores, usage: "/bloquearcmd [comando]", permission: goldstaff.admin}
  clearlag: {description: Remove itens no chao agora, usage: "/clearlag", permission: goldstaff.admin}
  agendar: {description: Comando de console repetido, usage: "/agendar <minutos|remover> <comando>", permission: goldstaff.admin}
  restart: {description: Reinicia o servidor com aviso, usage: "/restart [segundos] | /restart auto <horas>", permission: goldstaff.admin}
 permissions:
- goldstaff.admin: {default: op, description: Ferramentas da staff e comandos bloqueados}
+ goldstaff.admin:
+  default: op
+  description: Ferramentas da staff (giveall, clearlag, restart) e usa os comandos bloqueados
+  children:
+   goldstaff.reports: true
+   goldstaff.suporte: true
+ goldstaff.reports: {default: op, description: Recebe e fecha denuncias}
+ goldstaff.suporte: {default: op, description: Recebe os avisos de ticket e atende o /suporte}
+ goldstaff.metricas: {default: op, description: Ve as metricas de atendimento da equipe}

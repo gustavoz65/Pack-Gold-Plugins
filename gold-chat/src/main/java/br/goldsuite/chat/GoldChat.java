@@ -73,9 +73,11 @@ public final class GoldChat extends PluginBase implements Listener {
             message = ChatState.color(event.getMessage().trim());
         }
         String group = group(p);
-        String format = data.read(s -> s.formats.getOrDefault(group, s.formats.get("padrao")));
+        String tag = tag(p);
+        // Cargo sem formato proprio usa a tag dele na frente do nome.
+        String format = data.read(s -> s.formats.containsKey(group) ? s.formats.get(group) : !tag.isEmpty() ? ChatState.TAGGED : s.formats.get("padrao"));
         event.setMessage(message);
-        event.setFormat(ChatState.nukkitFormat(format, group));
+        event.setFormat(ChatState.nukkitFormat(format, group, tag));
     }
 
     /** Motivo de bloqueio ou null. */
@@ -91,6 +93,11 @@ public final class GoldChat extends PluginBase implements Listener {
     private String group(Player p) {
         PermissionService perms = getServer().getServiceManager().load(PermissionService.class);
         try { return perms == null ? "padrao" : perms.getGroup(p.getName()); } catch (RuntimeException e) { return "padrao"; }
+    }
+
+    private String tag(Player p) {
+        PermissionService perms = getServer().getServiceManager().load(PermissionService.class);
+        try { return perms == null ? "" : perms.getTag(p.getName()); } catch (RuntimeException e) { return ""; }
     }
 
     @EventHandler(priority = EventPriority.HIGH) public void join(PlayerJoinEvent event) {
@@ -135,9 +142,8 @@ public final class GoldChat extends PluginBase implements Listener {
                     return true;
                 }
                 case "limparchat": {
-                    StringBuilder blank = new StringBuilder();
-                    for (int i = 0; i < 60; i++) { blank.append("\n"); }
-                    for (Player p : getServer().getOnlinePlayers().values()) { if (!p.hasPermission("goldchat.staff")) { p.sendMessage(blank.toString()); } }
+                    // Linhas vazias sao descartadas pelo sendMessage: cada linha leva um codigo de cor invisivel.
+                    for (Player p : getServer().getOnlinePlayers().values()) { if (!p.hasPermission("goldchat.staff")) { for (int i = 0; i < 50; i++) { p.sendMessage("§r"); } } }
                     getServer().broadcastMessage(PREFIX + "Chat limpo por " + sender.getName() + ".");
                     return true;
                 }

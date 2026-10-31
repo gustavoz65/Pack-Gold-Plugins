@@ -5,13 +5,29 @@ api: ["1.0.0"]
 depend: [GoldCore]
 softdepend: [GoldAuth]
 author: gustavoz65
-description: Grupos, heranca e permissoes persistentes
+description: Cargos hierarquicos, heranca e permissoes persistentes
 commands:
  grupo:
   description: Administra grupos e permissoes
-  usage: "/grupo listar|ver <jogador>|criar <grupo>|herdar <grupo> <pai/nenhum>|permissao <grupo> <no> <true/false/remover>|jogador <nome> <grupo>|apagar <grupo>"
+  usage: "/grupo listar|ver <jogador>|criar <grupo>|herdar <grupo> <pai/nenhum>|permissao <grupo> <no> <true/false/remover>|jogador <nome> <grupo>|peso <grupo> <0-1000>|tag <grupo> <tag/nenhuma>|staff <grupo> on/off|descricao <grupo> <texto>|padroes|apagar <grupo>"
   permission: goldperms.admin
+ cargo:
+  description: Da ou tira cargos de quem esta abaixo de voce
+  usage: "/cargo <jogador> <cargo> [dias] | /cargo remover <jogador>"
+  permission: goldperms.cargo
+ cargos:
+  description: Mostra a hierarquia e o que cada cargo pode fazer
+  usage: "/cargos [cargo]"
+ equipe:
+  description: Mostra a equipe online
+  usage: "/equipe"
+  aliases: [staff]
 permissions:
  goldperms.admin:
   default: op
   description: Administra grupos e permissoes
+  children:
+   goldperms.cargo: true
+ goldperms.cargo:
+  default: op
+  description: Da cargos abaixo do proprio

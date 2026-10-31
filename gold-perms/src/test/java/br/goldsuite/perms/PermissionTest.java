@@ -33,6 +33,27 @@ public final class PermissionTest {
         links.prune(1500);
         check(!links.members.containsKey("bia") && links.members.containsKey("caio"), "Vinculo expirado nao foi descartado.");
 
+        PermissionState ranks = new PermissionState();
+        ranks.groups.put("vip", new PermissionState.Group());
+        check(ranks.preset() && !ranks.preset(), "Cargos padrao nao criados ou recriados.");
+        PermissionState.validate(ranks);
+        check(ranks.groups.get("dono").weight > ranks.groups.get("gerente").weight && ranks.groups.get("gerente").weight > ranks.groups.get("admin").weight
+                && ranks.groups.get("admin").weight > ranks.groups.get("moderador").weight && ranks.groups.get("moderador").weight > ranks.groups.get("ajudante").weight
+                && ranks.groups.get("ajudante").staff && !ranks.groups.get("vip").staff && ranks.groups.get("vip").weight == 10, "Hierarquia errada.");
+        Map<String, Boolean> dono = ranks.groupPermissions("dono");
+        check(dono.get("goldstaff.suporte") && dono.get("goldperms.admin") && ranks.groupPermissions("ajudante").get("goldstaff.suporte") && !ranks.groupPermissions("ajudante").containsKey("goldperms.admin"), "Heranca dos cargos errada.");
+        ranks.assign("Mod", "moderador", 0);
+        check(ranks.info("mod", 0).weight == 40 && ranks.info("ninguem", 0).weight == 0, "Peso do jogador errado.");
+        check(PermissionState.tag("&4[DONO]{%1}").equals("&4[DONO]1"), "Tag aceitou caracteres do formato do chat.");
+        ranks.groups.get("vip").tag = "{%0}";
+        rejects(() -> PermissionState.validate(ranks));
+        ranks.groups.get("vip").tag = "";
+        ranks.groups.get("vip").weight = 5000;
+        rejects(() -> PermissionState.validate(ranks));
+        PermissionState old = new com.google.gson.Gson().fromJson("{\"groups\":{\"padrao\":{\"parent\":\"\",\"permissions\":{}}},\"members\":{}}", PermissionState.class);
+        PermissionState.validate(old);
+        check(old.groups.get("padrao").tag.equals("") && old.groups.get("padrao").description.equals(""), "Dados antigos sem os campos novos nao carregam.");
+
         MemoryStore store = new MemoryStore();
         PersistentState<PermissionState> data = new PersistentState<>(store, "teste", PermissionState.class, PermissionState::new, PermissionState::validate);
         CompletableFuture<Void> first = data.change(s -> s.groups.put("um", new PermissionState.Group()));

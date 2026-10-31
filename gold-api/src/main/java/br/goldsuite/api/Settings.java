@@ -32,6 +32,11 @@ public final class Settings {
     /** Prefixo das mensagens do plugin, editavel no painel. */
     public static void prefix(Plugin plugin, String defaultValue, Consumer<String> apply) { text(plugin, "prefixo", defaultValue, "Prefixo das mensagens", apply); }
 
+    public static void discord(String source, String message) {
+        SettingsService s = service();
+        if (s != null) { s.discord(source, message); }
+    }
+
     public static void alert(String source, String message) {
         SettingsService s = service();
         if (s != null) { s.alert(source, message); }

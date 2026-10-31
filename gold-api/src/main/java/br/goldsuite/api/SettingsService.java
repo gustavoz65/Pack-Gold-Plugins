@@ -17,4 +17,6 @@ public interface SettingsService {
     void watch(String plugin, Runnable onChange);
     /** Aviso para a staff online e para o Discord (se configurado). */
     void alert(String source, String message);
+    /** So para o Discord (se configurado), sem aviso no jogo. */
+    default void discord(String source, String message) { }
 }

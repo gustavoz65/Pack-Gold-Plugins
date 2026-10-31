@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 /** Configuracao do chat; mutes guardam o instante final (0 = permanente). */
 public final class ChatState {
     public boolean enabled = true;
-    /** Grupo do GoldPerms -> formato. {grupo}, {nome} e {mensagem}; & vira cor. */
+    /** Grupo do GoldPerms -> formato. {grupo}, {tag}, {nome} e {mensagem}; & vira cor. Cargo sem formato aqui usa a tag dele. */
     public Map<String, String> formats = defaults();
     public List<String> announcements = new ArrayList<>(java.util.Arrays.asList(
             "&eUse &f/kits &epara ver os kits do HG.", "&eChame amigos! Use &f/tpa &epara ir ate eles.", "&eRegras: sem hack, sem ofensa. Bom jogo!"));
@@ -26,16 +26,19 @@ public final class ChatState {
         Map<String, String> f = new TreeMap<>();
         f.put("padrao", "&7{nome}&8: &f{mensagem}");
         f.put("vip", "&6[VIP] &e{nome}&8: &f{mensagem}");
-        f.put("admin", "&c[ADMIN] &4{nome}&8: &f{mensagem}");
         return f;
     }
 
     static final Pattern LINK = Pattern.compile("(?i)\\b[\\w-]{2,}\\s*(\\.|\\(\\.\\)|\\[\\.\\]|ponto)\\s*(com|net|org|br|gg|io|xyz|me|tk|ml)\\b|\\b\\d{1,3}(\\.\\d{1,3}){3}\\b");
 
     /** Converte o formato do admin no formato do Nukkit; a mensagem do jogador nunca e interpretada. */
-    static String nukkitFormat(String format, String group) {
-        return color(format.replace("{grupo}", group)).replace("{nome}", "{%0}").replace("{mensagem}", "{%1}");
+    static String nukkitFormat(String format, String group, String tag) {
+        String safeTag = tag.replaceAll("[{}%]", "");
+        return color(format.replace("{grupo}", group).replace("{tag}", safeTag)).replace("{nome}", "{%0}").replace("{mensagem}", "{%1}");
     }
+
+    /** Formato de quem tem tag de cargo e nenhum formato proprio. */
+    static final String TAGGED = "{tag} &f{nome}&8: &f{mensagem}";
 
     static String color(String text) { return text.replace('&', '§'); }
 

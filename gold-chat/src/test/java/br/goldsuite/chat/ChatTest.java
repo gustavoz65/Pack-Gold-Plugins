@@ -8,7 +8,8 @@ public final class ChatTest {
         ChatState.validate(s);
         ChatState back = new Gson().fromJson(new Gson().toJson(s), ChatState.class);
         ChatState.validate(back);
-        check(ChatState.nukkitFormat("&6[{grupo}] {nome}: {mensagem}", "vip").equals("§6[vip] {%0}: {%1}"), "Formato errado.");
+        check(ChatState.nukkitFormat("&6[{grupo}] {nome}: {mensagem}", "vip", "").equals("§6[vip] {%0}: {%1}"), "Formato errado.");
+        check(ChatState.nukkitFormat(ChatState.TAGGED, "dono", "§4[DONO]{%1}").equals("§4[DONO]1 §f{%0}§8: §f{%1}"), "Tag do cargo errada ou injetou o formato.");
         check(ChatState.clean("§cOi\u0000 ").equals("cOi"), "Cores ou controle nao removidos.");
         check(ChatState.calm("OLA PESSOAL").equals("ola pessoal") && ChatState.calm("Oi BR").equals("Oi BR"), "Caps incorreto.");
         for (String link : new String[] {"entra em meuserver.com", "meuserver . net", "joga 192.168.0.1", "site ponto com", "meuhg(.)gg"}) { check(ChatState.LINK.matcher(link).find(), "Link passou: " + link); }

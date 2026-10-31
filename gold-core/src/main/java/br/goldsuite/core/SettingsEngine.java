@@ -114,6 +114,20 @@ final class SettingsEngine implements SettingsService, Listener {
         if (!hook.isEmpty()) { discord.send(hook, strip(text(SERVER, "discord.nome")), "**" + strip(source) + "**: " + strip(message)); }
     }
 
+    @Override public void discord(String source, String message) {
+        String hook = data.isLoaded() ? data.read(s -> s.webhook) : "";
+        if (!hook.isEmpty()) { discord.send(hook, strip(text(SERVER, "discord.nome")), "**" + strip(source) + "**: " + strip(message)); }
+    }
+
+    /** Chaves de API (nome com "chave") nunca aparecem inteiras no painel. */
+    static boolean secret(Def d) { return d.key.contains("chave"); }
+
+    String shown(Def d) {
+        String v = raw(d.id());
+        if (!secret(d)) { return format(v); }
+        return v.isEmpty() ? "(vazia)" : v.length() <= 8 ? "****" : v.substring(0, 4) + "****" + v.substring(v.length() - 4);
+    }
+
     static String strip(String text) { return text.replaceAll("§.", ""); }
 
     /** Confere o valor pelo tipo antes de gravar. */
@@ -139,7 +153,7 @@ final class SettingsEngine implements SettingsService, Listener {
         data.change(s -> { if (v == null || v.equals(d.def)) { s.values.remove(d.id()); } else { s.values.put(d.id(), v); } }).whenComplete((x, e) -> {
             if (e != null) { done.accept("§cNao foi possivel gravar: " + GoldCore.root(e)); return; }
             changed(d.plugin);
-            done.accept("§a" + d.plugin + " / " + d.key + " = §r" + format(raw(d.id())));
+            done.accept("§a" + d.plugin + " / " + d.key + " = §r" + shown(d));
         });
     }
 
@@ -180,7 +194,7 @@ final class SettingsEngine implements SettingsService, Listener {
             Def d = list.get(page * PER_PAGE + i);
             boolean custom = data.isLoaded() && data.read(s -> s.values.containsKey(d.id()));
             icons.put(i, icon(d.kind == Kind.NUMERO ? 371 : d.key.startsWith("cor.") ? 351 : 339, d.key.startsWith("cor.") ? 14 : 0,
-                    "§f" + d.key + (custom ? " §e(alterado)" : "") + "\n§7" + d.description + "\n§7Atual: §r" + format(raw(d.id())) + "\n§eToque para editar"));
+                    "§f" + d.key + (custom ? " §e(alterado)" : "") + "\n§7" + d.description + "\n§7Atual: §r" + shown(d) + "\n§eToque para editar"));
         }
         if (page > 0) { icons.put(18, icon(262, 0, "§f< Pagina anterior")); }
         if (page < pages - 1) { icons.put(26, icon(262, 0, "§fProxima pagina >")); }
@@ -197,7 +211,7 @@ final class SettingsEngine implements SettingsService, Listener {
         Def d = defs.get(id);
         typing.put(p, new Object[] {id, System.currentTimeMillis() + 90_000});
         p.sendMessage("§6[Painel] §fDigite no chat o novo valor de §e" + d.plugin + " / " + d.key + "§f.");
-        p.sendMessage("§7Atual: §r" + raw(id).replace('§', '&') + "  §7| padrao: " + d.def);
+        p.sendMessage("§7Atual: §r" + (secret(d) ? shown(d) : raw(id).replace('§', '&')) + "  §7| padrao: " + d.def);
         p.sendMessage("§7Use & para cores e {primaria} {secundaria} {destaque} {sucesso} {erro} {texto}. 'padrao' restaura, 'cancelar' sai.");
     }
 
@@ -245,7 +259,7 @@ final class SettingsEngine implements SettingsService, Listener {
         switch (args[0].toLowerCase(Locale.ROOT)) {
             case "ver": {
                 String plugin = args.length > 1 ? args[1] : SERVER;
-                for (Def d : defs.values()) { if (d.plugin.equalsIgnoreCase(plugin)) { sender.sendMessage("§e" + d.key + " §7= §r" + format(raw(d.id())) + " §8(" + d.description + ")"); } }
+                for (Def d : defs.values()) { if (d.plugin.equalsIgnoreCase(plugin)) { sender.sendMessage("§e" + d.key + " §7= §r" + shown(d) + " §8(" + d.description + ")"); } }
                 return true;
             }
             case "set": {

@@ -6,12 +6,12 @@ Plugins Java da GoldSuite para o [Nukkit Gold](https://github.com/gustavoz65/Nuk
 | --- | --- | --- |
 | GoldCore | SQLite assíncrono, assinatura de itens, viagens com transição, partículas e menus em baú | (base de todos) |
 | GoldAuth | Registro e login, verificação em duas etapas (app autenticador) e aparelhos confiáveis | `/registrar`, `/login`, `/2fa` |
-| GoldPerms | Grupos, herança e expiração | `/grupo` |
+| GoldPerms | Cargos hierárquicos (dono, gerente, admin, moderador, ajudante) com tags, herança e expiração | `/cargo`, `/cargos`, `/equipe`, `/grupo` |
 | GoldEconomy | Money, cash e ranking | `/money`, `/pagar`, `/topmoney` |
 | GoldEssentials | Homes, warps, spawn, tpa, back, fly | `/home`, `/warp`, `/spawn`, `/tpa`, `/back` |
 | GoldChat | Formato por grupo, anti-spam, privado, mute | `/tell`, `/r`, `/mute`, `/chat` |
 | GoldProtect | Áreas, proteção por mundo, anti-void, alerta de x-ray | `/area`, `/mundoprotecao`, `/antivoid` |
-| GoldStaff | Report, ajuda, clearlag, restart, agendamentos | `/report`, `/ajuda`, `/restart`, `/agendar` |
+| GoldStaff | `/suporte` com triagem por IA (Groq), atendimento em chat isolado e métricas da equipe; report, ajuda, clearlag, restart | `/suporte`, `/atender`, `/tickets`, `/report` |
 | GoldKits | Kits com recarga | `/kits`, `/kit` |
 | GoldVip | Chaves de VIP e anúncio de VIP | `/vip ativar`, `/vip tempo` |
 | GoldShop | Placas de compra e venda, lojas de jogador, `/vender` | `[comprar]`, `[vender]`, `[loja]` |
@@ -33,7 +33,7 @@ Plugins Java da GoldSuite para o [Nukkit Gold](https://github.com/gustavoz65/Nuk
 | GoldSkyWars | SkyWars estilo Hypixel: jaulas, 19 kits, baús com refil, modo insano | `/sw` |
 | GoldBedWars | BedWars com até 8 times, forja, geradores, loja, melhorias e camas | `/bw` |
 
-Guias detalhados: [GoldPvP](gold-pvp/README.md), [GoldCosmetics](gold-cosmetics/README.md), [GoldFactions](gold-factions/README.md), [GoldNPC](gold-npc/README.md), [GoldHG](gold-hg/README.md), [GoldSkyWars](gold-skywars/README.md), [GoldBedWars](gold-bedwars/README.md), [GoldAuth](gold-auth/README.md), [GoldPerms](gold-perms/README.md), [GoldEconomy](gold-economy/README.md).
+Guias detalhados: [GoldPvP](gold-pvp/README.md), [GoldCosmetics](gold-cosmetics/README.md), [GoldFactions](gold-factions/README.md), [GoldNPC](gold-npc/README.md), [GoldHG](gold-hg/README.md), [GoldSkyWars](gold-skywars/README.md), [GoldBedWars](gold-bedwars/README.md), [GoldAuth](gold-auth/README.md), [GoldPerms](gold-perms/README.md), [GoldStaff](gold-staff/README.md), [GoldEconomy](gold-economy/README.md).
 
 O [roadmap](ROADMAP.md) mostra a origem de cada módulo.
 

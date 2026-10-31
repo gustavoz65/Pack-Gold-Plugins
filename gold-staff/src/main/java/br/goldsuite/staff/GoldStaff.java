@@ -24,6 +24,9 @@ public final class GoldStaff extends PluginBase implements Listener {
     private PersistentState<StaffState> data;
     private int minute, clearlagIn, restartIn = -1;
     private final Map<Player, Long> lastReport = new IdentityHashMap<>();
+    private Tickets tickets;
+    /** Comandos de punicao: o alvo nao pode ter cargo igual ou acima de quem pune. */
+    private static final Set<String> PUNISH = new HashSet<>(Arrays.asList("kick", "ban", "ban-ip", "banip", "mute", "tempban", "tempmute", "banir", "expulsar", "silenciar", "jail", "prender"));
 
     @Override public void onEnable() {
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
@@ -31,14 +34,20 @@ public final class GoldStaff extends PluginBase implements Listener {
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldStaff."); }
         data = new PersistentState<>(core.getStore(), "goldstaff", StaffState.class, StaffState::new, StaffState::validate);
         getServer().getPluginManager().registerEvents(this, this);
+        tickets = new Tickets(this, core);
+        getServer().getPluginManager().registerEvents(tickets, this);
         data.ready().thenRun(() -> { clearlagIn = data.read(s -> s.clearlagMinutes) * 60; int h = data.read(s -> s.restartHours); restartIn = h == 0 ? -1 : h * 3600; });
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldStaff>(this) { @Override public void onRun(int tick) { second(); } }, 20);
     }
 
-    @Override public void onDisable() { lastReport.clear(); if (data != null) { data.close(); } }
+    @Override public void onDisable() { lastReport.clear(); if (tickets != null) { tickets.close(); } if (data != null) { data.close(); } }
+
+    /** Linhas do /ajuda (a IA do suporte usa para responder duvidas). */
+    List<String> helpLines() { return data != null && data.isLoaded() ? data.read(s -> new ArrayList<>(s.help)) : Collections.emptyList(); }
 
     /** Contadores em segundos; nenhum trabalho pesado fora dos instantes marcados. */
     private void second() {
+        tickets.second();
         if (!data.isLoaded()) { return; }
         int every = data.read(s -> s.clearlagMinutes);
         if (every > 0) {
@@ -81,17 +90,38 @@ public final class GoldStaff extends PluginBase implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void command(PlayerCommandPreprocessEvent event) {
         Player p = event.getPlayer();
-        if (!data.isLoaded() || p.hasPermission("goldstaff.admin")) { return; }
         String message = event.getMessage();
-        if (!message.startsWith("/")) { return; }
-        int space = message.indexOf(' ');
-        String name = (space < 0 ? message.substring(1) : message.substring(1, space)).toLowerCase(Locale.ROOT);
+        if (!data.isLoaded() || !message.startsWith("/")) { return; }
+        String[] parts = message.substring(1).trim().split("\\s+");
+        String name = parts[0].toLowerCase(Locale.ROOT);
         // "plugin:comando" tambem e bloqueado pelo nome curto.
         String shortName = name.contains(":") ? name.substring(name.indexOf(':') + 1) : name;
+        if (PUNISH.contains(shortName) && parts.length > 1 && !outranks(p, parts[1])) {
+            event.setCancelled();
+            p.sendMessage(PREFIX + "§cVoce nao pode punir alguem do mesmo cargo ou acima do seu.");
+            return;
+        }
+        if (p.hasPermission("goldstaff.admin") || p.hasPermission("goldstaff.cmd." + shortName)) { return; }
         if (data.read(s -> s.blocked.contains(name) || s.blocked.contains(shortName))) { event.setCancelled(); p.sendMessage(PREFIX + "§cComando indisponivel."); }
     }
 
+    /** OP manda em todos; fora isso, so pune quem tem cargo (peso) menor. Jogador sem cargo pode ser punido por qualquer staff. */
+    private boolean outranks(Player p, String target) {
+        if (p.isOp() || target.equalsIgnoreCase(p.getName())) { return true; }
+        if (getServer().isOp(target)) { return false; }
+        PermissionService perms = getServer().getServiceManager().load(PermissionService.class);
+        if (perms == null) { return true; }
+        try {
+            int theirs = perms.getWeight(target);
+            return theirs == 0 || theirs < perms.getWeight(p.getName());
+        } catch (RuntimeException e) { return true; }
+    }
+
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        switch (command.getName()) {
+            case "suporte": case "atender": case "finalizar": case "avaliar": case "tickets": return tickets.onCommand(sender, command.getName(), args);
+            default: break;
+        }
         try {
             switch (command.getName()) {
                 case "ajuda": for (String line : data.read(s -> s.help)) { sender.sendMessage(line.replace('&', '§')); } return true;
@@ -161,7 +191,7 @@ public final class GoldStaff extends PluginBase implements Listener {
             s.reports.put(id[0], report);
         }, () -> {
             for (Player staff : getServer().getOnlinePlayers().values()) {
-                if (staff.hasPermission("goldstaff.admin")) { staff.sendMessage(PREFIX + "§eReport #" + id[0] + ": §f" + target + " §7por " + p.getName() + ": " + finalReason); }
+                if (staff.hasPermission("goldstaff.reports")) { staff.sendMessage(PREFIX + "§eReport #" + id[0] + ": §f" + target + " §7por " + p.getName() + ": " + finalReason); }
             }
             return "Denuncia #" + id[0] + " enviada para a staff. Obrigado!";
         });
