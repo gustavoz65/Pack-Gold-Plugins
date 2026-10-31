@@ -5,7 +5,7 @@ Suporte com triagem por IA, métricas da equipe, denúncias, ajuda, bloqueio de 
 ## /suporte (tickets)
 
 1. O jogador digita `/suporte` (ou `/suporte <mensagem>`). O chat dele é limpo e passa a ser **só do atendimento**: ele não vê mais o chat do servidor nem anúncios. As respostas dos comandos que ele digita continuam chegando.
-2. **Triagem com a IA da Groq:** o assistente faz até 3 perguntas curtas (o que aconteceu, onde, quem estava envolvido) e escreve um resumo com categoria (bug, denúncia, compra, conta, punição, dúvida, outro) e prioridade. Se for só uma dúvida sobre os comandos do `/ajuda` e o jogador confirmar que resolveu, o ticket fecha sozinho sem chamar a equipe. O assistente nunca promete devolução, desban ou cargos e nunca pede senha.
+2. **Triagem com a IA da Groq:** o assistente faz até 2 perguntas curtas (configurável) (o que aconteceu, onde, quem estava envolvido) e escreve um resumo com categoria (bug, denúncia, compra, conta, punição, dúvida, outro) e prioridade. Se for só uma dúvida sobre os comandos do `/ajuda` e o jogador confirmar que resolveu, o ticket fecha sozinho sem chamar a equipe. O assistente nunca promete devolução, desban ou cargos e nunca pede senha.
 3. A equipe online (todo cargo com `goldstaff.suporte`, do ajudante para cima) recebe um bloco no chat:
    ```
    ----- SUPORTE #12 -----
@@ -26,7 +26,7 @@ Sem chave da Groq, ou com a IA fora do ar, o pedido vai direto para a equipe com
 
 **Painel** (`/painel` > GoldStaff):
 - `groq_chave`: a chave da API (`gsk_...`). Aparece mascarada no painel. Use `padrao` para apagar.
-- `groq_modelo`: o modelo da Groq (padrão `openai/gpt-oss-120b`).
+- `groq_modelo`: o modelo da Groq (padrão `openai/gpt-oss-20b`, pequeno e barato).
 - `triagem_perguntas`: quantas perguntas a IA pode fazer (1 a 6).
 - `suporte_espera`: segundos entre um ticket e outro do mesmo jogador.
 - `discord_tickets`: `1` manda o resumo de cada atendimento finalizado para o webhook do Discord do painel.

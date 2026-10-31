@@ -14,7 +14,7 @@ import java.util.concurrent.*;
  */
 final class Groq {
     static final String DEFAULT_URL = "https://api.groq.com/openai/v1/chat/completions";
-    static final String DEFAULT_MODEL = "openai/gpt-oss-120b";
+    static final String DEFAULT_MODEL = "openai/gpt-oss-20b";
 
     private final ExecutorService pool = new ThreadPoolExecutor(2, 2, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(40), r -> {
         Thread t = new Thread(r, "GoldStaff-Groq"); t.setDaemon(true); return t;
@@ -34,8 +34,9 @@ final class Groq {
         JsonArray list = new JsonArray();
         for (JsonObject msg : messages) { list.add(msg); }
         body.add("messages", list);
-        body.addProperty("temperature", 0.3);
-        body.addProperty("max_completion_tokens", 900);
+        body.addProperty("temperature", 0.2);
+        // Resposta curta: a triagem so precisa de uma frase e um resumo.
+        body.addProperty("max_completion_tokens", 400);
         JsonObject format = new JsonObject();
         format.addProperty("type", "json_object");
         body.add("response_format", format);

@@ -1,0 +1,14 @@
+name: GoldComandos
+main: br.goldsuite.comandos.GoldComandos
+version: "0.4.3"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldPerms, GoldStaff]
+author: gustavoz65
+description: Comandos por mundo, /help filtrado, boas-vindas e itens por zona e OP so pelo console ou IP autorizado
+commands:
+ zona: {description: Configura as zonas (grupos de mundos) e os comandos de cada uma, usage: "/zona lista|ver|criar|apagar|mundo|modo|cmd|boasvindas|ajuda|item|sempre", permission: goldcomandos.admin}
+ opseguro: {description: IPs de onde o OP pode ser usado (so pelo console), usage: "/opseguro add <nick> <ip> | remover <nick> [ip] | exigir on|off"}
+permissions:
+ goldcomandos.admin: {default: op, description: Configura as zonas de comandos}
+ goldcomandos.bypass: {default: op, description: Usa qualquer comando em qualquer zona}

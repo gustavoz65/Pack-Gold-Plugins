@@ -31,9 +31,10 @@ Plugins Java da GoldSuite para o [Nukkit Gold](https://github.com/gustavoz65/Nuk
 | GoldNPC | NPCs estilo Slapper com transições | `/npc` |
 | GoldHG | Hunger Games com 36 kits | `/hg`, `/hgkits`, `/sopa` |
 | GoldSkyWars | SkyWars estilo Hypixel: jaulas, 19 kits, baús com refil, modo insano | `/sw` |
+| GoldComandos | Comandos por mundo (liberar/bloquear), `/help` filtrado, boas-vindas e itens por lobby, OP só pelo console ou IP autorizado | `/zona`, `opseguro` |
 | GoldBedWars | BedWars com até 8 times, forja, geradores, loja, melhorias e camas | `/bw` |
 
-Guias detalhados: [GoldPvP](gold-pvp/README.md), [GoldCosmetics](gold-cosmetics/README.md), [GoldFactions](gold-factions/README.md), [GoldNPC](gold-npc/README.md), [GoldHG](gold-hg/README.md), [GoldSkyWars](gold-skywars/README.md), [GoldBedWars](gold-bedwars/README.md), [GoldAuth](gold-auth/README.md), [GoldPerms](gold-perms/README.md), [GoldStaff](gold-staff/README.md), [GoldEconomy](gold-economy/README.md).
+Guias detalhados: [GoldPvP](gold-pvp/README.md), [GoldCosmetics](gold-cosmetics/README.md), [GoldFactions](gold-factions/README.md), [GoldNPC](gold-npc/README.md), [GoldHG](gold-hg/README.md), [GoldSkyWars](gold-skywars/README.md), [GoldBedWars](gold-bedwars/README.md), [GoldComandos](gold-comandos/README.md), [GoldAuth](gold-auth/README.md), [GoldPerms](gold-perms/README.md), [GoldStaff](gold-staff/README.md), [GoldEconomy](gold-economy/README.md).
 
 O [roadmap](ROADMAP.md) mostra a origem de cada módulo.
 
