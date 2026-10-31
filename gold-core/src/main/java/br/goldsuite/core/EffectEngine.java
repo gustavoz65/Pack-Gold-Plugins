@@ -86,8 +86,10 @@ final class EffectEngine implements EffectService {
 
     private static Player[] viewers(Active effect) {
         List<Player> result = new ArrayList<>();
+        br.goldsuite.api.DeviceService devices = cn.nukkit.Server.getInstance().getServiceManager().load(br.goldsuite.api.DeviceService.class);
         for (Player player : effect.level.getPlayers().values()) {
-            if (!player.spawned) { continue; }
+            // Modo leve (/fps): o jogador nao recebe particulas decorativas.
+            if (!player.spawned || (devices != null && devices.lowEffects(player))) { continue; }
             double dx = player.x - effect.x, dy = player.y - effect.y, dz = player.z - effect.z;
             if (dx * dx + dy * dy + dz * dz <= VIEW_RADIUS_SQUARED) { result.add(player); }
         }

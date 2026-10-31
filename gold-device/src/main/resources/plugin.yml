@@ -1,0 +1,12 @@
+name: GoldDevice
+main: br.goldsuite.device.GoldDevice
+version: "0.4.0"
+api: ["1.0.0"]
+depend: [GoldCore]
+author: gustavoz65
+description: Plataforma do jogador, modo leve /fps e limite de CPS por plataforma
+commands:
+ fps: {description: Liga ou desliga o modo leve (menos efeitos), usage: "/fps", aliases: [leve]}
+ plataforma: {description: Mostra a plataforma e o limite de CPS, usage: "/plataforma [jogador] | definir <jogador> <windows|android|ios>", aliases: [aparelho]}
+permissions:
+ golddevice.admin: {default: op, description: Corrige a plataforma de um jogador}

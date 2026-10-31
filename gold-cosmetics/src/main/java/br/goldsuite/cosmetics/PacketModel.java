@@ -28,14 +28,16 @@ final class PacketModel {
 
     /** Nuvem do estilo "Kinto'un": corpo 3x3 amarelo, bordas laranja, fofuras e a cauda curvada para tras. */
     static PacketModel cloud(Player owner) {
-        double y = -0.8;
-        return new PacketModel(owner, Arrays.asList(
+        double y = -1.0;
+        PacketModel model = new PacketModel(owner, Arrays.asList(
                 block(-1, y, -1, YELLOW), block(0, y, -1, YELLOW), block(1, y, -1, YELLOW),
                 block(-1, y, 0, YELLOW), block(0, y, 0, YELLOW), block(1, y, 0, YELLOW),
                 block(-1, y, 1, YELLOW), block(0, y, 1, YELLOW), block(1, y, 1, YELLOW),
                 block(-2, y - 0.2, 0, ORANGE), block(2, y - 0.2, 0, ORANGE), block(0, y - 0.2, 2, ORANGE),
                 block(-1, y + 0.45, 1, YELLOW), block(1, y + 0.45, -1, YELLOW),
                 block(0, y - 0.1, -2, ORANGE), block(1, y + 0.2, -3, ORANGE), block(1.6, y + 0.8, -3.6, ORANGE)));
+        model.cloudLift = true;
+        return model;
     }
 
     /** Chaveiro: o item do pingente flutuando no lado superior direito do jogador, na altura da cabeca. */
@@ -46,6 +48,8 @@ final class PacketModel {
     private final long[] ids;
     private final Set<Player> viewers = Collections.newSetFromMap(new IdentityHashMap<>());
     private int tick;
+    /** Nuvem: voando fica sob os pes; no chao sobe um pouco para aparecer acima da grama. */
+    private boolean cloudLift;
 
     private PacketModel(Player owner, List<Part> parts) {
         this.owner = owner; this.parts = parts; this.ids = new long[parts.size()];
@@ -59,7 +63,7 @@ final class PacketModel {
         for (int i = 0; i < out.length; i++) {
             Part p = parts.get(i);
             out[i][0] = owner.x - sin * p.forward - cos * p.right;
-            out[i][1] = owner.y + p.up;
+            out[i][1] = owner.y + p.up + (cloudLift && owner.isOnGround() ? 0.35 : 0);
             out[i][2] = owner.z + cos * p.forward - sin * p.right;
         }
         return out;
@@ -74,7 +78,7 @@ final class PacketModel {
     void update(Server server) {
         if (++tick % 10 == 1 || viewers.isEmpty()) {
             Set<Player> now = Collections.newSetFromMap(new IdentityHashMap<>());
-            for (Player p : owner.level.getPlayers().values()) { if (p.spawned && p.distanceSquared(owner) <= RANGE * RANGE) { now.add(p); } }
+            for (Player p : owner.level.getPlayers().values()) { if (p.spawned && p.distanceSquared(owner) <= RANGE * RANGE && !br.goldsuite.api.DeviceService.low(p)) { now.add(p); } }
             for (Iterator<Player> it = viewers.iterator(); it.hasNext(); ) {
                 Player p = it.next();
                 if (!now.contains(p)) { if (p.isOnline()) { despawn(server, p); } it.remove(); }

@@ -45,6 +45,8 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
     private int trailTick;
     /** Modelos 3D em pacotes (nuvem e chaveiro) de cada jogador. */
     private final Map<Player, PacketModel> mounts = new IdentityHashMap<>(), keychains = new IdentityHashMap<>();
+    /** Jogadores que ganharam voo da nuvem (para tirar so o que foi dado). */
+    private final Set<Player> flyers = Collections.newSetFromMap(new IdentityHashMap<>());
     /** Precos editaveis no /painel (centavos ou cash). */
     private final Map<String, Long> prices = new HashMap<>();
     private String noBalance, rechargeHint;
@@ -84,9 +86,16 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
             boolean show = healthy && p.spawned && p.level != null && p.level == getServer().getDefaultLevel() && p.getGamemode() != Player.SPECTATOR;
             String mount = show ? e.getValue().equipped(Type.MONTARIA) : null, badge = show ? e.getValue().equipped(Type.PINGENTE) : null;
             sync(mounts, p, mount, () -> PacketModel.cloud(p));
+            flight(p, mount != null);
             Cosmetic c = badge == null ? null : Catalog.ALL.get(badge);
             sync(keychains, p, badge, () -> PacketModel.keychain(p, c.icon, c.meta));
         }
+    }
+
+    /** Quem esta na nuvem voa (como no desenho). So tira o voo que a nuvem deu; /fly e criativo continuam. */
+    private void flight(Player p, boolean riding) {
+        if (riding && !p.getAllowFlight()) { p.setAllowFlight(true); flyers.add(p); p.sendTip("§eNuvem Voadora: §fpule duas vezes para voar"); }
+        else if (!riding && flyers.remove(p) && !p.isCreative() && !p.isSpectator()) { p.setAllowFlight(false); }
     }
 
     private void sync(Map<Player, PacketModel> map, Player p, String id, java.util.function.Supplier<PacketModel> make) {
@@ -158,7 +167,7 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
     @EventHandler(priority = EventPriority.MONITOR) public void join(PlayerJoinEvent e) { load(e.getPlayer()); }
     @EventHandler(priority = EventPriority.MONITOR) public void quit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        online.remove(p); lastPos.remove(p);
+        online.remove(p); lastPos.remove(p); flyers.remove(p);
         PacketModel m = mounts.remove(p); if (m != null) { m.remove(getServer()); }
         m = keychains.remove(p); if (m != null) { m.remove(getServer()); }
         for (PacketModel other : mounts.values()) { other.forget(p); }
@@ -193,7 +202,8 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
             if (last != null && Math.abs(last[0] - p.x) + Math.abs(last[1] - p.y) + Math.abs(last[2] - p.z) < 0.15) { continue; }
             lastPos.put(p, new double[] {p.x, p.y, p.z});
             Vector3 at = new Vector3(p.x, p.y + 0.15, p.z);
-            p.level.addParticle(trail(Catalog.ALL.get(id).display, at));
+            Player[] viewers = fxViewers(p.level, at);
+            if (viewers.length > 0) { p.level.addParticle(trail(Catalog.ALL.get(id).display, at), viewers); }
         }
     }
 
@@ -220,23 +230,34 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
         Level level = e.getEntity().level;
         if (effect == null || killer == e.getEntity() || level == null) { return; }
         Vector3 c = new Vector3(e.getEntity().x, e.getEntity().y, e.getEntity().z);
+        Player[] viewers = fxViewers(level, c);
+        if (viewers.length == 0) { return; }
         switch (effect.display) {
             case "explosao":
-                level.addParticle(new HugeExplodeParticle(c.add(0, 1, 0)));
-                level.addSound(new ExplodeSound(c));
+                level.addParticle(new HugeExplodeParticle(c.add(0, 1, 0)), viewers);
+                level.addSound(new ExplodeSound(c), Arrays.asList(viewers));
                 break;
-            case "lava": for (int i = 0; i < 12; i++) { level.addParticle(new LavaParticle(c.add(Math.random() - 0.5, 0.5 + Math.random(), Math.random() - 0.5))); } break;
-            case "coracoes": ring(level, c.add(0, 1.2, 0), 1.0, 10, true); break;
-            default: ring(level, c.add(0, 2.2, 0), 0.6, 12, false); ring(level, c.add(0, 0.2, 0), 1.2, 16, false); break;
+            case "lava": for (int i = 0; i < 12; i++) { level.addParticle(new LavaParticle(c.add(Math.random() - 0.5, 0.5 + Math.random(), Math.random() - 0.5)), viewers); } break;
+            case "coracoes": ring(level, viewers, c.add(0, 1.2, 0), 1.0, 10, true); break;
+            default: ring(level, viewers, c.add(0, 2.2, 0), 0.6, 12, false); ring(level, viewers, c.add(0, 0.2, 0), 1.2, 16, false); break;
         }
     }
 
-    private static void ring(Level level, Vector3 c, double r, int points, boolean hearts) {
+    private static void ring(Level level, Player[] viewers, Vector3 c, double r, int points, boolean hearts) {
         for (int i = 0; i < points; i++) {
             double a = Math.PI * 2 * i / points;
             Vector3 at = c.add(Math.cos(a) * r, 0, Math.sin(a) * r);
-            level.addParticle(hearts ? new HeartParticle(at) : new FlameParticle(at));
+            level.addParticle(hearts ? new HeartParticle(at) : new FlameParticle(at), viewers);
         }
+    }
+
+    /** Quem ve efeitos decorativos: ate 32 blocos e sem o modo leve (/fps) ligado. */
+    static Player[] fxViewers(Level level, Vector3 at) {
+        List<Player> out = new ArrayList<>();
+        for (Player p : level.getPlayers().values()) {
+            if (p.spawned && p.distanceSquared(at) <= 1024 && !DeviceService.low(p)) { out.add(p); }
+        }
+        return out.toArray(new Player[0]);
     }
 
     // ---------- menus ----------
