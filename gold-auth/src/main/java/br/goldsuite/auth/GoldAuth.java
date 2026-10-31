@@ -38,6 +38,8 @@ import java.util.concurrent.CompletableFuture;
 /** Autenticacao local; nenhuma permissao administrativa dispensa o login. */
 public final class GoldAuth extends PluginBase implements Listener, AuthService {
     private enum Mode { REGISTER, LOGIN, CHANGE }
+    static final String SECURITY = "goldauth-2fa";
+    private static final com.google.gson.Gson GSON = new com.google.gson.Gson();
     private final Map<Player, Session> sessions = new IdentityHashMap<>();
     private final Map<String, AttemptWindow> attempts = new HashMap<>();
     /** Hashes em paralelo; o resto espera numa fila curta em vez de falhar no pico de logins. */
@@ -92,14 +94,21 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         if (!PlayerName.isValid(player.getName())) { throw new IllegalArgumentException("Jogador sem nome valido."); }
         Session session = new Session(player);
         this.sessions.put(player, session);
-        this.core.getStore().get("goldauth", session.name).whenComplete((stored, error) -> {
+        CompletableFuture<java.util.Optional<String>> security = this.core.getStore().get(SECURITY, session.name);
+        this.core.getStore().get("goldauth", session.name).thenCombine(security, (stored, twoFactor) -> new Object[] {stored, twoFactor}).whenComplete((both, error) -> {
             if (!current(session)) { session.loaded.completeExceptionally(new IllegalStateException("Sessao encerrada.")); return; }
             if (error != null) {
                 session.loaded.completeExceptionally(error);
                 player.close("", "Nao foi possivel carregar sua conta. Tente novamente.");
                 return;
             }
+            @SuppressWarnings("unchecked") java.util.Optional<String> stored = (java.util.Optional<String>) both[0];
+            @SuppressWarnings("unchecked") java.util.Optional<String> twoFactor = (java.util.Optional<String>) both[1];
             session.passwordHash = stored.orElse(null);
+            if (twoFactor.isPresent()) {
+                try { session.security = GSON.fromJson(twoFactor.get(), Security.class); session.security.validate(); }
+                catch (RuntimeException bad) { getLogger().warning("2FA invalido de " + session.name + "; mantendo bloqueio ate a staff resetar."); session.security = new Security(); session.security.secret = "INVALIDOINVALIDO"; }
+            }
             session.loaded.complete(null);
             player.sendMessage(session.passwordHash == null ? "Registre-se: /registrar <senha> <confirmacao>" : "Entre com /login <senha>. Voce tambem pode digitar a senha no chat.");
         });
@@ -164,6 +173,12 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
                     return CompletableFuture.completedFuture(false);
                 }
                 if (mode == Mode.LOGIN) {
+                    // Senha certa num aparelho desconhecido de conta com 2FA: falta o codigo do app.
+                    if (session.security != null && session.security.enabled() && !session.security.trusts(session.device)) {
+                        session.pending2fa = true;
+                        player.sendMessage("§eAparelho novo nesta conta. §fDigite o codigo de 6 numeros do seu app autenticador: §e/2fa <codigo>");
+                        return CompletableFuture.completedFuture(true);
+                    }
                     authenticated(session, PlayerAuthEvent.Method.LOGIN);
                     return CompletableFuture.completedFuture(true);
                 }
@@ -219,8 +234,10 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
 
     private void authenticated(Session session, PlayerAuthEvent.Method method) {
         session.authenticated = true;
+        session.pending2fa = false;
         session.failures = 0;
-        session.player.sendMessage(method == PlayerAuthEvent.Method.REGISTER ? "Conta registrada e autenticada." : "Login realizado com sucesso.");
+        session.player.sendMessage(method == PlayerAuthEvent.Method.REGISTER ? "Conta registrada e autenticada. §eProteja sua conta: /2fa ativar" : "Login realizado com sucesso.");
+        if (method == PlayerAuthEvent.Method.LOGIN && (session.security == null || !session.security.enabled())) { session.player.sendMessage("§7Dica: ative a verificacao em duas etapas com /2fa ativar."); }
         getServer().getPluginManager().callEvent(new PlayerAuthEvent(session.player, method));
         // Boas-vindas visual: o GoldCore limita alcance, quantidade e densidade conforme o TPS.
         EffectService effects = getServer().getServiceManager().load(EffectService.class);
@@ -239,9 +256,11 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
             for (Session session : new ArrayList<>(this.sessions.values())) {
                 if (session.name.equals(name)) { this.sessions.remove(session.player); session.player.close("", "Seu registro foi removido pela administracao."); }
             }
+            this.core.getStore().delete(SECURITY, name);
             this.core.getStore().delete("goldauth", name).whenComplete((ignored, error) -> sender.sendMessage(error == null ? "Registro removido. O jogador precisara registrar uma nova senha." : "Nao foi possivel remover o registro."));
             return true;
         }
+        if (command.getName().equals("2fa")) { return twoFactorCommand(sender, args); }
         if (!(sender instanceof Player)) { sender.sendMessage("Este comando precisa ser usado dentro do jogo."); return true; }
         Player player = (Player) sender;
         CompletableFuture<Boolean> operation;
@@ -285,7 +304,7 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         if (label.startsWith("/")) { label = label.substring(1); }
         Command command = getServer().getCommandMap().getCommand(label.toLowerCase(Locale.ROOT));
         if (command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) command).getPlugin() == this
-                && (command.getName().equals("login") || command.getName().equals("registrar"))) { return; }
+                && (command.getName().equals("login") || command.getName().equals("registrar") || command.getName().equals("2fa"))) { return; }
         event.setCancelled();
         event.getPlayer().sendMessage("Autentique-se antes de usar comandos.");
     }
@@ -296,6 +315,7 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         event.setMessage("");
         event.setCancelled();
         Session session = this.sessions.get(event.getPlayer());
+        if (!previouslyCancelled && session != null && session.pending2fa) { twoFactorLogin(session, password); return; }
         if (!previouslyCancelled && session != null && session.loaded.isDone() && session.passwordHash != null) {
             login(event.getPlayer(), password.toCharArray()).exceptionally(error -> false);
         } else { event.getPlayer().sendMessage("Use /registrar <senha> <confirmacao> ou aguarde o carregamento da conta."); }
@@ -348,6 +368,93 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         }
     }
 
+    // ---------- verificacao em duas etapas ----------
+
+    /** Codigo do app depois da senha certa num aparelho novo. */
+    private void twoFactorLogin(Session session, String code) {
+        Player player = session.player;
+        AttemptWindow window = this.attempts.get(player.getAddress());
+        if (window == null) {
+            if (this.attempts.size() >= 2048) { player.sendMessage("Autenticacao ocupada. Aguarde e tente novamente."); return; }
+            window = new AttemptWindow(System.nanoTime());
+            this.attempts.put(player.getAddress(), window);
+        }
+        if (!window.allowed(System.nanoTime())) { player.sendMessage("Muitos codigos errados deste IP. Aguarde um minuto."); return; }
+        if (!Totp.verify(session.security.secret, code, System.currentTimeMillis())) {
+            window.fail(System.nanoTime());
+            player.sendMessage("Codigo incorreto. Use o codigo atual do app (muda a cada 30 s).");
+            if (++session.failures >= 5) { player.close("", "Limite de codigos incorretos atingido."); }
+            return;
+        }
+        session.security.trust(session.device);
+        this.core.getStore().put(SECURITY, session.name, GSON.toJson(session.security));
+        player.sendMessage("§aAparelho confirmado. §fNas proximas vezes, neste aparelho, basta o /login.");
+        authenticated(session, PlayerAuthEvent.Method.LOGIN);
+    }
+
+    private boolean twoFactorCommand(CommandSender sender, String[] args) {
+        if (args.length == 2 && args[0].equalsIgnoreCase("reset") && sender.hasPermission("goldauth.admin")) {
+            if (sender instanceof Player && !isAuthenticated((Player) sender)) { return true; }
+            String name = args[1].toLowerCase(Locale.ROOT);
+            for (Session s : this.sessions.values()) { if (s.name.equals(name)) { s.security = null; } }
+            this.core.getStore().delete(SECURITY, name).whenComplete((v, e) -> sender.sendMessage(e == null ? "2FA de " + name + " removido. Ele entra so com a senha e pode ativar de novo." : "Nao foi possivel remover."));
+            return true;
+        }
+        if (!(sender instanceof Player)) { sender.sendMessage("Use /2fa reset <jogador>."); return true; }
+        Player player = (Player) sender;
+        Session session = this.sessions.get(player);
+        if (session == null) { return true; }
+        if (session.pending2fa) { if (args.length >= 1) { twoFactorLogin(session, String.join("", args)); } else { player.sendMessage("Use /2fa <codigo de 6 numeros>"); } return true; }
+        if (!session.authenticated) { player.sendMessage("Entre na conta primeiro com /login."); return true; }
+        String sub = args.length == 0 ? "ajuda" : args[0].toLowerCase(Locale.ROOT);
+        boolean on = session.security != null && session.security.enabled();
+        switch (sub) {
+            case "ativar": {
+                if (on) { player.sendMessage("A verificacao em duas etapas ja esta ativa."); return true; }
+                session.pendingSecret = Totp.newSecret();
+                String s = session.pendingSecret;
+                player.sendMessage("§e1. §fInstale o Google Authenticator, Authy ou Microsoft Authenticator.");
+                player.sendMessage("§e2. §fToque em adicionar conta > §einserir chave manualmente§f (baseada em tempo) e digite:");
+                player.sendMessage("§a§l" + s.substring(0, 8) + " " + s.substring(8, 16) + " " + s.substring(16, 24) + " " + s.substring(24));
+                player.sendMessage("§e3. §fConfirme com §e/2fa confirmar <codigo>§f. §7Nao mostre essa chave para ninguem.");
+                return true;
+            }
+            case "confirmar": {
+                if (session.pendingSecret == null) { player.sendMessage("Use /2fa ativar primeiro."); return true; }
+                if (args.length < 2 || !Totp.verify(session.pendingSecret, args[1], System.currentTimeMillis())) { player.sendMessage("Codigo incorreto. Confira a chave digitada no app e tente de novo."); return true; }
+                Security security = new Security();
+                security.secret = session.pendingSecret;
+                security.trust(session.device);
+                this.core.getStore().put(SECURITY, session.name, GSON.toJson(security)).whenComplete((v, e) -> {
+                    if (e != null) { player.sendMessage("Nao foi possivel salvar. Tente de novo."); return; }
+                    session.security = security; session.pendingSecret = null;
+                    player.sendMessage("§aVerificacao em duas etapas ativada! §fEm aparelhos novos o servidor pede o codigo do app; neste, so o /login.");
+                });
+                return true;
+            }
+            case "desativar": {
+                if (!on) { player.sendMessage("A verificacao em duas etapas nao esta ativa."); return true; }
+                if (args.length < 2 || !Totp.verify(session.security.secret, args[1], System.currentTimeMillis())) { player.sendMessage("Use /2fa desativar <codigo atual do app>."); return true; }
+                this.core.getStore().delete(SECURITY, session.name).whenComplete((v, e) -> { if (e == null) { session.security = null; player.sendMessage("Verificacao em duas etapas desativada."); } });
+                return true;
+            }
+            case "aparelhos": {
+                if (!on) { player.sendMessage("Ative primeiro: /2fa ativar"); return true; }
+                if (args.length >= 2 && args[1].equalsIgnoreCase("limpar")) {
+                    session.security.trusted.clear();
+                    session.security.trust(session.device);
+                    this.core.getStore().put(SECURITY, session.name, GSON.toJson(session.security));
+                    player.sendMessage("Pronto: so este aparelho continua confiavel. Os outros vao pedir o codigo.");
+                } else { player.sendMessage("Aparelhos confiaveis: " + session.security.trusted.size() + ". §7/2fa aparelhos limpar remove todos menos este."); }
+                return true;
+            }
+            default:
+                player.sendMessage("Verificacao em duas etapas: " + (on ? "§aativa" : "§cdesativada"));
+                player.sendMessage("/2fa ativar, /2fa confirmar <codigo>, /2fa desativar <codigo>, /2fa aparelhos [limpar]");
+                return true;
+        }
+    }
+
     private static final class Session {
         private final Player player;
         private final String name;
@@ -357,7 +464,12 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         private boolean authenticated;
         private boolean busy;
         private int failures;
-        private Session(Player player) { this.player = player; this.name = player.getName().toLowerCase(Locale.ROOT); }
+        /** 2FA da conta (null = nunca ativou), senha certa aguardando o codigo, segredo novo aguardando confirmacao. */
+        private Security security;
+        private boolean pending2fa;
+        private String pendingSecret;
+        private final String device;
+        private Session(Player player) { this.player = player; this.name = player.getName().toLowerCase(Locale.ROOT); this.device = Totp.device(player.getDeviceFingerprint()); }
     }
     private static final class HashAnswer {
         private final boolean matches;

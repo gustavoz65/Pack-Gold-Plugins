@@ -19,6 +19,18 @@ public final class AuthTest {
         if (window.allowed(59_999_999_999L) || !window.allowed(60_000_000_000L)) {
             throw new AssertionError("Limite de senhas erradas por IP nao respeitou a janela.");
         }
-        System.out.println("GoldAuth: senha correta/incorreta, sal, hash malformado e limite de erros por IP verificados.");
+        // TOTP: vetor oficial da RFC 6238 (segredo "12345678901234567890", 59 s -> 94287082, 6 digitos = 287082).
+        String rfc = Totp.base32("12345678901234567890".getBytes());
+        if (!rfc.equals("GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ") || Totp.code(Totp.decode(rfc), 59 / 30) != 287082) { throw new AssertionError("TOTP fora da RFC 6238."); }
+        if (!Totp.verify(rfc, "287082", 59_000) || !Totp.verify(rfc, "287 082", 59_000 + 30_000) || Totp.verify(rfc, "287083", 59_000) || Totp.verify(rfc, "abc", 59_000)) { throw new AssertionError("Verificacao TOTP errada."); }
+        if (Totp.verify(rfc, "287082", 59_000 + 120_000)) { throw new AssertionError("Codigo velho aceito."); }
+        String novo = Totp.newSecret();
+        if (!novo.matches("[A-Z2-7]{32}") || novo.equals(Totp.newSecret()) || Totp.decode(novo).length != 20) { throw new AssertionError("Segredo novo invalido."); }
+        Security sec = new Security(); sec.secret = novo;
+        for (int i = 0; i < 15; i++) { sec.trust(Totp.device("aparelho" + i)); }
+        if (sec.trusted.size() != Security.MAX_DEVICES || sec.trusts(Totp.device("aparelho0")) || !sec.trusts(Totp.device("aparelho14"))) { throw new AssertionError("Aparelhos confiaveis errados."); }
+        sec.validate();
+        try { Security bad = new Security(); bad.secret = "abc"; bad.validate(); throw new AssertionError("Segredo invalido aceito."); } catch (IllegalArgumentException expected) { }
+        System.out.println("GoldAuth: senha correta/incorreta, sal, hash malformado, limite por IP, TOTP (RFC 6238) e aparelhos confiaveis verificados.");
     }
 }

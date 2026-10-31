@@ -22,6 +22,11 @@ commands:
   usage: "/senha <senha_atual> <nova_senha>"
   aliases: [changepassword]
   permission: goldauth.use
+ 2fa:
+  description: Verificacao em duas etapas (app autenticador) e aparelhos confiaveis
+  usage: "/2fa [ativar|confirmar <codigo>|desativar <codigo>|aparelhos [limpar]|<codigo>]"
+  aliases: [doisfatores]
+  permission: goldauth.use
  authreset:
   description: Remove o registro local de uma conta
   usage: "/authreset <jogador>"
