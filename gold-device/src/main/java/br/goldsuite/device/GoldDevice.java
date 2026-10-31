@@ -68,7 +68,7 @@ public final class GoldDevice extends PluginBase implements Listener, DeviceServ
             if (v.isPresent() && v.get().equals("1")) { low.add(p); }
             else if (!v.isPresent() && suggestLow == 1 && platform(p).mobile()) { p.sendMessage(PREFIX + "Celular travando? Use §e/fps§f para o modo leve (menos particulas e efeitos)."); }
         });
-        getLogger().info(p.getName() + " entrou pelo " + Platforms.label(platform(p)) + " (protocolo " + p.getProtocol() + ", dados do cliente: " + p.getLoginData().keySet() + ")");
+        getLogger().info(p.getName() + " entrou pelo " + Platforms.label(platform(p)) + " (protocolo " + p.getProtocol() + ", " + Platforms.evidence(p.getLoginData()) + ")");
     }
 
     @EventHandler(priority = EventPriority.MONITOR) public void onQuit(PlayerQuitEvent e) {

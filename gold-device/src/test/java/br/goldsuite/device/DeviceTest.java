@@ -12,6 +12,9 @@ public final class DeviceTest {
         m.put("DeviceOS", "1"); check(Platforms.detect(m) == Platform.ANDROID, "DeviceOS 1 = Android.");
         m.put("DeviceOS", "2"); check(Platforms.detect(m) == Platform.IOS && Platform.IOS.mobile(), "DeviceOS 2 = iOS.");
         m.clear(); m.put("DeviceModel", "SAMSUNG SM-G960F"); check(Platforms.detect(m) == Platform.ANDROID, "Modelo Android.");
+        m.clear(); m.put("Gold.XUID", "2535412345678901"); m.put("Gold.ChainLength", "3"); check(Platforms.detect(m) == Platform.WINDOWS10, "0.15 com conta Xbox = Windows 10.");
+        m.clear(); m.put("Gold.XUID", ""); m.put("Gold.ChainLength", "1"); check(Platforms.detect(m) == Platform.DESCONHECIDO, "0.15 sem conta Xbox fica para o padrao do painel.");
+        m.put("DeviceOS", "1"); m.put("Gold.XUID", "123"); check(Platforms.detect(m) == Platform.ANDROID, "DeviceOS vale mais que a conta Xbox.");
         check(Platforms.parse("pc") == Platform.WINDOWS10 && Platforms.parse("Celular") == Platform.ANDROID, "Parse errado.");
         try { Platforms.parse("xbox"); throw new AssertionError("Aceitou plataforma invalida."); } catch (IllegalArgumentException expected) { }
 
