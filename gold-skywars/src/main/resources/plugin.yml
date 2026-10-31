@@ -1,0 +1,12 @@
+name: GoldSkyWars
+main: br.goldsuite.skywars.GoldSkyWars
+version: "0.4.2"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldEconomy, GoldNPC]
+author: gustavoz65
+description: SkyWars estilo Hypixel - jaulas, 19 kits, baus de ilha/meio/insano, refil, espectador, ranking
+commands:
+ sw: {description: SkyWars, usage: "/sw [entrar solo|dupla|sair|kits|stats|top]", aliases: [skywars]}
+permissions:
+ goldskywars.admin: {default: op, description: Cria e edita arenas do SkyWars}
