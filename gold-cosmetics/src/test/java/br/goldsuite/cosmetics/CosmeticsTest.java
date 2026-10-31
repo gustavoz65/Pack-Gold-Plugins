@@ -18,6 +18,10 @@ public final class CosmeticsTest {
         Catalog.Cosmetic cloud = Catalog.ALL.get("montaria_nuvem");
         check(cloud != null && cloud.cash && cloud.forSale() && cloud.type == Catalog.Type.MONTARIA && Catalog.price(cloud, 500).equals("500 cash"), "Nuvem deve ser vendida em cash.");
         check(Catalog.ALL.get("pingente_divino").icon == 396 && Catalog.ALL.get("pingente_platina").icon == 351 && Catalog.ALL.get("pingente_platina").meta == 4, "Icones dos pingentes errados.");
+        // No 0.15 DATA_FLAGS e byte: tipo errado quebrava o HUD do cliente e a nuvem nao aparecia.
+        cn.nukkit.entity.data.EntityMetadata meta = PacketModel.blockMetadata(35, 4);
+        check(meta.get(cn.nukkit.entity.Entity.DATA_FLAGS).getType() == cn.nukkit.entity.Entity.DATA_TYPE_BYTE, "DATA_FLAGS precisa ser byte no 0.15.");
+        check(meta.get(cn.nukkit.entity.Entity.DATA_LEAD_HOLDER).getType() == cn.nukkit.entity.Entity.DATA_TYPE_LONG && meta.getInt(20) == (35 | 4 << 8), "Metadados do bloco errados.");
         check(Catalog.price(150_000).equals("$1500.00") && Catalog.price(5).equals("$0.05"), "Preco errado.");
 
         Wardrobe w = new Wardrobe();

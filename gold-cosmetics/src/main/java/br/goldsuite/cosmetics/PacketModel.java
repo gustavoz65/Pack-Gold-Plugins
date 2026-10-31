@@ -16,7 +16,7 @@ import java.util.*;
  */
 final class PacketModel {
     static final double RANGE = 32;
-    private static final int FALLING_BLOCK = 66, DATA_BLOCK_INFO = 20, DATA_NO_AI = 15, WOOL = 35, YELLOW = 4, ORANGE = 1;
+    private static final int FALLING_BLOCK = 66, DATA_BLOCK_INFO = 20, WOOL = 35, YELLOW = 4, ORANGE = 1;
 
     /** Parte do modelo no espaco do jogador: x = direita, y = altura a partir dos pes, z = frente. */
     static final class Part {
@@ -112,10 +112,27 @@ final class PacketModel {
             AddEntityPacket add = new AddEntityPacket();
             add.eid = ids[i]; add.type = FALLING_BLOCK;
             add.x = (float) pos[i][0]; add.y = (float) pos[i][1]; add.z = (float) pos[i][2];
-            add.metadata = new EntityMetadata().putLong(Entity.DATA_FLAGS, 0).putInt(DATA_BLOCK_INFO, part.id | part.meta << 8).putByte(DATA_NO_AI, 1);
+            add.metadata = blockMetadata(part.id, part.meta);
             packets[i] = add;
         }
         return packets;
+    }
+
+    /**
+     * Metadados iguais aos de um bloco caindo de verdade no 0.15. DATA_FLAGS e byte nesta versao: mandar como
+     * long desalinhava a leitura no cliente, o HUD sumia e o bloco nao aparecia.
+     */
+    static EntityMetadata blockMetadata(int id, int meta) {
+        return new EntityMetadata()
+                .putByte(Entity.DATA_FLAGS, 0)
+                .putShort(Entity.DATA_AIR, 300)
+                .putString(Entity.DATA_NAMETAG, "")
+                .putBoolean(Entity.DATA_SHOW_NAMETAG, false)
+                .putBoolean(Entity.DATA_SILENT, true)
+                .putBoolean(Entity.DATA_NO_AI, true)
+                .putLong(Entity.DATA_LEAD_HOLDER, -1)
+                .putByte(Entity.DATA_LEAD, 0)
+                .putInt(DATA_BLOCK_INFO, id | meta << 8);
     }
 
     /** Brilho de encantado: o item do chaveiro se destaca de qualquer item comum. */
