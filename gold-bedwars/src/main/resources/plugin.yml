@@ -1,0 +1,12 @@
+name: GoldBedWars
+main: br.goldsuite.bedwars.GoldBedWars
+version: "0.4.2"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldEconomy, GoldNPC]
+author: gustavoz65
+description: BedWars estilo MushMC - times, camas, forja, diamante/esmeralda, loja, melhorias, eventos, bola de fogo, ovo-ponte
+commands:
+ bw: {description: BedWars, usage: "/bw [entrar solo|dupla|quarteto|sair|loja|melhorias|stats|top]", aliases: [bedwars]}
+permissions:
+ goldbedwars.admin: {default: op, description: Cria e edita arenas do BedWars}

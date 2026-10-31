@@ -240,7 +240,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
                 }
                 case JOGANDO: {
                     g.elapsed++;
-                    if (g.elapsed == refill1 || g.elapsed == refill2) { fillChests(g, true); broadcast(g, "§6Os baus foram reabastecidos!"); }
+                    if (g.elapsed == refill1 || g.elapsed == refill2) { loadArena(g); fillChests(g, true); broadcast(g, "§6Os baus foram reabastecidos!"); }
                     if (g.elapsed == gameSeconds - 60) { broadcast(g, "§cFalta 1 minuto! Sem vencedor, a partida termina empatada."); }
                     if (g.elapsed >= gameSeconds) { broadcast(g, "§7Tempo esgotado: ninguem venceu."); finish(g, Collections.emptyList()); break; }
                     double voidY = voidY(g);
@@ -267,7 +267,18 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         return min - 40;
     }
 
+    /** Carrega todos os chunks da arena (jaulas e meio, com folga): baus de ilhas longe dos jogadores tambem sao preenchidos. */
+    void loadArena(Game g) {
+        SwState.Arena a = g.arena();
+        double minX = 1e9, maxX = -1e9, minZ = 1e9, maxZ = -1e9;
+        List<double[]> points = new ArrayList<>(a.spawns); if (a.center.length == 3) { points.add(a.center); }
+        for (double[] p : points) { minX = Math.min(minX, p[0]); maxX = Math.max(maxX, p[0]); minZ = Math.min(minZ, p[2]); maxZ = Math.max(maxZ, p[2]); }
+        Level lv = g.level();
+        for (int cx = ((int) Math.floor(minX) - 24) >> 4; cx <= ((int) Math.floor(maxX) + 24) >> 4; cx++) { for (int cz = ((int) Math.floor(minZ) - 24) >> 4; cz <= ((int) Math.floor(maxZ) + 24) >> 4; cz++) { lv.loadChunk(cx, cz, false); } }
+    }
+
     void start(Game g) {
+        loadArena(g);
         g.phase = Phase.JOGANDO; g.elapsed = 0; g.forced = false;
         g.noFallUntil = System.currentTimeMillis() + 5000;
         for (Vector3 v : g.cages) { g.level().setBlock(v, Block.get(0), true, false); }
@@ -592,22 +603,35 @@ public final class GoldSkyWars extends PluginBase implements Listener {
                     if (p == null) { return true; }
                     Game g = gameAt(p.level);
                     if (g == null) { throw new IllegalArgumentException("Entre no mundo de uma arena (veja /sw lista)."); }
-                    edit(p, g, sub);
+                    edit(p, g, sub, args);
                     return true;
                 }
                 case "lista": { for (Game g : games.values()) { SwState.Arena a = g.arena(); sender.sendMessage("§e" + g.name + " §f- " + a.world + ", " + (a.teamSize == 1 ? "solo" : "dupla") + (a.insane ? " insano" : "") + ", " + a.spawns.size() + " jaulas, " + g.phase + " (" + g.players.size() + "/" + g.capacity() + ")" + (maps.hasBackup(a.world) ? "" : " §cSEM COPIA")); } return true; }
                 case "iniciar": { Game g = games.get(SwState.name(arg(args, 1))); if (g == null || !g.waiting()) { throw new IllegalArgumentException("Arena inexistente ou em jogo."); } g.forced = true; sender.sendMessage(PREFIX + "Comecando em 5 s."); return true; }
                 case "remover": { String n = SwState.name(arg(args, 1)); Game g = games.get(n); if (g != null && !g.waiting()) { throw new IllegalArgumentException("Espere a partida acabar."); } data.change(s -> s.arenas.remove(n)).whenComplete((v, e) -> { games.remove(n); sender.sendMessage(PREFIX + "Arena removida."); }); return true; }
                 default:
-                    sender.sendMessage(PREFIX + "Admin: /sw criar <nome> [solo|dupla], jaula, desfazer, meio, insano, salvar, lista, iniciar <arena>, remover <arena>");
+                    sender.sendMessage(PREFIX + "Admin: /sw criar <nome> [solo|dupla], jaula [x y z], desfazer, meio [x y z], insano, salvar, lista, iniciar <arena>, remover <arena>");
                     return true;
             }
         } catch (RuntimeException e) { sender.sendMessage(PREFIX + "§c" + e.getMessage()); return true; }
     }
 
-    void edit(Player p, Game g, String sub) {
+    /** Ponto do jogador ou, se vierem tres numeros a partir de {@code from}, essas coordenadas (para colar o pontos.txt). */
+    static double[] spot(Player p, String[] args, int from) {
+        if (args.length >= from + 3) {
+            double[] v;
+            try { v = new double[] {Double.parseDouble(args[from]), Double.parseDouble(args[from + 1]), Double.parseDouble(args[from + 2]), p.yaw}; } catch (NumberFormatException ignored) { v = null; }
+            if (v == null || !(Math.abs(v[0]) < 3e7 && Math.abs(v[2]) < 3e7 && v[1] >= 0 && v[1] < 256)) { throw new IllegalArgumentException("Coordenadas invalidas: use x y z (y de 0 a 255)."); }
+            return v;
+        }
+        return new double[] {Math.floor(p.x) + 0.5, Math.floor(p.y), Math.floor(p.z) + 0.5, p.yaw};
+    }
+
+    void edit(Player p, Game g, String sub, String[] args) {
         if (!g.waiting() || !g.players.isEmpty()) { throw new IllegalArgumentException("A arena tem jogadores; espere esvaziar."); }
-        double[] here = {Math.floor(p.x) + 0.5, Math.floor(p.y), Math.floor(p.z) + 0.5, p.yaw};
+        double[] here = spot(p, args, 1);
+        double[] c = g.arena().center;
+        if (args.length >= 4 && c != null) { here[3] = Math.toDegrees(Math.atan2(-(c[0] - here[0]), c[2] - here[2])); }
         switch (sub) {
             case "jaula": data.change(s -> { SwState.Arena a = s.arenas.get(g.name); if (a.spawns.size() >= 24) { throw new IllegalArgumentException("Maximo de 24 jaulas."); } a.spawns.add(here); }).whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? "§c" + root(e) : "Jaula " + g.arena().spawns.size() + " marcada (a jaula de vidro aparece aqui na partida)."))); break;
             case "desfazer": data.change(s -> { List<double[]> l = s.arenas.get(g.name).spawns; if (!l.isEmpty()) { l.remove(l.size() - 1); } }).whenComplete((v, e) -> p.sendMessage(PREFIX + "Ultima jaula removida.")); break;

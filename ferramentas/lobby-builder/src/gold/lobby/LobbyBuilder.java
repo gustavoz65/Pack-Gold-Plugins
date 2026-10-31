@@ -70,7 +70,7 @@ public final class LobbyBuilder extends PluginBase {
         for (int cx = -6; cx <= 5; cx++) {
             for (int cz = -6; cz <= 5; cz++) {
                 cn.nukkit.level.format.FullChunk c = w.getChunk(cx, cz, false);
-                if (c != null) { c.setGenerated(true); c.setPopulated(true); c.setChanged(true); }
+                if (c != null) { paintBiome(c); c.setGenerated(true); c.setPopulated(true); c.setChanged(true); }
             }
         }
         w.save(true);
@@ -80,6 +80,13 @@ public final class LobbyBuilder extends PluginBase {
         spots.add(0, "spawn: 0.5 " + (G + 1) + " 8.5 (olhando para o norte)");
         getDataFolder().mkdirs();
         java.nio.file.Files.write(new java.io.File(getDataFolder(), "pontos.txt").toPath(), spots);
+    }
+
+
+    /** Bioma de planicie e a cor dele em todas as colunas: sem isso a grama aparece preta no cliente. */
+    static void paintBiome(cn.nukkit.level.format.FullChunk c) {
+        int color = cn.nukkit.level.generator.biome.Biome.getBiome(1).getColor();
+        for (int x = 0; x < 16; x++) { for (int z = 0; z < 16; z++) { c.setBiomeId(x, z, 1); c.setBiomeColor(x, z, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff); } }
     }
 
     // ---------- utilitarios ----------

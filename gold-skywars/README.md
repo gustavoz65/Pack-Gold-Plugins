@@ -26,7 +26,7 @@ SkyWars no estilo do Hypixel, refeito do zero a partir da lógica do plugin de l
 Padrão, Armeiro, Arqueiro, Jogador de Beisebol, Canhoneiro (TNT acende sozinha), Piromaníaco, Boneco de Neve, Batedor, Curandeiro, Troll, Enderman (**Pérola do Fim**: bola de neve que teleporta, já que o 0.15 não tem pérola), Fazendeiro, Ecologista, Espeleólogo, Cavaleiro, Sapo, Princesa, Granadeiro, Construtor. Comprados com dinheiro; preços no `/painel` (GoldSkyWars > `kit.<id>`).
 
 ## Admin (`goldskywars.admin`)
-No mundo do mapa: `/sw criar <nome> [solo|dupla]`, `/sw jaula` (em cada ponto de jaula, 1–3 blocos acima da ilha), `/sw meio`, `/sw insano`, `/sw salvar` (cópia do mapa). Também `/sw lista`, `/sw iniciar <arena>`, `/sw remover <arena>`.
+No mundo do mapa: `/sw criar <nome> [solo|dupla]`, `/sw jaula` (em cada ponto de jaula, 1–3 blocos acima da ilha), `/sw meio`, `/sw insano`, `/sw salvar` (cópia do mapa). `jaula` e `meio` aceitam `x y z` no fim (para colar o `pontos.txt` do ArenaBuilder; com o meio marcado, a jaula fica virada para o centro). Também `/sw lista`, `/sw iniciar <arena>`, `/sw remover <arena>`.
 Painel: mínimo de jogadores, contagem, duração, refis, prêmios, mundo do lobby.
 
 Ranking `skywars` (vitórias) disponível para os NPCs: `/npc ranking skywars 1`.
