@@ -1,6 +1,6 @@
 name: GoldWorld
 main: br.goldsuite.world.GoldWorld
-version: "0.3.2"
+version: "0.4.0"
 api: ["1.0.0"]
 depend: [GoldCore]
 author: gustavoz65

@@ -56,7 +56,7 @@ bash scripts/obter-nukkit.sh
 .\scripts\obter-nukkit.ps1
 ```
 
-2. Compile, rode os testes e gere os jars em `dist/` (`GoldCore-0.3.2.jar`, `GoldAuth-0.3.2.jar`...):
+2. Compile, rode os testes e gere os jars em `dist/` (`GoldCore-0.4.0.jar`, `GoldAuth-0.4.0.jar`...):
 
 ```bash
 bash gradlew --offline check dist
