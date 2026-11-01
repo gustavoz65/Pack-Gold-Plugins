@@ -12,6 +12,10 @@ import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.player.PlayerJoinEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
+import cn.nukkit.event.server.DataPacketReceiveEvent;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.network.protocol.InteractPacket;
+import cn.nukkit.network.protocol.UseItemPacket;
 import cn.nukkit.plugin.PluginBase;
 import java.util.*;
 
@@ -21,13 +25,15 @@ import java.util.*;
  */
 public final class GoldDevice extends PluginBase implements Listener, DeviceService {
     static String PREFIX = "§b[§3Aparelho§b]§f ";
-    static final String FPS = "golddevice-fps", OVERRIDE = "golddevice-plataforma";
+    static final String FPS = "golddevice-fps", OVERRIDE = "golddevice-plataforma", LEARNED = "golddevice-aprendido";
 
     private CoreService core;
     private final Map<Player, Platform> platforms = new IdentityHashMap<>();
     private final Set<Player> low = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<Player, ClickLimiter> clicks = new IdentityHashMap<>();
     private final Map<Player, Long> alerted = new IdentityHashMap<>();
+    /** Mira de quem ainda nao teve a plataforma confirmada (sem DeviceOS e sem correcao da staff). */
+    private final Map<Player, AimProfile> aim = new IdentityHashMap<>();
     private long cpsMobile = 12, cpsWindows = 16, cpsOther = 12, suggestLow = 1;
     private String fallback = "android";
 
@@ -56,24 +62,64 @@ public final class GoldDevice extends PluginBase implements Listener, DeviceServ
 
     private void join(Player p) {
         Platform detected = Platforms.detect(p.getLoginData());
+        String name = key(p);
         if (detected == Platform.DESCONHECIDO) {
+            // O 0.15 nao diz o sistema: comeca pelo padrao (ou pelo que a mira mostrou na ultima vez) e confirma pelos cliques.
             try { detected = Platforms.parse(fallback); } catch (IllegalArgumentException bad) { detected = Platform.ANDROID; }
+            aim.put(p, new AimProfile());
+            core.getStore().get(LEARNED, name).thenAccept(v -> { if (v.isPresent() && p.isOnline() && aim.containsKey(p)) { try { platforms.put(p, Platforms.parse(v.get())); } catch (IllegalArgumentException ignored) { } } });
         }
         platforms.put(p, detected);
-        String name = key(p);
         // Correcao manual da staff vale mais que a deteccao.
-        core.getStore().get(OVERRIDE, name).thenAccept(v -> { if (v.isPresent() && p.isOnline()) { try { platforms.put(p, Platforms.parse(v.get())); } catch (IllegalArgumentException ignored) { } } });
+        core.getStore().get(OVERRIDE, name).thenAccept(v -> { if (v.isPresent() && p.isOnline()) { try { platforms.put(p, Platforms.parse(v.get())); aim.remove(p); } catch (IllegalArgumentException ignored) { } } });
         core.getStore().get(FPS, name).thenAccept(v -> {
             if (!p.isOnline()) { return; }
             if (v.isPresent() && v.get().equals("1")) { low.add(p); }
             else if (!v.isPresent() && suggestLow == 1 && platform(p).mobile()) { p.sendMessage(PREFIX + "Celular travando? Use §e/fps§f para o modo leve (menos particulas e efeitos)."); }
         });
-        getLogger().info(p.getName() + " entrou pelo " + Platforms.label(platform(p)) + " (protocolo " + p.getProtocol() + ", " + Platforms.evidence(p.getLoginData()) + ")");
+        getLogger().info(p.getName() + " entrou pelo " + Platforms.label(platform(p)) + " (protocolo " + p.getProtocol() + ", " + Platforms.evidence(p.getLoginData()) + (aim.containsKey(p) ? "; confirmando pela mira" : "") + ")");
     }
 
     @EventHandler(priority = EventPriority.MONITOR) public void onQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        platforms.remove(p); low.remove(p); clicks.remove(p); alerted.remove(p);
+        platforms.remove(p); low.remove(p); clicks.remove(p); alerted.remove(p); aim.remove(p);
+    }
+
+    /**
+     * Cada clique de quem esta sem plataforma confirmada vira uma amostra: o ponto clicado (ou a direcao do toque no ar,
+     * ou o alvo atacado) esta na linha do olhar? So le os pacotes; nada e cancelado.
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void packet(DataPacketReceiveEvent e) {
+        if (aim.isEmpty()) { return; }
+        Player p = e.getPlayer();
+        AimProfile profile = aim.get(p);
+        if (profile == null || !p.spawned) { return; }
+        double[] look = AimProfile.look(p.yaw, p.pitch);
+        double ex = p.x, ey = p.y + p.getEyeHeight(), ez = p.z;
+        if (e.getPacket() instanceof UseItemPacket) {
+            UseItemPacket u = (UseItemPacket) e.getPacket();
+            if (u.face == 0xff) {
+                profile.add(AimProfile.angle(u.x / 32768.0, u.y / 32768.0, u.z / 32768.0, look[0], look[1], look[2]) <= AimProfile.ALIGNED_DEG);
+            } else if (u.face >= 0 && u.face <= 5 && u.fx >= 0 && u.fx <= 1 && u.fy >= 0 && u.fy <= 1 && u.fz >= 0 && u.fz <= 1) {
+                double dx = u.x + u.fx - ex, dy = u.y + u.fy - ey, dz = u.z + u.fz - ez;
+                if (dx * dx + dy * dy + dz * dz < 1.0) { return; }
+                profile.add(AimProfile.angle(dx, dy, dz, look[0], look[1], look[2]) <= AimProfile.ALIGNED_DEG);
+            } else { return; }
+        } else if (e.getPacket() instanceof InteractPacket && ((InteractPacket) e.getPacket()).action == InteractPacket.ACTION_LEFT_CLICK) {
+            Entity t = p.level.getEntity(((InteractPacket) e.getPacket()).target);
+            if (t == null || t.boundingBox == null) { return; }
+            double g = 0.15;
+            profile.add(AimProfile.rayHitsBox(ex, ey, ez, look[0], look[1], look[2], t.boundingBox.minX - g, t.boundingBox.minY - g, t.boundingBox.minZ - g, t.boundingBox.maxX + g, t.boundingBox.maxY + g, t.boundingBox.maxZ + g));
+        } else { return; }
+        AimProfile.Verdict v = profile.verdict();
+        if (v == AimProfile.Verdict.INCERTO) { return; }
+        Platform learned = v == AimProfile.Verdict.PC ? Platform.WINDOWS10 : platform(p).mobile() ? platform(p) : Platform.ANDROID;
+        aim.remove(p);
+        Platform before = platform(p);
+        platforms.put(p, learned);
+        core.getStore().put(LEARNED, key(p), learned == Platform.WINDOWS10 ? "windows" : learned == Platform.IOS ? "ios" : "android");
+        getLogger().info(p.getName() + " confirmado pela mira: " + Platforms.label(learned) + " (" + profile.aligned() + " de " + profile.count() + " cliques no centro da tela)" + (before != learned ? ", antes " + Platforms.label(before) : ""));
     }
 
     long limit(Player p) {
@@ -122,7 +168,7 @@ public final class GoldDevice extends PluginBase implements Listener, DeviceServ
         }
         Player target = args.length > 0 ? getServer().getPlayerExact(args[0]) : sender instanceof Player ? (Player) sender : null;
         if (target == null) { sender.sendMessage(PREFIX + "Jogador offline."); return true; }
-        sender.sendMessage(PREFIX + target.getName() + ": §e" + Platforms.label(platform(target)) + "§f, limite de §e" + limit(target) + " CPS§f, modo leve " + (lowEffects(target) ? "§aligado" : "§7desligado") + "§f, protocolo " + target.getProtocol());
+        sender.sendMessage(PREFIX + target.getName() + ": §e" + Platforms.label(platform(target)) + "§f, limite de §e" + limit(target) + " CPS§f, modo leve " + (lowEffects(target) ? "§aligado" : "§7desligado") + "§f, protocolo " + target.getProtocol() + (aim.containsKey(target) ? "§7 (confirmando pela mira: " + aim.get(target).aligned() + "/" + aim.get(target).count() + " cliques no centro)" : ""));
         return true;
     }
 }

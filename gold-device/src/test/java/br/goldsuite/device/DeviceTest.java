@@ -15,6 +15,18 @@ public final class DeviceTest {
         m.clear(); m.put("Gold.XUID", "2535412345678901"); m.put("Gold.ChainLength", "3"); check(Platforms.detect(m) == Platform.WINDOWS10, "0.15 com conta Xbox = Windows 10.");
         m.clear(); m.put("Gold.XUID", ""); m.put("Gold.ChainLength", "1"); check(Platforms.detect(m) == Platform.DESCONHECIDO, "0.15 sem conta Xbox fica para o padrao do painel.");
         m.put("DeviceOS", "1"); m.put("Gold.XUID", "123"); check(Platforms.detect(m) == Platform.ANDROID, "DeviceOS vale mais que a conta Xbox.");
+        double[] l = AimProfile.look(0, 0);
+        check(Math.abs(l[2] - 1) < 1e-9 && AimProfile.angle(0, 0, 4, l[0], l[1], l[2]) < 0.01 && Math.abs(AimProfile.angle(1, 0, 0, 0, 0, 1) - 90) < 0.01, "Geometria da mira errada.");
+        check(AimProfile.rayHitsBox(0, 1.6, 0, 0, 0, 1, -0.3, 0, 3, 0.3, 1.8, 3.6) && !AimProfile.rayHitsBox(0, 1.6, 0, 1, 0, 0.2, -0.3, 0, 3, 0.3, 1.8, 3.6), "Raio no alvo errado.");
+        AimProfile pc = new AimProfile(), cel = new AimProfile(), mix = new AimProfile();
+        for (int i = 0; i < 5; i++) { pc.add(true); }
+        check(pc.verdict() == AimProfile.Verdict.INCERTO, "Decidiu com poucos cliques.");
+        pc.add(false); pc.add(true); pc.add(true); pc.add(true);
+        check(pc.verdict() == AimProfile.Verdict.PC, "PC nao reconhecido (um clique fora nao pode atrapalhar).");
+        for (int i = 0; i < 8; i++) { cel.add(i % 4 == 0); }
+        check(cel.verdict() == AimProfile.Verdict.CELULAR, "Celular nao reconhecido.");
+        for (int i = 0; i < 10; i++) { mix.add(i % 2 == 0); }
+        check(mix.verdict() == AimProfile.Verdict.INCERTO, "Meio a meio deveria esperar mais cliques.");
         check(Platforms.parse("pc") == Platform.WINDOWS10 && Platforms.parse("Celular") == Platform.ANDROID, "Parse errado.");
         try { Platforms.parse("xbox"); throw new AssertionError("Aceitou plataforma invalida."); } catch (IllegalArgumentException expected) { }
 
