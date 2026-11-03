@@ -44,7 +44,7 @@ public final class TicketState {
     }
 
     public Ticket create(String player, String category, String priority, String summary, List<String> log, long now) {
-        if (open.size() >= MAX_OPEN) { throw new IllegalArgumentException("Fila de suporte cheia. Tente mais tarde."); }
+        if (open.size() >= MAX_OPEN) { throw new IllegalArgumentException(M.t("fila_de_suporte_cheia_tente_mais")); }
         Ticket t = new Ticket();
         t.id = next++;
         t.player = player; t.category = category(category); t.priority = priority(priority); t.summary = clean(summary, 400); t.createdAt = now;
@@ -63,7 +63,7 @@ public final class TicketState {
     /** Fecha, guarda no historico e soma nas metricas de quem atendeu. */
     public Ticket close(int id, String by, String result, List<String> log, long now) {
         Ticket t = open.remove(id);
-        if (t == null) { throw new IllegalArgumentException("Ticket inexistente ou ja fechado."); }
+        if (t == null) { throw new IllegalArgumentException(M.t("ticket_inexistente_ou_ja_fechado")); }
         appendAll(t, log);
         t.closedAt = now; t.closedBy = by; t.result = clean(result, 120);
         closed.put(t.id, t);
@@ -82,10 +82,10 @@ public final class TicketState {
 
     /** Nota de 1 a 5, uma vez por ticket. */
     public void rate(int id, String player, int rating) {
-        if (rating < 1 || rating > 5) { throw new IllegalArgumentException("Nota de 1 a 5."); }
+        if (rating < 1 || rating > 5) { throw new IllegalArgumentException(M.t("nota_de_1_5")); }
         Ticket t = closed.get(id);
-        if (t == null || !t.player.equals(player)) { throw new IllegalArgumentException("Atendimento nao encontrado."); }
-        if (t.rating != 0) { throw new IllegalArgumentException("Voce ja avaliou este atendimento."); }
+        if (t == null || !t.player.equals(player)) { throw new IllegalArgumentException(M.t("atendimento_nao_encontrado")); }
+        if (t.rating != 0) { throw new IllegalArgumentException(M.t("voce_ja_avaliou_este_atendimento")); }
         t.rating = rating;
         Metric m = t.staff.isEmpty() ? null : metrics.get(t.staff);
         if (m != null) { m.ratingSum += rating; m.ratingCount++; }
@@ -93,19 +93,19 @@ public final class TicketState {
 
     public static void validate(TicketState s) {
         if (s == null || s.open == null || s.closed == null || s.metrics == null || s.next < 1 || s.open.size() > MAX_OPEN || s.closed.size() > MAX_CLOSED
-                || s.metrics.size() > 1000 || s.solvedByAi < 0) { throw new IllegalArgumentException("Tickets invalidos."); }
+                || s.metrics.size() > 1000 || s.solvedByAi < 0) { throw new IllegalArgumentException(M.t("tickets_invalidos")); }
         for (Map<Integer, Ticket> map : Arrays.asList(s.open, s.closed)) {
             for (Map.Entry<Integer, Ticket> e : map.entrySet()) {
                 Ticket t = e.getValue();
                 if (t == null || t.id != e.getKey() || t.id >= s.next || t.player == null || t.summary == null || t.staff == null || t.closedBy == null || t.result == null
                         || t.log == null || t.log.size() > MAX_LOG || !CATEGORIES.contains(t.category) || !PRIORITIES.contains(t.priority) || t.rating < 0 || t.rating > 5
-                        || t.summary.length() > 400) { throw new IllegalArgumentException("Ticket invalido."); }
-                for (String l : t.log) { if (l == null || l.length() > MAX_LINE) { throw new IllegalArgumentException("Historico de ticket invalido."); } }
+                        || t.summary.length() > 400) { throw new IllegalArgumentException(M.t("ticket_invalido")); }
+                for (String l : t.log) { if (l == null || l.length() > MAX_LINE) { throw new IllegalArgumentException(M.t("historico_de_ticket_invalido")); } }
             }
         }
         for (Metric m : s.metrics.values()) {
             if (m == null || m.days == null || m.days.size() > KEEP_DAYS + 2 || m.total < 0 || m.ratingSum < 0 || m.ratingCount < 0 || m.waitSeconds < 0 || m.durationSeconds < 0) {
-                throw new IllegalArgumentException("Metrica invalida.");
+                throw new IllegalArgumentException(M.t("metrica_invalida"));
             }
         }
     }

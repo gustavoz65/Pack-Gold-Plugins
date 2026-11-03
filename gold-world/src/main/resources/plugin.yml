@@ -6,8 +6,8 @@ depend: [GoldCore]
 author: gustavoz65
 description: Mundos, hora real, /fundir, spawners com toque suave, mobs empilhados e AutoInv
 commands:
- mundo: {description: Gerencia e visita mundos, usage: "/mundo", aliases: [mw, mundos]}
- fundir: {description: Funde os itens do inventario na hora, usage: "/fundir", aliases: [smelt], permission: goldworld.fundir}
+ mundo: {description: "Gerencia e visita mundos", usage: "/mundo", aliases: [mw, mundos]}
+ fundir: {description: "Funde os itens do inventario na hora", usage: "/fundir", aliases: [smelt], permission: goldworld.fundir}
 permissions:
- goldworld.admin: {default: op, description: Cria, carrega e configura mundos}
- goldworld.fundir: {default: op, description: Usa /fundir (dar ao VIP)}
+ goldworld.admin: {default: op, description: "Cria, carrega e configura mundos"}
+ goldworld.fundir: {default: op, description: "Usa /fundir (dar ao VIP)"}

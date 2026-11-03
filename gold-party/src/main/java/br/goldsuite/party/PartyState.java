@@ -21,10 +21,10 @@ public final class PartyState {
     }
 
     public static void validate(PartyState s) {
-        if (s == null || s.stats == null || s.built == null || s.stats.size() > 200_000 || s.built.size() > 2000) { throw new IllegalArgumentException("Dados do Party invalidos."); }
+        if (s == null || s.stats == null || s.built == null || s.stats.size() > 200_000 || s.built.size() > 2000) { throw new IllegalArgumentException(M.t("dados_do_party_invalidos")); }
         for (Map.Entry<String, Stats> e : s.stats.entrySet()) {
             Stats st = e.getValue();
-            if (e.getKey() == null || !e.getKey().matches("[a-z0-9_ ]{1,16}") || st == null || st.wins < 0 || st.games < 0 || st.points < 0 || st.firsts < 0) { throw new IllegalArgumentException("Estatistica invalida."); }
+            if (e.getKey() == null || !e.getKey().matches("[a-z0-9_ ]{1,16}") || st == null || st.wins < 0 || st.games < 0 || st.points < 0 || st.firsts < 0) { throw new IllegalArgumentException(M.t("estatistica_invalida")); }
         }
     }
 }

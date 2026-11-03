@@ -20,24 +20,24 @@ public final class Places {
 
     public static String name(String text) {
         String name = text == null ? "" : text.toLowerCase(Locale.ROOT);
-        if (!name.matches("[a-z0-9_-]{1,24}")) { throw new IllegalArgumentException("Nome: ate 24 letras, numeros, _ ou -."); }
+        if (!name.matches("[a-z0-9_-]{1,24}")) { throw new IllegalArgumentException(M.t("nome_ate_24_letras_numeros_ou")); }
         return name;
     }
 
     public static void validate(Places places) {
-        if (places == null || places.warps == null || places.warps.size() > MAX_WARPS) { throw new IllegalArgumentException("Warps invalidas."); }
+        if (places == null || places.warps == null || places.warps.size() > MAX_WARPS) { throw new IllegalArgumentException(M.t("warps_invalidas")); }
         for (Map.Entry<String, Destination> e : places.warps.entrySet()) { name(e.getKey()); check(e.getValue()); }
         if (places.spawn != null) { check(places.spawn); }
         if (places.vipWorld != null) { check(places.vipWorld); }
     }
 
     public static void validate(Homes homes, int max) {
-        if (homes == null || homes.homes == null || homes.homes.size() > max) { throw new IllegalArgumentException("Homes invalidas."); }
+        if (homes == null || homes.homes == null || homes.homes.size() > max) { throw new IllegalArgumentException(M.t("homes_invalidas")); }
         for (Map.Entry<String, Destination> e : homes.homes.entrySet()) { name(e.getKey()); check(e.getValue()); }
     }
 
     private static void check(Destination d) {
-        if (d == null || d.type != Destination.Type.POSITION) { throw new IllegalArgumentException("Local invalido."); }
+        if (d == null || d.type != Destination.Type.POSITION) { throw new IllegalArgumentException(M.t("local_invalido")); }
         d.validate();
     }
 }

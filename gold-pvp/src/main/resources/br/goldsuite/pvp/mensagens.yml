@@ -1,0 +1,133 @@
+# {0} = pr.kills, {1} = pr.deaths, {2} = pr.kdr(), {3} = pr.bestStreak
+abates_mortes_kdr_melhor_sequencia: "&fAbates {0} | Mortes {1} | KDR {2} | Melhor sequencia {3}"
+# {0} = pr.kills, {1} = (killPos == 0 ? "-" : "#" + killPos)
+abates_posicao: "&aAbates: &f{0}\n&7Posicao: {1}"
+abates_repetidos_na_mesma_pessoa: " (abates repetidos na mesma pessoa)."
+admin_ranked_arena_nome_remover_ranked: "Admin: /ranked arena <nome> a|b|remover, /ranked kit, /ranked lobby <mundo>"
+# {0} = p.getName(), {1} = tier
+alcancou: "&e{0} &falcancou {1}&f!"
+anti_fraude_pvp: "Anti-fraude PvP"
+# {0} = name, {1} = what
+arena_atualizada: "Arena {0} atualizada ({1})."
+arena_em_uso_espere_duelo_acabar: "Arena em uso; espere o duelo acabar."
+arena_invalida: "Arena invalida."
+# {0} = pr.games(), {1} = Ranks.PLACEMENTS
+classificatoria: "&7Classificatoria {0}/{1}."
+# {0} = Ranks.display(pr.ladder, false, pr.games())
+classificatorias_concluidas_seu_elo: "&6Classificatorias concluidas! &fSeu elo: {0}"
+# {0} = Ranks.PLACEMENTS
+como_funciona_classificatorias_definem_elo_inici: "&fComo funciona\n&7{0} classificatorias definem o elo inicial\n&7(no maximo Ascendente 1).\n&7Vitoria +PR, derrota -PR; o MMR oculto\n&7decide quanto cada partida vale."
+cosmeticos_pingentes_trilhas_efeitos: "&dCosmeticos\n&7Pingentes, trilhas e efeitos"
+# {0} = pr.damageDealt / 2, {1} = pr.damageTaken / 2
+dano_causado_coracoes_dano_recebido_coracoes: "&4Dano causado: &f{0} coracoes\n&4Dano recebido: &f{1} coracoes"
+derrota: "&cDerrota."
+derrota_entregue: "derrota entregue"
+desligado: "&cdesligado"
+# {0} = t * 300, {1} = (t * 300 + 299)
+divisoes_1_2_3_100_pr: "&7Divisoes 1, 2 e 3\n&7100 PR por divisao ({0} a {1} pontos)"
+# {0} = (left / 1000 + 1)
+duelo_comeca_em: "&eDuelo comeca em &f{0}"
+# {0} = b.getName(), {1} = rankText(key(b), pb)
+duelo_contra: "&6Duelo contra {0} {1}"
+# {0} = pr.rankedWins, {1} = pr.rankedLosses, {2} = pr.rankedDraws, {3} = pr.winRate()
+duelos_vitorias: "&dDuelos: &a{0}V &c{1}D &7{2}E\n&fVitorias: {3}"
+durante_duelo_so_ranked_sair_desistir: "&cDurante o duelo so /ranked sair (desistir)."
+# {0} = (pr.showElo ? "§aligado" : "§cdesligado")
+elo_no_chat: "Elo no chat {0}&f."
+# {0} = (pr.showElo ? "§aligado" : "§cdesligado"), {1} = (pr.showElo ? "esconder" : "mostrar")
+elo_no_chat_toque_para: "&fElo no chat: {0}\n&7Toque para {1}"
+# {0} = rank, {1} = (pr.peakLadder < 0 ? "-" : Ranks.name(pr.peakLadder, false)), {2} = (rankPos == 0 ? "-" : "#" + rankPos)
+elo_pico_posicao: "&bElo: {0}\n&7Pico: {1}\n&7Posicao: {2}"
+elos_do_ranked: "Elos do ranked"
+em_combate_nao_saia_por_15: "&cEm combate! Nao saia por 15 s."
+empate: "&7Empate."
+# {0} = p.getName()
+entrou_para_os_divinos: "&6&l{0} entrou para os Divinos!"
+esconder: "esconder"
+# {0} = killer.getName(), {1} = pk.streak
+esta_com_abates_seguidos: "&6{0} esta com {1} abates seguidos!"
+# {0} = (sameIp ? " (mesmo IP da vitima)." : " (abates repetidos na mesma pessoa).")
+este_abate_nao_conta: "&cEste abate nao conta{0}"
+expulso: " - expulso"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldPvP."
+# {0} = target.getName(), {1} = rank, {2} = new java.text.SimpleDateFormat("dd/MM/yyyy").format(new Date(pr.firstSeen))
+jogando_desde: "&e{0}\n{1}\n&7Jogando desde {2}"
+jogar_ranked_1v1_pareamento_pelo_mmr: "&aJogar ranked 1v1\n&7Pareamento pelo MMR"
+# {0} = pr.kdr()
+kdr: "&6KDR: &f{0}"
+# {0} = kit.size()
+kit_do_ranked_salvo_itens: "Kit do ranked salvo ({0} itens)."
+ligado: "&aligado"
+lista_de_elos_como_funciona_imortal: "&6Lista de elos\n&7Como funciona Imortal e Divino"
+mesmo_ip_da_vitima: " (mesmo IP da vitima)."
+# {0} = pr.deaths
+mortes: "&cMortes: &f{0}"
+mostrar: "mostrar"
+# {0} = boards.read(b -> b.lobbyWorlds)
+mundos_com_item: "Mundos com o item: {0}"
+# {0} = rankText(key(p), profile(p))
+na_fila_do_ranked_procurando_oponente: "Na fila do ranked ({0}&f). Procurando oponente..."
+na_proxima_ranked_sera_bloqueado: " Na proxima o ranked sera bloqueado."
+nenhuma_arena_de_ranked_configurada: "Nenhuma arena de ranked configurada."
+ninguem_lutou: "ninguem lutou"
+nome_invalido: "Nome invalido."
+# {0} = id.replace('_', ' ')
+novo_cosmetico_desbloqueado_veja_em_cosmeticos: "&dNovo cosmetico desbloqueado: &f{0}&d. Veja em /cosmeticos."
+oponente_saiu_antes_do_inicio_duelo: "Oponente saiu antes do inicio. Duelo cancelado."
+# {0} = (fed ? "derrota entregue" : "ninguem lutou")
+partida_anulada_suspeita_de_fraude_nao: "&cPartida anulada: suspeita de fraude ({0}). Nao vale pontos."
+# {0} = Ranks.IMMORTAL, {1} = Ranks.IMMORTAL_2, {2} = Ranks.IMMORTAL_3
+partir_de_pontos_sem_teto_os: "&7A partir de {0} pontos\n&7Sem teto: os PR acumulam\n&7Imortal 2 com {1} PR, Imortal 3 com {2} PR"
+perfil_ainda_carregando: "Perfil ainda carregando."
+# {0} = target.getName()
+perfil_de: "Perfil de {0}"
+perfil_invalido: "Perfil invalido."
+perfil_nao_encontrado: "Perfil nao encontrado."
+perfil_ranked_toque: "&r&6Perfil e Ranked &7(toque)"
+# {0} = name, {1} = rankText(name, pr), {2} = (pr.peakLadder < 0 ? "-" : Ranks.name(pr.peakLadder, false))
+pico: "&6{0} &f- {1} &7(pico {2})"
+# {0} = (change >= 0 ? "§a+" : "§c") + change, {1} = Ranks.display(pr.ladder, false, pr.games())
+pr: "{0} PR &f-> {1}"
+pvp: "&4[&cPvP&4]&f "
+# {0} = pr.rankedWins, {1} = pr.rankedLosses, {2} = pr.rankedDraws, {3} = pr.winRate()
+ranked: "&fRanked {0}V {1}D {2}E ({3})"
+ranked_bloqueado_24: ", ranked bloqueado 24 h"
+ranked_bloqueado_por_24: " Ranked bloqueado por 24 h."
+# {0} = (ban / 3_600_000 + 1)
+ranked_bloqueado_por_fraude_por_mais: "Ranked bloqueado por fraude por mais {0} h."
+ranked_ranked_fila_ranked_sair_perfil: "/ranked, /ranked fila, /ranked sair, /perfil [jogador], /topranked, /topkills"
+rankings_invalidos: "Rankings invalidos."
+saia_do_combate_antes: "Saia do combate antes."
+sair_da_fila_do_ranked: "&cSair da fila do ranked"
+# {0} = p.getName()
+saiu_em_combate_perdeu_os_itens: "&e{0}&f saiu em combate e perdeu os itens!"
+sem_elo: "Sem elo"
+# {0} = Math.min(games, PLACEMENTS), {1} = PLACEMENTS
+sem_elo_classificatoria: "&7Sem elo &8(classificatoria {0}/{1})"
+# {0} = pr.streak, {1} = pr.bestStreak
+sequencia_melhor: "&eSequencia: &f{0}\n&7Melhor: {1}"
+seu_inventario_foi_devolvido: "Seu inventario foi devolvido."
+# {0} = Ranks.DIVINE_SLOTS
+so_os_imortais_com_mais_pr: "&7So os {0} Imortais com mais PR\n&7do servidor. Quem passar um\n&7Divino toma a vaga dele."
+tempo_esgotado_empate: "Tempo esgotado: empate."
+top_10_abates: "&eTop 10 abates"
+top_10_ranked: "&eTop 10 ranked"
+top_abates: "&6Top abates:"
+top_abates_2: "Top abates"
+top_ranked: "&6Top ranked:"
+top_ranked_2: "Top ranked"
+use_ou_remover: "Use a, b ou remover."
+uso_ranked_arena_nome_remover: "Uso: /ranked arena <nome> <a|b|remover>"
+uso_ranked_lobby_mundo_alterna_onde: "Uso: /ranked lobby <mundo> (alterna onde o item do perfil aparece)"
+vitoria: "&aVitoria!"
+voce: " &a<- voce"
+# {0} = tier
+voce_caiu_para: "&cVoce caiu para {0}&c."
+voce_desistiu: "Voce desistiu."
+# {0} = ((taggedUntil.get(p) - System.currentTimeMillis()) / 1000 + 1)
+voce_esta_em_combate_por_mais: "&cVoce esta em combate por mais {0} s."
+voce_ja_esta_num_duelo: "Voce ja esta num duelo."
+voce_saiu_da_fila: "Voce saiu da fila."
+# {0} = tier
+voce_subiu_para: "&6Voce subiu para {0}&6!"
+voltar_ao_perfil: "&fVoltar ao perfil"

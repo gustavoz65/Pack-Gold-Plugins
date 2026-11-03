@@ -1,0 +1,115 @@
+# {0} = h.replace('&', '§')
+ajuda: "&fAjuda: &r{0}"
+# {0} = z
+ajuda_da_zona_atualizada: "Ajuda da zona {0} atualizada."
+ate_10_ips_por_nick: "Ate 10 IPs por nick."
+ate_200_caracteres: "Ate 200 caracteres."
+aviso_de_territorio_mini_mapa_das: "Aviso de territorio e mini mapa das faccoes"
+# {0} = z
+barra_da_zona_atualizada: "Barra da zona {0} atualizada."
+barra_de_informacoes_acima_da_hotbar: "Barra de informacoes acima da hotbar"
+bloqueia: "bloqueia "
+# {0} = (zone.welcomeAlways ? " (sempre)" : " (primeira vez)"), {1} = zone.welcome.replace('&', '§')
+boas_vindas: "&fBoas-vindas{0}: &r{1}"
+boas_vindas_cada_entrada: "Boas-vindas a cada entrada."
+# {0} = z
+boas_vindas_da_zona_salva_nome: "Boas-vindas da zona {0} salva. {nome} vira o nick."
+boas_vindas_so_na_primeira_visita: "Boas-vindas so na primeira visita."
+bonus_de_combate_das_habilidades_sangramento: "Bonus de combate das habilidades (sangramento, critico, esquiva...)"
+carregando: "Carregando..."
+# {0} = text
+comando_invalido: "Comando invalido: {0}"
+comandos: "&6[Comandos]&f "
+comandos_demais: "Comandos demais."
+# {0} = (zn != null ? " (" + zn + ")" : ""), {1} = page, {2} = pages
+comandos_pagina: "&6--- Comandos{0} - pagina {1}/{2} ---"
+comandos_sempre_liberados_atualizados: "Comandos sempre liberados atualizados."
+configuracao_de_comandos_invalida: "Configuracao de comandos invalida."
+esse_comando_nao_esta_disponivel_aqui: "&cEsse comando nao esta disponivel aqui."
+exigido: "(exigido)"
+ganhar_xp_de_habilidades: "Ganhar XP de habilidades"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldComandos."
+ip_invalido: "IP invalido."
+# {0} = (data.read(s -> s.opRequireIp) ? "(exigido)" : "(nao exigido)"), {1} = data.read(s -> s.opIps.toString())
+ips_do_op: "IPs do OP {0}: {1}"
+item_de_hotbar_invalido: "Item de hotbar invalido."
+# {0} = (slot + 1), {1} = z, {2} = h.command
+item_no_slot_da_zona_executa: "Item no slot {0} da zona {1} executa /{2}."
+item_removido: "Item removido."
+linha_de_1_150_caracteres_ate: "Linha de 1 a 150 caracteres, ate 15 linhas."
+linha_de_ajuda_invalida: "Linha de ajuda invalida."
+# {0} = z, {1} = z
+lista_da_zona_atualizada_zona_ver: "Lista da zona {0} atualizada (/zona ver {1})."
+lista_de_ips_do_op_invalida: "Lista de IPs do OP invalida."
+lista_de_op_atualizada: "Lista de OP atualizada."
+livro_do_perfil_do_pvp_ranked: "Livro do perfil do PvP/ranked na hotbar"
+# {0} = (page + 1)
+mais_help: "&7Mais: /help {0}"
+# {0} = (zone.whitelist ? "so os comandos da lista funcionam" : "os comandos da lista ficam bloqueados"), {1} = zone.commands
+modo: "&fModo: &7{0}: {1}"
+# {0} = w
+mundo_em_duas_zonas_ou_invalido: "Mundo em duas zonas ou invalido: {0}"
+# {0} = w
+mundo_inexistente: "Mundo inexistente: {0}"
+# {0} = e.getKey()
+mundo_ja_esta_na_zona: "O mundo ja esta na zona {0}."
+# {0} = zone.worlds
+mundos: "&fMundos: &7{0}"
+# {0} = e.getKey(), {1} = e.getValue().worlds, {2} = (e.getValue().whitelist ? "so libera " : "bloqueia "), {3} = e.getValue().commands.size(), {4} = e.getValue().items.size()
+mundos_comando_item_ns: "&e{0} &7mundos {1}, {2}{3} comando(s), {4} item(ns)"
+# {0} = z
+mundos_da_zona_atualizados: "Mundos da zona {0} atualizados."
+nao_exigido: "(nao exigido)"
+nao_ha_item_nesse_slot: "Nao ha item nesse slot."
+nick_fora_da_lista: "Nick fora da lista."
+nome_de_plugin_invalido: "Nome de plugin invalido."
+nome_de_zona_ate_24_letras: "Nome de zona: ate 24 letras minusculas, numeros, _ ou -."
+numero_invalido: "&cNumero invalido."
+# {0} = p.getName(), {1} = p.getAddress()
+op_de_suspenso_entrou_de_um: "OP de {0} suspenso: entrou de um IP nao autorizado ({1})."
+op_fora_da_lista_de_ips: "OP fora da lista de IPs fica suspenso ao entrar."
+op_nao_mais_suspenso_por_ip: "OP nao e mais suspenso por IP (so /op e /deop continuam protegidos)."
+op_so_pode_ser_dado_pelo: "&cOP so pode ser dado pelo console ou de um IP autorizado (/opseguro)."
+opseguro_add_nick_ip_remover_nick: "/opseguro add <nick> <ip> | remover <nick> [ip] | exigir on|off"
+os_comandos_da_lista_ficam_bloqueados: "os comandos da lista ficam bloqueados"
+para_desligar_um_plugin_inteiro_comandos: "&7Para desligar um plugin inteiro (comandos e recursos): /zona plugin <zona> <Plugin>, ex.: GoldFactions, GoldSkyWars, GoldPvP."
+# {0} = z, {1} = z
+plugins_desligados_na_zona_atualizados_zona: "Plugins desligados na zona {0} atualizados (/zona ver {1})."
+poderes_das_habilidades: "Poderes das habilidades"
+primeira_vez: " (primeira vez)"
+recurso_no_formato_plugin_recurso_veja: "Recurso no formato plugin.recurso (veja /zona recursos)."
+# {0} = z
+recursos_desligados_na_zona_atualizados: "Recursos desligados na zona {0} atualizados."
+recursos_que_da_para_desligar_por: "Recursos que da para desligar por zona (/zona recurso <zona> <recurso>):"
+reparar_na_bigorna_de_ferro: "Reparar na bigorna de ferro"
+sempre: " (sempre)"
+# {0} = data.read(s -> String.join(", ", s.always))
+sempre_liberados: "&7Sempre liberados: {0}"
+seu_op_voltou_ip_autorizado: "&aSeu OP voltou (IP autorizado)."
+# {0} = e.getKey(), {1} = e.getValue().name.replace('&', '§'), {2} = e.getValue().id, {3} = e.getValue().meta, {4} = e.getValue().command
+slot: "&fSlot {0}: &r{1} &7({2}:{3}) -> /{4}"
+slot_de_1_9: "Slot de 1 a 9."
+so_libera: "so libera "
+so_os_comandos_da_lista_funcionam: "so os comandos da lista funcionam"
+so_pelo_console_do_servidor: "&cSo pelo console do servidor."
+# {0} = p.getName(), {1} = p.getAddress(), {2} = real
+tentou_usar: "{0} ({1}) tentou usar /{2}."
+uso_opseguro_add_nick_ip: "Uso: /opseguro add <nick> <ip>"
+uso_opseguro_remover_nick_ip: "Uso: /opseguro remover <nick> [ip]"
+uso_zona_cmd_zona_comando_alterna: "Uso: /zona cmd <zona> <comando...> (alterna cada um)"
+uso_zona_hud_zona_1_2: "Uso: /zona hud <zona> <1|2> <texto|padrao|nenhuma>"
+uso_zona_item_zona_slot_1: "Uso: /zona item <zona> <slot 1-9> <id[:meta]> <nome_com_underline> <comando...>"
+# {0} = z
+zona: "&6--- Zona {0} ---"
+zona_boasvindas_zona_texto_nenhuma_boasvindas: "/zona boasvindas <zona> <texto|nenhuma> | boasvindas_sempre <zona> on|off | ajuda <zona> <linha|limpar> | item <zona> <slot> <id[:meta]> <nome> <comando> | itemremover <zona> <slot> | sempre <comando>"
+# {0} = z
+zona_inexistente: "Zona inexistente: {0}"
+zona_inexistente_2: "Zona inexistente."
+# {0} = e.getKey()
+zona_invalida: "Zona invalida: {0}"
+zona_ja_existe: "Zona ja existe."
+zona_lista_ver_zona_criar_zona: "/zona lista | ver <zona> | criar <zona> | apagar <zona> | mundo <zona> <mundo> | modo <zona> liberar|bloquear | cmd <zona> <comandos...>"
+# {0} = z
+zona_os_comandos_da_lista_ficam: "Zona {0}: os comandos da lista ficam bloqueados."
+zona_plugin_zona_plugin_desliga_plugin: "/zona plugin <zona> <Plugin> (desliga o plugin na zona) | recurso <zona> <recurso> | recursos | hud <zona> <1|2> <texto|padrao|nenhuma>"
+zonas: "Zonas:"

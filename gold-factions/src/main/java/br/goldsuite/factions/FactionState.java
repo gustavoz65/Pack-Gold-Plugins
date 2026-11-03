@@ -67,13 +67,13 @@ public final class FactionState {
 
     public static String name(String text) {
         String n = text == null ? "" : text.toLowerCase(Locale.ROOT);
-        if (!n.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException("Nome: 3 a 16 letras, numeros ou _."); }
+        if (!n.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException(M.t("nome_3_16_letras_numeros_ou")); }
         return n;
     }
 
     public static String tag(String text) {
         String t = text == null ? "" : text.toUpperCase(Locale.ROOT);
-        if (!t.matches("[A-Z0-9]{2,4}")) { throw new IllegalArgumentException("Tag: 2 a 4 letras ou numeros."); }
+        if (!t.matches("[A-Z0-9]{2,4}")) { throw new IllegalArgumentException(M.t("tag_2_4_letras_ou_numeros")); }
         return t;
     }
 
@@ -90,29 +90,29 @@ public final class FactionState {
 
     public static void validate(FactionState s) {
         if (s == null || s.factions == null || s.members == null || s.claims == null || s.spawners == null || s.worlds == null || s.weights == null
-                || s.factions.size() > 500 || s.claims.size() > 20000 || s.worlds.size() > 16) { throw new IllegalArgumentException("Faccoes invalidas."); }
+                || s.factions.size() > 500 || s.claims.size() > 20000 || s.worlds.size() > 16) { throw new IllegalArgumentException(M.t("faccoes_invalidas")); }
         Weights w = s.weights;
-        for (int v : new int[] {w.terras, w.membros, w.spawners, w.abates, w.mortes}) { if (v < 0 || v > 1000) { throw new IllegalArgumentException("Peso entre 0 e 1000."); } }
+        for (int v : new int[] {w.terras, w.membros, w.spawners, w.abates, w.mortes}) { if (v < 0 || v > 1000) { throw new IllegalArgumentException(M.t("peso_entre_0_1000")); } }
         Set<String> tags = new HashSet<>();
         for (Map.Entry<String, Faction> e : s.factions.entrySet()) {
             name(e.getKey());
             Faction f = e.getValue();
-            if (f == null || f.roster == null || f.roster.isEmpty() || f.roster.size() > MAX_MEMBERS || !tags.add(tag(f.tag)) || f.kills < 0 || f.deaths < 0) { throw new IllegalArgumentException("Faccao invalida: " + e.getKey()); }
+            if (f == null || f.roster == null || f.roster.isEmpty() || f.roster.size() > MAX_MEMBERS || !tags.add(tag(f.tag)) || f.kills < 0 || f.deaths < 0) { throw new IllegalArgumentException(M.t("faccao_invalida", e.getKey())); }
             int leaders = 0;
             for (Map.Entry<String, Role> m : f.roster.entrySet()) {
-                if (!m.getKey().matches("[a-z0-9_]{3,16}") || m.getValue() == null || !e.getKey().equals(s.members.get(m.getKey()))) { throw new IllegalArgumentException("Membro invalido em " + e.getKey()); }
+                if (!m.getKey().matches("[a-z0-9_]{3,16}") || m.getValue() == null || !e.getKey().equals(s.members.get(m.getKey()))) { throw new IllegalArgumentException(M.t("membro_invalido_em", e.getKey())); }
                 if (m.getValue() == Role.LIDER) { leaders++; }
             }
-            if (leaders != 1) { throw new IllegalArgumentException("Cada faccao precisa de exatamente um lider."); }
+            if (leaders != 1) { throw new IllegalArgumentException(M.t("cada_faccao_precisa_de_exatamente_um")); }
             if (f.home != null) { f.home.validate(); }
         }
-        for (Map.Entry<String, String> m : s.members.entrySet()) { Faction f = s.factions.get(m.getValue()); if (f == null || !f.roster.containsKey(m.getKey())) { throw new IllegalArgumentException("Indice de membros inconsistente."); } }
-        for (String f : s.claims.values()) { if (!s.factions.containsKey(f)) { throw new IllegalArgumentException("Territorio sem faccao."); } }
-        for (Map.Entry<String, Integer> e : s.spawners.entrySet()) { if (!s.claims.containsKey(e.getKey()) || e.getValue() == null || e.getValue() < 0 || e.getValue() > 4096) { throw new IllegalArgumentException("Contagem de spawners invalida."); } }
+        for (Map.Entry<String, String> m : s.members.entrySet()) { Faction f = s.factions.get(m.getValue()); if (f == null || !f.roster.containsKey(m.getKey())) { throw new IllegalArgumentException(M.t("indice_de_membros_inconsistente")); } }
+        for (String f : s.claims.values()) { if (!s.factions.containsKey(f)) { throw new IllegalArgumentException(M.t("territorio_sem_faccao")); } }
+        for (Map.Entry<String, Integer> e : s.spawners.entrySet()) { if (!s.claims.containsKey(e.getKey()) || e.getValue() == null || e.getValue() < 0 || e.getValue() > 4096) { throw new IllegalArgumentException(M.t("contagem_de_spawners_invalida")); } }
         for (String world : s.worlds) { Destination.world(world); }
         if (s.map != null) {
             Destination.world(s.map.world); Destination.world(s.map.source);
-            if (s.map.radius < 4 || s.map.radius > 24 || s.map.y < 1 || s.map.y > 126) { throw new IllegalArgumentException("Mini mapa invalido."); }
+            if (s.map.radius < 4 || s.map.radius > 24 || s.map.y < 1 || s.map.y > 126) { throw new IllegalArgumentException(M.t("mini_mapa_invalido")); }
         }
     }
 }

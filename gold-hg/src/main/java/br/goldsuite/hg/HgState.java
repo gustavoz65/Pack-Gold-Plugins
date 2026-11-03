@@ -76,34 +76,34 @@ public final class HgState {
 
     public Arena require(String name) {
         Arena arena = arenas.get(name);
-        if (arena == null) { throw new IllegalArgumentException("Arena inexistente: " + name); }
+        if (arena == null) { throw new IllegalArgumentException(M.t("arena_inexistente", name)); }
         return arena;
     }
 
     public static void validate(HgState state) {
         if (state == null || state.arenas == null || state.rules == null || state.soupOnSelect == null || state.soupWorlds == null
-                || state.pendingClear == null || state.arenas.size() > 32 || state.soupOnSelect.size() > 10000 || state.soupWorlds.size() > 64 || state.pendingClear.size() > 10000) { throw new IllegalArgumentException("Dados do HG invalidos ou excessivos."); }
+                || state.pendingClear == null || state.arenas.size() > 32 || state.soupOnSelect.size() > 10000 || state.soupWorlds.size() > 64 || state.pendingClear.size() > 10000) { throw new IllegalArgumentException(M.t("dados_do_hg_invalidos_ou_excessivos")); }
         Rules r = state.rules;
         if (r.minPlayers < 2 || r.minPlayers > MAX_SPAWNS || r.waitSeconds < 5 || r.waitSeconds > 900 || r.graceSeconds < 0 || r.gameSeconds < 60 || r.gameSeconds > 7200
                 || r.graceSeconds >= r.gameSeconds || r.finaleAt < 0 || r.finaleAt >= r.gameSeconds || r.refillAt < 0 || r.rewardCents < 0 || r.rewardCents > 1_000_000_000L
                 || r.soupHeal < 1 || r.soupHeal > 20 || r.feastAt < 0 || r.feastAt >= r.gameSeconds || r.chestItems == null || r.chestItems.isEmpty() || r.chestItems.size() > 256
-                || r.feastItems == null || r.feastItems.isEmpty() || r.feastItems.size() > 256) { throw new IllegalArgumentException("Regras do HG invalidas."); }
+                || r.feastItems == null || r.feastItems.isEmpty() || r.feastItems.size() > 256) { throw new IllegalArgumentException(M.t("regras_do_hg_invalidas")); }
         List<int[]> all = new ArrayList<>(r.chestItems); all.addAll(r.feastItems);
         for (int[] item : all) {
-            if (item == null || item.length != 3 || item[0] < 1 || item[0] > 511 || item[1] < 0 || item[1] > 32767 || item[2] < 1 || item[2] > 64) { throw new IllegalArgumentException("Item de bau invalido."); }
+            if (item == null || item.length != 3 || item[0] < 1 || item[0] > 511 || item[1] < 0 || item[1] > 32767 || item[2] < 1 || item[2] > 64) { throw new IllegalArgumentException(M.t("item_de_bau_invalido")); }
         }
         for (Map.Entry<String, Arena> e : state.arenas.entrySet()) {
             arenaName(e.getKey());
             Arena arena = e.getValue();
-            if (arena == null || arena.spawns == null || arena.spawns.size() > MAX_SPAWNS || arena.finale == null || (arena.finale.length != 0 && arena.finale.length != 3)) { throw new IllegalArgumentException("Arena invalida: " + e.getKey()); }
+            if (arena == null || arena.spawns == null || arena.spawns.size() > MAX_SPAWNS || arena.finale == null || (arena.finale.length != 0 && arena.finale.length != 3)) { throw new IllegalArgumentException(M.t("arena_invalida", e.getKey())); }
             for (double[] spawn : arena.spawns) {
-                if (spawn == null || spawn.length != 4) { throw new IllegalArgumentException("Spawn invalido."); }
+                if (spawn == null || spawn.length != 4) { throw new IllegalArgumentException(M.t("spawn_invalido")); }
                 Destination.position(e.getKey(), spawn[0], spawn[1], spawn[2], (float) spawn[3], 0);
             }
             if (arena.finale.length == 3) { Destination.position(e.getKey(), arena.finale[0], arena.finale[1], arena.finale[2], 0, 0); }
         }
         for (String world : state.soupWorlds) { arenaName(world); }
-        for (String name : state.pendingClear) { if (!name.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException("Nome invalido na lista de limpeza."); } }
-        for (String name : state.soupOnSelect) { if (!name.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException("Nome invalido na lista de sopa."); } }
+        for (String name : state.pendingClear) { if (!name.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException(M.t("nome_invalido_na_lista_de_limpeza")); } }
+        for (String name : state.soupOnSelect) { if (!name.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException(M.t("nome_invalido_na_lista_de_sopa")); } }
     }
 }

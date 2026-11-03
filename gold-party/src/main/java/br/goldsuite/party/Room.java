@@ -99,7 +99,7 @@ final class Room {
                     Player p = e.getKey(); Location l = e.getValue();
                     if ((p.x - l.x) * (p.x - l.x) + (p.z - l.z) * (p.z - l.z) > 0.6 || p.y < l.y - 1.5) { p.teleport(l); }
                 }
-                if (--timer <= 0) { frozen.clear(); mini.start(); phase = Phase.JOGANDO; for (Player p : players) { p.sendPopup("§a§lVAI!"); } }
+                if (--timer <= 0) { frozen.clear(); mini.start(); phase = Phase.JOGANDO; for (Player p : players) { p.sendPopup(M.t("vai")); } }
                 else if (timer % 20 == 0 && timer <= 60) { for (Player p : players) { p.sendPopup("§e" + timer / 20); } }
                 return;
             case JOGANDO: playing(); return;
@@ -111,14 +111,14 @@ final class Room {
     private void waitingSecond() {
         int min = forced ? 1 : plugin.minPlayers;
         if (players.size() < min) {
-            if (countdown >= 0) { say("§cContagem cancelada: faltam jogadores."); }
+            if (countdown >= 0) { say(M.t("contagem_cancelada_faltam_jogadores")); }
             countdown = -1;
-            for (Player p : players) { p.sendTip("§eParty §7| aguardando jogadores §f" + players.size() + "/" + plugin.maxPlayers + " §7(minimo " + plugin.minPlayers + ")"); }
+            for (Player p : players) { p.sendTip(M.t("party_aguardando_jogadores_minimo", players.size(), plugin.maxPlayers, plugin.minPlayers)); }
             return;
         }
-        if (countdown < 0) { countdown = forced ? 5 : plugin.countdown; say("§aPartida comecando em " + countdown + " s!"); }
+        if (countdown < 0) { countdown = forced ? 5 : plugin.countdown; say(M.t("partida_comecando_em", countdown)); }
         if (players.size() >= plugin.maxPlayers && countdown > 10) { countdown = 10; }
-        for (Player p : players) { p.sendTip("§eParty §7| comeca em §f" + countdown + " s §7| jogadores §f" + players.size() + "/" + plugin.maxPlayers); }
+        for (Player p : players) { p.sendTip(M.t("party_comeca_em_jogadores", countdown, players.size(), plugin.maxPlayers)); }
         if (countdown <= 5 && countdown > 0) { say("§e" + countdown + "..."); }
         if (--countdown < 0) { begin(); }
     }
@@ -133,8 +133,8 @@ final class Room {
         for (Player p : players) { total.put(p, 0); }
         StringBuilder names = new StringBuilder();
         for (int i : order) { names.append(names.length() == 0 ? "" : "§7, §f").append(Minis.ALL.get(i).get().name()); }
-        say("§6§l===== PARTY =====");
-        say("§fProvas: §f" + names);
+        say(M.t("party_2"));
+        say(M.t("provas", names));
         plugin.opened(this);
         next();
     }
@@ -163,7 +163,7 @@ final class Room {
         }
         say("§6§l===== " + mini.name().toUpperCase(Locale.ROOT) + " §r§7(" + (index + 1) + "/" + order.size() + ")");
         say("§f" + mini.description());
-        say("§7" + (mini.kind() == Mini.Kind.TEMPO ? "Vale a ordem de chegada." : mini.kind() == Mini.Kind.SOBREVIVENCIA ? "Vale quem sobreviver mais." : "Vale quem fizer mais pontos."));
+        say("§7" + (mini.kind() == Mini.Kind.TEMPO ? M.t("vale_ordem_de_chegada") : mini.kind() == Mini.Kind.SOBREVIVENCIA ? M.t("vale_quem_sobreviver_mais") : M.t("vale_quem_fizer_mais_pontos")));
         timer = 100;
         phase = Phase.APRESENTANDO;
     }
@@ -188,7 +188,7 @@ final class Room {
 
     private void results() {
         List<List<Player>> ranking = mini.ranking();
-        say("§6--- Resultado: " + mini.name() + " ---");
+        say(M.t("resultado", mini.name()));
         int pos = 0;
         for (List<Player> group : ranking) {
             int pts = pos < POINTS.length ? POINTS[pos] : 0;
@@ -202,7 +202,7 @@ final class Room {
             if (names.length() > 0) { say("§e" + (pos + 1) + "o §f" + names + " §7+" + pts); }
             pos += group.size();
         }
-        say("§7Placar: " + standings(3));
+        say(M.t("placar", standings(3)));
         timer = 100;
         phase = Phase.RESULTADO;
     }
@@ -227,12 +227,12 @@ final class Room {
         phase = Phase.FINAL;
         timer = 120;
         List<Player> list = sorted();
-        say("§6§l===== RANKING FINAL =====");
+        say(M.t("ranking_final"));
         for (int i = 0; i < list.size(); i++) {
             Player p = list.get(i);
             revive(p);
             p.teleport(lobby());
-            say((i == 0 ? "§6§l1o " : i == 1 ? "§f§l2o " : i == 2 ? "§c§l3o " : "§7" + (i + 1) + "o ") + "§r" + color(p) + p.getName() + " §7- §f" + total.getOrDefault(p, 0) + " pontos");
+            say(M.t("pontos_2", (i == 0 ? "§6§l1o " : i == 1 ? "§f§l2o " : i == 2 ? "§c§l3o " : "§7" + (i + 1) + "o "), color(p), p.getName(), total.getOrDefault(p, 0)));
         }
         plugin.finished(this, list);
     }

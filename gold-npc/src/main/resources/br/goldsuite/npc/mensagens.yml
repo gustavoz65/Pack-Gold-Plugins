@@ -1,0 +1,50 @@
+autentique_se_primeiro: "Autentique-se primeiro."
+comando_invalido_ou_longo_demais: "Comando invalido ou longo demais."
+dados_de_npc_invalidos_ou_excessivos: "Dados de NPC invalidos ou excessivos."
+# {0} = root(error)
+erro: "Erro: {0}"
+falha_ao_carregar_npcs: "Falha ao carregar NPCs."
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldNPC."
+id_invalido: "Id invalido."
+item_do_npc_invalido: "Item do NPC invalido."
+jogador_precisa_estar_online: "Jogador precisa estar online."
+limite_de_npcs_atingido: "Limite de NPCs atingido."
+# {0} = root(error)
+nao_foi_possivel_viajar: "Nao foi possivel viajar: {0}"
+nenhum_npc_criado: "Nenhum NPC criado."
+# {0} = MAX_NAME
+nome_ate_caracteres_5_linhas: "Nome: ate {0} caracteres e 5 linhas."
+# {0} = id, {1} = spec.replace(":", " #")
+npc_agora_mostra_posicao_atualiza_cada: "NPC #{0} agora mostra a posicao {1}. Atualiza a cada 30 s."
+# {0} = id
+npc_atualizado: "NPC #{0} atualizado."
+# {0} = created[0]
+npc_criado_selecionado_configure_com_npc: "NPC #{0} criado e selecionado. Configure com /npc destino e /npc transicao."
+npc_desligado_do_ranking: "NPC desligado do ranking."
+# {0} = id
+npc_inexistente: "NPC inexistente: {0}"
+npc_invalido: "NPC invalido."
+# {0} = entry.getKey()
+npc_invalido_2: "NPC {0} invalido."
+npc_npc_criar_tipo_nome_selecionar: "NPC: /npc criar <tipo> [nome], selecionar [id], lista, info, nome <texto, | quebra linha>, tipo <tipo>, skin [jogador], item, mover, olhar sim|nao, ranking <quadro> <posicao>|nenhum, destino mundo <m>|aqui|servidor <s>|nenhum, transicao <instantanea|portal|espiral|escurecer|contagem|explosao>, comando <cmd>|limpar, tp [id], remover"
+# {0} = id
+npc_removido: "NPC #{0} removido."
+# {0} = view.id, {1} = describe(view.id, view.data)
+npc_selecionado: "NPC #{0} selecionado. {1}"
+# {0} = id
+npc_selecionado_2: "NPC #{0} selecionado."
+posicao_de_1_10: "Posicao de 1 a 10."
+# {0} = rankingBoards()
+quadro_inexistente_disponiveis: "Quadro inexistente. Disponiveis: {0}"
+ranking_do_npc_invalido: "Ranking do NPC invalido."
+selecione_um_npc_npc_selecionar_toque: "Selecione um NPC: /npc selecionar (e toque nele) ou /npc selecionar <id>."
+sem_permissao: "Sem permissao."
+skin_invalida: "Skin invalida."
+toque_no_npc_que_deseja_selecionar: "Toque no NPC que deseja selecionar."
+use_dentro_do_jogo: "Use dentro do jogo."
+uso_npc_comando_comando_sem_ou: "Uso: /npc comando <comando sem /> ou /npc comando limpar"
+uso_npc_criar_tipo_nome: "Uso: /npc criar <tipo> [nome]"
+uso_npc_destino_mundo_mundo_aqui: "Uso: /npc destino mundo <mundo> | aqui | servidor <nome> | nenhum"
+# {0} = rankingBoards()
+uso_npc_ranking_quadro_posicao_1: "Uso: /npc ranking <quadro> <posicao 1-10> | nenhum. Quadros: {0}"
+vago: "&7(vago)"

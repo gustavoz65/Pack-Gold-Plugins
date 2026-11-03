@@ -1,0 +1,123 @@
+1_perola_do_fim_teleporta_16: "1 Perola do Fim (teleporta) e 16 blocos de pedra do end"
+6_tnts_que_acendem_sozinhas_botas: "6 TNTs que acendem sozinhas e botas de couro"
+admin_sw_criar_nome_solo_dupla: "Admin: /sw criar <nome> [solo|dupla], jaula [x y z], desfazer, meio [x y z], insano, salvar, lista, iniciar <arena>, remover <arena>"
+# {0} = g.players.size(), {1} = g.capacity()
+aguardando_jogadores: "&eAguardando jogadores &f{0}/{1}"
+arco_12_flechas_capacete_de_couro: "Arco, 12 flechas e capacete de couro"
+arco_forca_16_flechas_capacete_de: "Arco Forca I, 16 flechas e capacete de ouro Protecao I"
+# {0} = name, {1} = world
+arena_criada_em_fique_em_cada: "Arena {0} criada em {1}. Fique em cada jaula e use /sw jaula; no centro, /sw meio; depois /sw salvar."
+arena_inexistente_ou_em_jogo: "Arena inexistente ou em jogo."
+# {0} = e.getKey()
+arena_invalida: "Arena invalida: {0}"
+arena_ja_existe: "Arena ja existe."
+arena_removida: "Arena removida."
+arena_tem_jogadores_espere_esvaziar: "A arena tem jogadores; espere esvaziar."
+boneco_de_neve: "Boneco de Neve"
+caiu_no_vazio: "caiu no vazio."
+carregando: "Carregando..."
+centro_marcado_baus_ate_12_blocos: "Centro marcado: baus a ate 12 blocos sao do meio."
+# {0} = g.seconds, {1} = Kits.ALL.get(stats(p).kit).name
+comeca_em_kit: "&aComeca em &f{0}s &7| &fKit: &e{1}"
+comecando_em_5: "Comecando em 5 s."
+compra_nao_concluida: "&cCompra nao concluida."
+# {0} = price(k) / 100
+comprar: "&6Comprar: ${0}"
+coordenadas_invalidas_use_de_0_255: "Coordenadas invalidas: use x y z (y de 0 a 255)."
+copia_do_mapa_salva_ele_volta: "Copia do mapa salva: ele volta assim depois de cada partida."
+dados_do_skywars_invalidos: "Dados do SkyWars invalidos."
+de_dupla: "de dupla"
+desligado: "&cdesligado"
+# {0} = k.name, {1} = cost / 100
+dinheiro_insuficiente_kit_custa: "&cDinheiro insuficiente: o kit {0} custa ${1}."
+dupla: "dupla"
+entre_no_mundo_de_uma_arena: "Entre no mundo de uma arena (veja /sw lista)."
+# {0} = p.getName(), {1} = g.players.size(), {2} = g.capacity()
+entrou: "&7{0} &eentrou (&f{1}/{2}&e)"
+espada_de_madeira_repulsao_capacete_de: "Espada de madeira Repulsao I e capacete de ferro"
+espada_de_ouro_afiada_ii_calca: "Espada de ouro Afiada II e calca de malha"
+# {0} = g.players.size()
+espectador_vivos: "&7Espectador &8| &fVivos: &a{0}"
+espere_partida_acabar: "Espere a partida acabar."
+esvazie_inventario_antes_de_entrar_no: "Esvazie o inventario antes de entrar no SkyWars."
+# {0} = world
+falha_ao_restaurar: "Falha ao restaurar {0}"
+# {0} = e.getMessage()
+falha_ao_salvar_copia: "&cFalha ao salvar a copia: {0}"
+falta_1_minuto_sem_vencedor_partida: "&cFalta 1 minuto! Sem vencedor, a partida termina empatada."
+faltam_argumentos_use_sw: "Faltam argumentos. Use /sw."
+# {0} = clock(gameSeconds - g.elapsed)
+fim: "&fFim: &c{0}"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldSkyWars."
+insano: " insano"
+isqueiro_balde_de_lava_pocao_de: "Isqueiro, balde de lava e pocao de resistencia ao fogo"
+jaula_invalida: "Jaula invalida."
+# {0} = g.arena().spawns.size()
+jaula_marcada_jaula_de_vidro_aparece: "Jaula {0} marcada (a jaula de vidro aparece aqui na partida)."
+# {0} = g.name, {1} = a.world, {2} = (a.teamSize == 1 ? "solo" : "dupla"), {3} = (a.insane ? " insano" : ""), {4} = a.spawns.size(), {5} = g.phase, {6} = g.players.size(), {7} = g.capacity(), {8} = (maps.hasBackup(a.world) ? "" : " §cSEM COPIA")
+jaulas: "&e{0} &f- {1}, {2}{3}, {4} jaulas, {5} ({6}/{7}){8}"
+jogador: "jogador"
+jogador_de_beisebol: "Jogador de Beisebol"
+jogador_offline: "Jogador offline."
+jogadores_insuficientes_contagem_cancelada: "&cJogadores insuficientes, contagem cancelada."
+jogar_de_novo_toque: "&r&aJogar de novo &7(toque)"
+# {0} = k.name
+kit_selecionado: "Kit &e{0} &fselecionado."
+# {0} = Kits.ALL.get(stats(p).kit).name
+kit_toque_no_bau_da_hotbar: "Kit: &e{0}&f. Toque no bau da hotbar para trocar."
+kits_do_skywars: "Kits do SkyWars"
+kits_toque: "&r&eKits &7(toque)"
+ligado: "&aligado"
+# {0} = (g.arena().teamSize > 1 ? "time" : "jogador")
+lutem_ultimo_vivo_vence: "&l&aLUTEM! &r&fUltimo {0} vivo vence."
+machado_de_ferro_32_blocos_de: "Machado de ferro e 32 blocos de madeira"
+maximo_de_24_jaulas: "Maximo de 24 jaulas."
+# {0} = (g.arena().insane ? "§aligado" : "§cdesligado")
+modo_insano: "Modo insano {0}&f."
+na_partida_so_funcionam_sw_tell: "&cNa partida so funcionam /sw, /tell e /fps."
+# {0} = (teamSize == 1 ? "solo" : "de dupla")
+nenhuma_sala_aberta_agora_tente_em: "Nenhuma sala {0} aberta agora. Tente em instantes."
+nome_1_16_letras_numeros_ou: "Nome: 1 a 16 letras, numeros ou _ (sem barras ou pontos)."
+os_baus_foram_reabastecidos: "&6Os baus foram reabastecidos!"
+os_kits_so_podem_ser_trocados: "Os kits so podem ser trocados antes da partida."
+# {0} = g.seconds
+partida_comeca_em: "&aA partida comeca em &f{0}s&a!"
+# {0} = from
+pasta_inexistente: "Pasta inexistente: {0}"
+peitoral_de_ouro_protecao_ii_capacete: "Peitoral de ouro Protecao II e capacete de ouro"
+perola_do_fim: "&r&5Perola do Fim"
+picareta_de_diamante_eficiencia_ii_32: "Picareta de diamante Eficiencia II e 32 de pedregulho"
+picareta_machado_pa_de_madeira: "Picareta, machado e pa de madeira"
+# {0} = clock(next - g.elapsed)
+refil: "&fRefil: &6{0}"
+sair_toque: "&r&cSair &7(toque)"
+# {0} = p.getName(), {1} = g.players.size(), {2} = g.capacity()
+saiu: "&7{0} &esaiu (&f{1}/{2}&e)"
+# {0} = p.getName()
+saiu_da_partida: "&7{0} &esaiu da partida."
+sala_cheia: "Sala cheia."
+selecionado: "&a&l[SELECIONADO]"
+sem_copia: " &cSEM COPIA"
+sky_wars: "&b[&fSky&bWars]&f "
+# {0} = g.players.size(), {1} = g.kills.getOrDefault(p, 0), {2} = (next == Long.MAX_VALUE ? "§fFim: §c" + clock(gameSeconds - g.elapsed) : "§fRefil: §6" + clock(next - g.elapsed))
+skywars_vivos_abates: "&bSkyWars &7| &fVivos: &a{0} &7| &fAbates: &e{1} &7| {2}"
+solo: "solo"
+sw_entrar_solo_dupla_sw_sair: "/sw entrar [solo|dupla], /sw sair, /sw kits, /sw stats, /sw top"
+tempo_esgotado_ninguem_venceu: "&7Tempo esgotado: ninguem venceu."
+time: "time"
+tire_armadura_antes_de_entrar_no: "Tire a armadura antes de entrar no SkyWars."
+top_vitorias: "&6Top vitorias:"
+toque_para_usar: "&eToque para usar"
+ultima_jaula_removida: "Ultima jaula removida."
+use_um_mundo_proprio_para_arena: "Use um mundo proprio para a arena (/mundo criar)."
+# {0} = names, {1} = g.name
+venceu_skywars_em: "&e{0} &fvenceu o SkyWars em &b{1}&f!"
+vitoria_voce_ganhou_skywars: "&6&lVITORIA! &r&fVoce ganhou o SkyWars."
+# {0} = t.getName(), {1} = s.wins, {2} = s.kills, {3} = s.deaths, {4} = s.games, {5} = Kits.ALL.get(s.kit).name
+vitorias_abates_mortes_partidas_kit: "&e{0}&f: &a{1} vitorias&f, &c{2} abates&f, {3} mortes, {4} partidas, kit &e{5}"
+# {0} = k.name
+voce_comprou_selecionou_kit: "&aVoce comprou e selecionou o kit {0}!"
+voce_foi_eliminado_assistindo_como_espectador: "&cVoce foi eliminado! &fAssistindo como espectador. Papel: jogar de novo | Cama: sair."
+voce_ja_esta_numa_partida_use: "Voce ja esta numa partida. Use /sw sair."
+voce_nao_esta_numa_partida: "Voce nao esta numa partida."
+voce_saiu_da_partida: "Voce saiu da partida."

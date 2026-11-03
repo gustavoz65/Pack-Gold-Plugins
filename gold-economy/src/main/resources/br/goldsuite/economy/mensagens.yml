@@ -1,0 +1,51 @@
+aguarde_operacao_anterior_terminar: "&cAguarde a operacao anterior terminar."
+aguarde_operacao_anterior_terminar_2: "Aguarde a operacao anterior terminar."
+autentique_se_primeiro: "Autentique-se primeiro."
+banco_central: "Banco Central"
+# {0} = Ledger.format(balance(sender.getName(), Currency.MONEY), Currency.MONEY), {1} = Ledger.format(data.read(s -> s.bank(sender.getName())), Currency.MONEY)
+carteira_banco_use_banco_banco_depositar: "Carteira: ${0} | Banco: ${1}. Use /banco, /banco depositar <valor> ou /banco sacar <valor>."
+cash: " cash"
+conta_invalida: "Conta invalida."
+depositar: "depositar."
+# {0} = PlaceholderService.compact(v)
+depositar_carteira_banco: "&aDepositar ${0}\n&7Carteira -> banco"
+# {0} = Ledger.format(wallet, Currency.MONEY)
+depositar_tudo: "&aDepositar tudo\n&7${0}"
+do_banco: " do banco."
+economia_ainda_carregando: "Economia ainda carregando."
+falha_ao_carregar_economia: "Falha ao carregar economia."
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldEconomy."
+informe_um_valor_positivo_sem_notacao: "Informe um valor positivo, sem notacao cientifica."
+jogador_invalido: "Jogador invalido."
+jogador_nunca_entrou_no_servidor: "Jogador nunca entrou no servidor."
+limite_da_carteira_atingido: "Limite da carteira atingido."
+limite_do_banco_atingido: "Limite do banco atingido."
+livro_de_contas_invalido: "Livro de contas invalido."
+maiores_saldos: "Maiores saldos:"
+moedas: " moedas"
+# {0} = (deposit ? "depositar." : "sacar.")
+nada_para: "&cNada para {0}"
+nao_possivel_pagar_si_mesmo: "Nao e possivel pagar a si mesmo."
+no_banco: " no banco."
+# {0} = message(error)
+operacao_recusada: "Operacao recusada: {0}"
+operacao_salva_com_sucesso: "Operacao salva com sucesso."
+sacar: "sacar."
+# {0} = PlaceholderService.compact(v)
+sacar_banco_carteira: "&6Sacar ${0}\n&7Banco -> carteira"
+# {0} = Ledger.format(bank, Currency.MONEY)
+sacar_tudo: "&6Sacar tudo\n&7${0}"
+# {0} = Ledger.format(wallet, Currency.MONEY), {1} = Ledger.format(bank, Currency.MONEY)
+saldo_carteira_banco: "&aSaldo\n&7Carteira: &f${0}\n&7Banco: &f${1}"
+# {0} = target, {1} = Ledger.format(balance(target, currency), currency), {2} = (currency == Currency.CASH ? " cash" : " moedas")
+saldo_de: "Saldo de {0}: {1}{2}"
+saldo_fora_do_limite: "Saldo fora do limite."
+saldo_insuficiente: "Saldo insuficiente."
+saldo_insuficiente_ou_limite_atingido: "Saldo insuficiente ou limite atingido."
+saldo_insuficiente_ou_limite_do_destinatario: "Saldo insuficiente ou limite do destinatario atingido."
+sem_permissao: "Sem permissao."
+valor_fora_do_limite: "Valor fora do limite."
+voce_depositou: "&aVoce depositou $"
+voce_nao_tem_esse_valor_na: "Voce nao tem esse valor na carteira."
+voce_nao_tem_esse_valor_no: "Voce nao tem esse valor no banco."
+voce_sacou: "&aVoce sacou $"

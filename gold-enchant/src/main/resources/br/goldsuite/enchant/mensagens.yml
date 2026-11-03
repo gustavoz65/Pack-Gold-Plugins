@@ -1,0 +1,22 @@
+# {0} = e.getName(), {1} = args[1]
+aplicado: "{0} {1} aplicado."
+# {0} = ench.getName(), {1} = next, {2} = money(price)
+aplicado_por: "{0} {1} aplicado por ${2}."
+encantar: "&5[&dEncantar&5]&f "
+# {0} = hand.getName()
+encantar_2: "Encantar {0}"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldEnchant."
+goldeconomy_precisa_estar_instalado: "&cO GoldEconomy precisa estar instalado."
+item_mudou_valor_devolvido: "&cO item mudou; valor devolvido."
+ja_esta_no_nivel_maximo: "Ja esta no nivel maximo."
+nenhum_encantamento_serve_para_este_item: "Nenhum encantamento serve para este item."
+# {0} = (now + 1), {1} = money(cost(e.getValue(), now + 1))
+nivel: "&fNivel {0}: &a${1}"
+nivel_maximo: "&aNivel maximo"
+numero_invalido: "&cNumero invalido."
+preco_atualizado: "Preco atualizado."
+preco_invalido: "Preco invalido."
+precos_invalidos: "Precos invalidos."
+segure_item_que_quer_encantar: "Segure o item que quer encantar."
+segure_um_item: "Segure um item."
+use_dentro_do_jogo: "Use dentro do jogo."

@@ -17,7 +17,7 @@ public final class KitState {
 
     public static String name(String text) {
         String n = text == null ? "" : text.toLowerCase(Locale.ROOT);
-        if (!n.matches("[a-z0-9_-]{1,20}")) { throw new IllegalArgumentException("Nome: ate 20 letras, numeros, _ ou -."); }
+        if (!n.matches("[a-z0-9_-]{1,20}")) { throw new IllegalArgumentException(M.t("nome_ate_20_letras_numeros_ou")); }
         return n;
     }
 
@@ -25,12 +25,12 @@ public final class KitState {
     void prune(long now) { cooldowns.values().removeIf(until -> until <= now); }
 
     public static void validate(KitState s) {
-        if (s == null || s.kits == null || s.cooldowns == null || s.kits.size() > 54 || s.cooldowns.size() > 50000) { throw new IllegalArgumentException("Kits invalidos."); }
+        if (s == null || s.kits == null || s.cooldowns == null || s.kits.size() > 54 || s.cooldowns.size() > 50000) { throw new IllegalArgumentException(M.t("kits_invalidos")); }
         for (Map.Entry<String, KitDef> e : s.kits.entrySet()) {
             name(e.getKey());
             KitDef k = e.getValue();
-            if (k == null || k.items == null || k.items.isEmpty() || k.items.size() > 36 || k.cooldownMinutes < 0 || k.cooldownMinutes > 525600) { throw new IllegalArgumentException("Kit invalido: " + e.getKey()); }
-            for (ItemData item : k.items) { if (item == null) { throw new IllegalArgumentException("Item nulo."); } item.validate(); }
+            if (k == null || k.items == null || k.items.isEmpty() || k.items.size() > 36 || k.cooldownMinutes < 0 || k.cooldownMinutes > 525600) { throw new IllegalArgumentException(M.t("kit_invalido", e.getKey())); }
+            for (ItemData item : k.items) { if (item == null) { throw new IllegalArgumentException(M.t("item_nulo")); } item.validate(); }
         }
     }
 }

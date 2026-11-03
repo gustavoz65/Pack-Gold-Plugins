@@ -52,9 +52,10 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
 
     @Override
     public void onEnable() {
+        M.B.attach(this);
         this.mainThread = Thread.currentThread();
         this.core = getServer().getServiceManager().load(CoreService.class);
-        if (this.core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldAuth."); }
+        if (this.core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         getServer().getServiceManager().register(AuthService.class, this, this);
         getServer().getPluginManager().registerEvents(this, this);
         for (Player player : getServer().getOnlinePlayers().values()) { session(player); }
@@ -64,7 +65,7 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
                 attempts.values().removeIf(window -> window.expired(now));
                 for (Session session : new ArrayList<>(sessions.values())) {
                     if (!session.authenticated && now - session.created >= 120_000_000_000L) {
-                        session.player.close("", "Tempo para autenticar esgotado.");
+                        session.player.close("", M.t("tempo_para_autenticar_esgotado"));
                     }
                 }
             }
@@ -75,8 +76,8 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
     @Override
     public void onDisable() {
         for (Session session : new ArrayList<>(this.sessions.values())) {
-            session.loaded.completeExceptionally(new IllegalStateException("Autenticacao encerrada."));
-            session.player.close("", "Autenticacao reiniciada. Entre novamente.");
+            session.loaded.completeExceptionally(new IllegalStateException(M.t("autenticacao_encerrada")));
+            session.player.close("", M.t("autenticacao_reiniciada_entre_novamente"));
         }
         this.sessions.clear();
         this.attempts.clear();
@@ -84,22 +85,22 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
     }
 
     private void requireMainThread() {
-        if (Thread.currentThread() != this.mainThread) { throw new IllegalStateException("A API de autenticacao deve ser chamada na thread principal."); }
+        if (Thread.currentThread() != this.mainThread) { throw new IllegalStateException(M.t("api_de_autenticacao_deve_ser_chamada")); }
     }
 
     private Session session(Player player) {
         requireMainThread();
         Session existing = this.sessions.get(player);
         if (existing != null) { return existing; }
-        if (!PlayerName.isValid(player.getName())) { throw new IllegalArgumentException("Jogador sem nome valido."); }
+        if (!PlayerName.isValid(player.getName())) { throw new IllegalArgumentException(M.t("jogador_sem_nome_valido")); }
         Session session = new Session(player);
         this.sessions.put(player, session);
         CompletableFuture<java.util.Optional<String>> security = this.core.getStore().get(SECURITY, session.name);
         this.core.getStore().get("goldauth", session.name).thenCombine(security, (stored, twoFactor) -> new Object[] {stored, twoFactor}).whenComplete((both, error) -> {
-            if (!current(session)) { session.loaded.completeExceptionally(new IllegalStateException("Sessao encerrada.")); return; }
+            if (!current(session)) { session.loaded.completeExceptionally(new IllegalStateException(M.t("sessao_encerrada"))); return; }
             if (error != null) {
                 session.loaded.completeExceptionally(error);
-                player.close("", "Nao foi possivel carregar sua conta. Tente novamente.");
+                player.close("", M.t("nao_foi_possivel_carregar_sua_conta"));
                 return;
             }
             @SuppressWarnings("unchecked") java.util.Optional<String> stored = (java.util.Optional<String>) both[0];
@@ -110,7 +111,7 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
                 catch (RuntimeException bad) { getLogger().warning("2FA invalido de " + session.name + "; mantendo bloqueio ate a staff resetar."); session.security = new Security(); session.security.secret = "INVALIDOINVALIDO"; }
             }
             session.loaded.complete(null);
-            player.sendMessage(session.passwordHash == null ? "Registre-se: /registrar <senha> <confirmacao>" : "Entre com /login <senha>. Voce tambem pode digitar a senha no chat.");
+            player.sendMessage(session.passwordHash == null ? M.t("registre_se_registrar_senha_confirmacao") : M.t("entre_com_login_senha_voce_tambem"));
         });
         return session;
     }
@@ -139,11 +140,11 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         requireMainThread();
         if (!isEnabled()) {
             CompletableFuture<Boolean> rejected = new CompletableFuture<>();
-            rejected.completeExceptionally(new IllegalStateException("GoldAuth esta desativado."));
+            rejected.completeExceptionally(new IllegalStateException(M.t("goldauth_esta_desativado")));
             return rejected;
         }
         Session session = session(player);
-        if (session.busy) { return reject(player, "Aguarde a verificacao anterior."); }
+        if (session.busy) { return reject(player, M.t("aguarde_verificacao_anterior")); }
         try { PasswordHasher.validate(input); if (mode == Mode.CHANGE) { PasswordHasher.validate(replacementInput); } }
         catch (IllegalArgumentException error) { return reject(player, error.getMessage()); }
         char[] password = input.clone();
@@ -151,32 +152,32 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         session.busy = true;
         CompletableFuture<Boolean> result = session.loaded.thenCompose(ignored -> {
             if (!current(session)) { return CompletableFuture.completedFuture(false); }
-            if (mode == Mode.REGISTER && session.passwordHash != null) { return reject(player, "Esta conta ja possui registro. Use /login."); }
-            if (mode != Mode.REGISTER && session.passwordHash == null) { return reject(player, "Registre sua conta primeiro com /registrar."); }
-            if (mode == Mode.CHANGE && !session.authenticated) { return reject(player, "Entre na conta antes de alterar sua senha."); }
-            if (mode != Mode.CHANGE && session.authenticated) { return reject(player, "Voce ja esta autenticado."); }
+            if (mode == Mode.REGISTER && session.passwordHash != null) { return reject(player, M.t("esta_conta_ja_possui_registro_use")); }
+            if (mode != Mode.REGISTER && session.passwordHash == null) { return reject(player, M.t("registre_sua_conta_primeiro_com_registrar")); }
+            if (mode == Mode.CHANGE && !session.authenticated) { return reject(player, M.t("entre_na_conta_antes_de_alterar")); }
+            if (mode != Mode.CHANGE && session.authenticated) { return reject(player, M.t("voce_ja_esta_autenticado")); }
             long now = System.nanoTime();
             AttemptWindow window = this.attempts.get(player.getAddress());
             if (window == null) {
-                if (this.attempts.size() >= 2048) { return reject(player, "Autenticacao ocupada. Aguarde e tente novamente."); }
+                if (this.attempts.size() >= 2048) { return reject(player, M.t("autenticacao_ocupada_aguarde_tente_novamente")); }
                 window = new AttemptWindow(now);
                 this.attempts.put(player.getAddress(), window);
             }
-            if (!window.allowed(now)) { return reject(player, "Muitas senhas erradas deste IP. Aguarde um minuto."); }
+            if (!window.allowed(now)) { return reject(player, M.t("muitas_senhas_erradas_deste_ip_aguarde")); }
             final AttemptWindow ipWindow = window;
             return hash(player, password, replacement, session.passwordHash, mode).thenCompose(answer -> {
                 if (!current(session)) { return CompletableFuture.completedFuture(false); }
                 if (!answer.matches) {
                     ipWindow.fail(System.nanoTime());
-                    player.sendMessage("Senha incorreta.");
-                    if (++session.failures >= 5) { player.close("", "Limite de senhas incorretas atingido."); }
+                    player.sendMessage(M.t("senha_incorreta"));
+                    if (++session.failures >= 5) { player.close("", M.t("limite_de_senhas_incorretas_atingido")); }
                     return CompletableFuture.completedFuture(false);
                 }
                 if (mode == Mode.LOGIN) {
                     // Senha certa num aparelho desconhecido de conta com 2FA: falta o codigo do app.
                     if (session.security != null && session.security.enabled() && !session.security.trusts(session.device)) {
                         session.pending2fa = true;
-                        player.sendMessage("§eAparelho novo nesta conta. §fDigite o codigo de 6 numeros do seu app autenticador: §e/2fa <codigo>");
+                        player.sendMessage(M.t("aparelho_novo_nesta_conta_digite_codigo"));
                         return CompletableFuture.completedFuture(true);
                     }
                     authenticated(session, PlayerAuthEvent.Method.LOGIN);
@@ -186,7 +187,7 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
                     if (!current(session)) { return false; }
                     session.passwordHash = answer.hash;
                     if (mode == Mode.REGISTER) { authenticated(session, PlayerAuthEvent.Method.REGISTER); }
-                    else { player.sendMessage("Senha alterada com sucesso."); }
+                    else { player.sendMessage(M.t("senha_alterada_com_sucesso")); }
                     return true;
                 });
             });
@@ -195,7 +196,7 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
             Arrays.fill(password, '\0');
             if (replacement != null) { Arrays.fill(replacement, '\0'); }
             session.busy = false;
-            if (error != null && current(session)) { player.sendMessage("Nao foi possivel concluir a autenticacao. Tente novamente."); }
+            if (error != null && current(session)) { player.sendMessage(M.t("nao_foi_possivel_concluir_autenticacao_tente")); }
         });
     }
 
@@ -225,9 +226,9 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
             start.run();
         } else if (this.pendingHashes.size() < MAX_QUEUED_HASHES) {
             this.pendingHashes.add(start);
-            player.sendMessage("Verificando sua senha, aguarde alguns segundos...");
+            player.sendMessage(M.t("verificando_sua_senha_aguarde_alguns_segundos"));
         } else {
-            result.completeExceptionally(new IllegalStateException("Fila de verificacao de senhas cheia."));
+            result.completeExceptionally(new IllegalStateException(M.t("fila_de_verificacao_de_senhas_cheia")));
         }
         return result;
     }
@@ -236,8 +237,8 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         session.authenticated = true;
         session.pending2fa = false;
         session.failures = 0;
-        session.player.sendMessage(method == PlayerAuthEvent.Method.REGISTER ? "Conta registrada e autenticada. §eProteja sua conta: /2fa ativar" : "Login realizado com sucesso.");
-        if (method == PlayerAuthEvent.Method.LOGIN && (session.security == null || !session.security.enabled())) { session.player.sendMessage("§7Dica: ative a verificacao em duas etapas com /2fa ativar."); }
+        session.player.sendMessage(method == PlayerAuthEvent.Method.REGISTER ? M.t("conta_registrada_autenticada_proteja_sua_conta") : M.t("login_realizado_com_sucesso"));
+        if (method == PlayerAuthEvent.Method.LOGIN && (session.security == null || !session.security.enabled())) { session.player.sendMessage(M.t("dica_ative_verificacao_em_duas_etapas")); }
         getServer().getPluginManager().callEvent(new PlayerAuthEvent(session.player, method));
         // Boas-vindas visual: o GoldCore limita alcance, quantidade e densidade conforme o TPS.
         EffectService effects = getServer().getServiceManager().load(EffectService.class);
@@ -249,24 +250,24 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         requireMainThread();
         if (command.getName().equals("authreset")) {
             if (!sender.hasPermission("goldauth.admin") || (sender instanceof Player && !isAuthenticated((Player) sender))) {
-                sender.sendMessage("Sem permissao ou autenticacao para remover contas."); return true;
+                sender.sendMessage(M.t("sem_permissao_ou_autenticacao_para_remover")); return true;
             }
             if (args.length != 1 || !PlayerName.isValid(args[0])) { return false; }
             String name = args[0].toLowerCase(Locale.ROOT);
             for (Session session : new ArrayList<>(this.sessions.values())) {
-                if (session.name.equals(name)) { this.sessions.remove(session.player); session.player.close("", "Seu registro foi removido pela administracao."); }
+                if (session.name.equals(name)) { this.sessions.remove(session.player); session.player.close("", M.t("seu_registro_foi_removido_pela_administracao")); }
             }
             this.core.getStore().delete(SECURITY, name);
-            this.core.getStore().delete("goldauth", name).whenComplete((ignored, error) -> sender.sendMessage(error == null ? "Registro removido. O jogador precisara registrar uma nova senha." : "Nao foi possivel remover o registro."));
+            this.core.getStore().delete("goldauth", name).whenComplete((ignored, error) -> sender.sendMessage(error == null ? M.t("registro_removido_jogador_precisara_registrar_um") : M.t("nao_foi_possivel_remover_registro")));
             return true;
         }
         if (command.getName().equals("2fa")) { return twoFactorCommand(sender, args); }
-        if (!(sender instanceof Player)) { sender.sendMessage("Este comando precisa ser usado dentro do jogo."); return true; }
+        if (!(sender instanceof Player)) { sender.sendMessage(M.t("este_comando_precisa_ser_usado_dentro")); return true; }
         Player player = (Player) sender;
         CompletableFuture<Boolean> operation;
         if (command.getName().equals("registrar")) {
             if (args.length != 2) { return false; }
-            if (!args[0].equals(args[1])) { player.sendMessage("A confirmacao nao corresponde a senha."); return true; }
+            if (!args[0].equals(args[1])) { player.sendMessage(M.t("confirmacao_nao_corresponde_senha")); return true; }
             operation = register(player, args[0].toCharArray());
         } else if (command.getName().equals("login")) {
             if (args.length != 1) { return false; }
@@ -285,7 +286,7 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         for (Session session : this.sessions.values()) {
             if (session.authenticated && session.player.isConnected() && session.player != event.getPlayer()
                     && session.name.equals(event.getPlayer().getName().toLowerCase(Locale.ROOT))) {
-                event.setCancelled(); event.setKickMessage("Esta conta ja esta autenticada no servidor."); return;
+                event.setCancelled(); event.setKickMessage(M.t("esta_conta_ja_esta_autenticada_no")); return;
             }
         }
     }
@@ -293,7 +294,7 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
     @EventHandler public void join(PlayerJoinEvent event) { session(event.getPlayer()); }
     @EventHandler public void quit(PlayerQuitEvent event) {
         Session session = this.sessions.remove(event.getPlayer());
-        if (session != null) { session.loaded.completeExceptionally(new IllegalStateException("Jogador desconectado.")); }
+        if (session != null) { session.loaded.completeExceptionally(new IllegalStateException(M.t("jogador_desconectado"))); }
     }
     @EventHandler(priority = EventPriority.HIGHEST) public void move(PlayerMoveEvent event) {
         if (!isAuthenticated(event.getPlayer()) && event.getFrom().distanceSquared(event.getTo()) > 0.0001) { event.setCancelled(); }
@@ -306,7 +307,7 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         if (command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) command).getPlugin() == this
                 && (command.getName().equals("login") || command.getName().equals("registrar") || command.getName().equals("2fa"))) { return; }
         event.setCancelled();
-        event.getPlayer().sendMessage("Autentique-se antes de usar comandos.");
+        event.getPlayer().sendMessage(M.t("autentique_se_antes_de_usar_comandos"));
     }
     @EventHandler(priority = EventPriority.LOWEST) public void chat(PlayerChatEvent event) {
         if (isAuthenticated(event.getPlayer())) { return; }
@@ -318,7 +319,7 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         if (!previouslyCancelled && session != null && session.pending2fa) { twoFactorLogin(session, password); return; }
         if (!previouslyCancelled && session != null && session.loaded.isDone() && session.passwordHash != null) {
             login(event.getPlayer(), password.toCharArray()).exceptionally(error -> false);
-        } else { event.getPlayer().sendMessage("Use /registrar <senha> <confirmacao> ou aguarde o carregamento da conta."); }
+        } else { event.getPlayer().sendMessage(M.t("use_registrar_senha_confirmacao_ou_aguarde")); }
     }
     private void block(Event event, Player player) { if (player != null && !isAuthenticated(player)) { event.setCancelled(); } }
     @EventHandler(priority = EventPriority.HIGHEST) public void interact(PlayerInteractEvent event) { block(event, event.getPlayer()); }
@@ -375,20 +376,20 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         Player player = session.player;
         AttemptWindow window = this.attempts.get(player.getAddress());
         if (window == null) {
-            if (this.attempts.size() >= 2048) { player.sendMessage("Autenticacao ocupada. Aguarde e tente novamente."); return; }
+            if (this.attempts.size() >= 2048) { player.sendMessage(M.t("autenticacao_ocupada_aguarde_tente_novamente")); return; }
             window = new AttemptWindow(System.nanoTime());
             this.attempts.put(player.getAddress(), window);
         }
-        if (!window.allowed(System.nanoTime())) { player.sendMessage("Muitos codigos errados deste IP. Aguarde um minuto."); return; }
+        if (!window.allowed(System.nanoTime())) { player.sendMessage(M.t("muitos_codigos_errados_deste_ip_aguarde")); return; }
         if (!Totp.verify(session.security.secret, code, System.currentTimeMillis())) {
             window.fail(System.nanoTime());
-            player.sendMessage("Codigo incorreto. Use o codigo atual do app (muda a cada 30 s).");
-            if (++session.failures >= 5) { player.close("", "Limite de codigos incorretos atingido."); }
+            player.sendMessage(M.t("codigo_incorreto_use_codigo_atual_do"));
+            if (++session.failures >= 5) { player.close("", M.t("limite_de_codigos_incorretos_atingido")); }
             return;
         }
         session.security.trust(session.device);
         this.core.getStore().put(SECURITY, session.name, GSON.toJson(session.security));
-        player.sendMessage("§aAparelho confirmado. §fNas proximas vezes, neste aparelho, basta o /login.");
+        player.sendMessage(M.t("aparelho_confirmado_nas_proximas_vezes_neste"));
         authenticated(session, PlayerAuthEvent.Method.LOGIN);
     }
 
@@ -397,60 +398,60 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
             if (sender instanceof Player && !isAuthenticated((Player) sender)) { return true; }
             String name = args[1].toLowerCase(Locale.ROOT);
             for (Session s : this.sessions.values()) { if (s.name.equals(name)) { s.security = null; } }
-            this.core.getStore().delete(SECURITY, name).whenComplete((v, e) -> sender.sendMessage(e == null ? "2FA de " + name + " removido. Ele entra so com a senha e pode ativar de novo." : "Nao foi possivel remover."));
+            this.core.getStore().delete(SECURITY, name).whenComplete((v, e) -> sender.sendMessage(e == null ? M.t("2fa_de_removido_ele_entra_so", name) : M.t("nao_foi_possivel_remover")));
             return true;
         }
-        if (!(sender instanceof Player)) { sender.sendMessage("Use /2fa reset <jogador>."); return true; }
+        if (!(sender instanceof Player)) { sender.sendMessage(M.t("use_2fa_reset_jogador")); return true; }
         Player player = (Player) sender;
         Session session = this.sessions.get(player);
         if (session == null) { return true; }
-        if (session.pending2fa) { if (args.length >= 1) { twoFactorLogin(session, String.join("", args)); } else { player.sendMessage("Use /2fa <codigo de 6 numeros>"); } return true; }
-        if (!session.authenticated) { player.sendMessage("Entre na conta primeiro com /login."); return true; }
+        if (session.pending2fa) { if (args.length >= 1) { twoFactorLogin(session, String.join("", args)); } else { player.sendMessage(M.t("use_2fa_codigo_de_6_numeros")); } return true; }
+        if (!session.authenticated) { player.sendMessage(M.t("entre_na_conta_primeiro_com_login")); return true; }
         String sub = args.length == 0 ? "ajuda" : args[0].toLowerCase(Locale.ROOT);
         boolean on = session.security != null && session.security.enabled();
         switch (sub) {
             case "ativar": {
-                if (on) { player.sendMessage("A verificacao em duas etapas ja esta ativa."); return true; }
+                if (on) { player.sendMessage(M.t("verificacao_em_duas_etapas_ja_esta")); return true; }
                 session.pendingSecret = Totp.newSecret();
                 String s = session.pendingSecret;
-                player.sendMessage("§e1. §fInstale o Google Authenticator, Authy ou Microsoft Authenticator.");
-                player.sendMessage("§e2. §fToque em adicionar conta > §einserir chave manualmente§f (baseada em tempo) e digite:");
+                player.sendMessage(M.t("1_instale_google_authenticator_authy_ou"));
+                player.sendMessage(M.t("2_toque_em_adicionar_conta_inserir"));
                 player.sendMessage("§a§l" + s.substring(0, 8) + " " + s.substring(8, 16) + " " + s.substring(16, 24) + " " + s.substring(24));
-                player.sendMessage("§e3. §fConfirme com §e/2fa confirmar <codigo>§f. §7Nao mostre essa chave para ninguem.");
+                player.sendMessage(M.t("3_confirme_com_2fa_confirmar_codigo"));
                 return true;
             }
             case "confirmar": {
-                if (session.pendingSecret == null) { player.sendMessage("Use /2fa ativar primeiro."); return true; }
-                if (args.length < 2 || !Totp.verify(session.pendingSecret, args[1], System.currentTimeMillis())) { player.sendMessage("Codigo incorreto. Confira a chave digitada no app e tente de novo."); return true; }
+                if (session.pendingSecret == null) { player.sendMessage(M.t("use_2fa_ativar_primeiro")); return true; }
+                if (args.length < 2 || !Totp.verify(session.pendingSecret, args[1], System.currentTimeMillis())) { player.sendMessage(M.t("codigo_incorreto_confira_chave_digitada_no")); return true; }
                 Security security = new Security();
                 security.secret = session.pendingSecret;
                 security.trust(session.device);
                 this.core.getStore().put(SECURITY, session.name, GSON.toJson(security)).whenComplete((v, e) -> {
-                    if (e != null) { player.sendMessage("Nao foi possivel salvar. Tente de novo."); return; }
+                    if (e != null) { player.sendMessage(M.t("nao_foi_possivel_salvar_tente_de")); return; }
                     session.security = security; session.pendingSecret = null;
-                    player.sendMessage("§aVerificacao em duas etapas ativada! §fEm aparelhos novos o servidor pede o codigo do app; neste, so o /login.");
+                    player.sendMessage(M.t("verificacao_em_duas_etapas_ativada_em"));
                 });
                 return true;
             }
             case "desativar": {
-                if (!on) { player.sendMessage("A verificacao em duas etapas nao esta ativa."); return true; }
-                if (args.length < 2 || !Totp.verify(session.security.secret, args[1], System.currentTimeMillis())) { player.sendMessage("Use /2fa desativar <codigo atual do app>."); return true; }
-                this.core.getStore().delete(SECURITY, session.name).whenComplete((v, e) -> { if (e == null) { session.security = null; player.sendMessage("Verificacao em duas etapas desativada."); } });
+                if (!on) { player.sendMessage(M.t("verificacao_em_duas_etapas_nao_esta")); return true; }
+                if (args.length < 2 || !Totp.verify(session.security.secret, args[1], System.currentTimeMillis())) { player.sendMessage(M.t("use_2fa_desativar_codigo_atual_do")); return true; }
+                this.core.getStore().delete(SECURITY, session.name).whenComplete((v, e) -> { if (e == null) { session.security = null; player.sendMessage(M.t("verificacao_em_duas_etapas_desativada")); } });
                 return true;
             }
             case "aparelhos": {
-                if (!on) { player.sendMessage("Ative primeiro: /2fa ativar"); return true; }
+                if (!on) { player.sendMessage(M.t("ative_primeiro_2fa_ativar")); return true; }
                 if (args.length >= 2 && args[1].equalsIgnoreCase("limpar")) {
                     session.security.trusted.clear();
                     session.security.trust(session.device);
                     this.core.getStore().put(SECURITY, session.name, GSON.toJson(session.security));
-                    player.sendMessage("Pronto: so este aparelho continua confiavel. Os outros vao pedir o codigo.");
-                } else { player.sendMessage("Aparelhos confiaveis: " + session.security.trusted.size() + ". §7/2fa aparelhos limpar remove todos menos este."); }
+                    player.sendMessage(M.t("pronto_so_este_aparelho_continua_confiavel"));
+                } else { player.sendMessage(M.t("aparelhos_confiaveis_2fa_aparelhos_limpar_remove", session.security.trusted.size())); }
                 return true;
             }
             default:
-                player.sendMessage("Verificacao em duas etapas: " + (on ? "§aativa" : "§cdesativada"));
-                player.sendMessage("/2fa ativar, /2fa confirmar <codigo>, /2fa desativar <codigo>, /2fa aparelhos [limpar]");
+                player.sendMessage(M.t("verificacao_em_duas_etapas", (on ? M.t("ativa") : M.t("desativada"))));
+                player.sendMessage(M.t("2fa_ativar_2fa_confirmar_codigo_2fa"));
                 return true;
         }
     }

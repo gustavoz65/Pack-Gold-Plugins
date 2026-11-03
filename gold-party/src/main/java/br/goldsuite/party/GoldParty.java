@@ -29,7 +29,7 @@ import java.util.*;
  * as salas e uma fila de blocos com limite por tick evita picos ao montar ou limpar arenas.
  */
 public final class GoldParty extends PluginBase implements Listener {
-    static String PREFIX = "§d[§fParty§d]§f ";
+    static String PREFIX = M.t("party");
     static final String WORLD = "party";
 
     Level world;
@@ -45,6 +45,7 @@ public final class GoldParty extends PluginBase implements Listener {
     final Set<String> disabled = new HashSet<>();
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         Settings.number(this, "minimo_jogadores", 3, "Jogadores para comecar a contagem", v -> minPlayers = (int) Math.max(2, Math.min(8, v)));
         Settings.number(this, "maximo_jogadores", 8, "Jogadores por sala (ate 8)", v -> maxPlayers = (int) Math.max(2, Math.min(8, v)));
@@ -57,7 +58,7 @@ public final class GoldParty extends PluginBase implements Listener {
         Settings.text(this, "provas_desligadas", "nenhuma", "Provas fora do sorteio, separadas por virgula (ex.: sumo,water_drop)", v -> { disabled.clear(); for (String s : v.toLowerCase(Locale.ROOT).split("[,\\s]+")) { if (!s.isEmpty()) { disabled.add(s); } } });
         Settings.text(this, "mundo_lobby", "", "Mundo para onde os jogadores voltam (vazio = mundo padrao)", v -> lobbyWorld = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldParty."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new PersistentState<>(core.getStore(), "goldparty", PartyState.class, PartyState::new, PartyState::validate);
         world = openWorld();
         blocks = new Blocks(world);
@@ -120,16 +121,16 @@ public final class GoldParty extends PluginBase implements Listener {
     }
 
     void join(Player p) {
-        if (byPlayer.containsKey(p)) { p.sendMessage(PREFIX + "Voce ja esta numa sala. /party sair"); return; }
-        if (!data.isLoaded()) { p.sendMessage(PREFIX + "Carregando, tente em instantes."); return; }
+        if (byPlayer.containsKey(p)) { p.sendMessage(PREFIX + M.t("voce_ja_esta_numa_sala_party")); return; }
+        if (!data.isLoaded()) { p.sendMessage(PREFIX + M.t("carregando_tente_em_instantes")); return; }
         for (Item it : p.getInventory().getContents().values()) {
-            if (it.getId() != 0 && !it.hasCustomName()) { p.sendMessage(PREFIX + "§cGuarde seus itens antes de entrar (so itens do lobby podem ficar)."); return; }
+            if (it.getId() != 0 && !it.hasCustomName()) { p.sendMessage(PREFIX + M.t("guarde_seus_itens_antes_de_entrar")); return; }
         }
         Room room = null;
         for (Room r : rooms) { if (r.waiting() && r.players.size() < maxPlayers) { room = r; break; } }
         if (room == null) {
             int slot = freeSlot();
-            if (slot < 0) { p.sendMessage(PREFIX + "§cTodas as salas estao jogando. Tente em alguns minutos."); return; }
+            if (slot < 0) { p.sendMessage(PREFIX + M.t("todas_as_salas_estao_jogando_tente")); return; }
             room = new Room(this, nextId++, slot);
             rooms.add(room);
             blocks.register(room.queue);
@@ -140,7 +141,7 @@ public final class GoldParty extends PluginBase implements Listener {
         p.setGamemode(Player.SURVIVAL);
         room.revive(p);
         p.teleport(room.lobby());
-        room.say(PREFIX + room.color(p) + p.getName() + " §fentrou §7(" + room.players.size() + "/" + maxPlayers + ")");
+        room.say(PREFIX + M.t("entrou", (room.color(p) + p.getName()), room.players.size(), maxPlayers));
     }
 
     /** Plataforma de espera da vaga (vidro com borda). */
@@ -165,7 +166,7 @@ public final class GoldParty extends PluginBase implements Listener {
         r.frozen.remove(p);
         r.total.remove(p);
         if (!quitting) { toLobby(p); } else { p.setDataFlag(Entity.DATA_FLAGS, Entity.DATA_FLAG_INVISIBLE, false); p.getInventory().clearAll(); }
-        r.say(PREFIX + "§7" + p.getName() + " saiu da sala.");
+        r.say(PREFIX + M.t("saiu_da_sala", p.getName()));
         if (r.players.isEmpty()) { close(r); }
     }
 
@@ -201,11 +202,11 @@ public final class GoldParty extends PluginBase implements Listener {
             int pts = r.total.getOrDefault(p, 0), first = r.firsts.getOrDefault(p, 0);
             boolean win = i == 0;
             data.change(s -> { PartyState.Stats st = s.of(key); st.games++; st.points += pts; st.firsts += first; if (win) { st.wins++; } });
-            if (i < 3 && eco != null && prizes[i] > 0 && r.players.size() >= 2) { eco.credit(key, EconomyService.Currency.MONEY, prizes[i]); p.sendMessage(PREFIX + "§a+$" + prizes[i] / 100 + " pelo " + (i + 1) + "o lugar!"); }
+            if (i < 3 && eco != null && prizes[i] > 0 && r.players.size() >= 2) { eco.credit(key, EconomyService.Currency.MONEY, prizes[i]); p.sendMessage(PREFIX + M.t("pelo_lugar", prizes[i] / 100, (i + 1))); }
         }
         if (!ranking.isEmpty()) {
             Player w = ranking.get(0);
-            getServer().broadcastMessage(PREFIX + "§6" + w.getName() + " §fvenceu o Party com §e" + r.total.getOrDefault(w, 0) + " pontos§f!");
+            getServer().broadcastMessage(PREFIX + M.t("venceu_party_com_pontos", w.getName(), r.total.getOrDefault(w, 0)));
             EffectService fx = getServer().getServiceManager().load(EffectService.class);
             if (fx != null) { fx.follow(w, EffectService.Shape.CELEBRACAO, 80); }
         }
@@ -303,7 +304,7 @@ public final class GoldParty extends PluginBase implements Listener {
         String m = e.getMessage().toLowerCase(Locale.ROOT);
         if (m.startsWith("/party") || m.startsWith("/suporte") || m.startsWith("/finalizar") || m.startsWith("/tell") || m.startsWith("/msg") || m.startsWith("/r ")) { return; }
         e.setCancelled();
-        p.sendMessage(PREFIX + "§cDurante o Party so /party sair funciona.");
+        p.sendMessage(PREFIX + M.t("durante_party_so_party_sair_funciona"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -325,39 +326,39 @@ public final class GoldParty extends PluginBase implements Listener {
         String sub = args.length > 0 ? args[0].toLowerCase(Locale.ROOT) : "entrar";
         switch (sub) {
             case "entrar": if (p != null) { join(p); } return true;
-            case "sair": if (p != null) { if (byPlayer.containsKey(p)) { leave(p, false); p.sendMessage(PREFIX + "Voce saiu do Party."); } else { p.sendMessage(PREFIX + "Voce nao esta numa sala."); } } return true;
+            case "sair": if (p != null) { if (byPlayer.containsKey(p)) { leave(p, false); p.sendMessage(PREFIX + M.t("voce_saiu_do_party")); } else { p.sendMessage(PREFIX + M.t("voce_nao_esta_numa_sala")); } } return true;
             case "top": {
                 int i = 1;
-                sender.sendMessage(PREFIX + "§6Top vitorias:");
+                sender.sendMessage(PREFIX + M.t("top_vitorias"));
                 for (RankingService.Entry e : top(10)) { sender.sendMessage("§e" + (i++) + ". §f" + e.player + " §7- " + e.label); }
                 return true;
             }
             case "stats": {
                 String name = (args.length > 1 ? args[1] : sender.getName()).toLowerCase(Locale.ROOT);
                 PartyState.Stats st = data.read(s -> s.stats.get(name));
-                sender.sendMessage(st == null ? PREFIX + "Sem partidas." : PREFIX + name + ": §e" + st.wins + " §fvitorias, " + st.games + " partidas, " + st.points + " pontos, " + st.firsts + " provas em 1o");
+                sender.sendMessage(st == null ? PREFIX + M.t("sem_partidas") : PREFIX + M.t("vitorias_partidas_pontos_provas_em_1o", name, st.wins, st.games, st.points, st.firsts));
                 return true;
             }
             case "salas": {
-                sender.sendMessage(PREFIX + rooms.size() + " sala(s), limite " + maxRooms + ":");
-                for (Room r : rooms) { sender.sendMessage("§e#" + r.id + " §7vaga " + r.slot + " §f" + r.phase + " §7" + r.players.size() + " jogador(es)" + (r.mini != null ? " - " + r.mini.name() : "")); }
+                sender.sendMessage(PREFIX + M.t("sala_limite", rooms.size(), maxRooms));
+                for (Room r : rooms) { sender.sendMessage(M.t("vaga_jogador_es", r.id, r.slot, r.phase, r.players.size(), (r.mini != null ? " - " + r.mini.name() : ""))); }
                 return true;
             }
             case "iniciar": {
-                if (!sender.hasPermission("goldparty.admin")) { sender.sendMessage("§cSem permissao."); return true; }
+                if (!sender.hasPermission("goldparty.admin")) { sender.sendMessage(M.t("sem_permissao")); return true; }
                 Room r = p != null ? byPlayer.get(p) : null;
-                if (r == null || !r.waiting()) { sender.sendMessage(PREFIX + "Entre numa sala em espera primeiro."); return true; }
+                if (r == null || !r.waiting()) { sender.sendMessage(PREFIX + M.t("entre_numa_sala_em_espera_primeiro")); return true; }
                 r.forced = true;
-                sender.sendMessage(PREFIX + "Comecando em 5 s (mesmo sem o minimo).");
+                sender.sendMessage(PREFIX + M.t("comecando_em_5_mesmo_sem_minimo"));
                 return true;
             }
             case "reconstruir": {
-                if (!sender.hasPermission("goldparty.admin")) { sender.sendMessage("§cSem permissao."); return true; }
-                data.change(s -> s.built.clear()).whenComplete((v, e) -> sender.sendMessage(PREFIX + "As arenas serao montadas de novo no proximo uso."));
+                if (!sender.hasPermission("goldparty.admin")) { sender.sendMessage(M.t("sem_permissao")); return true; }
+                data.change(s -> s.built.clear()).whenComplete((v, e) -> sender.sendMessage(PREFIX + M.t("as_arenas_serao_montadas_de_novo")));
                 return true;
             }
             default:
-                sender.sendMessage(PREFIX + "/party entrar, /party sair, /party top, /party stats [nick], /party salas" + (sender.hasPermission("goldparty.admin") ? ", /party iniciar, /party reconstruir" : ""));
+                sender.sendMessage(PREFIX + M.t("party_entrar_party_sair_party_top", (sender.hasPermission("goldparty.admin") ? M.t("party_iniciar_party_reconstruir") : "")));
                 return true;
         }
     }

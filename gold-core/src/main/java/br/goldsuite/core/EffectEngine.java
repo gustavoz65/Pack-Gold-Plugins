@@ -38,7 +38,7 @@ final class EffectEngine implements EffectService {
     EffectEngine(Plugin plugin) { this.plugin = plugin; }
 
     @Override public boolean play(Position center, Shape shape, int ticks) {
-        if (center.level == null) { throw new IllegalArgumentException("Posicao sem mundo."); }
+        if (center.level == null) { throw new IllegalArgumentException(M.t("posicao_sem_mundo")); }
         return add(new Active(null, center.level, center.x, center.y, center.z, shape, ticks));
     }
 
@@ -48,7 +48,7 @@ final class EffectEngine implements EffectService {
     }
 
     private boolean add(Active effect) {
-        if (effect.ticks < 1 || effect.ticks > MAX_TICKS) { throw new IllegalArgumentException("Duracao entre 1 e " + MAX_TICKS + " ticks."); }
+        if (effect.ticks < 1 || effect.ticks > MAX_TICKS) { throw new IllegalArgumentException(M.t("duracao_entre_1_ticks", MAX_TICKS)); }
         if (active.size() >= MAX_EFFECTS) { return false; }
         active.add(effect);
         if (task == null) { task = plugin.getServer().getScheduler().scheduleRepeatingTask(new PluginTask<Plugin>(plugin) { @Override public void onRun(int tick) { EffectEngine.this.tick(); } }, 1); }

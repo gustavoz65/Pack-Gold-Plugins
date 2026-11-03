@@ -23,7 +23,7 @@ final class AsyncDispatcher {
     synchronized <T> CompletableFuture<T> submit(Callable<T> operation) {
         Job<T> job = new Job<>(operation);
         if (this.closed || this.queue.size() >= 1024) {
-            job.future.completeExceptionally(new IllegalStateException("Armazenamento encerrado ou fila cheia."));
+            job.future.completeExceptionally(new IllegalStateException(M.t("armazenamento_encerrado_ou_fila_cheia")));
             return job.future;
         }
         this.queue.add(job);

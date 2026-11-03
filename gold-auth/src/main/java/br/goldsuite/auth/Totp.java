@@ -37,7 +37,7 @@ final class Totp {
         int buffer = 0, bits = 0;
         for (char c : s.toCharArray()) {
             int v = ALPHABET.indexOf(c);
-            if (v < 0) { throw new IllegalArgumentException("Segredo invalido."); }
+            if (v < 0) { throw new IllegalArgumentException(M.t("segredo_invalido")); }
             buffer = (buffer << 5) | v; bits += 5;
             if (bits >= 8) { out.put((byte) (buffer >> (bits - 8))); bits -= 8; }
         }

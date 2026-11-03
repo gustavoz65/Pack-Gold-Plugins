@@ -25,11 +25,11 @@ public final class PermissionState {
     }
     public PermissionState() { groups.put("padrao", new Group()); }
     public static String player(String name) {
-        if (!PlayerName.isValid(name)) { throw new IllegalArgumentException("Nome de jogador invalido."); }
+        if (!PlayerName.isValid(name)) { throw new IllegalArgumentException(M.t("nome_de_jogador_invalido")); }
         return name.toLowerCase(Locale.ROOT);
     }
     public static String groupName(String name) {
-        if (name == null || !name.matches("[a-z0-9_-]{1,24}")) { throw new IllegalArgumentException("Grupo: use ate 24 letras minusculas, numeros, _ ou -."); }
+        if (name == null || !name.matches("[a-z0-9_-]{1,24}")) { throw new IllegalArgumentException(M.t("grupo_use_ate_24_letras_minusculas")); }
         return name;
     }
     public String group(String name, long now) {
@@ -48,7 +48,7 @@ public final class PermissionState {
     /** Texto seguro para a tag: sem chaves nem %, que o formato do chat usa. */
     public static String tag(String text) {
         String t = text == null ? "" : text.replaceAll("[{}%\\p{Cntrl}]", "").trim();
-        if (t.length() > 32) { throw new IllegalArgumentException("Tag de ate 32 caracteres."); }
+        if (t.length() > 32) { throw new IllegalArgumentException(M.t("tag_de_ate_32_caracteres")); }
         return t;
     }
 
@@ -56,11 +56,11 @@ public final class PermissionState {
     public boolean preset() {
         boolean changed = false;
         String[][] ranks = {
-                {"ajudante", "padrao", "20", "&e[AJUDANTE]", "Atende tickets e silencia no chat"},
-                {"moderador", "ajudante", "40", "&2[MOD]", "Reports, kick e links no chat"},
-                {"admin", "moderador", "60", "&c[ADMIN]", "Ban, teleporte, modo de jogo e ferramentas da staff"},
-                {"gerente", "admin", "80", "&5[GERENTE]", "Metricas da equipe, cargos abaixo dele e alertas"},
-                {"dono", "gerente", "100", "&4[DONO]", "Tudo, inclusive painel e grupos"}};
+                {"ajudante", "padrao", "20", "&e[AJUDANTE]", M.t("atende_tickets_silencia_no_chat")},
+                {"moderador", "ajudante", "40", "&2[MOD]", M.t("reports_kick_links_no_chat")},
+                {"admin", "moderador", "60", "&c[ADMIN]", M.t("ban_teleporte_modo_de_jogo_ferramentas")},
+                {"gerente", "admin", "80", "&5[GERENTE]", M.t("metricas_da_equipe_cargos_abaixo_dele")},
+                {"dono", "gerente", "100", "&4[DONO]", M.t("tudo_inclusive_painel_grupos")}};
         String[][] perms = {
                 {"goldstaff.suporte", "goldchat.staff"},
                 {"goldstaff.reports", "goldchat.links", "nukkit.command.kick", "nukkit.command.teleport"},
@@ -81,7 +81,7 @@ public final class PermissionState {
             if (g.weight == 0 && g.tag.isEmpty()) { g.weight = Integer.parseInt(r[2]); g.tag = r[3]; g.staff = true; g.description = r[4]; changed = true; }
         }
         Group vip = groups.get("vip");
-        if (vip != null && vip.weight == 0 && vip.tag.isEmpty()) { vip.weight = 10; vip.tag = "&6[VIP]"; vip.description = "Vantagens de VIP"; changed = true; }
+        if (vip != null && vip.weight == 0 && vip.tag.isEmpty()) { vip.weight = 10; vip.tag = "&6[VIP]"; vip.description = M.t("vantagens_de_vip"); changed = true; }
         return changed;
     }
     /** Vincula ou, para padrao, remove o vinculo; nao guarda entradas redundantes. */
@@ -92,30 +92,30 @@ public final class PermissionState {
     /** Remove vinculos expirados para que nao ocupem o limite nem bloqueiem a remocao de grupos. */
     public void prune(long now) { members.values().removeIf(m -> m.expiresAt != 0 && m.expiresAt <= now); }
     private Map<String, Boolean> resolve(String name, Set<String> visited) {
-        if (!visited.add(name)) { throw new IllegalArgumentException("Heranca circular de grupos."); }
+        if (!visited.add(name)) { throw new IllegalArgumentException(M.t("heranca_circular_de_grupos")); }
         Group group = groups.get(name);
-        if (group == null) { throw new IllegalArgumentException("Grupo inexistente: " + name); }
+        if (group == null) { throw new IllegalArgumentException(M.t("grupo_inexistente_2", name)); }
         Map<String, Boolean> result = group.parent.isEmpty() ? new TreeMap<>() : resolve(group.parent, visited);
         result.putAll(group.permissions);
         return result;
     }
     public static void validate(PermissionState state) {
         if (state == null || state.groups == null || state.members == null || !state.groups.containsKey("padrao") || state.groups.size() > 128 || state.members.size() > 10000) {
-            throw new IllegalArgumentException("Dados de permissoes invalidos ou excessivos.");
+            throw new IllegalArgumentException(M.t("dados_de_permissoes_invalidos_ou_excessivos"));
         }
         for (Map.Entry<String, Group> entry : state.groups.entrySet()) {
             groupName(entry.getKey());
             Group group = entry.getValue();
             if (group == null || group.parent == null || group.permissions == null || group.permissions.size() > 512 || group.weight < 0 || group.weight > 1000
-                    || group.tag == null || !tag(group.tag).equals(group.tag) || group.description == null || group.description.length() > 100) { throw new IllegalArgumentException("Grupo invalido."); }
+                    || group.tag == null || !tag(group.tag).equals(group.tag) || group.description == null || group.description.length() > 100) { throw new IllegalArgumentException(M.t("grupo_invalido")); }
             for (Map.Entry<String, Boolean> node : group.permissions.entrySet()) {
-                if (!node.getKey().matches("[a-z0-9_.-]{1,128}") || node.getValue() == null) { throw new IllegalArgumentException("No de permissao invalido. Use nomes exatos."); }
+                if (!node.getKey().matches("[a-z0-9_.-]{1,128}") || node.getValue() == null) { throw new IllegalArgumentException(M.t("no_de_permissao_invalido_use_nomes")); }
             }
             state.resolve(entry.getKey(), new HashSet<>());
         }
         for (Map.Entry<String, Member> entry : state.members.entrySet()) {
             if (!player(entry.getKey()).equals(entry.getKey()) || entry.getValue() == null || entry.getValue().expiresAt < 0 || !state.groups.containsKey(entry.getValue().group)) {
-                throw new IllegalArgumentException("Vinculo de jogador invalido.");
+                throw new IllegalArgumentException(M.t("vinculo_de_jogador_invalido"));
             }
         }
     }

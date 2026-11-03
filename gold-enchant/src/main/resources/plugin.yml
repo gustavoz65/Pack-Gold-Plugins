@@ -6,6 +6,6 @@ depend: [GoldCore, GoldEconomy]
 author: gustavoz65
 description: Encantador pago com dinheiro, um nivel por vez
 commands:
- encantar: {description: Abre o encantador para o item da mao, usage: "/encantar | /encantar preco <id> <valor> | /encantar <id> <nivel>", aliases: [mago, enchant]}
+ encantar: {description: "Abre o encantador para o item da mao", usage: "/encantar | /encantar preco <id> <valor> | /encantar <id> <nivel>", aliases: [mago, enchant]}
 permissions:
- goldenchant.admin: {default: op, description: Define precos e aplica qualquer nivel}
+ goldenchant.admin: {default: op, description: "Define precos e aplica qualquer nivel"}

@@ -15,7 +15,7 @@ public final class ChatState {
     /** Grupo do GoldPerms -> formato. {grupo}, {tag}, {nome} e {mensagem}; & vira cor. Cargo sem formato aqui usa a tag dele. */
     public Map<String, String> formats = defaults();
     public List<String> announcements = new ArrayList<>(java.util.Arrays.asList(
-            "&eUse &f/kits &epara ver os kits do HG.", "&eChame amigos! Use &f/tpa &epara ir ate eles.", "&eRegras: sem hack, sem ofensa. Bom jogo!"));
+            M.t("euse_kits_epara_ver_os_kits"), M.t("echame_amigos_use_tpa_epara_ir"), M.t("eregras_sem_hack_sem_ofensa_bom")));
     public int announceSeconds = 180;
     public String join = "&a+ &f{nome}";
     public String quit = "&c- &f{nome}";
@@ -57,8 +57,8 @@ public final class ChatState {
     public static void validate(ChatState s) {
         if (s == null || s.formats == null || s.announcements == null || s.mutes == null || s.tellOff == null || s.join == null || s.quit == null
                 || s.formats.size() > 128 || s.announcements.size() > 50 || s.mutes.size() > 10000 || s.tellOff.size() > 10000
-                || s.announceSeconds < 30 || s.announceSeconds > 3600 || !s.formats.containsKey("padrao")) { throw new IllegalArgumentException("Configuracao de chat invalida."); }
-        for (String f : s.formats.values()) { if (f == null || f.length() > 120 || !f.contains("{mensagem}")) { throw new IllegalArgumentException("Formato precisa de {mensagem} e ate 120 caracteres."); } }
-        for (String a : s.announcements) { if (a == null || a.length() > 200) { throw new IllegalArgumentException("Anuncio invalido."); } }
+                || s.announceSeconds < 30 || s.announceSeconds > 3600 || !s.formats.containsKey("padrao")) { throw new IllegalArgumentException(M.t("configuracao_de_chat_invalida")); }
+        for (String f : s.formats.values()) { if (f == null || f.length() > 120 || !f.contains("{mensagem}")) { throw new IllegalArgumentException(M.t("formato_precisa_de_mensagem_ate_120")); } }
+        for (String a : s.announcements) { if (a == null || a.length() > 200) { throw new IllegalArgumentException(M.t("anuncio_invalido")); } }
     }
 }

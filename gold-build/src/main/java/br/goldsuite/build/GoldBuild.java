@@ -21,7 +21,7 @@ import java.util.*;
  * Toda operacao roda em fatias de ate 4000 blocos por tick numa fila unica.
  */
 public final class GoldBuild extends PluginBase implements Listener {
-    static String PREFIX = "§6[§eWE§6]§f ";
+    static String PREFIX = M.t("we");
     static final int PER_TICK = 4000, MAX_BLOCKS = 500_000, MAX_UNDO = 100_000;
     private final Map<Player, int[][]> selection = new IdentityHashMap<>();
     /** Ultima operacao de cada admin: posicoes e blocos anteriores ({x,y,z,id,meta}). */
@@ -45,6 +45,7 @@ public final class GoldBuild extends PluginBase implements Listener {
     interface BlockChooser { int[] choose(int id, int meta, int x, int y, int z); }
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v); getServer().getPluginManager().registerEvents(this, this); }
     @Override public void onDisable() { queue.clear(); selection.clear(); undo.clear(); if (task != null) { task.cancel(); } }
 
@@ -56,7 +57,7 @@ public final class GoldBuild extends PluginBase implements Listener {
             int id = Integer.parseInt(parts[0]), meta = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
             if (id < 0 || id > 255 || meta < 0 || meta > 15 || parts.length > 2 || (id != 0 && Block.list != null && Block.list[id] == null)) { throw new NumberFormatException(); }
             return new int[] {id, meta};
-        } catch (NumberFormatException e) { throw new IllegalArgumentException("Bloco invalido: " + text + " (use id ou id:meta)"); }
+        } catch (NumberFormatException e) { throw new IllegalArgumentException(M.t("bloco_invalido_use_id_ou_id", text)); }
     }
 
     /** Todas as posicoes do cubo, sem criar a lista inteira na memoria. */
@@ -89,7 +90,7 @@ public final class GoldBuild extends PluginBase implements Listener {
     private void enqueue(Job job) {
         queue.add(job);
         if (task == null) { task = getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldBuild>(this) { @Override public void onRun(int tick) { work(); } }, 1); }
-        job.owner.sendMessage(PREFIX + "Na fila (" + queue.size() + "). Ate " + PER_TICK + " blocos por tick.");
+        job.owner.sendMessage(PREFIX + M.t("na_fila_ate_blocos_por_tick", queue.size(), PER_TICK));
     }
 
     /** Uma fatia por tick; o TPS nao cai mesmo com edicoes grandes. */
@@ -113,14 +114,14 @@ public final class GoldBuild extends PluginBase implements Listener {
             if (!job.positions.hasNext()) {
                 queue.poll();
                 if (job.undoable) { undo.put(job.owner.getName().toLowerCase(Locale.ROOT), job.history); } else { undo.remove(job.owner.getName().toLowerCase(Locale.ROOT)); }
-                job.owner.sendMessage(PREFIX + job.changed + " blocos alterados." + (job.undoable ? " /we undo desfaz." : " Grande demais para desfazer."));
+                job.owner.sendMessage(PREFIX + M.t("blocos_alterados", job.changed, (job.undoable ? M.t("we_undo_desfaz") : M.t("grande_demais_para_desfazer"))));
             }
         }
         if (queue.isEmpty() && task != null) { task.cancel(); task = null; }
     }
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) { sender.sendMessage("Use dentro do jogo."); return true; }
+        if (!(sender instanceof Player)) { sender.sendMessage(M.t("use_dentro_do_jogo")); return true; }
         Player p = (Player) sender;
         String sub = args.length == 0 ? "ajuda" : args[0].toLowerCase(Locale.ROOT);
         try {
@@ -128,7 +129,7 @@ public final class GoldBuild extends PluginBase implements Listener {
                 case "pos1": case "pos2": {
                     int[][] sel = selection.computeIfAbsent(p, k -> new int[2][]);
                     sel[sub.equals("pos1") ? 0 : 1] = new int[] {p.getFloorX(), p.getFloorY(), p.getFloorZ()};
-                    p.sendMessage(PREFIX + "Ponto " + sub.charAt(3) + ": " + p.getFloorX() + " " + p.getFloorY() + " " + p.getFloorZ() + (sel[0] != null && sel[1] != null ? " (" + volume(sel[0], sel[1]) + " blocos)" : ""));
+                    p.sendMessage(PREFIX + M.t("ponto", sub.charAt(3), p.getFloorX(), p.getFloorY(), p.getFloorZ(), (sel[0] != null && sel[1] != null ? M.t("blocos", volume(sel[0], sel[1])) : "")));
                     return true;
                 }
                 case "set": case "walls": case "paredes": {
@@ -146,7 +147,7 @@ public final class GoldBuild extends PluginBase implements Listener {
                 }
                 case "esfera": case "sphere": {
                     int radius = Integer.parseInt(arg(args, 1));
-                    if (radius < 1 || radius > 30) { throw new IllegalArgumentException("Raio entre 1 e 30."); }
+                    if (radius < 1 || radius > 30) { throw new IllegalArgumentException(M.t("raio_entre_1_30")); }
                     int[] to = block(arg(args, 2));
                     Vector3 target = target(p);
                     enqueue(new Job(p.level, sphere(target.getFloorX(), target.getFloorY(), target.getFloorZ(), radius), (id, meta, x, y, z) -> to, p));
@@ -154,7 +155,7 @@ public final class GoldBuild extends PluginBase implements Listener {
                 }
                 case "undo": case "desfazer": {
                     List<int[]> history = undo.remove(p.getName().toLowerCase(Locale.ROOT));
-                    if (history == null || history.isEmpty()) { throw new IllegalArgumentException("Nada para desfazer."); }
+                    if (history == null || history.isEmpty()) { throw new IllegalArgumentException(M.t("nada_para_desfazer")); }
                     Map<String, int[]> before = new HashMap<>();
                     for (int[] h : history) { before.put(h[0] + ":" + h[1] + ":" + h[2], new int[] {h[3], h[4]}); }
                     Iterator<int[]> positions = history.stream().map(h -> new int[] {h[0], h[1], h[2]}).iterator();
@@ -162,17 +163,17 @@ public final class GoldBuild extends PluginBase implements Listener {
                     return true;
                 }
                 default:
-                    p.sendMessage(PREFIX + "/we pos1, pos2, set <bloco>, walls <bloco>, replace <de> <para>, esfera <raio> <bloco> (onde voce mira), undo");
+                    p.sendMessage(PREFIX + M.t("we_pos1_pos2_set_bloco_walls"));
                     return true;
             }
-        } catch (NumberFormatException e) { p.sendMessage(PREFIX + "§cNumero invalido."); return true; }
+        } catch (NumberFormatException e) { p.sendMessage(PREFIX + M.t("numero_invalido")); return true; }
         catch (RuntimeException e) { p.sendMessage(PREFIX + "§c" + e.getMessage()); return true; }
     }
 
     private int[][] selected(Player p) {
         int[][] sel = selection.get(p);
-        if (sel == null || sel[0] == null || sel[1] == null) { throw new IllegalArgumentException("Marque /we pos1 e /we pos2 antes."); }
-        if (volume(sel[0], sel[1]) > MAX_BLOCKS) { throw new IllegalArgumentException("Selecao maior que " + MAX_BLOCKS + " blocos."); }
+        if (sel == null || sel[0] == null || sel[1] == null) { throw new IllegalArgumentException(M.t("marque_we_pos1_we_pos2_antes")); }
+        if (volume(sel[0], sel[1]) > MAX_BLOCKS) { throw new IllegalArgumentException(M.t("selecao_maior_que_blocos", MAX_BLOCKS)); }
         return sel;
     }
 
@@ -186,8 +187,8 @@ public final class GoldBuild extends PluginBase implements Listener {
             Vector3 pos = new Vector3(Math.floor(x), Math.floor(y), Math.floor(z));
             if (p.level.getBlock(pos).getId() != 0) { return pos; }
         }
-        throw new IllegalArgumentException("Mire num bloco.");
+        throw new IllegalArgumentException(M.t("mire_num_bloco"));
     }
 
-    private static String arg(String[] args, int i) { if (args.length <= i) { throw new IllegalArgumentException("Faltam argumentos. Use /we."); } return args[i]; }
+    private static String arg(String[] args, int i) { if (args.length <= i) { throw new IllegalArgumentException(M.t("faltam_argumentos_use_we")); } return args[i]; }
 }

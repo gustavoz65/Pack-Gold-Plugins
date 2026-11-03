@@ -61,8 +61,8 @@ abstract class Mini {
     void fell(Player p) { lethal(p, recentAttacker(p)); }
     /** Morreria: padrao elimina. As provas com renascimento sobrescrevem. */
     void lethal(Player victim, Player killer) {
-        if (killer != null && killer != victim && room.alive(killer)) { score.merge(killer, 1, Integer::sum); room.say(room.color(victim) + victim.getName() + " §7foi eliminado por " + room.color(killer) + killer.getName()); }
-        else { room.say(room.color(victim) + victim.getName() + " §7foi eliminado."); }
+        if (killer != null && killer != victim && room.alive(killer)) { score.merge(killer, 1, Integer::sum); room.say(M.t("foi_eliminado_por", (room.color(victim) + victim.getName()), room.color(killer), killer.getName())); }
+        else { room.say(M.t("foi_eliminado", (room.color(victim) + victim.getName()))); }
         eliminate(victim);
     }
 
@@ -108,7 +108,7 @@ abstract class Mini {
     /** Texto da barra de dica a cada segundo. */
     String tip(Player p) {
         int left = Math.max(0, seconds() - elapsedTicks / 20);
-        return "§e" + name() + " §7| §f" + left / 60 + ":" + String.format("%02d", left % 60) + (kind() == Kind.SOBREVIVENCIA ? " §7| vivos §a" + room.aliveCount() : kind() == Kind.PONTOS ? " §7| pontos §a" + score.getOrDefault(p, 0) : "");
+        return "§e" + name() + " §7| §f" + left / 60 + ":" + String.format("%02d", left % 60) + (kind() == Kind.SOBREVIVENCIA ? M.t("vivos", room.aliveCount()) : kind() == Kind.PONTOS ? M.t("pontos", score.getOrDefault(p, 0)) : "");
     }
 
     // ---------- ajudantes de geometria e itens ----------

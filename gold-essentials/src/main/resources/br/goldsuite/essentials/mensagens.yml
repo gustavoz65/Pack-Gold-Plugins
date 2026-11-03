@@ -1,0 +1,94 @@
+# {0} = p.getName()
+aceitou: "{0} aceitou."
+# {0} = ((shopCooldown * 1000L - (now - shopAt.get(p))) / 1000 + 1)
+aguarde_para_ir_outra_loja: "Aguarde {0} s para ir a outra loja."
+aguarde_para_usar_de_novo: "Aguarde para usar de novo."
+as_mensagens_privadas: "as mensagens privadas"
+ativado: "&aAtivado"
+ativar: "ativar"
+autentique_se_primeiro: "Autentique-se primeiro."
+copa_este_mundo_vip_para_acessa: "&&cOpa, este e o mundo VIP. Para acessa-lo adquira um VIP no nosso site."
+desativado: "&cDesativado"
+desativar: "desativar"
+desligado: "&cdesligado"
+desligado_2: " desligado."
+# {0} = target.getName(), {1} = (bit == 0 ? "as mensagens privadas" : bit == 1 ? "os pedidos de teleporte" : "o recebimento de coins")
+esta_com_desativado: "&c{0} esta com {1} desativado."
+este_jogador_nao_tem_loja: "&cEste jogador nao tem loja."
+funcao_ativada: "&aFuncao ativada."
+funcao_desativada: "&cFuncao desativada."
+gold: "&6[&eGold&6]&f "
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldEssentials."
+home_inexistente: "Home inexistente."
+# {0} = String.join(", ", h.homes.keySet())
+home_inexistente_suas_homes: "Home inexistente. Suas homes: {0}"
+# {0} = String.join(", ", h.homes.keySet())
+homes: "Homes: {0}"
+homes_invalidas: "Homes invalidas."
+# {0} = key
+indo_para_loja_de: "Indo para a loja de {0}..."
+# {0} = moved
+jogador_es_trazidos: "{0} jogador(es) trazidos."
+jogador_invalido: "Jogador invalido."
+jogador_offline: "Jogador offline."
+lanterna_desligada: "&cLanterna desligada."
+lanterna_ligada_aproveite: "&eLanterna ligada, aproveite."
+ligado: "&aligado"
+ligado_2: " ligado."
+# {0} = max
+limite_de_homes_use_delhome: "Limite de {0} homes. Use /delhome."
+limite_de_warps: "Limite de warps."
+local_invalido: "Local invalido."
+loja_invalida: "&cLoja invalida."
+# {0} = p.getName()
+loja_marcada_aqui_outros_chegam_com: "&aLoja marcada aqui! Outros chegam com /loja {0}"
+loja_removida: "Loja removida."
+mensagens_privadas_tell: "Mensagens privadas (tell)"
+mundo_vip_ainda_nao_foi_definido: "O mundo VIP ainda nao foi definido."
+mundo_vip_definido_aqui: "&aMundo VIP definido aqui."
+mundo_vip_removido: "Mundo VIP removido."
+nao_foi_possivel_gravar: "&cNao foi possivel gravar."
+nao_podem: "nao podem"
+nenhum_local_para_voltar: "Nenhum local para voltar."
+nenhum_pedido_pendente: "Nenhum pedido pendente."
+nenhuma_home_use_sethome_nome: "Nenhuma home. Use /sethome [nome]."
+nome_ate_24_letras_numeros_ou: "Nome: ate 24 letras, numeros, _ ou -."
+os_pedidos_de_teleporte: "os pedidos de teleporte"
+# {0} = names[i], {1} = (on ? "podem" : "nao podem")
+outros_jogadores_te_mandar_isso: "&f{0}\n&7Outros jogadores {1} te mandar isso"
+# {0} = target.getName()
+pedido_enviado_para_expira_em_60: "Pedido enviado para {0}. Expira em 60 s."
+pedido_recusado: "Pedido recusado."
+pedidos_de_teleporte_tpa: "Pedidos de teleporte (tpa)"
+podem: "podem"
+preferencias: "Preferencias"
+quer_ir_ate_voce: " quer ir ate voce."
+quer_que_voce_va_ate_ele: " quer que voce va ate ele."
+recebimento_de_coins: "o recebimento de coins"
+recebimento_de_coins_2: "Recebimento de coins"
+# {0} = p.getName()
+recusou_pedido: "{0} recusou o pedido."
+seja_bem_vindo_ao_mundo_vip: "&aSeja bem-vindo ao Mundo VIP."
+sem_permissao_para_esta_warp: "Sem permissao para esta warp."
+spawn_do_servidor_salvo: "Spawn do servidor salvo."
+suas_homes_ainda_estao_carregando_tente: "Suas homes ainda estao carregando; tente de novo."
+# {0} = (on ? "\u00a7aAtivado" : "\u00a7cDesativado"), {1} = (on ? "desativar" : "ativar")
+toque_para: "{0}\n&7Toque para {1}"
+tpa: "tpa"
+# {0} = p.getName(), {1} = (here ? " quer que voce va ate ele." : " quer ir ate voce.")
+tpaccept_ou_tpdeny: "&e{0}{1} &a/tpaccept &fou &c/tpdeny"
+tpahere: "tpahere"
+use_dentro_do_jogo: "Use dentro do jogo."
+use_loja_jogador_para_marcar_sua: "Use /loja <jogador>. Para marcar a sua: /setloja"
+# {0} = (here ? "tpahere" : "tpa")
+uso_jogador: "Uso: /{0} <jogador>"
+voce_nao_pode_enviar_para_si: "Voce nao pode enviar para si mesmo."
+# {0} = (on ? "§aligado" : "§cdesligado")
+voo: "Voo {0}"
+# {0} = target.getName(), {1} = (on ? " ligado." : " desligado.")
+voo_de: "Voo de {0}{1}"
+warp_inexistente: "Warp inexistente."
+warp_removida: "Warp removida."
+# {0} = places.read(s -> s.warps.isEmpty() ? "nenhuma" : String.join(", ", s.warps.keySet()))
+warps: "Warps: {0}"
+warps_invalidas: "Warps invalidas."

@@ -35,7 +35,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Memoria: so quem esta online tem o perfil completo; o ranking guarda so os niveis de todos.
  */
 public final class GoldSkills extends PluginBase implements Listener {
-    static String PREFIX = "§6[§eHabilidades§6]§f ";
+    static String PREFIX = M.t("habilidades");
     static final String NS = "goldskills", GLOBAL = "goldskills-global";
     static final int N = Skill.ALL.length;
 
@@ -74,9 +74,10 @@ public final class GoldSkills extends PluginBase implements Listener {
     private String announce = "", topTag = "";
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldSkills."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         Settings.number(this, "poderes", 0, "1 = liga os poderes (agachar com a ferramenta); 0 = desligados como no mcMMO do pack", v -> abilitiesOn = v == 1);
         Settings.number(this, "poderes.recarga", 240, "Segundos de recarga de cada poder", v -> abilityCooldown = (int) Math.max(10, v));
         Settings.number(this, "booster.segundos", 300, "Duracao do booster comprado (segundos)", v -> boosterSeconds = (int) Math.max(30, v));
@@ -199,14 +200,14 @@ public final class GoldSkills extends PluginBase implements Listener {
         long now = System.currentTimeMillis();
         if (now - s.lastPopup > 600) {
             s.lastPopup = now;
-            p.sendTip("§e+" + gain + " XP §6" + skill.label + " §7(" + s.level[i] + ") " + percent(s, i) + "%");
+            p.sendTip(M.t("xp", gain, skill.label, s.level[i], percent(s, i)));
         }
     }
 
     private static int percent(State s, int i) { return s.level[i] >= Xp.LEVEL_CAP ? 100 : (int) (100L * s.xp[i] / Xp.needed(s.level[i])); }
 
     private void levelUp(Player p, Skill skill, int level) {
-        p.sendMessage(PREFIX + "§a" + skill.label + " subiu para o nivel §f" + level + "§a!");
+        p.sendMessage(PREFIX + M.t("subiu_para_nivel", skill.label, level));
         if (milestones.contains(level) && !announce.isEmpty()) {
             getServer().broadcastMessage(announce.replace('&', '§').replace("{jogador}", p.getName()).replace("{nivel}", String.valueOf(level)).replace("{habilidade}", skill.label));
         }
@@ -237,9 +238,9 @@ public final class GoldSkills extends PluginBase implements Listener {
         if (s == null || !s.loaded || !s.abilities || skill == null || !Settings.allowed(p, "goldskills.poderes")) { return; }
         long now = System.currentTimeMillis();
         if (s.activeUntil > now) { return; }
-        if (s.cooldown[skill.ordinal()] > now) { p.sendTip("§cPoder recarregando: " + ((s.cooldown[skill.ordinal()] - now) / 1000 + 1) + " s"); return; }
+        if (s.cooldown[skill.ordinal()] > now) { p.sendTip(M.t("poder_recarregando", ((s.cooldown[skill.ordinal()] - now) / 1000 + 1))); return; }
         s.ready = skill; s.readyUntil = now + 4000;
-        p.sendTip("§eVoce prepara " + (skill == Skill.DESARMADO ? "os punhos" : "a ferramenta") + "...");
+        p.sendTip(M.t("voce_prepara", (skill == Skill.DESARMADO ? M.t("os_punhos") : M.t("ferramenta"))));
     }
 
     /** Ativa o poder preparado (do machado: no golpe vira Racha Cranio, no tronco vira Derrubador). */
@@ -255,7 +256,7 @@ public final class GoldSkills extends PluginBase implements Listener {
         if (skill == Skill.MINERACAO || skill == Skill.ESCAVACAO || skill == Skill.HERBALISMO || skill == Skill.DESARMADO) {
             p.addEffect(Effect.getEffect(Effect.HASTE).setAmplifier(2).setDuration(seconds * 20).setVisible(false));
         }
-        p.sendMessage(PREFIX + "§a§l" + skill.ability.toUpperCase(Locale.ROOT) + " ATIVADO! §r§7(" + seconds + " s)");
+        p.sendMessage(PREFIX + M.t("ativado", skill.ability.toUpperCase(Locale.ROOT), seconds));
         return true;
     }
 
@@ -382,12 +383,12 @@ public final class GoldSkills extends PluginBase implements Listener {
         float dmg = e.getDamage();
         switch (skill) {
             case ESPADAS:
-                if (roll(Xp.chance(lvl, 75, 750))) { bleed(victim, lvl >= 750 ? 3 : 2, pvp ? 1 : 2); if (pvp) { ((Player) victim).sendTip("§cVoce esta sangrando!"); } }
+                if (roll(Xp.chance(lvl, 75, 750))) { bleed(victim, lvl >= 750 ? 3 : 2, pvp ? 1 : 2); if (pvp) { ((Player) victim).sendTip(M.t("voce_esta_sangrando")); } }
                 if (active(s, Skill.ESPADAS)) { splash(p, victim, dmg / 4, true); }
                 break;
             case MACHADO:
                 dmg += Math.min(4, lvl / 50f);
-                if (roll(Xp.chance(lvl, 37.5, 750))) { dmg *= pvp ? 1.5f : 2f; p.sendTip("§cGolpe critico!"); }
+                if (roll(Xp.chance(lvl, 37.5, 750))) { dmg *= pvp ? 1.5f : 2f; p.sendTip(M.t("golpe_critico")); }
                 if (roll(25)) { dmg += 2; }
                 if (active(s, Skill.MACHADO)) { splash(p, victim, dmg / 2, false); }
                 break;
@@ -398,7 +399,7 @@ public final class GoldSkills extends PluginBase implements Listener {
                 break;
             case ARQUEIRO:
                 dmg = Math.min(dmg * (1 + Math.min(2f, lvl / 50 * 0.1f)), Math.max(dmg, 9f));
-                if (pvp && roll(Xp.chance(lvl, 50, 1000))) { ((Player) victim).addEffect(Effect.getEffect(Effect.NAUSEA).setDuration(200)); dmg += 4; ((Player) victim).sendTip("§eVoce ficou tonto!"); }
+                if (pvp && roll(Xp.chance(lvl, 50, 1000))) { ((Player) victim).addEffect(Effect.getEffect(Effect.NAUSEA).setDuration(200)); dmg += 4; ((Player) victim).sendTip(M.t("voce_ficou_tonto")); }
                 break;
             default:
         }
@@ -415,12 +416,12 @@ public final class GoldSkills extends PluginBase implements Listener {
         State s = states.get(p);
         if (s == null || !s.loaded || !Settings.allowed(p, "goldskills.combate")) { return; }
         if (arrow && p.getInventory().getItemInHand().getId() == 0 && roll(Xp.chance(s.level[Skill.DESARMADO.ordinal()], 50, 1000))) {
-            e.setCancelled(); p.sendTip("§aFlecha desviada!"); return;
+            e.setCancelled(); p.sendTip(M.t("flecha_desviada")); return;
         }
         if (roll(Xp.chance(s.level[Skill.ACROBACIA.ordinal()], 20, 800))) {
             float half = e.getDamage() / 2;
             e.setDamage(half);
-            p.sendTip("§aEsquiva!");
+            p.sendTip(M.t("esquiva"));
             addXp(p, Skill.ACROBACIA, half * 5 * Skill.ACROBACIA.modifier);
         }
     }
@@ -434,7 +435,7 @@ public final class GoldSkills extends PluginBase implements Listener {
         if (graceful || roll(Xp.chance(lvl, 100, 1000))) {
             float left = Math.max(0, dmg - (graceful ? 14 : 7));
             if (left <= 0) { e.setCancelled(); } else { e.setDamage(left); }
-            p.sendTip(graceful ? "§aRolamento perfeito!" : "§aRolamento!");
+            p.sendTip(graceful ? M.t("rolamento_perfeito") : M.t("rolamento"));
             addXp(p, Skill.ACROBACIA, dmg * 2 * Skill.ACROBACIA.modifier);
         } else if (dmg < p.getHealth()) {
             addXp(p, Skill.ACROBACIA, dmg * Skill.ACROBACIA.modifier);
@@ -468,7 +469,7 @@ public final class GoldSkills extends PluginBase implements Listener {
         if (hand.getId() == 0) { return; }
         v.getInventory().setItemInHand(Item.get(0));
         v.level.dropItem(v.add(0, 1, 0), hand);
-        v.sendTip("§cVoce foi desarmado!");
+        v.sendTip(M.t("voce_foi_desarmado"));
     }
 
     // ---------- reparacao na bigorna de ferro ----------
@@ -482,18 +483,18 @@ public final class GoldSkills extends PluginBase implements Listener {
         int[] mat = Xp.repairMaterial(hand.getId());
         if (s == null || !s.loaded || mat == null || hand.getMaxDurability() <= 0 || !Settings.allowed(p, "goldskills.reparacao")) { return; }
         e.setCancelled();
-        if (hand.getDamage() <= 0) { p.sendTip("§7Este item nao precisa de reparo."); return; }
+        if (hand.getDamage() <= 0) { p.sendTip(M.t("este_item_nao_precisa_de_reparo")); return; }
         Item material = Item.get(mat[0], 0, 1);
-        if (!p.getInventory().contains(material)) { p.sendTip("§cVoce precisa de " + material.getName() + " para reparar."); return; }
+        if (!p.getInventory().contains(material)) { p.sendTip(M.t("voce_precisa_de_para_reparar", material.getName())); return; }
         int lvl = s.level[Skill.REPARACAO.ordinal()], max = hand.getMaxDurability();
         double restore = max / (double) Xp.recipeUnits(hand.getId()) * (1 + Math.min(2.0, lvl / 1000.0 * 2.0));
-        if (roll(Xp.chance(lvl, 100, 1000))) { restore *= 2; p.sendTip("§aSuper reparo!"); }
+        if (roll(Xp.chance(lvl, 100, 1000))) { restore *= 2; p.sendTip(M.t("super_reparo")); }
         int before = hand.getDamage(), after = Math.max(0, (int) Math.round(before - restore));
         p.getInventory().removeItem(material);
         hand.setDamage(after);
         p.getInventory().setItemInHand(hand);
         addXp(p, Skill.REPARACAO, (before - after) / (double) max * 1000 * mat[1] * Skill.REPARACAO.modifier);
-        p.sendMessage(PREFIX + "§aItem reparado §7(" + (int) (100.0 * (max - after) / max) + "% de durabilidade).");
+        p.sendMessage(PREFIX + M.t("item_reparado_de_durabilidade", (int) (100.0 * (max - after) / max)));
     }
 
     // ---------- ranking ----------
@@ -528,22 +529,22 @@ public final class GoldSkills extends PluginBase implements Listener {
     private void menu(Player p) {
         MenuService menus = getServer().getServiceManager().load(MenuService.class);
         State s = states.get(p);
-        if (menus == null || s == null || !s.loaded) { p.sendMessage(PREFIX + "Perfil carregando..."); return; }
+        if (menus == null || s == null || !s.loaded) { p.sendMessage(PREFIX + M.t("perfil_carregando")); return; }
         Map<Integer, Item> icons = new HashMap<>();
         int rank = position(ranking(null), key(p));
         Item power = Item.get(340, 0, 1);
-        power.setCustomName("§e§lPoder total: §f" + s.power() + "\n§7Posicao no ranking: §f" + (rank > 0 ? "#" + rank : "-") + "\n§7Toque numa habilidade para ver os detalhes");
+        power.setCustomName(M.t("poder_total_posicao_no_ranking_toque", s.power(), (rank > 0 ? "#" + rank : "-")));
         icons.put(4, power);
         for (Skill sk : Skill.ALL) {
             int i = sk.ordinal();
             Item it = Item.get(sk.icon, 0, 1);
-            it.setCustomName("§6" + sk.label + " §fnivel " + s.level[i] + "\n§7XP: " + s.xp[i] + "/" + Xp.needed(s.level[i]) + " (" + percent(s, i) + "%)" + (sk.ability != null ? "\n§7Poder: " + sk.ability : ""));
+            it.setCustomName(M.t("nivel_xp", sk.label, s.level[i], s.xp[i], Xp.needed(s.level[i]), percent(s, i), (sk.ability != null ? M.t("poder", sk.ability) : "")));
             icons.put(SLOTS[i], it);
         }
         Item boost = Item.get(384, 0, 1);
-        boost.setCustomName("§d§lBoosters\n§7Compre XP em dobro");
+        boost.setCustomName(M.t("boosters_compre_xp_em_dobro"));
         icons.put(26, boost);
-        menus.open(p, "Habilidades", icons, (who, slot) -> {
+        menus.open(p, M.t("habilidades_2"), icons, (who, slot) -> {
             if (slot == 26) { boosterMenu(who); return; }
             for (Skill sk : Skill.ALL) { if (SLOTS[sk.ordinal()] == slot) { details(who, who.getName(), sk); } }
         });
@@ -559,19 +560,19 @@ public final class GoldSkills extends PluginBase implements Listener {
         Player target = getServer().getPlayerExact(player);
         State s = target == null ? null : states.get(target);
         int lvl = s != null ? s.level[sk.ordinal()] : 0;
-        to.sendMessage("§6--- " + sk.label + " §f(nivel " + lvl + ") §6---");
+        to.sendMessage(M.t("nivel", sk.label, lvl));
         switch (sk) {
-            case MINERACAO: case LENHADOR: case HERBALISMO: to.sendMessage("§7Drop duplo: §f" + fmt(Xp.chance(lvl, 100, 1000)) + "%"); break;
-            case ESCAVACAO: to.sendMessage("§7Tesouros liberados: §f" + Xp.TREASURES.stream().filter(t -> lvl >= t.level).count() + "/" + Xp.TREASURES.size()); break;
-            case ESPADAS: to.sendMessage("§7Sangramento: §f" + fmt(Xp.chance(lvl, 75, 750)) + "%"); break;
-            case MACHADO: to.sendMessage("§7Critico: §f" + fmt(Xp.chance(lvl, 37.5, 750)) + "% §7| Dano extra: §f+" + fmt(Math.min(4, lvl / 50.0))); break;
-            case ARQUEIRO: to.sendMessage("§7Tiro certeiro: §f+" + (int) (Math.min(2.0, lvl / 50 * 0.1) * 100) + "% §7| Atordoar: §f" + fmt(Xp.chance(lvl, 50, 1000)) + "%"); break;
-            case DESARMADO: to.sendMessage("§7Braco de ferro: §f+" + fmt(Math.min(8, 3 + lvl / 50.0)) + " §7| Desarmar: §f" + fmt(Xp.chance(lvl, 33, 1000)) + "% §7| Desviar flechas: §f" + fmt(Xp.chance(lvl, 50, 1000)) + "%"); break;
-            case ACROBACIA: to.sendMessage("§7Rolamento: §f" + fmt(Xp.chance(lvl, 100, 1000)) + "% §7| Esquiva: §f" + fmt(Xp.chance(lvl, 20, 800)) + "%"); break;
-            case REPARACAO: to.sendMessage("§7Maestria: §f+" + (int) (Math.min(2.0, lvl / 500.0) * 100) + "% §7| Super reparo: §f" + fmt(Xp.chance(lvl, 100, 1000)) + "% §7(toque num bloco de ferro com o item)"); break;
+            case MINERACAO: case LENHADOR: case HERBALISMO: to.sendMessage(M.t("drop_duplo", fmt(Xp.chance(lvl, 100, 1000)))); break;
+            case ESCAVACAO: to.sendMessage(M.t("tesouros_liberados", Xp.TREASURES.stream().filter(t -> lvl >= t.level).count(), Xp.TREASURES.size())); break;
+            case ESPADAS: to.sendMessage(M.t("sangramento", fmt(Xp.chance(lvl, 75, 750)))); break;
+            case MACHADO: to.sendMessage(M.t("critico_dano_extra", fmt(Xp.chance(lvl, 37.5, 750)), fmt(Math.min(4, lvl / 50.0)))); break;
+            case ARQUEIRO: to.sendMessage(M.t("tiro_certeiro_atordoar", (int) (Math.min(2.0, lvl / 50 * 0.1) * 100), fmt(Xp.chance(lvl, 50, 1000)))); break;
+            case DESARMADO: to.sendMessage(M.t("braco_de_ferro_desarmar_desviar_flechas", fmt(Math.min(8, 3 + lvl / 50.0)), fmt(Xp.chance(lvl, 33, 1000)), fmt(Xp.chance(lvl, 50, 1000)))); break;
+            case ACROBACIA: to.sendMessage(M.t("rolamento_esquiva", fmt(Xp.chance(lvl, 100, 1000)), fmt(Xp.chance(lvl, 20, 800)))); break;
+            case REPARACAO: to.sendMessage(M.t("maestria_super_reparo_toque_num_bloco", (int) (Math.min(2.0, lvl / 500.0) * 100), fmt(Xp.chance(lvl, 100, 1000)))); break;
             default:
         }
-        if (sk.ability != null) { to.sendMessage("§7Poder: §f" + sk.ability + (abilitiesOn ? " §7(agache com a ferramenta e use; dura " + (2 + lvl / 50) + " s)" : " §8(desligado no servidor)")); }
+        if (sk.ability != null) { to.sendMessage(M.t("poder_2", sk.ability, (abilitiesOn ? M.t("agache_com_ferramenta_use_dura", (2 + lvl / 50)) : M.t("desligado_no_servidor")))); }
     }
 
     private static String fmt(double v) { return String.format(Locale.ROOT, "%.1f", v); }
@@ -585,13 +586,13 @@ public final class GoldSkills extends PluginBase implements Listener {
         for (Skill sk : Skill.ALL) {
             long[] b = s.boosters.get(sk.ordinal());
             Item it = Item.get(sk.icon, 0, 1);
-            it.setCustomName("§d" + sk.label + " §f" + boosterMult + "x por " + boosterSeconds / 60 + " min\n§7Preco: §a$" + boosterPrice + (b != null && b[1] > now ? "\n§aAtivo: mais " + ((b[1] - now) / 1000) + " s" : ""));
+            it.setCustomName(M.t("por_min_preco", sk.label, boosterMult, boosterSeconds / 60, boosterPrice, (b != null && b[1] > now ? M.t("ativo_mais", ((b[1] - now) / 1000)) : "")));
             icons.put(SLOTS[sk.ordinal()], it);
         }
         Item all = Item.get(399, 0, 1);
-        all.setCustomName("§d§lTodas as habilidades §f" + boosterMult + "x por " + boosterSeconds / 60 + " min\n§7Preco: §a$" + boosterAllPrice);
+        all.setCustomName(M.t("todas_as_habilidades_por_min_preco", boosterMult, boosterSeconds / 60, boosterAllPrice));
         icons.put(4, all);
-        menus.open(p, "Boosters de XP", icons, (who, slot) -> {
+        menus.open(p, M.t("boosters_de_xp"), icons, (who, slot) -> {
             if (slot == 4) { buy(who, N, boosterAllPrice); return; }
             for (Skill sk : Skill.ALL) { if (SLOTS[sk.ordinal()] == slot) { buy(who, sk.ordinal(), boosterPrice); } }
         });
@@ -599,12 +600,12 @@ public final class GoldSkills extends PluginBase implements Listener {
 
     private void buy(Player p, int target, long price) {
         EconomyService eco = getServer().getServiceManager().load(EconomyService.class);
-        if (eco == null) { p.sendMessage(PREFIX + "§cEconomia indisponivel."); return; }
+        if (eco == null) { p.sendMessage(PREFIX + M.t("economia_indisponivel")); return; }
         long cents = price * 100;
-        if (eco.balance(p.getName(), EconomyService.Currency.MONEY) < cents) { p.sendMessage(PREFIX + "§cDinheiro insuficiente: custa $" + price + "."); return; }
+        if (eco.balance(p.getName(), EconomyService.Currency.MONEY) < cents) { p.sendMessage(PREFIX + M.t("dinheiro_insuficiente_custa", price)); return; }
         eco.debit(p.getName(), EconomyService.Currency.MONEY, cents).whenComplete((v, e) -> getServer().getScheduler().scheduleTask(() -> {
             if (!isEnabled() || !p.isOnline()) { return; }
-            if (e != null) { p.sendMessage(PREFIX + "§cCompra recusada."); return; }
+            if (e != null) { p.sendMessage(PREFIX + M.t("compra_recusada")); return; }
             giveBooster(p, target, boosterMult, boosterSeconds);
         }));
     }
@@ -618,7 +619,7 @@ public final class GoldSkills extends PluginBase implements Listener {
         s.boosters.put(target, new long[] {mult * 10L, until});
         s.boosters.values().removeIf(b -> b[1] <= now);
         s.dirty = true;
-        p.sendMessage(PREFIX + "§dBooster " + mult + "x em " + (target == N ? "todas as habilidades" : Skill.ALL[target].label) + " ativo por " + (until - now) / 60000 + " min!");
+        p.sendMessage(PREFIX + M.t("booster_em_ativo_por_min", mult, (target == N ? M.t("todas_as_habilidades") : Skill.ALL[target].label), (until - now) / 60000));
     }
 
     // ---------- comandos ----------
@@ -634,8 +635,8 @@ public final class GoldSkills extends PluginBase implements Listener {
                 case "mcstats": {
                     Player t = args.length > 0 ? getServer().getPlayerExact(args[0]) : p;
                     State s = t == null ? null : states.get(t);
-                    if (s == null) { sender.sendMessage(PREFIX + "Jogador offline."); return true; }
-                    sender.sendMessage("§6--- Habilidades de " + t.getName() + " (poder " + s.power() + ") ---");
+                    if (s == null) { sender.sendMessage(PREFIX + M.t("jogador_offline")); return true; }
+                    sender.sendMessage(M.t("habilidades_de_poder", t.getName(), s.power()));
                     for (Skill sk : Skill.ALL) { sender.sendMessage("§e" + sk.label + ": §f" + s.level[sk.ordinal()] + " §7(" + s.xp[sk.ordinal()] + "/" + Xp.needed(s.level[sk.ordinal()]) + ")"); }
                     return true;
                 }
@@ -643,15 +644,15 @@ public final class GoldSkills extends PluginBase implements Listener {
                     Skill sk = args.length > 0 && !args[0].matches("\\d+") ? Skill.parse(args[0]) : null;
                     int page = Math.max(1, args.length > 0 && args[args.length - 1].matches("\\d+") ? Integer.parseInt(args[args.length - 1]) : 1);
                     List<Map.Entry<String, Integer>> list = ranking(sk);
-                    sender.sendMessage("§6--- Top " + (sk == null ? "poder" : sk.label) + " (pagina " + page + ") ---");
+                    sender.sendMessage(M.t("top_pagina", (sk == null ? M.t("poder_3") : sk.label), page));
                     for (int i = (page - 1) * 10; i < Math.min(list.size(), page * 10); i++) { sender.sendMessage("§e" + (i + 1) + ". §f" + list.get(i).getKey() + " §7- " + list.get(i).getValue()); }
-                    if (list.isEmpty()) { sender.sendMessage("§7Ninguem no ranking ainda."); }
+                    if (list.isEmpty()) { sender.sendMessage(M.t("ninguem_no_ranking_ainda")); }
                     return true;
                 }
                 case "mcrank": {
                     String name = (args.length > 0 ? args[0] : sender.getName()).toLowerCase(Locale.ROOT);
-                    sender.sendMessage("§6--- Posicoes de " + name + " ---");
-                    sender.sendMessage("§ePoder: §f#" + position(ranking(null), name));
+                    sender.sendMessage(M.t("posicoes_de", name));
+                    sender.sendMessage(M.t("poder_4", position(ranking(null), name)));
                     for (Skill sk : Skill.ALL) { int pos = position(ranking(sk), name); sender.sendMessage("§e" + sk.label + ": §f" + (pos > 0 ? "#" + pos : "-")); }
                     return true;
                 }
@@ -660,7 +661,7 @@ public final class GoldSkills extends PluginBase implements Listener {
                     State s = states.get(p);
                     if (s == null) { return true; }
                     s.abilities = !s.abilities; s.dirty = true;
-                    p.sendMessage(PREFIX + "Ativacao de poderes " + (s.abilities ? "§aligada" : "§cdesligada") + "§f.");
+                    p.sendMessage(PREFIX + M.t("ativacao_de_poderes", (s.abilities ? M.t("ligada") : M.t("desligada"))));
                     return true;
                 }
                 case "booster": if (p != null) { boosterMenu(p); } return true;
@@ -670,23 +671,23 @@ public final class GoldSkills extends PluginBase implements Listener {
                     int mult = Math.max(2, Math.min(10, Integer.parseInt(arg(args, 2))));
                     int minutes = Math.max(1, Math.min(10080, Integer.parseInt(arg(args, 3))));
                     giveBooster(t, target, mult, minutes * 60);
-                    sender.sendMessage(PREFIX + "Booster entregue.");
+                    sender.sendMessage(PREFIX + M.t("booster_entregue"));
                     return true;
                 }
                 case "xprate": {
-                    if (args.length > 0 && args[0].equalsIgnoreCase("reset")) { globalRate = 1; globalUntil = 0; core.getStore().delete(GLOBAL, "xprate"); getServer().broadcastMessage(PREFIX + "§cO evento de XP acabou."); return true; }
+                    if (args.length > 0 && args[0].equalsIgnoreCase("reset")) { globalRate = 1; globalUntil = 0; core.getStore().delete(GLOBAL, "xprate"); getServer().broadcastMessage(PREFIX + M.t("evento_de_xp_acabou")); return true; }
                     double rate = Double.parseDouble(arg(args, 0));
                     int minutes = Integer.parseInt(arg(args, 1));
-                    if (rate < 1 || rate > 10 || minutes < 1 || minutes > 10080) { throw new IllegalArgumentException("Multiplicador de 1 a 10 e minutos de 1 a 10080."); }
+                    if (rate < 1 || rate > 10 || minutes < 1 || minutes > 10080) { throw new IllegalArgumentException(M.t("multiplicador_de_1_10_minutos_de")); }
                     globalRate = rate; globalUntil = System.currentTimeMillis() + minutes * 60_000L;
                     core.getStore().put(GLOBAL, "xprate", rate + ":" + globalUntil);
-                    getServer().broadcastMessage(PREFIX + "§d§lEVENTO: XP " + fmt(rate) + "x em todas as habilidades por " + minutes + " min!");
+                    getServer().broadcastMessage(PREFIX + M.t("evento_xp_em_todas_as_habilidades", fmt(rate), minutes));
                     return true;
                 }
                 case "addlevels": case "mmoedit": case "addxp": {
                     Player t = online(arg(args, 0));
                     State s = states.get(t);
-                    if (s == null || !s.loaded) { throw new IllegalArgumentException("Perfil carregando."); }
+                    if (s == null || !s.loaded) { throw new IllegalArgumentException(M.t("perfil_carregando_2")); }
                     boolean all = arg(args, 1).equalsIgnoreCase("todas");
                     int value = Integer.parseInt(arg(args, 2));
                     for (Skill sk : Skill.ALL) {
@@ -698,22 +699,22 @@ public final class GoldSkills extends PluginBase implements Listener {
                         index.computeIfAbsent(key(t), k -> new short[N])[i] = (short) s.level[i];
                     }
                     s.dirty = true;
-                    sender.sendMessage(PREFIX + "Habilidades de " + t.getName() + " atualizadas.");
+                    sender.sendMessage(PREFIX + M.t("habilidades_de_atualizadas", t.getName()));
                     return true;
                 }
                 case "skillreset": {
                     Player t = online(arg(args, 0));
                     State s = states.get(t);
-                    if (s == null) { throw new IllegalArgumentException("Perfil carregando."); }
+                    if (s == null) { throw new IllegalArgumentException(M.t("perfil_carregando_2")); }
                     for (Skill sk : Skill.ALL) { if (args.length < 2 || sk == Skill.parse(args[1])) { s.level[sk.ordinal()] = 0; s.xp[sk.ordinal()] = 0; } }
                     short[] lv = index.get(key(t)); if (lv != null) { for (int i = 0; i < N; i++) { lv[i] = (short) s.level[i]; } }
                     s.dirty = true;
-                    sender.sendMessage(PREFIX + "Habilidades zeradas.");
+                    sender.sendMessage(PREFIX + M.t("habilidades_zeradas"));
                     return true;
                 }
                 default: return false;
             }
-        } catch (NumberFormatException e) { sender.sendMessage(PREFIX + "§cNumero invalido."); return true; }
+        } catch (NumberFormatException e) { sender.sendMessage(PREFIX + M.t("numero_invalido")); return true; }
         catch (RuntimeException e) { sender.sendMessage(PREFIX + "§c" + e.getMessage()); return true; }
     }
 
@@ -727,6 +728,6 @@ public final class GoldSkills extends PluginBase implements Listener {
         try { addXp(p, skill, amount); } finally { globalRate = saved; globalUntil = until; s.boosters.putAll(boosters); }
     }
 
-    private Player online(String name) { Player p = getServer().getPlayerExact(name); if (p == null) { throw new IllegalArgumentException("Jogador offline."); } return p; }
-    private static String arg(String[] a, int i) { if (a.length <= i) { throw new IllegalArgumentException("Faltam argumentos."); } return a[i]; }
+    private Player online(String name) { Player p = getServer().getPlayerExact(name); if (p == null) { throw new IllegalArgumentException(M.t("jogador_offline")); } return p; }
+    private static String arg(String[] a, int i) { if (a.length <= i) { throw new IllegalArgumentException(M.t("faltam_argumentos")); } return a[i]; }
 }

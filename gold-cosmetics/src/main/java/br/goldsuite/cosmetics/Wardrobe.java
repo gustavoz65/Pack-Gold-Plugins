@@ -23,7 +23,7 @@ final class Wardrobe {
 
     /** Equipa (ou desequipa se ja estava). Retorna true se ficou equipado. */
     boolean toggle(Catalog.Cosmetic c) {
-        if (!owned.contains(c.id)) { throw new IllegalArgumentException("Voce nao tem esse cosmetico."); }
+        if (!owned.contains(c.id)) { throw new IllegalArgumentException(M.t("voce_nao_tem_esse_cosmetico")); }
         if (c.id.equals(equipped.get(c.type.name()))) { equipped.remove(c.type.name()); return false; }
         equipped.put(c.type.name(), c.id);
         return true;

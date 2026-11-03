@@ -60,31 +60,31 @@ public final class NpcState {
     /** "|" vira quebra de linha; codigos de cor com & viram secao. */
     public static String name(String text) {
         String name = text.replace("|", "\n").replace('&', '§');
-        if (name.length() > MAX_NAME || name.chars().filter(c -> c == '\n').count() > 4) { throw new IllegalArgumentException("Nome: ate " + MAX_NAME + " caracteres e 5 linhas."); }
+        if (name.length() > MAX_NAME || name.chars().filter(c -> c == '\n').count() > 4) { throw new IllegalArgumentException(M.t("nome_ate_caracteres_5_linhas", MAX_NAME)); }
         return name;
     }
     public static String command(String text) {
         String command = text.startsWith("/") ? text.substring(1) : text;
-        if (command.length() > MAX_COMMAND || command.indexOf('\n') >= 0 || command.indexOf('\r') >= 0) { throw new IllegalArgumentException("Comando invalido ou longo demais."); }
+        if (command.length() > MAX_COMMAND || command.indexOf('\n') >= 0 || command.indexOf('\r') >= 0) { throw new IllegalArgumentException(M.t("comando_invalido_ou_longo_demais")); }
         return command;
     }
 
     public Npc require(int id) {
         Npc npc = npcs.get(id);
-        if (npc == null) { throw new IllegalArgumentException("NPC inexistente: " + id); }
+        if (npc == null) { throw new IllegalArgumentException(M.t("npc_inexistente", id)); }
         return npc;
     }
 
     public static void validate(NpcState state) {
-        if (state == null || state.npcs == null || state.npcs.size() > MAX_NPCS || state.nextId < 1) { throw new IllegalArgumentException("Dados de NPC invalidos ou excessivos."); }
+        if (state == null || state.npcs == null || state.npcs.size() > MAX_NPCS || state.nextId < 1) { throw new IllegalArgumentException(M.t("dados_de_npc_invalidos_ou_excessivos")); }
         for (Map.Entry<Integer, Npc> entry : state.npcs.entrySet()) {
             Npc npc = entry.getValue();
-            if (entry.getKey() == null || entry.getKey() < 1 || entry.getKey() >= state.nextId || npc == null) { throw new IllegalArgumentException("NPC invalido."); }
+            if (entry.getKey() == null || entry.getKey() < 1 || entry.getKey() >= state.nextId || npc == null) { throw new IllegalArgumentException(M.t("npc_invalido")); }
             type(npc.type);
             Destination.position(npc.world, npc.x, npc.y, npc.z, npc.yaw, npc.pitch);
-            if (npc.name == null || npc.name.length() > MAX_NAME || npc.skin == null || !npc.skin.matches("|[0-9a-f]{64}") || npc.command == null || npc.command.length() > MAX_COMMAND) { throw new IllegalArgumentException("NPC " + entry.getKey() + " invalido."); }
-            if (npc.ranking == null || !npc.ranking.matches("|[a-z0-9_-]{1,24}:([1-9]|10)")) { throw new IllegalArgumentException("Ranking do NPC invalido."); }
-            if (npc.itemId < 0 || npc.itemId > 511 || npc.itemMeta < 0 || npc.itemMeta > 32767) { throw new IllegalArgumentException("Item do NPC invalido."); }
+            if (npc.name == null || npc.name.length() > MAX_NAME || npc.skin == null || !npc.skin.matches("|[0-9a-f]{64}") || npc.command == null || npc.command.length() > MAX_COMMAND) { throw new IllegalArgumentException(M.t("npc_invalido_2", entry.getKey())); }
+            if (npc.ranking == null || !npc.ranking.matches("|[a-z0-9_-]{1,24}:([1-9]|10)")) { throw new IllegalArgumentException(M.t("ranking_do_npc_invalido")); }
+            if (npc.itemId < 0 || npc.itemId > 511 || npc.itemMeta < 0 || npc.itemMeta > 32767) { throw new IllegalArgumentException(M.t("item_do_npc_invalido")); }
             Transition.valueOf(npc.transition);
             if (npc.destination != null) { npc.destination.validate(); }
         }

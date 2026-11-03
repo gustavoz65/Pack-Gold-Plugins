@@ -52,7 +52,7 @@ final class AccountStore {
 
     /** Aplica na hora; a gravacao vai no proximo lote. */
     synchronized CompletableFuture<Void> change(Consumer<Ledger> mutation) {
-        if (!isLoaded()) { CompletableFuture<Void> f = new CompletableFuture<>(); f.completeExceptionally(new IllegalStateException("Economia ainda carregando.")); return f; }
+        if (!isLoaded()) { CompletableFuture<Void> f = new CompletableFuture<>(); f.completeExceptionally(new IllegalStateException(M.t("economia_ainda_carregando"))); return f; }
         try { mutation.accept(ledger); }
         catch (RuntimeException e) { ledger.rollback(); CompletableFuture<Void> f = new CompletableFuture<>(); f.completeExceptionally(e); return f; }
         dirty.addAll(ledger.commit());

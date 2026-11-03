@@ -27,7 +27,7 @@ public final class SwState {
 
     static String name(String s) {
         String n = s == null ? "" : s.toLowerCase(Locale.ROOT);
-        if (!n.matches("[a-z0-9_]{1,16}")) { throw new IllegalArgumentException("Nome: 1 a 16 letras, numeros ou _ (sem barras ou pontos)."); }
+        if (!n.matches("[a-z0-9_]{1,16}")) { throw new IllegalArgumentException(M.t("nome_1_16_letras_numeros_ou")); }
         return n;
     }
 
@@ -37,12 +37,12 @@ public final class SwState {
     }
 
     public static void validate(SwState s) {
-        if (s == null || s.arenas == null || s.topWins == null || s.arenas.size() > 64 || s.topWins.size() > 100) { throw new IllegalArgumentException("Dados do SkyWars invalidos."); }
+        if (s == null || s.arenas == null || s.topWins == null || s.arenas.size() > 64 || s.topWins.size() > 100) { throw new IllegalArgumentException(M.t("dados_do_skywars_invalidos")); }
         for (Map.Entry<String, Arena> e : s.arenas.entrySet()) {
             name(e.getKey());
             Arena a = e.getValue();
-            if (a == null || a.world == null || !a.world.matches("[A-Za-z0-9_.-]{1,32}") || a.world.contains("..") || a.spawns == null || a.spawns.size() > 24 || a.teamSize < 1 || a.teamSize > 4 || a.center == null) { throw new IllegalArgumentException("Arena invalida: " + e.getKey()); }
-            for (double[] p : a.spawns) { if (p == null || p.length != 4) { throw new IllegalArgumentException("Jaula invalida."); } for (double v : p) { if (Double.isNaN(v) || Double.isInfinite(v) || Math.abs(v) > 3e7) { throw new IllegalArgumentException("Jaula invalida."); } } }
+            if (a == null || a.world == null || !a.world.matches("[A-Za-z0-9_.-]{1,32}") || a.world.contains("..") || a.spawns == null || a.spawns.size() > 24 || a.teamSize < 1 || a.teamSize > 4 || a.center == null) { throw new IllegalArgumentException(M.t("arena_invalida", e.getKey())); }
+            for (double[] p : a.spawns) { if (p == null || p.length != 4) { throw new IllegalArgumentException(M.t("jaula_invalida")); } for (double v : p) { if (Double.isNaN(v) || Double.isInfinite(v) || Math.abs(v) > 3e7) { throw new IllegalArgumentException(M.t("jaula_invalida")); } } }
         }
     }
 }

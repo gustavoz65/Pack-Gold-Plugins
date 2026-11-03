@@ -17,7 +17,7 @@ import java.util.*;
 
 /** Bau pessoal (EnderChest) gravado a cada mudanca, sem ficar em memoria depois de fechado. */
 public final class GoldVault extends PluginBase implements Listener {
-    static String PREFIX = "§5[§dBau§5]§f ";
+    static String PREFIX = M.t("bau");
     static final String NAMESPACE = "goldvault";
     private static final Gson GSON = new Gson();
     private static final Type TYPE = new TypeToken<TreeMap<Integer, ItemData>>() { }.getType();
@@ -28,9 +28,10 @@ public final class GoldVault extends PluginBase implements Listener {
     private final Map<Player, String> viewing = new IdentityHashMap<>();
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldVault."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getScheduler().scheduleRepeatingTask(new cn.nukkit.scheduler.PluginTask<GoldVault>(this) { @Override public void onRun(int tick) { release(); } }, 20);
     }
@@ -48,21 +49,21 @@ public final class GoldVault extends PluginBase implements Listener {
     }
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) { sender.sendMessage("Use dentro do jogo."); return true; }
+        if (!(sender instanceof Player)) { sender.sendMessage(M.t("use_dentro_do_jogo")); return true; }
         Player viewer = (Player) sender;
         AuthService auth = getServer().getServiceManager().load(AuthService.class);
-        if (auth != null && !auth.isAuthenticated(viewer)) { viewer.sendMessage("Autentique-se primeiro."); return true; }
+        if (auth != null && !auth.isAuthenticated(viewer)) { viewer.sendMessage(M.t("autentique_se_primeiro")); return true; }
         String owner = (args.length > 0 && viewer.hasPermission("goldvault.admin") ? args[0] : viewer.getName()).toLowerCase(Locale.ROOT);
-        if (!owner.matches("[a-z0-9_]{3,16}")) { viewer.sendMessage(PREFIX + "§cJogador invalido."); return true; }
-        if (!open.add(owner)) { viewer.sendMessage(PREFIX + "§cEste bau ja esta aberto."); return true; }
+        if (!owner.matches("[a-z0-9_]{3,16}")) { viewer.sendMessage(PREFIX + M.t("jogador_invalido")); return true; }
+        if (!open.add(owner)) { viewer.sendMessage(PREFIX + M.t("este_bau_ja_esta_aberto")); return true; }
         core.getStore().get(NAMESPACE, owner).whenComplete((value, error) -> {
             if (!isEnabled() || !viewer.isOnline()) { open.remove(owner); return; }
-            if (error != null) { open.remove(owner); viewer.sendMessage(PREFIX + "§cNao foi possivel abrir o bau."); return; }
+            if (error != null) { open.remove(owner); viewer.sendMessage(PREFIX + M.t("nao_foi_possivel_abrir_bau")); return; }
             Map<Integer, Item> items;
             try { items = decode(value.orElse("{}")); }
-            catch (RuntimeException invalid) { open.remove(owner); getLogger().warning("Bau corrompido de " + owner + "; nao aberto para nao sobrescrever."); viewer.sendMessage(PREFIX + "§cBau com dados invalidos; fale com a staff."); return; }
+            catch (RuntimeException invalid) { open.remove(owner); getLogger().warning("Bau corrompido de " + owner + "; nao aberto para nao sobrescrever."); viewer.sendMessage(PREFIX + M.t("bau_com_dados_invalidos_fale_com")); return; }
             MenuService menus = getServer().getServiceManager().load(MenuService.class);
-            boolean shown = menus.openStorage(viewer, owner.equals(viewer.getName().toLowerCase(Locale.ROOT)) ? "Seu bau" : "Bau de " + owner, items, contents -> save(owner, contents));
+            boolean shown = menus.openStorage(viewer, owner.equals(viewer.getName().toLowerCase(Locale.ROOT)) ? M.t("seu_bau") : M.t("bau_de", owner), items, contents -> save(owner, contents));
             if (shown) { viewing.put(viewer, owner); } else { open.remove(owner); }
         });
         return true;
@@ -71,7 +72,7 @@ public final class GoldVault extends PluginBase implements Listener {
     /** Chamado no tick seguinte a cada mudanca e ao fechar; a fila do GoldCore mantem a ordem das gravacoes. */
     private void save(String owner, Map<Integer, Item> contents) {
         String json = encode(contents);
-        core.getStore().put(NAMESPACE, owner, json).whenComplete((v, e) -> { if (e != null) { getLogger().error("Falha ao gravar o bau de " + owner, e); } });
+        core.getStore().put(NAMESPACE, owner, json).whenComplete((v, e) -> { if (e != null) { getLogger().error(M.t("falha_ao_gravar_bau_de", owner), e); } });
     }
 
     /** A janela grava o conteudo ao fechar; aqui so libera a trava. */
@@ -87,7 +88,7 @@ public final class GoldVault extends PluginBase implements Listener {
         Map<Integer, Item> items = new HashMap<>();
         if (stored == null) { return items; }
         for (Map.Entry<Integer, ItemData> e : stored.entrySet()) {
-            if (e.getKey() == null || e.getKey() < 0 || e.getKey() >= MenuService.SIZE || e.getValue() == null) { throw new IllegalArgumentException("Slot invalido."); }
+            if (e.getKey() == null || e.getKey() < 0 || e.getKey() >= MenuService.SIZE || e.getValue() == null) { throw new IllegalArgumentException(M.t("slot_invalido")); }
             e.getValue().validate();
             items.put(e.getKey(), e.getValue().toItem());
         }

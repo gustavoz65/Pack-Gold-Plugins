@@ -20,7 +20,7 @@ import java.util.*;
 
 /** Report, ajuda, giveall, bloqueio de comandos, restart, clearlag e comandos agendados. */
 public final class GoldStaff extends PluginBase implements Listener {
-    static String PREFIX = "§4[§cStaff§4]§f ";
+    static String PREFIX = M.t("staff");
     private PersistentState<StaffState> data;
     private int minute, clearlagIn, restartIn = -1;
     private final Map<Player, Long> lastReport = new IdentityHashMap<>();
@@ -29,9 +29,10 @@ public final class GoldStaff extends PluginBase implements Listener {
     private static final Set<String> PUNISH = new HashSet<>(Arrays.asList("kick", "ban", "ban-ip", "banip", "mute", "tempban", "tempmute", "banir", "expulsar", "silenciar", "jail", "prender"));
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldStaff."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new PersistentState<>(core.getStore(), "goldstaff", StaffState.class, StaffState::new, StaffState::validate);
         getServer().getPluginManager().registerEvents(this, this);
         tickets = new Tickets(this, core);
@@ -52,15 +53,15 @@ public final class GoldStaff extends PluginBase implements Listener {
         int every = data.read(s -> s.clearlagMinutes);
         if (every > 0) {
             clearlagIn--;
-            if (clearlagIn == 30 || clearlagIn == 10) { getServer().broadcastMessage(PREFIX + "§eItens no chao serao removidos em " + clearlagIn + " s."); }
-            if (clearlagIn <= 0) { int removed = clearlag(); clearlagIn = every * 60; getServer().broadcastMessage(PREFIX + "§a" + removed + " entidades removidas."); }
+            if (clearlagIn == 30 || clearlagIn == 10) { getServer().broadcastMessage(PREFIX + M.t("itens_no_chao_serao_removidos_em", clearlagIn)); }
+            if (clearlagIn <= 0) { int removed = clearlag(); clearlagIn = every * 60; getServer().broadcastMessage(PREFIX + M.t("entidades_removidas", removed)); }
         }
         if (restartIn > 0) {
             restartIn--;
             if (restartIn == 600 || restartIn == 300 || restartIn == 60 || restartIn == 30 || (restartIn <= 10 && restartIn > 0)) {
-                getServer().broadcastMessage(PREFIX + "§cO servidor reinicia em " + (restartIn >= 60 ? restartIn / 60 + " min" : restartIn + " s") + ".");
+                getServer().broadcastMessage(PREFIX + M.t("servidor_reinicia_em", (restartIn >= 60 ? M.t("min", restartIn / 60) : restartIn + " s")));
             }
-            if (restartIn == 0) { getServer().broadcastMessage(PREFIX + "§cReiniciando..."); markRestart(); getServer().shutdown(); }
+            if (restartIn == 0) { getServer().broadcastMessage(PREFIX + M.t("reiniciando")); markRestart(); getServer().shutdown(); }
         }
         if (++minute % 60 == 0) {
             int now = minute / 60;
@@ -98,11 +99,11 @@ public final class GoldStaff extends PluginBase implements Listener {
         String shortName = name.contains(":") ? name.substring(name.indexOf(':') + 1) : name;
         if (PUNISH.contains(shortName) && parts.length > 1 && !outranks(p, parts[1])) {
             event.setCancelled();
-            p.sendMessage(PREFIX + "§cVoce nao pode punir alguem do mesmo cargo ou acima do seu.");
+            p.sendMessage(PREFIX + M.t("voce_nao_pode_punir_alguem_do"));
             return;
         }
         if (p.hasPermission("goldstaff.admin") || p.hasPermission("goldstaff.cmd." + shortName)) { return; }
-        if (data.read(s -> s.blocked.contains(name) || s.blocked.contains(shortName))) { event.setCancelled(); p.sendMessage(PREFIX + "§cComando indisponivel."); }
+        if (data.read(s -> s.blocked.contains(name) || s.blocked.contains(shortName))) { event.setCancelled(); p.sendMessage(PREFIX + M.t("comando_indisponivel")); }
     }
 
     /** OP manda em todos; fora isso, so pune quem tem cargo (peso) menor. Jogador sem cargo pode ser punido por qualquer staff. */
@@ -131,25 +132,25 @@ public final class GoldStaff extends PluginBase implements Listener {
                     if (args.length < 1) { return false; }
                     String[] id = args[0].split(":");
                     Item item = Item.get(Integer.parseInt(id[0]), id.length > 1 ? Integer.parseInt(id[1]) : 0, args.length > 1 ? Math.max(1, Math.min(64, Integer.parseInt(args[1]))) : 1);
-                    if (item.getId() == 0) { throw new IllegalArgumentException("Item invalido."); }
+                    if (item.getId() == 0) { throw new IllegalArgumentException(M.t("item_invalido")); }
                     int given = 0;
                     for (Player p : getServer().getOnlinePlayers().values()) { if (p.spawned) { p.getInventory().addItem(item.clone()); given++; } }
-                    getServer().broadcastMessage(PREFIX + "§a" + sender.getName() + " deu " + item.getCount() + "x " + item.getName() + " para todos!");
-                    sender.sendMessage(PREFIX + "Entregue para " + given + " jogador(es).");
+                    getServer().broadcastMessage(PREFIX + M.t("deu_para_todos", sender.getName(), item.getCount(), item.getName()));
+                    sender.sendMessage(PREFIX + M.t("entregue_para_jogador_es", given));
                     return true;
                 }
                 case "bloquearcmd": {
-                    if (args.length < 1) { sender.sendMessage(PREFIX + "Bloqueados: " + data.read(s -> String.join(", ", s.blocked))); return true; }
+                    if (args.length < 1) { sender.sendMessage(PREFIX + M.t("bloqueados", data.<Object>read(s -> String.join(", ", s.blocked)))); return true; }
                     String c = StaffState.command(args[0]);
                     boolean[] added = new boolean[1];
                     change(sender, s -> { added[0] = s.blocked.add(c); if (!added[0]) { s.blocked.remove(c); } }, () -> "/" + c + (added[0] ? " bloqueado." : " liberado."));
                     return true;
                 }
-                case "clearlag": sender.sendMessage(PREFIX + clearlag() + " entidades removidas."); return true;
+                case "clearlag": sender.sendMessage(PREFIX + M.t("entidades_removidas_2", clearlag())); return true;
                 case "agendar": {
-                    if (args.length < 2) { sender.sendMessage(PREFIX + "Uso: /agendar <minutos|remover> <comando>. Atuais: " + data.read(s -> s.scheduled.toString())); return true; }
+                    if (args.length < 2) { sender.sendMessage(PREFIX + M.t("uso_agendar_minutos_remover_comando_atuais", data.<Object>read(s -> s.scheduled.toString()))); return true; }
                     String cmd = String.join(" ", Arrays.copyOfRange(args, 1, args.length)).replaceFirst("^/", "");
-                    if (args[0].equalsIgnoreCase("remover")) { change(sender, s -> { if (s.scheduled.remove(cmd) == null) { throw new IllegalArgumentException("Agendamento inexistente."); } }, () -> "Agendamento removido."); return true; }
+                    if (args[0].equalsIgnoreCase("remover")) { change(sender, s -> { if (s.scheduled.remove(cmd) == null) { throw new IllegalArgumentException(M.t("agendamento_inexistente")); } }, () -> M.t("agendamento_removido")); return true; }
                     int minutes = Integer.parseInt(args[0]);
                     change(sender, s -> s.scheduled.put(cmd, minutes), () -> "\"/" + cmd + "\" a cada " + minutes + " min.");
                     return true;
@@ -157,27 +158,27 @@ public final class GoldStaff extends PluginBase implements Listener {
                 case "restart": {
                     if (args.length > 0 && args[0].equalsIgnoreCase("auto")) {
                         int hours = args.length > 1 ? Integer.parseInt(args[1]) : 0;
-                        change(sender, s -> s.restartHours = hours, () -> { restartIn = hours == 0 ? -1 : hours * 3600; return hours == 0 ? "Restart automatico desligado." : "Restart a cada " + hours + " h."; });
+                        change(sender, s -> s.restartHours = hours, () -> { restartIn = hours == 0 ? -1 : hours * 3600; return hours == 0 ? M.t("restart_automatico_desligado") : M.t("restart_cada", hours); });
                         return true;
                     }
                     int seconds = args.length > 0 ? Math.max(5, Integer.parseInt(args[0])) : 60;
                     restartIn = seconds;
-                    getServer().broadcastMessage(PREFIX + "§cO servidor reinicia em " + seconds + " s.");
+                    getServer().broadcastMessage(PREFIX + M.t("servidor_reinicia_em_2", seconds));
                     return true;
                 }
                 default: return false;
             }
-        } catch (NumberFormatException e) { sender.sendMessage(PREFIX + "§cNumero invalido."); return true; }
+        } catch (NumberFormatException e) { sender.sendMessage(PREFIX + M.t("numero_invalido")); return true; }
         catch (RuntimeException e) { sender.sendMessage(PREFIX + "§c" + root(e)); return true; }
     }
 
     private void report(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player) || args.length < 2) { sender.sendMessage(PREFIX + "Uso: /report <jogador> <motivo>"); return; }
+        if (!(sender instanceof Player) || args.length < 2) { sender.sendMessage(PREFIX + M.t("uso_report_jogador_motivo")); return; }
         Player p = (Player) sender;
         Long last = lastReport.get(p);
-        if (last != null && System.currentTimeMillis() - last < 60_000) { throw new IllegalArgumentException("Espere 1 minuto entre denuncias."); }
+        if (last != null && System.currentTimeMillis() - last < 60_000) { throw new IllegalArgumentException(M.t("espere_1_minuto_entre_denuncias")); }
         String target = args[0].toLowerCase(Locale.ROOT);
-        if (!target.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException("Jogador invalido."); }
+        if (!target.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException(M.t("jogador_invalido")); }
         String reason = String.join(" ", Arrays.copyOfRange(args, 1, args.length)).replace("§", "");
         if (reason.length() > 150) { reason = reason.substring(0, 150); }
         StaffState.Report report = new StaffState.Report(p.getName().toLowerCase(Locale.ROOT), target, reason);
@@ -191,16 +192,16 @@ public final class GoldStaff extends PluginBase implements Listener {
             s.reports.put(id[0], report);
         }, () -> {
             for (Player staff : getServer().getOnlinePlayers().values()) {
-                if (staff.hasPermission("goldstaff.reports")) { staff.sendMessage(PREFIX + "§eReport #" + id[0] + ": §f" + target + " §7por " + p.getName() + ": " + finalReason); }
+                if (staff.hasPermission("goldstaff.reports")) { staff.sendMessage(PREFIX + M.t("report_por", id[0], target, p.getName(), finalReason)); }
             }
-            return "Denuncia #" + id[0] + " enviada para a staff. Obrigado!";
+            return M.t("denuncia_enviada_para_staff_obrigado", id[0]);
         });
     }
 
     private void reports(CommandSender sender, String[] args) {
         if (args.length >= 2 && args[0].equalsIgnoreCase("fechar")) {
             int id = Integer.parseInt(args[1]);
-            change(sender, s -> { if (s.reports.remove(id) == null) { throw new IllegalArgumentException("Report inexistente."); } }, () -> "Report #" + id + " fechado.");
+            change(sender, s -> { if (s.reports.remove(id) == null) { throw new IllegalArgumentException(M.t("report_inexistente")); } }, () -> "Report #" + id + " fechado.");
             return;
         }
         List<String> lines = data.read(s -> {
@@ -208,9 +209,9 @@ public final class GoldStaff extends PluginBase implements Listener {
             for (Map.Entry<Integer, StaffState.Report> e : s.reports.entrySet()) { out.add("§e#" + e.getKey() + " §f" + e.getValue().target + " §7(" + e.getValue().reporter + "): " + e.getValue().reason); }
             return out;
         });
-        if (lines.isEmpty()) { sender.sendMessage(PREFIX + "Nenhuma denuncia aberta."); return; }
+        if (lines.isEmpty()) { sender.sendMessage(PREFIX + M.t("nenhuma_denuncia_aberta")); return; }
         for (String line : lines.subList(Math.max(0, lines.size() - 15), lines.size())) { sender.sendMessage(line); }
-        sender.sendMessage(PREFIX + "Feche com /reports fechar <id>.");
+        sender.sendMessage(PREFIX + M.t("feche_com_reports_fechar_id"));
     }
 
     private void change(CommandSender sender, java.util.function.Consumer<StaffState> mutation, java.util.function.Supplier<String> message) {

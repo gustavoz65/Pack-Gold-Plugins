@@ -1,0 +1,11 @@
+desligado: "desligado."
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldHud."
+# {0} = (nowOff[0] ? "desligado." : "ligado.")
+hud: "HUD {0}"
+hud_2: "&9[&bHUD&9]&f "
+# {0} = (hide[0] ? "oculto" : "visivel"), {1} = world
+hud_em: "HUD {0} em {1}."
+hud_invalido: "HUD invalido."
+ligado: "ligado."
+oculto: "oculto"
+visivel: "visivel"

@@ -44,13 +44,13 @@ public final class Boards {
     public static void validate(Boards s) {
         if (s != null && s.ladder == null) { s.ladder = new HashMap<>(); }
         if (s == null || s.kills == null || s.rating == null || s.arenas == null || s.kit == null || s.lobbyWorlds == null
-                || s.kills.size() > SIZE || s.rating.size() > SIZE || s.ladder.size() > SIZE || s.arenas.size() > 20 || s.kit.size() > 40 || s.lobbyWorlds.size() > 16) { throw new IllegalArgumentException("Rankings invalidos."); }
-        for (String n : s.kills.keySet()) { if (!n.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException("Nome invalido."); } }
-        for (String n : s.ladder.keySet()) { if (!n.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException("Nome invalido."); } }
-        for (String n : s.rating.keySet()) { if (!n.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException("Nome invalido."); } }
+                || s.kills.size() > SIZE || s.rating.size() > SIZE || s.ladder.size() > SIZE || s.arenas.size() > 20 || s.kit.size() > 40 || s.lobbyWorlds.size() > 16) { throw new IllegalArgumentException(M.t("rankings_invalidos")); }
+        for (String n : s.kills.keySet()) { if (!n.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException(M.t("nome_invalido")); } }
+        for (String n : s.ladder.keySet()) { if (!n.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException(M.t("nome_invalido")); } }
+        for (String n : s.rating.keySet()) { if (!n.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException(M.t("nome_invalido")); } }
         for (Map.Entry<String, Arena> e : s.arenas.entrySet()) {
             Arena a = e.getValue();
-            if (!e.getKey().matches("[a-z0-9_-]{1,20}") || a == null || a.a == null || a.b == null) { throw new IllegalArgumentException("Arena invalida."); }
+            if (!e.getKey().matches("[a-z0-9_-]{1,20}") || a == null || a.a == null || a.b == null) { throw new IllegalArgumentException(M.t("arena_invalida")); }
             a.a.validate(); a.b.validate();
         }
         for (br.goldsuite.api.ItemData d : s.kit) { d.validate(); }

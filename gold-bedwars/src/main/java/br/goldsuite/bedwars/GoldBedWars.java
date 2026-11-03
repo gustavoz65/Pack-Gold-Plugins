@@ -39,9 +39,9 @@ import java.util.*;
  * especiais (bola de fogo, ovo-ponte, perola, TNT automatica). So se quebram blocos colocados na partida e as camas.
  */
 public final class GoldBedWars extends PluginBase implements Listener {
-    static String PREFIX = "§c[§fBed§cWars]§f ";
+    static String PREFIX = M.t("bed_wars");
     static final String STATS = "goldbw-stats";
-    static final String LEAVE = "§r§cSair §7(toque)", TEAMS = "§r§eEscolher time §7(toque)", FIREBALL = "§r§6Bola de Fogo", PEARL = "§r§5Perola do Fim", EGG = "§r§eOvo-Ponte";
+    static final String LEAVE = M.t("sair_toque"), TEAMS = M.t("escolher_time_toque"), FIREBALL = M.t("bola_de_fogo"), PEARL = M.t("perola_do_fim"), EGG = M.t("ovo_ponte");
     private static final Gson GSON = new Gson();
     private static final Set<String> ALLOWED = new HashSet<>(Arrays.asList("bw", "bedwars", "tell", "msg", "w", "r", "login", "l", "fps"));
     /** Blocos que a bola de fogo e a TNT podem destruir (so os colocados na partida). Vidro, pedra do end e obsidiana resistem. */
@@ -92,6 +92,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
     String lobbyWorld = "";
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         Settings.number(this, "minimo_jogadores", 2, "Jogadores para comecar a contagem", v -> minPlayers = Math.max(2, v));
         Settings.number(this, "contagem", 20, "Segundos de contagem (cai para 10 com a sala cheia)", v -> countdown = Math.max(5, v));
@@ -101,7 +102,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
         Settings.number(this, "premio_vitoria", 15000, "Dinheiro por vitoria (centavos)", v -> winReward = v);
         Settings.text(this, "mundo_lobby", "", "Mundo para onde os jogadores voltam (vazio = mundo padrao)", v -> lobbyWorld = v);
         core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldBedWars."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         maps = new MapStore(getServer(), getDataFolder().toPath());
         data = new PersistentState<>(core.getStore(), "goldbedwars", BwState.class, BwState::new, BwState::validate);
         getServer().getPluginManager().registerEvents(this, this);
@@ -153,16 +154,16 @@ public final class GoldBedWars extends PluginBase implements Listener {
     // ---------- entrar e sair ----------
 
     void join(Player p, int size) {
-        if (inGame.containsKey(p)) { throw new IllegalArgumentException("Voce ja esta numa partida. Use /bw sair."); }
-        for (Item i : p.getInventory().getContents().values()) { if (i.getId() != 0 && !(i.hasCustomName() && i.getCustomName().contains("(toque)"))) { throw new IllegalArgumentException("Esvazie o inventario antes de entrar no BedWars."); } }
-        for (Item i : p.getInventory().getArmorContents()) { if (i.getId() != 0) { throw new IllegalArgumentException("Tire a armadura antes de entrar no BedWars."); } }
+        if (inGame.containsKey(p)) { throw new IllegalArgumentException(M.t("voce_ja_esta_numa_partida_use")); }
+        for (Item i : p.getInventory().getContents().values()) { if (i.getId() != 0 && !(i.hasCustomName() && i.getCustomName().contains("(toque)"))) { throw new IllegalArgumentException(M.t("esvazie_inventario_antes_de_entrar_no")); } }
+        for (Item i : p.getInventory().getArmorContents()) { if (i.getId() != 0) { throw new IllegalArgumentException(M.t("tire_armadura_antes_de_entrar_no")); } }
         Game best = null;
         for (Game g : games.values()) {
             BwState.Arena a = g.arena();
             if (a == null || a.teamSize != size || !g.waiting() || g.level() == null || g.team.size() >= g.capacity() || a.waiting.length != 4) { continue; }
             if (best == null || g.team.size() > best.team.size()) { best = g; }
         }
-        if (best == null) { throw new IllegalArgumentException("Nenhuma sala aberta nesse modo agora."); }
+        if (best == null) { throw new IllegalArgumentException(M.t("nenhuma_sala_aberta_nesse_modo_agora")); }
         Game g = best;
         g.team.put(p, "");
         inGame.put(p, g);
@@ -172,7 +173,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
         p.getInventory().setItem(0, Items.named(Item.get(35, 0, 1), TEAMS));
         p.getInventory().setItem(8, Items.named(Item.get(355, 0, 1), LEAVE));
         p.getInventory().sendContents(p);
-        broadcast(g, "§7" + p.getName() + " §eentrou (§f" + g.team.size() + "/" + g.capacity() + "§e)");
+        broadcast(g, M.t("entrou", p.getName(), g.team.size(), g.capacity()));
     }
 
     void clean(Player p) {
@@ -185,7 +186,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
     void leave(Player p) {
         Game g = inGame.get(p);
         if (g == null) { return; }
-        if (g.phase == Phase.JOGANDO && g.alive(p)) { die(g, p, lastHitter(g, p), true, "§7" + p.getName() + " §esaiu da partida."); }
+        if (g.phase == Phase.JOGANDO && g.alive(p)) { die(g, p, lastHitter(g, p), true, M.t("saiu_da_partida", p.getName())); }
         g.team.remove(p); g.wanted.remove(p); g.finalDead.remove(p); g.respawn.remove(p); g.kits.remove(p); g.score.remove(p);
         toLobby(p);
         if (g.phase == Phase.JOGANDO) { checkWin(g); }
@@ -208,14 +209,14 @@ public final class GoldBedWars extends PluginBase implements Listener {
             int min = (int) Math.min(minPlayers, Math.max(2, g.capacity()));
             switch (g.phase) {
                 case ESPERANDO:
-                    if (g.team.size() >= min || (g.forced && !g.team.isEmpty())) { g.phase = Phase.CONTAGEM; g.seconds = g.forced ? 5 : (int) countdown; broadcast(g, "§aA partida comeca em §f" + g.seconds + "s§a!"); }
-                    for (Player p : g.team.keySet()) { p.sendTip("§eAguardando jogadores §f" + g.team.size() + "/" + g.capacity()); }
+                    if (g.team.size() >= min || (g.forced && !g.team.isEmpty())) { g.phase = Phase.CONTAGEM; g.seconds = g.forced ? 5 : (int) countdown; broadcast(g, M.t("partida_comeca_em", g.seconds)); }
+                    for (Player p : g.team.keySet()) { p.sendTip(M.t("aguardando_jogadores", g.team.size(), g.capacity())); }
                     break;
                 case CONTAGEM:
-                    if (g.team.size() < min && !g.forced) { g.phase = Phase.ESPERANDO; broadcast(g, "§cJogadores insuficientes, contagem cancelada."); break; }
+                    if (g.team.size() < min && !g.forced) { g.phase = Phase.ESPERANDO; broadcast(g, M.t("jogadores_insuficientes_contagem_cancelada")); break; }
                     if (g.team.size() >= g.capacity() && g.seconds > 10) { g.seconds = 10; }
                     g.seconds--;
-                    for (Player p : g.team.keySet()) { p.sendTip("§aComeca em §f" + g.seconds + "s" + (g.wanted.containsKey(p) ? " §7| " + BwState.label(g.wanted.get(p)) : "")); if (g.seconds <= 5) { lv.addSound(new ClickSound(p), p); } }
+                    for (Player p : g.team.keySet()) { p.sendTip(M.t("comeca_em", g.seconds, (g.wanted.containsKey(p) ? " §7| " + BwState.label(g.wanted.get(p)) : ""))); if (g.seconds <= 5) { lv.addSound(new ClickSound(p), p); } }
                     if (g.seconds <= 0) { start(g); }
                     break;
                 case JOGANDO: playing(g, lv); break;
@@ -250,7 +251,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
         for (Map.Entry<String, List<Player>> e : members.entrySet()) {
             if (e.getValue().isEmpty()) { breakBedBlocks(g, e.getKey()); continue; }
             g.beds.add(e.getKey());
-            for (Player p : e.getValue()) { g.team.put(p, e.getKey()); g.kits.put(p, new Kit()); g.score.put(p, new int[3]); spawn(g, p); p.sendMessage(PREFIX + "Voce esta no time " + BwState.label(e.getKey()) + "§f. Proteja sua cama!"); }
+            for (Player p : e.getValue()) { g.team.put(p, e.getKey()); g.kits.put(p, new Kit()); g.score.put(p, new int[3]); spawn(g, p); p.sendMessage(PREFIX + M.t("voce_esta_no_time_proteja_sua", BwState.label(e.getKey()))); }
         }
         labels(g);
     }
@@ -277,7 +278,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
         if (k.shears) { p.getInventory().addItem(Item.get(359)); }
         p.getInventory().sendContents(p); p.getInventory().sendArmorContents(p);
         p.setNameTag(BwState.color(t) + "[" + t.substring(0, 1).toUpperCase() + "] " + p.getName());
-        p.sendTip(BwState.color(t) + "§lTime " + t + " §r§7| §fLa: " + wool);
+        p.sendTip(M.t("time_la", BwState.color(t), t, wool));
     }
 
     static Enchantment ench(int id, int level) { Enchantment e = Enchantment.getEnchantment(id); e.setLevel(level); return e; }
@@ -290,16 +291,16 @@ public final class GoldBedWars extends PluginBase implements Listener {
             if (g.elapsed != (Integer) ev[0]) { continue; }
             String name = (String) ev[1];
             broadcast(g, "§6§l" + name + "!");
-            if (name.startsWith("Camas")) { for (String t : new ArrayList<>(g.beds)) { breakBedBlocks(g, t); } g.beds.clear(); broadcast(g, "§cTodas as camas foram destruidas: agora toda morte e final!"); }
-            if (name.startsWith("Fim")) { broadcast(g, "§7Tempo esgotado: empate."); finish(g, null); return; }
+            if (name.startsWith("Camas")) { for (String t : new ArrayList<>(g.beds)) { breakBedBlocks(g, t); } g.beds.clear(); broadcast(g, M.t("todas_as_camas_foram_destruidas_agora")); }
+            if (name.startsWith("Fim")) { broadcast(g, M.t("tempo_esgotado_empate")); finish(g, null); return; }
         }
         // Respawn em 5 s para quem tem cama.
         for (Iterator<Map.Entry<Player, Integer>> it = g.respawn.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<Player, Integer> e = it.next();
             Player p = e.getKey();
             int left = e.getValue() - 1;
-            if (left <= 0) { it.remove(); p.setDataFlag(Entity.DATA_FLAGS, Entity.DATA_FLAG_INVISIBLE, false); spawn(g, p); p.sendMessage(PREFIX + "§aVoce renasceu!"); }
-            else { e.setValue(left); p.sendTip("§cRenascendo em §f" + left + "s"); }
+            if (left <= 0) { it.remove(); p.setDataFlag(Entity.DATA_FLAGS, Entity.DATA_FLAG_INVISIBLE, false); spawn(g, p); p.sendMessage(PREFIX + M.t("voce_renasceu")); }
+            else { e.setValue(left); p.sendTip(M.t("renascendo_em", left)); }
         }
         double voidY = voidY(g);
         BwState.Arena a = g.arena();
@@ -317,7 +318,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
                 g.trapArmed.put(other.getKey(), false);
                 g.upgrades.get(other.getKey()).put("armadilha", 0);
                 p.addEffect(Effect.getEffect(Effect.BLINDNESS).setDuration(160)); p.addEffect(Effect.getEffect(Effect.SLOWNESS).setDuration(160));
-                for (Map.Entry<Player, String> m : g.team.entrySet()) { if (m.getValue().equals(other.getKey())) { m.getKey().sendMessage(PREFIX + "§c§lALARME! §r§cAlguem ativou sua armadilha!"); } }
+                for (Map.Entry<Player, String> m : g.team.entrySet()) { if (m.getValue().equals(other.getKey())) { m.getKey().sendMessage(PREFIX + M.t("alarme_alguem_ativou_sua_armadilha")); } }
             }
             p.sendTip(sidebar(g, p));
         }
@@ -338,7 +339,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
         }
         for (Object[] ev : Shop.EVENTS) { int at = (Integer) ev[0]; if (at > g.elapsed) { s.append("§7| §f").append(ev[1]).append(" §7").append(clock(at - g.elapsed)); break; } }
         int[] sc = g.score.getOrDefault(viewer, new int[3]);
-        return s.append(" §7| §fAbates §e").append(sc[0]).append(" §fFinais §e").append(sc[1]).toString();
+        return s.append(M.t("abates")).append(sc[0]).append(M.t("finais")).append(sc[1]).toString();
     }
 
     static final String[] ROMAN = {"", "I", "II", "III"};
@@ -386,8 +387,8 @@ public final class GoldBedWars extends PluginBase implements Listener {
     void labels(Game g) {
         g.labels.clear();
         BwState.Arena a = g.arena();
-        for (double[] d : a.diamonds) { g.labels.add(new FloatingTextParticle(new Vector3(d[0], d[1] + 2.5, d[2]), "", "§b§lDiamante")); }
-        for (double[] e : a.emeralds) { g.labels.add(new FloatingTextParticle(new Vector3(e[0], e[1] + 2.5, e[2]), "", "§a§lEsmeralda")); }
+        for (double[] d : a.diamonds) { g.labels.add(new FloatingTextParticle(new Vector3(d[0], d[1] + 2.5, d[2]), "", M.t("diamante"))); }
+        for (double[] e : a.emeralds) { g.labels.add(new FloatingTextParticle(new Vector3(e[0], e[1] + 2.5, e[2]), "", M.t("esmeralda"))); }
     }
 
     void updateLabels(Game g) {
@@ -400,8 +401,8 @@ public final class GoldBedWars extends PluginBase implements Listener {
             String key = diamond ? "d" + i : "m" + (i - a.diamonds.size());
             int left = (g.timers.getOrDefault(key, 0) + 19) / 20;
             FloatingTextParticle l = g.labels.get(i);
-            l.setTitle(diamond ? "§b§lDiamante " + ROMAN[dTier] : "§a§lEsmeralda " + ROMAN[eTier]);
-            l.setText("§eProximo em §f" + left + "s");
+            l.setTitle(diamond ? M.t("diamante_2", ROMAN[dTier]) : M.t("esmeralda_2", ROMAN[eTier]));
+            l.setText(M.t("proximo_em", left));
             if (viewers.length > 0) { lv.addParticle(l, viewers); }
         }
     }
@@ -431,15 +432,15 @@ public final class GoldBedWars extends PluginBase implements Listener {
             saveStats(killer);
         }
         BwState.Stats ps = stats(p); ps.deaths++;
-        String msg = customMessage != null ? customMessage : BwState.color(t) + p.getName() + " §7" + (killer != null && killer != p ? (voidDeath ? "foi jogado no vazio por " : "foi morto por ") + BwState.color(g.team.get(killer)) + killer.getName() : (voidDeath ? "caiu no vazio" : "morreu")) + (isFinal ? " §b§lABATE FINAL!" : "");
+        String msg = customMessage != null ? customMessage : BwState.color(t) + p.getName() + " §7" + (killer != null && killer != p ? (voidDeath ? "foi jogado no vazio por " : "foi morto por ") + BwState.color(g.team.get(killer)) + killer.getName() : (voidDeath ? "caiu no vazio" : "morreu")) + (isFinal ? M.t("abate_final") : "");
         broadcast(g, msg);
         Kit k = g.kits.get(p);
         if (k != null) { k.pickaxe = Math.max(k.pickaxe > 0 ? 1 : 0, k.pickaxe - 1); k.axe = Math.max(k.axe > 0 ? 1 : 0, k.axe - 1); }
         ghost(g, p);
         if (isFinal) {
             g.finalDead.add(p); ps.games++;
-            p.sendMessage(PREFIX + "§cVoce foi eliminado (sem cama). Assistindo como espectador.");
-            if (!hasMembers(g, t)) { broadcast(g, "§c§lTIME ELIMINADO! " + BwState.label(t) + " §cestá fora."); }
+            p.sendMessage(PREFIX + M.t("voce_foi_eliminado_sem_cama_assistindo"));
+            if (!hasMembers(g, t)) { broadcast(g, M.t("time_eliminado_esta_fora", BwState.label(t))); }
             checkWin(g);
         } else { g.respawn.put(p, 5); }
         saveStats(p);
@@ -491,10 +492,10 @@ public final class GoldBedWars extends PluginBase implements Listener {
             data.change(st -> BwState.offer(st.topWins, n, wins));
             reward(w, winReward);
             if (fx != null && w.isOnline()) { fx.follow(w, EffectService.Shape.CELEBRACAO, 80); }
-            w.sendMessage(PREFIX + "§6§lVITORIA!");
+            w.sendMessage(PREFIX + M.t("vitoria"));
             names.append(names.length() == 0 ? "" : ", ").append(w.getName());
         }
-        getServer().broadcastMessage(PREFIX + "Time " + BwState.label(winner) + " §f(" + names + ") venceu o BedWars em §c" + g.name + "§f!");
+        getServer().broadcastMessage(PREFIX + M.t("time_venceu_bedwars_em", BwState.label(winner), names, g.name));
     }
 
     void reward(Player p, long cents) {
@@ -512,7 +513,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
         String world = g.arena().world;
         if (!maps.hasBackup(world)) { g.phase = Phase.ESPERANDO; getLogger().warning("Arena " + g.name + " sem copia do mapa: use /bw salvar."); return; }
         if (lv != null) { getServer().unloadLevel(lv, true); }
-        maps.restore(world).whenComplete((v, e) -> { if (e != null) { getLogger().error("Falha ao restaurar " + world, e); } getServer().loadLevel(world); g.phase = Phase.ESPERANDO; });
+        maps.restore(world).whenComplete((v, e) -> { if (e != null) { getLogger().error(M.t("falha_ao_restaurar", world), e); } getServer().loadLevel(world); g.phase = Phase.ESPERANDO; });
     }
 
     void broadcast(Game g, String msg) { for (Player p : g.team.keySet()) { p.sendMessage(PREFIX + msg); } }
@@ -525,8 +526,8 @@ public final class GoldBedWars extends PluginBase implements Listener {
 
     void shop(Player p, String category) {
         Game g = inGame.get(p);
-        if (g == null || g.phase != Phase.JOGANDO || !g.alive(p) || g.respawn.containsKey(p)) { p.sendMessage(PREFIX + "A loja abre so durante a partida."); return; }
-        if (!nearBase(g, p)) { p.sendMessage(PREFIX + "§cA loja fica na sua base."); return; }
+        if (g == null || g.phase != Phase.JOGANDO || !g.alive(p) || g.respawn.containsKey(p)) { p.sendMessage(PREFIX + M.t("loja_abre_so_durante_partida")); return; }
+        if (!nearBase(g, p)) { p.sendMessage(PREFIX + M.t("loja_fica_na_sua_base")); return; }
         Map<Integer, Item> icons = new HashMap<>();
         List<String> cats = new ArrayList<>(Shop.CATEGORIES.keySet());
         for (int i = 0; i < cats.size(); i++) { String[] ic = Shop.CATEGORY_ICON.get(cats.get(i)).split(":"); icons.put(i, Items.named(Item.get(Integer.parseInt(ic[0]), Integer.parseInt(ic[1]), 1), (cats.get(i).equals(category) ? "§a§l" : "§e") + cats.get(i))); }
@@ -538,10 +539,10 @@ public final class GoldBedWars extends PluginBase implements Listener {
             int[] cost = cost(o, k);
             String[] ic = o.icon.split(":");
             int meta = o.give.startsWith("wool") || o.give.startsWith("clay") ? BwState.wool(t) : Integer.parseInt(ic[1]);
-            String label = cost == null ? "§aNivel maximo" : (has(p, cost[0], cost[1]) ? "§a" : "§c") + Shop.currency(cost[0], cost[1]);
+            String label = cost == null ? M.t("nivel_maximo") : (has(p, cost[0], cost[1]) ? "§a" : "§c") + Shop.currency(cost[0], cost[1]);
             icons.put(9 + i, Items.named(Item.get(Integer.parseInt(ic[0]), meta, 1), "§f" + o.name + "\n" + label));
         }
-        menus().open(p, category == null ? "Loja" : "Loja: " + category, icons, (who, slot) -> {
+        menus().open(p, category == null ? M.t("loja") : M.t("loja_2", category), icons, (who, slot) -> {
             if (slot < cats.size()) { shop(who, cats.get(slot)); return; }
             if (slot >= 9 && slot - 9 < offers.size()) { buy(who, offers.get(slot - 9)); shop(who, category); }
         });
@@ -578,8 +579,8 @@ public final class GoldBedWars extends PluginBase implements Listener {
         Kit k = g.kits.get(p);
         String t = g.team.get(p);
         int[] cost = cost(o, k);
-        if (cost == null) { p.sendMessage(PREFIX + "Voce ja tem o melhor nivel."); return; }
-        if (!has(p, cost[0], cost[1])) { p.sendMessage(PREFIX + "§cFalta " + Shop.currency(cost[0], cost[1]) + "."); return; }
+        if (cost == null) { p.sendMessage(PREFIX + M.t("voce_ja_tem_melhor_nivel")); return; }
+        if (!has(p, cost[0], cost[1])) { p.sendMessage(PREFIX + M.t("falta", Shop.currency(cost[0], cost[1]))); return; }
         take(p, cost[0], cost[1]);
         String give = o.give;
         if (give.startsWith("wool:") || give.startsWith("clay:")) { p.getInventory().addItem(Item.get(give.startsWith("wool") ? 35 : 159, BwState.wool(t), Integer.parseInt(give.substring(5)))); }
@@ -602,7 +603,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
         else { p.getInventory().addItem(Items.parse(give)); }
         p.getInventory().sendContents(p);
         p.getLevel().addSound(new ClickSound(p), p);
-        p.sendMessage(PREFIX + "§aComprou: " + o.name);
+        p.sendMessage(PREFIX + M.t("comprou", o.name));
     }
 
     void refreshArmor(Game g, Player p) {
@@ -617,7 +618,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
     void upgradesMenu(Player p) {
         Game g = inGame.get(p);
         if (g == null || g.phase != Phase.JOGANDO || !g.alive(p) || g.respawn.containsKey(p)) { return; }
-        if (!nearBase(g, p)) { p.sendMessage(PREFIX + "§cAs melhorias ficam na sua base."); return; }
+        if (!nearBase(g, p)) { p.sendMessage(PREFIX + M.t("as_melhorias_ficam_na_sua_base")); return; }
         String t = g.team.get(p);
         Map<Integer, Item> icons = new HashMap<>();
         int[] iconIds = {267, 307, 257, 61, 373, 30};
@@ -625,23 +626,23 @@ public final class GoldBedWars extends PluginBase implements Listener {
             Object[] u = Shop.UPGRADES[i];
             int[] costs = (int[]) u[2];
             int lvl = g.level(t, (String) u[0]);
-            String state = lvl >= costs.length ? "§aCompleto" : (has(p, Shop.DIAMOND, costs[lvl]) ? "§a" : "§c") + "Nivel " + (lvl + 1) + ": " + Shop.currency(Shop.DIAMOND, costs[lvl]);
+            String state = lvl >= costs.length ? M.t("completo") : (has(p, Shop.DIAMOND, costs[lvl]) ? "§a" : "§c") + "Nivel " + (lvl + 1) + ": " + Shop.currency(Shop.DIAMOND, costs[lvl]);
             icons.put(10 + i, Items.named(Item.get(iconIds[i], i == 4 ? 21 : 0, 1), "§f" + u[1] + "\n" + state));
         }
-        menus().open(p, "Melhorias do time", icons, (who, slot) -> {
+        menus().open(p, M.t("melhorias_do_time"), icons, (who, slot) -> {
             int i = slot - 10;
             if (i < 0 || i >= Shop.UPGRADES.length) { return; }
             Object[] u = Shop.UPGRADES[i];
             int[] costs = (int[]) u[2];
             int lvl = g.level(t, (String) u[0]);
-            if (lvl >= costs.length) { who.sendMessage(PREFIX + "Essa melhoria ja esta completa."); return; }
-            if (!has(who, Shop.DIAMOND, costs[lvl])) { who.sendMessage(PREFIX + "§cFalta " + Shop.currency(Shop.DIAMOND, costs[lvl]) + "."); return; }
+            if (lvl >= costs.length) { who.sendMessage(PREFIX + M.t("essa_melhoria_ja_esta_completa")); return; }
+            if (!has(who, Shop.DIAMOND, costs[lvl])) { who.sendMessage(PREFIX + M.t("falta", Shop.currency(Shop.DIAMOND, costs[lvl]))); return; }
             take(who, Shop.DIAMOND, costs[lvl]);
             g.upgrades.computeIfAbsent(t, k -> new HashMap<>()).put((String) u[0], lvl + 1);
             if (u[0].equals("armadilha")) { g.trapArmed.put(t, true); }
             for (Map.Entry<Player, String> m : g.team.entrySet()) {
                 if (!m.getValue().equals(t)) { continue; }
-                m.getKey().sendMessage(PREFIX + "§b" + who.getName() + " comprou " + u[1] + " nivel " + (lvl + 1) + "!");
+                m.getKey().sendMessage(PREFIX + M.t("comprou_nivel", who.getName(), u[1], (lvl + 1)));
                 if (u[0].equals("protecao")) { refreshArmor(g, m.getKey()); }
                 if (u[0].equals("afiada")) { for (Map.Entry<Integer, Item> e : new HashMap<>(m.getKey().getInventory().getContents()).entrySet()) { int id = e.getValue().getId(); if (id == 268 || id == 272 || id == 267 || id == 276) { m.getKey().getInventory().setItem(e.getKey(), sword(g, t, id)); } } }
             }
@@ -658,15 +659,15 @@ public final class GoldBedWars extends PluginBase implements Listener {
         for (int i = 0; i < teams.size(); i++) {
             String t = teams.get(i);
             long n = g.wanted.values().stream().filter(t::equals).count();
-            icons.put(10 + i, Items.named(Item.get(35, BwState.wool(t), 1), BwState.label(t) + "\n§7" + n + "/" + a.teamSize + (n >= a.teamSize ? " §c(cheio)" : "")));
+            icons.put(10 + i, Items.named(Item.get(35, BwState.wool(t), 1), BwState.label(t) + "\n§7" + n + "/" + a.teamSize + (n >= a.teamSize ? M.t("cheio") : "")));
         }
-        menus().open(p, "Escolha seu time", icons, (who, slot) -> {
+        menus().open(p, M.t("escolha_seu_time"), icons, (who, slot) -> {
             int i = slot - 10;
             if (i < 0 || i >= teams.size()) { return; }
             String t = teams.get(i);
-            if (g.wanted.values().stream().filter(t::equals).count() >= a.teamSize) { who.sendMessage(PREFIX + "§cEsse time esta cheio."); return; }
+            if (g.wanted.values().stream().filter(t::equals).count() >= a.teamSize) { who.sendMessage(PREFIX + M.t("esse_time_esta_cheio")); return; }
             g.wanted.put(who, t);
-            who.sendMessage(PREFIX + "Voce escolheu o time " + BwState.label(t) + "§f.");
+            who.sendMessage(PREFIX + M.t("voce_escolheu_time", BwState.label(t)));
         });
     }
 
@@ -727,18 +728,18 @@ public final class GoldBedWars extends PluginBase implements Listener {
             e.setCancelled();
             String owner = bedOwner(g, b);
             if (owner == null || !g.beds.contains(owner)) { return; }
-            if (owner.equals(g.team.get(p))) { p.sendMessage(PREFIX + "§cVoce nao pode quebrar a propria cama!"); return; }
+            if (owner.equals(g.team.get(p))) { p.sendMessage(PREFIX + M.t("voce_nao_pode_quebrar_propria_cama")); return; }
             g.beds.remove(owner);
             breakBedBlocks(g, owner);
             int[] sc = g.score.computeIfAbsent(p, x -> new int[3]); sc[2]++;
             BwState.Stats s = stats(p); s.beds++; saveStats(p);
             reward(p, bedReward);
-            broadcast(g, "§f§lCAMA DESTRUIDA! §r" + BwState.label(owner) + " §7perdeu a cama para " + BwState.color(g.team.get(p)) + p.getName());
-            for (Map.Entry<Player, String> m : g.team.entrySet()) { if (m.getValue().equals(owner)) { m.getKey().sendTip("§c§lSUA CAMA FOI DESTRUIDA!\n§7Voce nao vai mais renascer."); } }
+            broadcast(g, M.t("cama_destruida_perdeu_cama_para", BwState.label(owner), BwState.color(g.team.get(p)), p.getName()));
+            for (Map.Entry<Player, String> m : g.team.entrySet()) { if (m.getValue().equals(owner)) { m.getKey().sendTip(M.t("sua_cama_foi_destruida_voce_nao")); } }
             return;
         }
         // Regra classica: so se quebra o que foi colocado na partida.
-        if (!g.placed.remove(pack(b))) { e.setCancelled(); p.sendPopup("§cSo da para quebrar blocos colocados pelos jogadores"); }
+        if (!g.placed.remove(pack(b))) { e.setCancelled(); p.sendPopup(M.t("so_da_para_quebrar_blocos_colocados")); }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -748,7 +749,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
         Game g = inGame.get(p);
         if (g == null) { return; }
         Block b = e.getBlock();
-        for (BwState.Team t : g.arena().teams.values()) { if (t.spawn.length > 2 && Math.abs(t.spawn[0] - b.x - 0.5) < 2 && Math.abs(t.spawn[2] - b.z - 0.5) < 2 && Math.abs(t.spawn[1] - b.y) < 3) { e.setCancelled(); p.sendPopup("§cNao bloqueie o ponto de renascer"); return; } }
+        for (BwState.Team t : g.arena().teams.values()) { if (t.spawn.length > 2 && Math.abs(t.spawn[0] - b.x - 0.5) < 2 && Math.abs(t.spawn[2] - b.z - 0.5) < 2 && Math.abs(t.spawn[1] - b.y) < 3) { e.setCancelled(); p.sendPopup(M.t("nao_bloqueie_ponto_de_renascer")); return; } }
         g.placed.add(pack(b));
         if (b.getId() == Block.TNT) {
             Level lv = b.level; Vector3 at = new Vector3(b.x, b.y, b.z);
@@ -773,7 +774,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
     public void onCommand(PlayerCommandPreprocessEvent e) {
         if (!inGame.containsKey(e.getPlayer()) || e.getPlayer().hasPermission("goldbedwars.admin")) { return; }
         String cmd = e.getMessage().substring(1).split(" ")[0].toLowerCase(Locale.ROOT);
-        if (!ALLOWED.contains(cmd)) { e.setCancelled(); e.getPlayer().sendMessage(PREFIX + "§cNa partida so funcionam /bw, /tell e /fps."); }
+        if (!ALLOWED.contains(cmd)) { e.setCancelled(); e.getPlayer().sendMessage(PREFIX + M.t("na_partida_so_funcionam_bw_tell")); }
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -794,7 +795,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
 
     boolean useMenuItem(Player p, Item i) {
         if (!i.hasCustomName()) { return false; }
-        if (i.getCustomName().equals(LEAVE)) { leave(p); p.sendMessage(PREFIX + "Voce saiu da partida."); return true; }
+        if (i.getCustomName().equals(LEAVE)) { leave(p); p.sendMessage(PREFIX + M.t("voce_saiu_da_partida")); return true; }
         if (i.getCustomName().equals(TEAMS)) { teamMenu(p); return true; }
         return false;
     }
@@ -844,27 +845,27 @@ public final class GoldBedWars extends PluginBase implements Listener {
     // ---------- comandos ----------
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!data.isLoaded()) { sender.sendMessage(PREFIX + "Carregando..."); return true; }
+        if (!data.isLoaded()) { sender.sendMessage(PREFIX + M.t("carregando")); return true; }
         String sub = args.length == 0 ? "ajuda" : args[0].toLowerCase(Locale.ROOT);
         Player p = sender instanceof Player ? (Player) sender : null;
         try {
             switch (sub) {
                 case "entrar": if (p != null) { String m = args.length > 1 ? args[1].toLowerCase(Locale.ROOT) : "solo"; join(p, m.startsWith("q") ? 4 : m.startsWith("d") ? 2 : 1); } return true;
-                case "sair": if (p != null) { if (inGame.containsKey(p)) { leave(p); p.sendMessage(PREFIX + "Voce saiu da partida."); } else { p.sendMessage(PREFIX + "Voce nao esta numa partida."); } } return true;
+                case "sair": if (p != null) { if (inGame.containsKey(p)) { leave(p); p.sendMessage(PREFIX + M.t("voce_saiu_da_partida")); } else { p.sendMessage(PREFIX + M.t("voce_nao_esta_numa_partida")); } } return true;
                 case "loja": if (p != null) { shop(p, args.length > 1 ? cap(args[1]) : "Blocos"); } return true;
                 case "melhorias": if (p != null) { upgradesMenu(p); } return true;
                 case "time": if (p != null && args.length == 1) { teamMenu(p); return true; } break;
                 case "stats": {
                     Player t = args.length > 1 ? getServer().getPlayerExact(args[1]) : p;
-                    if (t == null) { sender.sendMessage(PREFIX + "Jogador offline."); return true; }
+                    if (t == null) { sender.sendMessage(PREFIX + M.t("jogador_offline")); return true; }
                     BwState.Stats s = stats(t);
-                    sender.sendMessage(PREFIX + "§e" + t.getName() + "§f: §a" + s.wins + " vitorias§f, " + s.kills + " abates, §b" + s.finals + " finais§f, " + s.beds + " camas, " + s.deaths + " mortes, " + s.games + " partidas");
+                    sender.sendMessage(PREFIX + M.t("vitorias_abates_finais_camas_mortes_partidas", t.getName(), s.wins, s.kills, s.finals, s.beds, s.deaths, s.games));
                     return true;
                 }
-                case "top": { int i = 1; sender.sendMessage(PREFIX + "§6Top vitorias:"); for (RankingService.Entry e : topWins(10)) { sender.sendMessage("§e" + (i++) + ". §f" + e.player + " §7- " + e.label); } return true; }
+                case "top": { int i = 1; sender.sendMessage(PREFIX + M.t("top_vitorias")); for (RankingService.Entry e : topWins(10)) { sender.sendMessage("§e" + (i++) + ". §f" + e.player + " §7- " + e.label); } return true; }
                 default: break;
             }
-            if (!sender.hasPermission("goldbedwars.admin")) { sender.sendMessage(PREFIX + "/bw entrar [solo|dupla|quarteto], /bw sair, /bw loja, /bw melhorias, /bw stats, /bw top"); return true; }
+            if (!sender.hasPermission("goldbedwars.admin")) { sender.sendMessage(PREFIX + M.t("bw_entrar_solo_dupla_quarteto_bw")); return true; }
             switch (sub) {
                 case "criar": {
                     if (p == null) { return true; }
@@ -872,25 +873,25 @@ public final class GoldBedWars extends PluginBase implements Listener {
                     String m = args.length > 2 ? args[2].toLowerCase(Locale.ROOT) : "solo";
                     int size = m.startsWith("q") ? 4 : m.startsWith("d") ? 2 : 1;
                     String world = p.level.getFolderName();
-                    if (world.equals(getServer().getDefaultLevel().getFolderName())) { throw new IllegalArgumentException("Use um mundo proprio para a arena."); }
-                    data.change(s -> { if (s.arenas.containsKey(name)) { throw new IllegalArgumentException("Arena ja existe."); } BwState.Arena a = new BwState.Arena(); a.world = world; a.teamSize = size; s.arenas.put(name, a); })
-                            .whenComplete((v, e) -> { if (e == null) { games.put(name, new Game(name)); } p.sendMessage(PREFIX + (e != null ? "§c" + root(e) : "Arena " + name + " criada. Marque: /bw espera, /bw time <cor> spawn|cama|forja, /bw diamante, /bw esmeralda, /bw salvar.")); });
+                    if (world.equals(getServer().getDefaultLevel().getFolderName())) { throw new IllegalArgumentException(M.t("use_um_mundo_proprio_para_arena")); }
+                    data.change(s -> { if (s.arenas.containsKey(name)) { throw new IllegalArgumentException(M.t("arena_ja_existe")); } BwState.Arena a = new BwState.Arena(); a.world = world; a.teamSize = size; s.arenas.put(name, a); })
+                            .whenComplete((v, e) -> { if (e == null) { games.put(name, new Game(name)); } p.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("arena_criada_marque_bw_espera_bw", name))); });
                     return true;
                 }
                 case "espera": case "time": case "diamante": case "esmeralda": case "desfazer": case "salvar": {
                     if (p == null) { return true; }
                     Game g = gameAt(p.level);
-                    if (g == null) { throw new IllegalArgumentException("Entre no mundo de uma arena (veja /bw lista)."); }
-                    if (!g.waiting() || !g.team.isEmpty()) { throw new IllegalArgumentException("A arena tem jogadores; espere esvaziar."); }
+                    if (g == null) { throw new IllegalArgumentException(M.t("entre_no_mundo_de_uma_arena")); }
+                    if (!g.waiting() || !g.team.isEmpty()) { throw new IllegalArgumentException(M.t("arena_tem_jogadores_espere_esvaziar")); }
                     edit(p, g, sub, args);
                     return true;
                 }
-                case "lista": { for (Game g : games.values()) { BwState.Arena a = g.arena(); sender.sendMessage("§e" + g.name + " §f- " + a.world + ", " + a.teams.size() + " times de " + a.teamSize + ", " + a.diamonds.size() + " diamantes, " + a.emeralds.size() + " esmeraldas, " + g.phase + (maps.hasBackup(a.world) ? "" : " §cSEM COPIA")); } return true; }
-                case "iniciar": { Game g = games.get(BwState.name(arg(args, 1))); if (g == null || !g.waiting()) { throw new IllegalArgumentException("Arena inexistente ou em jogo."); } g.forced = true; sender.sendMessage(PREFIX + "Comecando em 5 s."); return true; }
-                case "remover": { String n = BwState.name(arg(args, 1)); Game g = games.get(n); if (g != null && !g.waiting()) { throw new IllegalArgumentException("Espere a partida acabar."); } data.change(s -> s.arenas.remove(n)).whenComplete((v, e) -> { games.remove(n); sender.sendMessage(PREFIX + "Arena removida."); }); return true; }
+                case "lista": { for (Game g : games.values()) { BwState.Arena a = g.arena(); sender.sendMessage(M.t("times_de_diamantes_esmeraldas", g.name, a.world, a.teams.size(), a.teamSize, a.diamonds.size(), a.emeralds.size(), g.phase, (maps.hasBackup(a.world) ? "" : M.t("sem_copia")))); } return true; }
+                case "iniciar": { Game g = games.get(BwState.name(arg(args, 1))); if (g == null || !g.waiting()) { throw new IllegalArgumentException(M.t("arena_inexistente_ou_em_jogo")); } g.forced = true; sender.sendMessage(PREFIX + M.t("comecando_em_5")); return true; }
+                case "remover": { String n = BwState.name(arg(args, 1)); Game g = games.get(n); if (g != null && !g.waiting()) { throw new IllegalArgumentException(M.t("espere_partida_acabar")); } data.change(s -> s.arenas.remove(n)).whenComplete((v, e) -> { games.remove(n); sender.sendMessage(PREFIX + M.t("arena_removida")); }); return true; }
                 default:
-                    sender.sendMessage(PREFIX + "Admin: /bw criar <nome> [solo|dupla|quarteto], espera, time <cor> spawn|cama|forja, diamante, esmeralda (todos aceitam x y z no fim), desfazer <diamante|esmeralda>, salvar, lista, iniciar, remover");
-                    sender.sendMessage(PREFIX + "Cores: " + String.join(", ", BwState.COLORS.keySet()) + ". Lojas: NPC com /npc comando bw loja e /npc comando bw melhorias.");
+                    sender.sendMessage(PREFIX + M.t("admin_bw_criar_nome_solo_dupla"));
+                    sender.sendMessage(PREFIX + M.t("cores_lojas_npc_com_npc_comando", String.join(", ", BwState.COLORS.keySet())));
                     return true;
             }
         } catch (RuntimeException e) { sender.sendMessage(PREFIX + "§c" + e.getMessage()); return true; }
@@ -901,7 +902,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
         if (args.length >= from + 3) {
             double[] v;
             try { v = new double[] {Double.parseDouble(args[from]), Double.parseDouble(args[from + 1]), Double.parseDouble(args[from + 2]), p.yaw}; } catch (NumberFormatException ignored) { v = null; }
-            if (v == null || !(Math.abs(v[0]) < 3e7 && Math.abs(v[2]) < 3e7 && v[1] >= 0 && v[1] < 256)) { throw new IllegalArgumentException("Coordenadas invalidas: use x y z (y de 0 a 255)."); }
+            if (v == null || !(Math.abs(v[0]) < 3e7 && Math.abs(v[2]) < 3e7 && v[1] >= 0 && v[1] < 256)) { throw new IllegalArgumentException(M.t("coordenadas_invalidas_use_de_0_255")); }
             return v;
         }
         return new double[] {Math.floor(p.x) + 0.5, Math.floor(p.y), Math.floor(p.z) + 0.5, p.yaw};
@@ -911,29 +912,29 @@ public final class GoldBedWars extends PluginBase implements Listener {
         double[] here = spot(p, args, sub.equals("time") ? 3 : 1);
         double[] here3 = {here[0], here[1], here[2]};
         switch (sub) {
-            case "espera": change(p, s -> s.arenas.get(g.name).waiting = here, "Sala de espera marcada."); break;
-            case "diamante": change(p, s -> s.arenas.get(g.name).diamonds.add(here3), "Gerador de diamante marcado."); break;
-            case "esmeralda": change(p, s -> s.arenas.get(g.name).emeralds.add(here3), "Gerador de esmeralda marcado."); break;
-            case "desfazer": { boolean d = arg(args, 1).startsWith("d"); change(p, s -> { List<double[]> l = d ? s.arenas.get(g.name).diamonds : s.arenas.get(g.name).emeralds; if (!l.isEmpty()) { l.remove(l.size() - 1); } }, "Ultimo gerador removido."); break; }
+            case "espera": change(p, s -> s.arenas.get(g.name).waiting = here, M.t("sala_de_espera_marcada")); break;
+            case "diamante": change(p, s -> s.arenas.get(g.name).diamonds.add(here3), M.t("gerador_de_diamante_marcado")); break;
+            case "esmeralda": change(p, s -> s.arenas.get(g.name).emeralds.add(here3), M.t("gerador_de_esmeralda_marcado")); break;
+            case "desfazer": { boolean d = arg(args, 1).startsWith("d"); change(p, s -> { List<double[]> l = d ? s.arenas.get(g.name).diamonds : s.arenas.get(g.name).emeralds; if (!l.isEmpty()) { l.remove(l.size() - 1); } }, M.t("ultimo_gerador_removido")); break; }
             case "time": {
                 String color = arg(args, 1).toLowerCase(Locale.ROOT), what = arg(args, 2).toLowerCase(Locale.ROOT);
-                if (!BwState.COLORS.containsKey(color)) { throw new IllegalArgumentException("Cores: " + String.join(", ", BwState.COLORS.keySet())); }
+                if (!BwState.COLORS.containsKey(color)) { throw new IllegalArgumentException(M.t("cores", String.join(", ", BwState.COLORS.keySet()))); }
                 int[] bed = null;
                 if (what.equals("cama")) {
                     for (int dx = -3; dx <= 3 && bed == null; dx++) { for (int dy = -2; dy <= 1 && bed == null; dy++) { for (int dz = -3; dz <= 3 && bed == null; dz++) { int bx = (int) Math.floor(here[0]) + dx, by = (int) Math.floor(here[1]) + dy, bz = (int) Math.floor(here[2]) + dz; if (p.level.getBlockIdAt(bx, by, bz) == 26) { bed = new int[] {bx, by, bz}; } } } }
-                    if (bed == null) { throw new IllegalArgumentException("Fique ao lado da cama do time (ate 3 blocos)."); }
+                    if (bed == null) { throw new IllegalArgumentException(M.t("fique_ao_lado_da_cama_do")); }
                 }
                 int[] bedPos = bed;
                 change(p, s -> {
                     BwState.Team t = s.arenas.get(g.name).teams.computeIfAbsent(color, k -> new BwState.Team());
-                    switch (what) { case "spawn": t.spawn = here; break; case "forja": t.forge = here3; break; case "cama": t.bed = bedPos; break; default: throw new IllegalArgumentException("Use spawn, cama ou forja."); }
+                    switch (what) { case "spawn": t.spawn = here; break; case "forja": t.forge = here3; break; case "cama": t.bed = bedPos; break; default: throw new IllegalArgumentException(M.t("use_spawn_cama_ou_forja")); }
                 }, "Time " + color + ": " + what + " marcado.");
                 break;
             }
             default: {
                 Level lv = p.level;
                 lv.save(true);
-                maps.backup(lv.getFolderName()).whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? "§cFalha ao salvar a copia." : "Copia do mapa salva.")));
+                maps.backup(lv.getFolderName()).whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? M.t("falha_ao_salvar_copia") : M.t("copia_do_mapa_salva"))));
             }
         }
     }
@@ -941,6 +942,6 @@ public final class GoldBedWars extends PluginBase implements Listener {
     void change(Player p, java.util.function.Consumer<BwState> m, String ok) { data.change(m).whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? "§c" + root(e) : ok))); }
 
     static String cap(String s) { for (String c : Shop.CATEGORIES.keySet()) { if (c.equalsIgnoreCase(s)) { return c; } } return "Blocos"; }
-    static String arg(String[] a, int i) { if (a.length <= i) { throw new IllegalArgumentException("Faltam argumentos. Use /bw."); } return a[i]; }
+    static String arg(String[] a, int i) { if (a.length <= i) { throw new IllegalArgumentException(M.t("faltam_argumentos_use_bw")); } return a[i]; }
     static String root(Throwable e) { while (e.getCause() != null) { e = e.getCause(); } return e.getMessage(); }
 }

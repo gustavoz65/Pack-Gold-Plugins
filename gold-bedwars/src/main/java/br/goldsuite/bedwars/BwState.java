@@ -37,7 +37,7 @@ public final class BwState {
 
     static String name(String s) {
         String n = s == null ? "" : s.toLowerCase(Locale.ROOT);
-        if (!n.matches("[a-z0-9_]{1,16}")) { throw new IllegalArgumentException("Nome: 1 a 16 letras, numeros ou _."); }
+        if (!n.matches("[a-z0-9_]{1,16}")) { throw new IllegalArgumentException(M.t("nome_1_16_letras_numeros_ou")); }
         return n;
     }
 
@@ -47,13 +47,13 @@ public final class BwState {
     }
 
     public static void validate(BwState s) {
-        if (s == null || s.arenas == null || s.topWins == null || s.arenas.size() > 64 || s.topWins.size() > 100) { throw new IllegalArgumentException("Dados do BedWars invalidos."); }
+        if (s == null || s.arenas == null || s.topWins == null || s.arenas.size() > 64 || s.topWins.size() > 100) { throw new IllegalArgumentException(M.t("dados_do_bedwars_invalidos")); }
         for (Map.Entry<String, Arena> e : s.arenas.entrySet()) {
             name(e.getKey());
             Arena a = e.getValue();
             if (a == null || a.world == null || !a.world.matches("[A-Za-z0-9_.-]{1,32}") || a.world.contains("..") || a.teams == null || a.teams.size() > 8 || a.diamonds == null || a.emeralds == null
-                    || a.diamonds.size() > 16 || a.emeralds.size() > 16 || a.waiting == null || !(a.teamSize == 1 || a.teamSize == 2 || a.teamSize == 4)) { throw new IllegalArgumentException("Arena invalida: " + e.getKey()); }
-            for (Map.Entry<String, Team> t : a.teams.entrySet()) { if (!COLORS.containsKey(t.getKey()) || t.getValue() == null || t.getValue().spawn == null || t.getValue().forge == null || t.getValue().bed == null) { throw new IllegalArgumentException("Time invalido: " + t.getKey()); } }
+                    || a.diamonds.size() > 16 || a.emeralds.size() > 16 || a.waiting == null || !(a.teamSize == 1 || a.teamSize == 2 || a.teamSize == 4)) { throw new IllegalArgumentException(M.t("arena_invalida", e.getKey())); }
+            for (Map.Entry<String, Team> t : a.teams.entrySet()) { if (!COLORS.containsKey(t.getKey()) || t.getValue() == null || t.getValue().spawn == null || t.getValue().forge == null || t.getValue().bed == null) { throw new IllegalArgumentException(M.t("time_invalido", t.getKey())); } }
         }
     }
 }

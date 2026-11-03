@@ -1,0 +1,20 @@
+breaker: "&7[&8Breaker&7]&f "
+# {0} = root(e), {1} = BigDecimal.valueOf(price, 2).toPlainString()
+custa: "&c{0} (custa ${1})"
+# {0} = hand.getCount(), {1} = hand.getName(), {2} = target.getName()
+enviou_para: "Enviou {0}x {1} para {2}."
+# {0} = target.getName()
+esta_com_inventario_cheio: "{0} esta com o inventario cheio."
+item_da_mao_nao_precisa_de: "O item da mao nao precisa de reparo."
+jogador_offline_ou_invalido: "Jogador offline ou invalido."
+nada_para_reparar: "Nada para reparar."
+# {0} = BigDecimal.valueOf(price, 2).toPlainString()
+por: " por ${0}."
+# {0} = (free ? "." : " por $" + BigDecimal.valueOf(price, 2).toPlainString() + ".")
+reparado: "Reparado{0}"
+reparar_tudo_exclusivo_de_vip: "Reparar tudo e exclusivo de VIP."
+segure_item_que_quer_enviar: "Segure o item que quer enviar."
+# {0} = p.getName(), {1} = hand.getCount(), {2} = hand.getName()
+te_enviou: "{0} te enviou {1}x {2}."
+use_dentro_do_jogo: "Use dentro do jogo."
+uso_enviar_jogador_com_item_na: "Uso: /enviar <jogador> (com o item na mao)"

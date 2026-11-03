@@ -20,7 +20,7 @@ import java.util.*;
 
 /** Obsidiana e bedrock quebram com varias explosoes, /reparar pago e /enviar. */
 public final class GoldBreaker extends PluginBase implements Listener {
-    static String PREFIX = "§7[§8Breaker§7]§f ";
+    static String PREFIX = M.t("breaker");
     static final int OBSIDIAN_HITS = 3, BEDROCK_HITS = 10, BEDROCK_FLOOR = 4;
     /** Centavos por ponto de durabilidade reparado. */
     static final long REPAIR_CENTS_PER_POINT = 50;
@@ -31,6 +31,7 @@ public final class GoldBreaker extends PluginBase implements Listener {
     private final Set<String> busy = new HashSet<>();
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v); getServer().getPluginManager().registerEvents(this, this); }
     @Override public void onDisable() { hits.clear(); busy.clear(); }
 
@@ -70,7 +71,7 @@ public final class GoldBreaker extends PluginBase implements Listener {
     static long repairCost(Item item) { return item.getMaxDurability() > 0 && item.getDamage() > 0 ? item.getDamage() * REPAIR_CENTS_PER_POINT : 0; }
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) { sender.sendMessage("Use dentro do jogo."); return true; }
+        if (!(sender instanceof Player)) { sender.sendMessage(M.t("use_dentro_do_jogo")); return true; }
         Player p = (Player) sender;
         try {
             if (command.getName().equals("enviar")) { send(p, args); return true; }
@@ -80,7 +81,7 @@ public final class GoldBreaker extends PluginBase implements Listener {
     }
 
     private void repair(Player p, boolean all) {
-        if (all && !p.hasPermission("goldbreaker.reparar.tudo")) { throw new IllegalArgumentException("Reparar tudo e exclusivo de VIP."); }
+        if (all && !p.hasPermission("goldbreaker.reparar.tudo")) { throw new IllegalArgumentException(M.t("reparar_tudo_exclusivo_de_vip")); }
         List<Integer> slots = new ArrayList<>();
         long total = 0;
         for (int slot = 0; slot < 36; slot++) {
@@ -91,7 +92,7 @@ public final class GoldBreaker extends PluginBase implements Listener {
         boolean armor = all;
         Item[] worn = p.getInventory().getArmorContents();
         if (armor) { for (Item a : worn) { total += repairCost(a); } }
-        if (total == 0) { throw new IllegalArgumentException(all ? "Nada para reparar." : "O item da mao nao precisa de reparo."); }
+        if (total == 0) { throw new IllegalArgumentException(all ? M.t("nada_para_reparar") : M.t("item_da_mao_nao_precisa_de")); }
         EconomyService economy = getServer().getServiceManager().load(EconomyService.class);
         boolean free = p.hasPermission("goldbreaker.reparar.gratis") || economy == null;
         String name = p.getName().toLowerCase(Locale.ROOT);
@@ -100,30 +101,30 @@ public final class GoldBreaker extends PluginBase implements Listener {
         Runnable apply = () -> {
             for (int slot : slots) { Item it = p.getInventory().getItem(slot); it.setDamage(0); p.getInventory().setItem(slot, it); }
             if (armor) { Item[] now = p.getInventory().getArmorContents(); for (int i = 0; i < now.length; i++) { if (repairCost(now[i]) > 0) { now[i].setDamage(0); p.getInventory().setArmorItem(i, now[i]); } } }
-            p.sendMessage(PREFIX + "Reparado" + (free ? "." : " por $" + BigDecimal.valueOf(price, 2).toPlainString() + "."));
+            p.sendMessage(PREFIX + M.t("reparado", (free ? "." : M.t("por", BigDecimal.valueOf(price, 2).toPlainString()))));
         };
         if (free) { busy.remove(name); apply.run(); return; }
         economy.debit(p.getName(), Currency.MONEY, price).whenComplete((v, e) -> {
             busy.remove(name);
             if (!p.isOnline()) { if (e == null) { economy.credit(p.getName(), Currency.MONEY, price); } return; }
-            if (e != null) { p.sendMessage(PREFIX + "§c" + root(e) + " (custa $" + BigDecimal.valueOf(price, 2).toPlainString() + ")"); return; }
+            if (e != null) { p.sendMessage(PREFIX + M.t("custa", root(e), BigDecimal.valueOf(price, 2).toPlainString())); return; }
             apply.run();
         });
     }
 
     private void send(Player p, String[] args) {
-        if (args.length < 1) { throw new IllegalArgumentException("Uso: /enviar <jogador> (com o item na mao)"); }
+        if (args.length < 1) { throw new IllegalArgumentException(M.t("uso_enviar_jogador_com_item_na")); }
         Player target = getServer().getPlayerExact(args[0]);
         if (target == null) { target = getServer().getPlayer(args[0]); }
-        if (target == null || target == p) { throw new IllegalArgumentException("Jogador offline ou invalido."); }
+        if (target == null || target == p) { throw new IllegalArgumentException(M.t("jogador_offline_ou_invalido")); }
         int slot = p.getInventory().getHeldItemIndex();
         Item hand = p.getInventory().getItem(slot);
-        if (hand.getId() == 0) { throw new IllegalArgumentException("Segure o item que quer enviar."); }
-        if (!target.getInventory().canAddItem(hand)) { throw new IllegalArgumentException(target.getName() + " esta com o inventario cheio."); }
+        if (hand.getId() == 0) { throw new IllegalArgumentException(M.t("segure_item_que_quer_enviar")); }
+        if (!target.getInventory().canAddItem(hand)) { throw new IllegalArgumentException(M.t("esta_com_inventario_cheio", target.getName())); }
         p.getInventory().setItem(slot, Item.get(0));
         target.getInventory().addItem(hand.clone());
-        p.sendMessage(PREFIX + "Enviou " + hand.getCount() + "x " + hand.getName() + " para " + target.getName() + ".");
-        target.sendMessage(PREFIX + p.getName() + " te enviou " + hand.getCount() + "x " + hand.getName() + ".");
+        p.sendMessage(PREFIX + M.t("enviou_para", hand.getCount(), hand.getName(), target.getName()));
+        target.sendMessage(PREFIX + M.t("te_enviou", p.getName(), hand.getCount(), hand.getName()));
     }
 
     static String root(Throwable e) { while (e.getCause() != null) { e = e.getCause(); } return e.getMessage(); }

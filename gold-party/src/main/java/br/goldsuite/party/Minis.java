@@ -45,7 +45,7 @@ final class Minis {
                 if (atFinish(p)) {
                     finishedAt.put(p, elapsedTicks);
                     int place = finishedAt.size();
-                    room.say("§a" + p.getName() + " §fchegou em §e" + place + "o §7(" + String.format(Locale.ROOT, "%.1f", elapsedTicks / 20.0) + " s)");
+                    room.say(M.t("chegou_em", p.getName(), place, String.format(Locale.ROOT, "%.1f", elapsedTicks / 20.0)));
                     room.spectate(p, spectatorSpot());
                 }
             }
@@ -69,15 +69,15 @@ final class Minis {
         }
 
         @Override String tip(Player p) {
-            return super.tip(p) + " §7| chegaram §a" + finishedAt.size() + "/" + room.players.size();
+            return M.t("chegaram", super.tip(p), finishedAt.size(), room.players.size());
         }
     }
 
     /** Percurso de parkour: saltos, vigas e escadas sobre o vazio. */
     static final class CorridaMortal extends Race {
         @Override String id() { return "corrida_mortal"; }
-        @Override String name() { return "Corrida Mortal"; }
-        @Override String description() { return "Parkour sobre o vazio: chegue primeiro ao bloco de ouro. Caiu, volta ao ultimo bloco de esmeralda."; }
+        @Override String name() { return M.t("corrida_mortal"); }
+        @Override String description() { return M.t("parkour_sobre_vazio_chegue_primeiro_ao"); }
         @Override int seconds() { return 150; }
 
         @Override void buildStatic(Blocks.Queue q) {
@@ -117,8 +117,8 @@ final class Minis {
         static final int TOP = 116;
         private final Map<Player, Long> cooldown = new HashMap<>();
         @Override String id() { return "corrida_grappler"; }
-        @Override String name() { return "Corrida de Grappler"; }
-        @Override String description() { return "Suba o poco ate o topo! Mire num bloco acima e toque com a vara (Grappler) para ser puxado. Passe pelos buracos das tampas."; }
+        @Override String name() { return M.t("corrida_de_grappler"); }
+        @Override String description() { return M.t("suba_poco_ate_topo_mire_num"); }
         @Override int seconds() { return 150; }
         @Override int voidY() { return 0; }
 
@@ -140,7 +140,7 @@ final class Minis {
         }
 
         @Override Location spawn(int i, int n) { return circle(i, n, 45.5, Y, 45.5, 2.5); }
-        @Override void start() { for (Player p : room.players) { p.getInventory().setItem(0, named(346, 0, 1, "§bGrappler")); p.getInventory().setHeldItemIndex(0); p.getInventory().sendContents(p); } }
+        @Override void start() { for (Player p : room.players) { p.getInventory().setItem(0, named(346, 0, 1, M.t("grappler"))); p.getInventory().setHeldItemIndex(0); p.getInventory().sendContents(p); } }
         @Override double progress(Player p) { return p.y; }
         @Override boolean atFinish(Player p) { return p.y >= TOP - 1; }
         @Override Location spectatorSpot() { return at(45.5, TOP + 3, 38.5, 0); }
@@ -151,7 +151,7 @@ final class Minis {
             long now = System.currentTimeMillis();
             if (now - cooldown.getOrDefault(p, 0L) < 500) { return; }
             Block target = targetBlock(p, 30);
-            if (target == null) { p.sendPopup("§7Mire num bloco"); return; }
+            if (target == null) { p.sendPopup(M.t("mire_num_bloco")); return; }
             cooldown.put(p, now);
             Vector3 pull = new Vector3(target.x + 0.5 - p.x, target.y + 1 - p.y, target.z + 0.5 - p.z);
             double len = Math.max(0.01, pull.length());
@@ -164,8 +164,8 @@ final class Minis {
         private final Map<Player, Boolean> airUsed = new HashMap<>();
         private final Map<Player, Long> cooldown = new HashMap<>();
         @Override String id() { return "corrida_kangaroo"; }
-        @Override String name() { return "Corrida de Kangaroo"; }
-        @Override String description() { return "Toque com o item Kangaroo para dar um impulso (no chao e mais um no ar). Atravesse ilhas e muros ate o ouro."; }
+        @Override String name() { return M.t("corrida_de_kangaroo"); }
+        @Override String description() { return M.t("toque_com_item_kangaroo_para_dar"); }
         @Override int seconds() { return 150; }
         @Override boolean isCheckpoint(int id) { return id == SANDSTONE; }
 
@@ -184,7 +184,7 @@ final class Minis {
         }
 
         @Override Location spawn(int i, int n) { return line(i, 48.5, Y, 4.5, 0); }
-        @Override void start() { for (Player p : room.players) { p.getInventory().setItem(0, named(332, 0, 1, "§aKangaroo")); p.getInventory().setHeldItemIndex(0); p.getInventory().sendContents(p); } }
+        @Override void start() { for (Player p : room.players) { p.getInventory().setItem(0, named(332, 0, 1, M.t("kangaroo"))); p.getInventory().setHeldItemIndex(0); p.getInventory().sendContents(p); } }
         @Override double progress(Player p) { return p.z - oz; }
         @Override boolean atFinish(Player p) { return p.z - oz >= 83 && below(p) == GOLD; }
         @Override Location spectatorSpot() { return at(48.5, Y + 14, 88.5, 180); }
@@ -214,15 +214,15 @@ final class Minis {
     /** Chao de cores: fica so a cor sorteada, o resto some. O tempo para achar a cor diminui a cada rodada. */
     static final class ColorFloor extends Mini {
         static final int[] COLORS = {14, 11, 5, 4, 1, 10};
-        static final String[] NAMES = {"§cVERMELHO", "§9AZUL", "§aVERDE", "§eAMARELO", "§6LARANJA", "§5ROXO"};
+        static final String[] NAMES = {M.t("vermelho"), M.t("azul"), M.t("verde"), M.t("amarelo"), M.t("laranja"), M.t("roxo")};
         private final Random r = new Random();
         private final int[][] pattern = new int[8][8];
         private int round, color, wait = 40;
         private boolean showing;
 
         @Override String id() { return "color_floor"; }
-        @Override String name() { return "Color Floor"; }
-        @Override String description() { return "Uma cor e sorteada (aparece na hotbar). Corra para um bloco dessa cor antes do tempo acabar: o resto do chao some!"; }
+        @Override String name() { return M.t("color_floor"); }
+        @Override String description() { return M.t("uma_cor_sorteada_aparece_na_hotbar"); }
         @Override Kind kind() { return Kind.SOBREVIVENCIA; }
         @Override int seconds() { return 240; }
         @Override int voidY() { return Y - 8; }
@@ -250,7 +250,7 @@ final class Minis {
                 color = pattern[r.nextInt(8)][r.nextInt(8)];
                 Item wool = named(WOOL, COLORS[color], 1, "§l" + NAMES[color]);
                 for (Player p : room.players) { if (room.alive(p)) { for (int s = 0; s < 9; s++) { p.getInventory().setItem(s, wool.clone()); } p.getInventory().sendContents(p); } }
-                room.say("§fRodada §e" + round + "§f: §l" + NAMES[color]);
+                room.say(M.t("rodada", round, NAMES[color]));
                 wait = Math.max(32, 100 - round * 7);
                 showing = true;
             } else {
@@ -270,8 +270,8 @@ final class Minis {
         private final ArrayDeque<long[]> due = new ArrayDeque<>();
 
         @Override String id() { return "tnt_run"; }
-        @Override String name() { return "TNT Run"; }
-        @Override String description() { return "Cada bloco que voce pisa some logo depois. Nao pare de correr e economize o chao: quem cair no vazio sai."; }
+        @Override String name() { return M.t("tnt_run"); }
+        @Override String description() { return M.t("cada_bloco_que_voce_pisa_some"); }
         @Override Kind kind() { return Kind.SOBREVIVENCIA; }
         @Override int seconds() { return 240; }
         @Override int voidY() { return Y - 6; }
@@ -310,8 +310,8 @@ final class Minis {
     static final class PvpMlg extends Mini {
         private final List<int[]> placed = new ArrayList<>();
         @Override String id() { return "pvp_mlg"; }
-        @Override String name() { return "PvP MLG"; }
-        @Override String description() { return "Derrube os outros das ilhas! Graveto de repulsao, espada, la e um balde de agua para salvar a queda (a agua some em 3 s)."; }
+        @Override String name() { return M.t("pvp_mlg"); }
+        @Override String description() { return M.t("derrube_os_outros_das_ilhas_graveto"); }
         @Override Kind kind() { return Kind.SOBREVIVENCIA; }
         @Override int seconds() { return 150; }
         @Override int voidY() { return Y - 20; }
@@ -356,7 +356,7 @@ final class Minis {
         private final Map<Player, Long> cooldown = new HashMap<>();
         @Override String id() { return "fisherman"; }
         @Override String name() { return "Fisherman"; }
-        @Override String description() { return "Mire num adversario e toque com a vara para puxa-lo ate voce. Tire todos da plataforma; o ultimo em pe vence."; }
+        @Override String description() { return M.t("mire_num_adversario_toque_com_vara"); }
         @Override Kind kind() { return Kind.SOBREVIVENCIA; }
         @Override int seconds() { return 120; }
         @Override int voidY() { return Y - 10; }
@@ -368,7 +368,7 @@ final class Minis {
         }
 
         @Override Location spawn(int i, int n) { return circle(i, n, 48.5, Y + 5, 48.5, 6); }
-        @Override void start() { for (Player p : room.players) { p.getInventory().setItem(0, named(346, 0, 1, "§eFisherman")); p.getInventory().setHeldItemIndex(0); p.getInventory().sendContents(p); } }
+        @Override void start() { for (Player p : room.players) { p.getInventory().setItem(0, named(346, 0, 1, M.t("fisherman"))); p.getInventory().setHeldItemIndex(0); p.getInventory().sendContents(p); } }
 
         @Override void interact(Player p, PlayerInteractEvent e) {
             if (!holding(p, 346)) { return; }
@@ -376,13 +376,13 @@ final class Minis {
             long now = System.currentTimeMillis();
             if (now - cooldown.getOrDefault(p, 0L) < 1200) { return; }
             Player t = targetPlayer(p, 20);
-            if (t == null) { p.sendPopup("§7Mire num adversario"); return; }
+            if (t == null) { p.sendPopup(M.t("mire_num_adversario")); return; }
             cooldown.put(p, now);
             Vector3 d = new Vector3(p.x - t.x, 0, p.z - t.z);
             double len = Math.max(0.01, d.length());
             t.setMotion(new Vector3(d.x / len * 1.15, 0.5, d.z / len * 1.15));
             lastHit.put(t, p); lastHitAt.put(t, now);
-            t.sendPopup("§cFisgado por " + p.getName() + "!");
+            t.sendPopup(M.t("fisgado_por", p.getName()));
         }
     }
 
@@ -390,7 +390,7 @@ final class Minis {
     static final class Sumo extends Mini {
         @Override String id() { return "sumo"; }
         @Override String name() { return "Sumo"; }
-        @Override String description() { return "Plataforma pequena e um graveto de repulsao: empurre todos para fora. Sem dano, so empurrao."; }
+        @Override String description() { return M.t("plataforma_pequena_um_graveto_de_repulsao"); }
         @Override Kind kind() { return Kind.SOBREVIVENCIA; }
         @Override int seconds() { return 90; }
         @Override int voidY() { return Y - 8; }
@@ -420,8 +420,8 @@ final class Minis {
         private boolean finished;
 
         @Override String id() { return "water_drop"; }
-        @Override String name() { return "Water Drop"; }
-        @Override String description() { return "Pule do alto e caia dentro da agua! Controle a queda no ar. 3 rodadas, a piscina fica menor e aparecem obstaculos."; }
+        @Override String name() { return M.t("water_drop"); }
+        @Override String description() { return M.t("pule_do_alto_caia_dentro_da"); }
         @Override Kind kind() { return Kind.PONTOS; }
         @Override int seconds() { return 120; }
         @Override int voidY() { return 0; }
@@ -458,7 +458,7 @@ final class Minis {
             }
         }
 
-        @Override void start() { room.say("§fRodada §e1/" + ROUNDS + "§f: pule!"); }
+        @Override void start() { room.say(M.t("rodada_1_pule", ROUNDS)); }
 
         @Override void tick() {
             if (finished) { return; }
@@ -466,7 +466,7 @@ final class Minis {
                 if (--pause == 0) {
                     int i = 0;
                     for (Player p : room.players) { if (room.alive(p)) { p.teleport(rim(i++, room.players.size())); } }
-                    room.say("§fRodada §e" + (round + 1) + "/" + ROUNDS + "§f: pule!");
+                    room.say(M.t("rodada_pule", (round + 1), ROUNDS));
                 }
                 return;
             }
@@ -477,13 +477,13 @@ final class Minis {
                 int id = room.level().getBlockIdAt(fx, (int) Math.floor(p.y), fz), under = room.level().getBlockIdAt(fx, (int) Math.floor(p.y) - 1, fz);
                 if (id == 8 || id == WATER || (p.y < Y + 1 && (under == 8 || under == WATER))) {
                     score.merge(p, 1, Integer::sum); totalTicks.merge(p, roundTicks, Integer::sum); doneRound.add(p);
-                    room.say("§a" + p.getName() + " §facertou a agua!"); p.teleport(rim(room.players.indexOf(p), room.players.size()));
+                    room.say(M.t("acertou_agua", p.getName())); p.teleport(rim(room.players.indexOf(p), room.players.size()));
                 } else if (p.isOnGround() && p.y < TOP - 2) {
-                    doneRound.add(p); p.sendPopup("§cErrou a agua!"); p.teleport(rim(room.players.indexOf(p), room.players.size()));
+                    doneRound.add(p); p.sendPopup(M.t("errou_agua")); p.teleport(rim(room.players.indexOf(p), room.players.size()));
                 }
             }
             if (roundTicks >= JUMP_TICKS || doneRound.size() >= room.aliveCount()) {
-                for (Player p : room.players) { if (room.alive(p) && !doneRound.contains(p)) { p.sendPopup("§cTempo esgotado!"); p.teleport(rim(room.players.indexOf(p), room.players.size())); } }
+                for (Player p : room.players) { if (room.alive(p) && !doneRound.contains(p)) { p.sendPopup(M.t("tempo_esgotado")); p.teleport(rim(room.players.indexOf(p), room.players.size())); } }
                 doneRound.clear(); roundTicks = 0;
                 if (++round >= ROUNDS) { finished = true; return; }
                 newRound(room.queue);
@@ -501,7 +501,7 @@ final class Minis {
             return out;
         }
 
-        @Override String tip(Player p) { return "§e" + name() + " §7| rodada §f" + Math.min(ROUNDS, round + 1) + "/" + ROUNDS + " §7| acertos §a" + score.getOrDefault(p, 0); }
+        @Override String tip(Player p) { return M.t("rodada_acertos", name(), Math.min(ROUNDS, round + 1), ROUNDS, score.getOrDefault(p, 0)); }
     }
 
     /** Deathmatch de arco: flecha mata na hora, renasce em 2 s, 2 minutos e vence quem matar mais. */
@@ -511,7 +511,7 @@ final class Minis {
         private final Random r = new Random();
         @Override String id() { return "arqueiro"; }
         @Override String name() { return "Arqueiro"; }
-        @Override String description() { return "Deathmatch: arco com 2 flechas e espada de madeira, sem armadura. Flecha mata na hora e cada abate da mais uma flecha. 2 minutos, vence quem matar mais."; }
+        @Override String description() { return M.t("deathmatch_arco_com_2_flechas_espada"); }
         @Override Kind kind() { return Kind.PONTOS; }
         @Override int seconds() { return 120; }
         @Override int voidY() { return 0; }
@@ -555,8 +555,8 @@ final class Minis {
             if (killer != null && killer != victim) {
                 score.merge(killer, 1, Integer::sum);
                 killer.getInventory().addItem(Item.get(262, 0, 1));
-                killer.sendPopup("§a+1 abate §7(" + score.get(killer) + ")");
-                room.say(room.color(killer) + killer.getName() + " §7matou " + room.color(victim) + victim.getName());
+                killer.sendPopup(M.t("1_abate", score.get(killer)));
+                room.say(M.t("matou", (room.color(killer) + killer.getName()), room.color(victim), victim.getName()));
             }
             deaths.merge(victim, 1, Integer::sum);
             victim.setHealth(victim.getMaxHealth());

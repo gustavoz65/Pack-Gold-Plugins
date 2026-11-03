@@ -12,49 +12,49 @@ import java.util.concurrent.ThreadLocalRandom;
  * (fogo de artificio, anzol), a habilidade usa outro item e mira em vez de projetil.
  */
 enum Kit {
-    NENHUM(Category.NENHUM, "Sem kit", 345, 0, "So a bussola."),
+    NENHUM(Category.NENHUM, M.t("sem_kit"), 345, 0, M.t("so_bussola")),
     // Mobilidade e posicionamento
-    CANGURU(Category.MOBILIDADE, "Kangaroo", 414, 0, "Toque com a pata de coelho para saltar para cima ou para frente, ate no ar. Sem dano de queda logo apos saltar."),
-    GRAPPLER(Category.MOBILIDADE, "Grappler", 346, 0, "Mire num bloco e toque com a vara: voce e puxado ate ele."),
-    NINJA(Category.MOBILIDADE, "Ninja", 351, 0, "Agache para aparecer nas costas do ultimo jogador que voce bateu ou que te bateu."),
-    FLASH(Category.MOBILIDADE, "Flash", 76, 0, "Toque com a tocha de redstone para teleportar ao bloco que mira. Deixa um raio e gasta fome."),
-    BLINK(Category.MOBILIDADE, "Blink", 331, 0, "Toque com a redstone para avancar 6 blocos. 3 cargas; recarrega em 15 s."),
-    SWITCHER(Category.MOBILIDADE, "Switcher", 332, 0, "Bolas de neve trocam voce de lugar com quem acertar."),
-    PESCADOR(Category.MOBILIDADE, "Fisherman", 346, 0, "Mire num jogador e toque com a vara: ele vem parar na sua frente."),
-    FORJADOR(Category.MOBILIDADE, "Forger", 263, 0, "Toque com carvao para criar uma ponte de 5 blocos a frente."),
-    METEORO(Category.MOBILIDADE, "Meteor", 378, 0, "Toque com o creme de magma para ser lancado. Ao cair, explode e incendeia quem estiver perto."),
+    CANGURU(Category.MOBILIDADE, "Kangaroo", 414, 0, M.t("toque_com_pata_de_coelho_para")),
+    GRAPPLER(Category.MOBILIDADE, "Grappler", 346, 0, M.t("mire_num_bloco_toque_com_vara")),
+    NINJA(Category.MOBILIDADE, "Ninja", 351, 0, M.t("agache_para_aparecer_nas_costas_do")),
+    FLASH(Category.MOBILIDADE, "Flash", 76, 0, M.t("toque_com_tocha_de_redstone_para")),
+    BLINK(Category.MOBILIDADE, "Blink", 331, 0, M.t("toque_com_redstone_para_avancar_6")),
+    SWITCHER(Category.MOBILIDADE, "Switcher", 332, 0, M.t("bolas_de_neve_trocam_voce_de")),
+    PESCADOR(Category.MOBILIDADE, "Fisherman", 346, 0, M.t("mire_num_jogador_toque_com_vara")),
+    FORJADOR(Category.MOBILIDADE, "Forger", 263, 0, M.t("toque_com_carvao_para_criar_uma")),
+    METEORO(Category.MOBILIDADE, "Meteor", 378, 0, M.t("toque_com_creme_de_magma_para")),
     // Combate
-    ANCORA(Category.COMBATE, "Anchor", 145, 0, "Voce nao recebe e nao causa repulsao."),
-    BOXER(Category.COMBATE, "Boxer", 336, 0, "Soco com dano de espada de pedra e meio coracao a menos de dano recebido."),
-    VIPER(Category.COMBATE, "Viper", 375, 0, "33% de chance de envenenar a cada golpe."),
-    SNAIL(Category.COMBATE, "Snail", 341, 0, "33% de chance de causar lentidao a cada golpe."),
-    CRITICO(Category.COMBATE, "Critical", 377, 0, "20% de chance de golpe critico com 50% a mais de dano."),
-    BARBARO(Category.COMBATE, "Barbarian", 268, 0, "Sua espada ganha Afiacao a cada abate (ate IV)."),
-    MONGE(Category.COMBATE, "Monk", 280, 0, "Bata com o graveto para trocar o item da mao do inimigo por outro do inventario dele."),
-    MAGMA(Category.COMBATE, "Magma", 325, 10, "33% de chance de incendiar ao bater. Imune a fogo e lava."),
-    CEIFADOR(Category.COMBATE, "Reaper", 290, 0, "Golpes com a enxada aplicam Wither."),
-    HULK(Category.COMBATE, "Hulk", 33, 0, "Toque num jogador com a mao vazia para agarra-lo e arremessa-lo longe."),
-    THOR(Category.COMBATE, "Thor", 271, 0, "Toque o chao com o machado de madeira para chamar um raio. Imune a raios."),
-    GLADIADOR(Category.COMBATE, "Gladiator", 42, 0, "Toque num jogador com o bloco de ferro: os dois vao para uma arena de vidro no ceu para um 1v1."),
-    STOMPER(Category.COMBATE, "Stomper", 309, 0, "Cair em cima dos outros repassa o dano da queda; o seu fica em ate 2 coracoes."),
+    ANCORA(Category.COMBATE, "Anchor", 145, 0, M.t("voce_nao_recebe_nao_causa_repulsao")),
+    BOXER(Category.COMBATE, "Boxer", 336, 0, M.t("soco_com_dano_de_espada_de")),
+    VIPER(Category.COMBATE, "Viper", 375, 0, M.t("33_de_chance_de_envenenar_cada")),
+    SNAIL(Category.COMBATE, "Snail", 341, 0, M.t("33_de_chance_de_causar_lentidao")),
+    CRITICO(Category.COMBATE, "Critical", 377, 0, M.t("20_de_chance_de_golpe_critico")),
+    BARBARO(Category.COMBATE, "Barbarian", 268, 0, M.t("sua_espada_ganha_afiacao_cada_abate")),
+    MONGE(Category.COMBATE, "Monk", 280, 0, M.t("bata_com_graveto_para_trocar_item")),
+    MAGMA(Category.COMBATE, "Magma", 325, 10, M.t("33_de_chance_de_incendiar_ao")),
+    CEIFADOR(Category.COMBATE, "Reaper", 290, 0, M.t("golpes_com_enxada_aplicam_wither")),
+    HULK(Category.COMBATE, "Hulk", 33, 0, M.t("toque_num_jogador_com_mao_vazia")),
+    THOR(Category.COMBATE, "Thor", 271, 0, M.t("toque_chao_com_machado_de_madeira")),
+    GLADIADOR(Category.COMBATE, "Gladiator", 42, 0, M.t("toque_num_jogador_com_bloco_de")),
+    STOMPER(Category.COMBATE, "Stomper", 309, 0, M.t("cair_em_cima_dos_outros_repassa")),
     // Defesa e sobrevivencia
-    AQUILES(Category.DEFESA, "Achilles", 311, 0, "Espadas causam 1/3 do dano em voce; socos e machados, 50% a mais."),
-    TANQUE(Category.DEFESA, "Tank", 46, 0, "Cada abate explode no local. Imune a explosoes e com Resistencia."),
-    TARTARUGA(Category.DEFESA, "Turtle", 307, 0, "Agachado recebe no maximo meio coracao, mas causa pouco dano."),
-    NEO(Category.DEFESA, "Neo", 262, 0, "Imune a projeteis e a habilidades que movem jogadores."),
+    AQUILES(Category.DEFESA, "Achilles", 311, 0, M.t("espadas_causam_1_3_do_dano")),
+    TANQUE(Category.DEFESA, "Tank", 46, 0, M.t("cada_abate_explode_no_local_imune")),
+    TARTARUGA(Category.DEFESA, "Turtle", 307, 0, M.t("agachado_recebe_no_maximo_meio_coracao")),
+    NEO(Category.DEFESA, "Neo", 262, 0, M.t("imune_projeteis_habilidades_que_movem_jogadores")),
     // Economia e farm
-    CULTIVADOR(Category.FARM, "Cultivator", 6, 0, "Mudas e sementes crescem na hora ao plantar."),
-    ESPECIALISTA(Category.FARM, "Specialist", 116, 0, "Mesa de encantamento portatil e 3 niveis de XP por abate."),
-    LENHADOR(Category.FARM, "Lumberjack", 17, 0, "Quebrar a base com o machado derruba a arvore inteira."),
-    DEMOLIDOR(Category.FARM, "Demoman", 13, 0, "Placa de pressao sobre cascalho vira mina: explode quando um inimigo pisa."),
-    MINERADOR(Category.FARM, "Miner", 274, 0, "Picareta eficiente; minerio de ferro ou carvao sai com o veio inteiro."),
+    CULTIVADOR(Category.FARM, "Cultivator", 6, 0, M.t("mudas_sementes_crescem_na_hora_ao")),
+    ESPECIALISTA(Category.FARM, "Specialist", 116, 0, M.t("mesa_de_encantamento_portatil_3_niveis")),
+    LENHADOR(Category.FARM, "Lumberjack", 17, 0, M.t("quebrar_base_com_machado_derruba_arvore")),
+    DEMOLIDOR(Category.FARM, "Demoman", 13, 0, M.t("placa_de_pressao_sobre_cascalho_vira")),
+    MINERADOR(Category.FARM, "Miner", 274, 0, M.t("picareta_eficiente_minerio_de_ferro_ou")),
     // Estrategicas
-    ENDERMAGE(Category.ESTRATEGIA, "Endermage", 120, 0, "Coloque o portal: quem estiver acima ou abaixo dele e puxado para o combate."),
-    FANTASMA(Category.ESTRATEGIA, "Phantom", 288, 0, "Toque com a pena para voar por 5 s. Recarga de 60 s."),
-    VOVO(Category.ESTRATEGIA, "Grandpa", 280, 0, "Graveto com Repulsao II."),
-    ESPIAO(Category.ESTRATEGIA, "Spy", 20, 0, "Fique agachado e parado por 3 s para ficar invisivel."),
-    ARANHA(Category.ESTRATEGIA, "Spider", 30, 0, "Teias para prender inimigos; agachado, escala paredes."),
-    SURPRESA(Category.NENHUM, "Surpresa", 54, 0, "Um kit aleatorio no inicio da partida.");
+    ENDERMAGE(Category.ESTRATEGIA, "Endermage", 120, 0, M.t("coloque_portal_quem_estiver_acima_ou")),
+    FANTASMA(Category.ESTRATEGIA, "Phantom", 288, 0, M.t("toque_com_pena_para_voar_por")),
+    VOVO(Category.ESTRATEGIA, "Grandpa", 280, 0, M.t("graveto_com_repulsao_ii")),
+    ESPIAO(Category.ESTRATEGIA, "Spy", 20, 0, M.t("fique_agachado_parado_por_3_para")),
+    ARANHA(Category.ESTRATEGIA, "Spider", 30, 0, M.t("teias_para_prender_inimigos_agachado_escala")),
+    SURPRESA(Category.NENHUM, "Surpresa", 54, 0, M.t("um_kit_aleatorio_no_inicio_da"));
 
     enum Category { NENHUM, MOBILIDADE, COMBATE, DEFESA, FARM, ESTRATEGIA }
 
@@ -88,10 +88,10 @@ enum Kit {
             case PESCADOR: list.add(named(Item.get(ROD, 0, 1), "Anzol")); break;
             case FORJADOR: list.add(named(Item.get(COAL, 0, 16), "Ponte")); break;
             case METEORO: list.add(named(Item.get(MAGMA_CREAM, 0, 1), "Meteoro")); break;
-            case BARBARO: list.add(named(Item.get(268, 0, 1), "Espada do Barbaro")); break;
-            case MONGE: list.add(named(Item.get(STICK, 0, 1), "Bastao do Monge")); break;
+            case BARBARO: list.add(named(Item.get(268, 0, 1), M.t("espada_do_barbaro_2"))); break;
+            case MONGE: list.add(named(Item.get(STICK, 0, 1), M.t("bastao_do_monge"))); break;
             case CEIFADOR: list.add(named(Item.get(WOODEN_HOE, 0, 1), "Foice")); break;
-            case THOR: list.add(named(Item.get(WOODEN_AXE, 0, 1), "Martelo de Thor")); break;
+            case THOR: list.add(named(Item.get(WOODEN_AXE, 0, 1), M.t("martelo_de_thor"))); break;
             case GLADIADOR: list.add(named(Item.get(IRON_BLOCK, 0, 1), "Arena")); break;
             case ESPECIALISTA: list.add(Item.get(116, 0, 1)); list.add(Item.get(351, 4, 16)); break;
             case LENHADOR: list.add(Item.get(WOODEN_AXE, 0, 1)); break;
@@ -107,7 +107,7 @@ enum Kit {
             case VOVO: {
                 Item stick = Item.get(STICK, 0, 1);
                 stick.addEnchantment(enchant(Enchantment.ID_KNOCKBACK, 2));
-                list.add(named(stick, "Bengala do Vovo"));
+                list.add(named(stick, M.t("bengala_do_vovo")));
                 break;
             }
             case ARANHA: list.add(Item.get(30, 0, 8)); break;
@@ -125,7 +125,7 @@ enum Kit {
     static Kit parse(String text) {
         String wanted = text.toUpperCase(Locale.ROOT);
         for (Kit kit : values()) { if (kit.name().equals(wanted) || kit.title.equalsIgnoreCase(text)) { return kit; } }
-        throw new IllegalArgumentException("Kit inexistente. Use /hgkits para ver a lista.");
+        throw new IllegalArgumentException(M.t("kit_inexistente_use_hgkits_para_ver"));
     }
 
     /** Copia: Enchantment.get devolve a instancia global. */

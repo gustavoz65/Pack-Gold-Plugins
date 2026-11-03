@@ -19,7 +19,7 @@ import java.util.*;
  * qualquer placeholder ({money}, {cash}, {grupo}, {clan}, {kdr}, {online}...). Os modelos sao compilados uma vez.
  */
 public final class GoldHud extends PluginBase implements Listener {
-    static String PREFIX = "§9[§bHUD§9]§f ";
+    static String PREFIX = M.t("hud_2");
     /** Durabilidade maxima por id de armadura da 0.15 (couro, malha, ferro, diamante, ouro). */
     private static final Map<Integer, Integer> ARMOR = new HashMap<>();
     static {
@@ -37,14 +37,15 @@ public final class GoldHud extends PluginBase implements Listener {
         /** Mundos sem HUD (ex.: arenas de HG, que usam a propria barra). */
         public Set<String> hiddenWorlds = new TreeSet<>(Collections.singleton("HG"));
         static void validate(HudState s) {
-            if (s == null || s.off == null || s.hiddenWorlds == null || s.off.size() > 100000 || s.hiddenWorlds.size() > 64) { throw new IllegalArgumentException("HUD invalido."); }
+            if (s == null || s.off == null || s.hiddenWorlds == null || s.off.size() > 100000 || s.hiddenWorlds.size() > 64) { throw new IllegalArgumentException(M.t("hud_invalido")); }
         }
     }
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldHud."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new PersistentState<>(core.getStore(), "goldhud", HudState.class, HudState::new, HudState::validate);
         getServer().getPluginManager().registerEvents(this, this);
         Settings.placeholder(this, "armadura", p -> { int a = armorPercent(p.getInventory().getArmorContents()); return a < 0 ? "" : " \u00a78| " + (a <= 20 ? "\u00a7c" : "\u00a7b") + "Armadura " + a + "%"; });
@@ -112,12 +113,12 @@ public final class GoldHud extends PluginBase implements Listener {
         if (args.length >= 2 && args[0].equalsIgnoreCase("mundo") && sender.hasPermission("goldhud.admin")) {
             String world = Destination.world(args[1]).target;
             boolean[] hide = new boolean[1];
-            data.change(s -> { hide[0] = s.hiddenWorlds.add(world); if (!hide[0]) { s.hiddenWorlds.remove(world); } }).thenRun(() -> sender.sendMessage(PREFIX + "HUD " + (hide[0] ? "oculto" : "visivel") + " em " + world + "."));
+            data.change(s -> { hide[0] = s.hiddenWorlds.add(world); if (!hide[0]) { s.hiddenWorlds.remove(world); } }).thenRun(() -> sender.sendMessage(PREFIX + M.t("hud_em", (hide[0] ? M.t("oculto") : M.t("visivel")), world)));
             return true;
         }
         String name = sender.getName().toLowerCase(Locale.ROOT);
         boolean[] nowOff = new boolean[1];
-        data.change(s -> { nowOff[0] = s.off.add(name); if (!nowOff[0]) { s.off.remove(name); } }).thenRun(() -> sender.sendMessage(PREFIX + "HUD " + (nowOff[0] ? "desligado." : "ligado.")));
+        data.change(s -> { nowOff[0] = s.off.add(name); if (!nowOff[0]) { s.off.remove(name); } }).thenRun(() -> sender.sendMessage(PREFIX + M.t("hud", (nowOff[0] ? M.t("desligado") : M.t("ligado")))));
         return true;
     }
 

@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
  * a confirmacao do Pix e feita pela staff (/key pago) ate o pagamento automatico ser ligado.
  */
 public final class GoldKeys extends PluginBase {
-    static String PREFIX = "§6[§eKeys§6]§f ";
+    static String PREFIX = M.t("keys");
     static final String KEYS = "goldkeys-chave";
     private static final Gson GSON = new Gson();
 
@@ -32,13 +32,14 @@ public final class GoldKeys extends PluginBase {
     private String pixMessage;
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         Settings.number(this, "validade_horas", 72, "Horas que uma key paga fica valida para resgate", v -> validityHours = Math.max(1, v));
         Settings.number(this, "pedido_horas", 48, "Horas que um pedido espera o pagamento antes de cancelar", v -> pendingHours = Math.max(1, v));
         Settings.number(this, "pedidos_por_jogador", 3, "Pedidos abertos ao mesmo tempo por jogador", v -> maxPending = Math.max(1, v));
         Settings.text(this, "msg.pix", "{destaque}Pague pelo Pix e mande o comprovante no Discord com o numero do pedido.", "Como pagar (chave Pix, link do Discord...)", v -> pixMessage = v);
         core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldKeys."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new PersistentState<>(core.getStore(), "goldkeys", KeyState.class, KeyState::new, KeyState::validate);
         // Pedidos sem pagamento vencem sozinhos (a cada 10 min, so o mapa pequeno de pendentes).
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldKeys>(this) { @Override public void onRun(int tick) { expireOrders(); } }, 20 * 600);
@@ -69,7 +70,7 @@ public final class GoldKeys extends PluginBase {
     // ---------- comandos ----------
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!data.isLoaded()) { sender.sendMessage(PREFIX + "Carregando, tente em instantes."); return true; }
+        if (!data.isLoaded()) { sender.sendMessage(PREFIX + M.t("carregando_tente_em_instantes")); return true; }
         String sub = args.length == 0 ? "ajuda" : args[0].toLowerCase(Locale.ROOT);
         boolean admin = sender.hasPermission("goldkeys.admin");
         try {
@@ -84,110 +85,110 @@ public final class GoldKeys extends PluginBase {
                 case "produto": if (admin) { product(sender, args); return true; } break;
                 default: break;
             }
-            sender.sendMessage(PREFIX + "/key produtos, /key comprar <produto>, /key resgatar <codigo>");
-            if (admin) { sender.sendMessage(PREFIX + "Staff: /key pedidos, /key pago <pedido>, /key cancelar <pedido>, /key gerar <produto> [qtd], /key produto criar <id> <preco> <nome> | <id> cash|dinheiro|cosmetico|vip|remover ..."); }
-        } catch (NumberFormatException e) { sender.sendMessage(PREFIX + "§cNumero invalido."); }
+            sender.sendMessage(PREFIX + M.t("key_produtos_key_comprar_produto_key"));
+            if (admin) { sender.sendMessage(PREFIX + M.t("staff_key_pedidos_key_pago_pedido")); }
+        } catch (NumberFormatException e) { sender.sendMessage(PREFIX + M.t("numero_invalido")); }
         catch (RuntimeException e) { sender.sendMessage(PREFIX + "§c" + e.getMessage()); }
         return true;
     }
 
     private void listProducts(CommandSender sender) {
         Map<String, Product> products = data.read(s -> new TreeMap<>(s.products));
-        if (products.isEmpty()) { sender.sendMessage(PREFIX + "Nenhum produto a venda ainda."); return; }
-        sender.sendMessage(PREFIX + "§6Produtos:");
+        if (products.isEmpty()) { sender.sendMessage(PREFIX + M.t("nenhum_produto_venda_ainda")); return; }
+        sender.sendMessage(PREFIX + M.t("produtos"));
         for (Map.Entry<String, Product> e : products.entrySet()) {
             sender.sendMessage("§e" + e.getKey() + " §f- " + e.getValue().name + " §a" + KeyState.price(e.getValue().priceCents) + " §7(" + e.getValue().rewards() + ")");
         }
-        sender.sendMessage("§7Compre com /key comprar <produto>");
+        sender.sendMessage(M.t("compre_com_key_comprar_produto"));
     }
 
     /** Pedido do jogador: cria a key PENDENTE e mostra o codigo; ela so passa a valer quando a staff confirmar o pagamento. */
     private void order(CommandSender sender, String productId) {
-        if (!(sender instanceof Player)) { throw new IllegalArgumentException("Use dentro do jogo."); }
+        if (!(sender instanceof Player)) { throw new IllegalArgumentException(M.t("use_dentro_do_jogo")); }
         Player p = (Player) sender;
         String id = productId.toLowerCase(Locale.ROOT), name = key(p.getName());
         Product product = data.read(s -> s.products.get(id));
-        if (product == null) { throw new IllegalArgumentException("Produto inexistente. Veja /key produtos."); }
+        if (product == null) { throw new IllegalArgumentException(M.t("produto_inexistente_veja_key_produtos")); }
         long open = data.read(s -> s.pending.values().stream().filter(o -> o.player.equals(name)).count());
-        if (open >= maxPending) { throw new IllegalArgumentException("Voce ja tem " + open + " pedidos esperando pagamento."); }
+        if (open >= maxPending) { throw new IllegalArgumentException(M.t("voce_ja_tem_pedidos_esperando_pagamento", open)); }
         String code = Codes.newCode(), hash = Codes.hash(code);
         String orderId = data.read(s -> { String o; do { o = Codes.newOrder(); } while (s.pending.containsKey(o)); return o; });
         Key k = new Key();
         k.product = id; k.owner = name; k.order = orderId; k.status = KeyState.PENDENTE; k.created = System.currentTimeMillis();
         save(hash, k).thenCompose(v -> data.change(s -> { Order o = new Order(); o.player = name; o.product = id; o.keyHash = hash; o.created = k.created; s.pending.put(orderId, o); }))
                 .whenComplete((v, e) -> {
-                    if (e != null) { if (p.isOnline()) { p.sendMessage(PREFIX + "§cNao foi possivel criar o pedido."); } return; }
-                    Settings.alert("Loja", "Pedido #" + orderId + ": " + p.getName() + " quer " + product.name + " (" + KeyState.price(product.priceCents) + "). Confirme o Pix com /key pago " + orderId);
+                    if (e != null) { if (p.isOnline()) { p.sendMessage(PREFIX + M.t("nao_foi_possivel_criar_pedido")); } return; }
+                    Settings.alert("Loja", M.t("pedido_quer_confirme_pix_com_key", orderId, p.getName(), product.name, KeyState.price(product.priceCents), orderId));
                     if (!p.isOnline()) { return; }
-                    p.sendMessage(PREFIX + "§aPedido §e#" + orderId + "§a criado: " + product.name + " por " + KeyState.price(product.priceCents) + ".");
-                    p.sendMessage(PREFIX + "Sua key: §e§l" + code + " §7(guarde! so vale depois do pagamento)");
+                    p.sendMessage(PREFIX + M.t("pedido_criado_por", orderId, product.name, KeyState.price(product.priceCents)));
+                    p.sendMessage(PREFIX + M.t("sua_key_guarde_so_vale_depois", code));
                     p.sendMessage(PREFIX + pixMessage);
-                    p.sendMessage(PREFIX + "Depois de confirmado, use §e/key resgatar " + code);
+                    p.sendMessage(PREFIX + M.t("depois_de_confirmado_use_key_resgatar", code));
                 });
     }
 
     private void paid(CommandSender sender, String orderId) {
         Order o = data.read(s -> s.pending.get(orderId));
-        if (o == null) { throw new IllegalArgumentException("Pedido #" + orderId + " nao esta aguardando pagamento."); }
+        if (o == null) { throw new IllegalArgumentException(M.t("pedido_nao_esta_aguardando_pagamento", orderId)); }
         load(o.keyHash).thenCompose(k -> {
-            if (k == null || !KeyState.PENDENTE.equals(k.status)) { throw new IllegalStateException("A key do pedido nao esta pendente."); }
+            if (k == null || !KeyState.PENDENTE.equals(k.status)) { throw new IllegalStateException(M.t("key_do_pedido_nao_esta_pendente")); }
             k.status = KeyState.PAGA; k.paidAt = System.currentTimeMillis(); k.expires = k.paidAt + validityHours * 3_600_000L;
             return save(o.keyHash, k);
         }).thenCompose(v -> data.change(s -> s.pending.remove(orderId))).whenComplete((v, e) -> {
             if (e != null) { sender.sendMessage(PREFIX + "§c" + root(e)); return; }
-            sender.sendMessage(PREFIX + "Pedido #" + orderId + " pago. A key de " + o.player + " vale por " + validityHours + " h.");
-            Settings.alert("Loja", "Pedido #" + orderId + " de " + o.player + " confirmado por " + sender.getName());
+            sender.sendMessage(PREFIX + M.t("pedido_pago_key_de_vale_por", orderId, o.player, validityHours));
+            Settings.alert("Loja", M.t("pedido_de_confirmado_por", orderId, o.player, sender.getName()));
             Player buyer = getServer().getPlayerExact(o.player);
-            if (buyer != null) { buyer.sendMessage(PREFIX + "§aPagamento do pedido #" + orderId + " confirmado! §fUse /key resgatar <sua key> (vale " + validityHours + " h)."); }
+            if (buyer != null) { buyer.sendMessage(PREFIX + M.t("pagamento_do_pedido_confirmado_use_key", orderId, validityHours)); }
         });
     }
 
     private void cancel(CommandSender sender, String orderId) {
         Order o = data.read(s -> s.pending.get(orderId));
-        if (o == null) { throw new IllegalArgumentException("Pedido inexistente."); }
-        data.change(s -> s.pending.remove(orderId)).whenComplete((v, e) -> { cancelKey(o.keyHash); sender.sendMessage(PREFIX + "Pedido #" + orderId + " cancelado."); });
+        if (o == null) { throw new IllegalArgumentException(M.t("pedido_inexistente")); }
+        data.change(s -> s.pending.remove(orderId)).whenComplete((v, e) -> { cancelKey(o.keyHash); sender.sendMessage(PREFIX + M.t("pedido_cancelado", orderId)); });
     }
 
     private void listOrders(CommandSender sender) {
         Map<String, Order> pending = data.read(s -> new TreeMap<>(s.pending));
-        if (pending.isEmpty()) { sender.sendMessage(PREFIX + "Nenhum pedido aguardando pagamento."); return; }
+        if (pending.isEmpty()) { sender.sendMessage(PREFIX + M.t("nenhum_pedido_aguardando_pagamento")); return; }
         for (Map.Entry<String, Order> e : pending.entrySet()) {
             long min = (System.currentTimeMillis() - e.getValue().created) / 60_000;
-            sender.sendMessage("§e#" + e.getKey() + " §f" + e.getValue().player + " - " + e.getValue().product + " §7(ha " + min + " min)");
+            sender.sendMessage(M.t("ha_min", e.getKey(), e.getValue().player, e.getValue().product, min));
         }
     }
 
     /** Keys de presente (sem dono, ja pagas): os codigos aparecem so para quem gerou. */
     private void generate(CommandSender sender, String productId, int amount) {
         String id = productId.toLowerCase(Locale.ROOT);
-        if (data.read(s -> !s.products.containsKey(id))) { throw new IllegalArgumentException("Produto inexistente."); }
-        if (amount < 1 || amount > 20) { throw new IllegalArgumentException("Gere de 1 a 20 por vez."); }
+        if (data.read(s -> !s.products.containsKey(id))) { throw new IllegalArgumentException(M.t("produto_inexistente")); }
+        if (amount < 1 || amount > 20) { throw new IllegalArgumentException(M.t("gere_de_1_20_por_vez")); }
         for (int i = 0; i < amount; i++) {
             String code = Codes.newCode();
             Key k = new Key();
             k.product = id; k.status = KeyState.PAGA; k.created = k.paidAt = System.currentTimeMillis(); k.expires = k.paidAt + validityHours * 3_600_000L;
-            save(Codes.hash(code), k).whenComplete((v, e) -> sender.sendMessage(e != null ? PREFIX + "§cFalha ao gravar uma key." : PREFIX + "§e" + code + " §7(" + id + ", " + validityHours + " h)"));
+            save(Codes.hash(code), k).whenComplete((v, e) -> sender.sendMessage(e != null ? PREFIX + M.t("falha_ao_gravar_uma_key") : PREFIX + "§e" + code + " §7(" + id + ", " + validityHours + " h)"));
         }
     }
 
     /** Resgate: confere tudo, marca RESGATADA no banco e so depois entrega (nunca entrega duas vezes). */
     private void redeem(CommandSender sender, String typed) {
-        if (!(sender instanceof Player)) { throw new IllegalArgumentException("Use dentro do jogo."); }
+        if (!(sender instanceof Player)) { throw new IllegalArgumentException(M.t("use_dentro_do_jogo")); }
         Player p = (Player) sender;
         String name = key(p.getName());
         long now = System.currentTimeMillis();
         long[] w = wrong.computeIfAbsent(name, k -> new long[2]);
         if (now - w[1] > 60_000) { w[0] = 0; w[1] = now; }
-        if (w[0] >= 5) { throw new IllegalArgumentException("Muitas keys invalidas. Aguarde um minuto."); }
+        if (w[0] >= 5) { throw new IllegalArgumentException(M.t("muitas_keys_invalidas_aguarde_um_minuto")); }
         String code = Codes.normalize(typed);
-        if (code == null) { w[0]++; throw new IllegalArgumentException("Formato de key invalido (GOLD-XXXXX-XXXXX-XXXXX-XXXXX)."); }
+        if (code == null) { w[0]++; throw new IllegalArgumentException(M.t("formato_de_key_invalido_gold_xxxxx")); }
         String hash = Codes.hash(code);
-        if (!busy.add(hash)) { throw new IllegalArgumentException("Essa key ja esta sendo resgatada."); }
+        if (!busy.add(hash)) { throw new IllegalArgumentException(M.t("essa_key_ja_esta_sendo_resgatada")); }
         Product[] product = new Product[1];
         load(hash).thenCompose(k -> {
-            String problem = k == null ? "Key inexistente." : KeyState.RESGATADA.equals(k.status) ? "Essa key ja foi usada." : KeyState.CANCELADA.equals(k.status) ? "Essa key foi cancelada."
-                    : KeyState.PENDENTE.equals(k.status) ? "O pagamento dessa key ainda nao foi confirmado." : k.expires < now ? "Essa key venceu." : k.owner != null && !k.owner.equals(name) ? "Essa key pertence a outro jogador." : null;
-            if (problem == null) { product[0] = data.read(s -> s.products.get(k.product)); if (product[0] == null) { problem = "O produto dessa key nao existe mais. Fale com a staff."; } }
+            String problem = k == null ? M.t("key_inexistente") : KeyState.RESGATADA.equals(k.status) ? M.t("essa_key_ja_foi_usada") : KeyState.CANCELADA.equals(k.status) ? M.t("essa_key_foi_cancelada")
+                    : KeyState.PENDENTE.equals(k.status) ? M.t("pagamento_dessa_key_ainda_nao_foi") : k.expires < now ? M.t("essa_key_venceu") : k.owner != null && !k.owner.equals(name) ? M.t("essa_key_pertence_outro_jogador") : null;
+            if (problem == null) { product[0] = data.read(s -> s.products.get(k.product)); if (product[0] == null) { problem = M.t("produto_dessa_key_nao_existe_mais"); } }
             if (problem != null) { if (k == null) { w[0]++; } throw new IllegalStateException(problem); }
             k.status = KeyState.RESGATADA; k.redeemedBy = name; k.redeemedAt = now;
             return save(hash, k);
@@ -209,8 +210,8 @@ public final class GoldKeys extends PluginBase {
             PermissionService perms = getServer().getServiceManager().load(PermissionService.class);
             if (perms == null) { failed.add("vip"); } else { perms.setGroup(name, product.vipGroup, product.vipDays > 0 ? System.currentTimeMillis() + product.vipDays * 86_400_000L : 0); }
         }
-        Settings.alert("Loja", name + " resgatou " + product.name + (failed.isEmpty() ? "" : " - FALHOU entregar: " + failed));
-        if (p.isOnline()) { p.sendMessage(PREFIX + "§aKey resgatada! §fVoce recebeu: " + product.rewards() + (failed.isEmpty() ? "" : " §c(avise a staff: " + failed + ")")); }
+        Settings.alert("Loja", M.t("resgatou", name, product.name, (failed.isEmpty() ? "" : M.t("falhou_entregar", failed))));
+        if (p.isOnline()) { p.sendMessage(PREFIX + M.t("key_resgatada_voce_recebeu", product.rewards(), (failed.isEmpty() ? "" : M.t("avise_staff", failed)))); }
     }
 
     /** /key produto criar <id> <preco> <nome...> | /key produto <id> cash <n> | dinheiro <valor> | cosmetico <id> | vip <grupo> <dias> | remover */
@@ -226,14 +227,14 @@ public final class GoldKeys extends PluginBase {
         String what = arg(args, 2).toLowerCase(Locale.ROOT);
         change(sender, s -> {
             Product p = s.products.get(a1);
-            if (p == null) { throw new IllegalArgumentException("Produto inexistente."); }
+            if (p == null) { throw new IllegalArgumentException(M.t("produto_inexistente")); }
             switch (what) {
                 case "cash": p.cash = Long.parseLong(arg(args, 3)); break;
                 case "dinheiro": p.moneyCents = Math.round(Double.parseDouble(arg(args, 3).replace(',', '.')) * 100); break;
                 case "cosmetico": { String c = arg(args, 3).toLowerCase(Locale.ROOT); if (!p.cosmetics.remove(c)) { p.cosmetics.add(c); } break; }
                 case "vip": p.vipGroup = arg(args, 3).toLowerCase(Locale.ROOT); p.vipDays = args.length > 4 ? Integer.parseInt(args[4]) : 0; break;
                 case "remover": s.products.remove(a1); break;
-                default: throw new IllegalArgumentException("Use cash, dinheiro, cosmetico, vip ou remover.");
+                default: throw new IllegalArgumentException(M.t("use_cash_dinheiro_cosmetico_vip_ou"));
             }
         }, "Produto " + a1 + " atualizado.");
     }
@@ -242,6 +243,6 @@ public final class GoldKeys extends PluginBase {
         data.change(mutation).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : ok)));
     }
 
-    private static String arg(String[] args, int i) { if (args.length <= i) { throw new IllegalArgumentException("Faltam argumentos. Use /key."); } return args[i]; }
+    private static String arg(String[] args, int i) { if (args.length <= i) { throw new IllegalArgumentException(M.t("faltam_argumentos_use_key")); } return args[i]; }
     static String root(Throwable e) { while (e.getCause() != null) { e = e.getCause(); } return e.getMessage(); }
 }

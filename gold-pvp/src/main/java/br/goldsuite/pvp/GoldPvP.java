@@ -24,10 +24,10 @@ import java.util.*;
 
 /** Combat log, perfis detalhados, rankings (publicados para NPCs), ranked 1v1 com ELO e creepers sem destruicao. */
 public final class GoldPvP extends PluginBase implements Listener {
-    static String PREFIX = "§4[§cPvP§4]§f ";
+    static String PREFIX = M.t("pvp");
     static final String PROFILES = "goldpvp-perfil", STASH = "goldpvp-guardado";
     static final int MENU_ITEM = 340, MENU_SLOT = 8;
-    static final String MENU_NAME = "§r§6Perfil e Ranked §7(toque)";
+    static final String MENU_NAME = M.t("perfil_ranked_toque");
     private static final long TAG_MS = 15_000, COUNTDOWN_MS = 3_000, MATCH_MS = 180_000;
     private static final Set<String> ESCAPES = new HashSet<>(Arrays.asList("spawn", "lobby", "home", "casa", "warp", "warps", "tpa", "tpahere", "tpaccept", "tpaceitar", "back", "voltar", "ec", "bau", "enderchest", "hg", "fly", "voar"));
     private static final Gson GSON = new Gson();
@@ -60,13 +60,14 @@ public final class GoldPvP extends PluginBase implements Listener {
     }
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         Settings.text(this, "fraude.advertencia", "{erro}&lAdvertencia {n}/{max}: &r{erro}{motivo}. Repetir expulsa do servidor.", "Aviso ao jogador ({n}, {max}, {motivo})", v -> fraudWarning = v);
         Settings.text(this, "fraude.expulsao", "Fraude no PvP detectada ({motivo}).", "Motivo da expulsao ({motivo})", v -> fraudKick = v);
         Settings.number(this, "fraude.advertencias_para_expulsar", Fraud.KICK_AT, "Advertencias em 24 h que expulsam", v -> kickAt = (int) Math.max(1, v));
         Settings.number(this, "fraude.advertencias_para_bloquear", Fraud.BAN_AT, "Advertencias em 24 h que bloqueiam o ranked por 24 h", v -> banAt = (int) Math.max(1, v));
         core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldPvP."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         boards = new PersistentState<>(core.getStore(), "goldpvp-ranking", Boards.class, Boards::new, Boards::validate);
         getServer().getPluginManager().registerEvents(this, this);
         RankingService ranking = getServer().getServiceManager().load(RankingService.class);
@@ -196,7 +197,7 @@ public final class GoldPvP extends PluginBase implements Listener {
         if (duel != null) { if (duel == matches.get(attacker)) { duel.dealt[duel.a == attacker ? 0 : 1] += half; } return; }
         long until = System.currentTimeMillis() + TAG_MS;
         for (Player p : new Player[] {victim, attacker}) {
-            if (!tagged(p)) { p.sendPopup("§cEm combate! Nao saia por 15 s."); }
+            if (!tagged(p)) { p.sendPopup(M.t("em_combate_nao_saia_por_15")); }
             taggedUntil.put(p, until);
             queue.remove(p);
         }
@@ -211,11 +212,11 @@ public final class GoldPvP extends PluginBase implements Listener {
         String name = (space < 0 ? m.substring(1) : m.substring(1, space)).toLowerCase(Locale.ROOT);
         if (name.contains(":")) { name = name.substring(name.indexOf(':') + 1); }
         if (matches.containsKey(p) && !name.equals("ranked") && !name.equals("tell") && !name.equals("r")) {
-            event.setCancelled(); p.sendMessage(PREFIX + "§cDurante o duelo so /ranked sair (desistir)."); return;
+            event.setCancelled(); p.sendMessage(PREFIX + M.t("durante_duelo_so_ranked_sair_desistir")); return;
         }
         if (tagged(p) && ESCAPES.contains(name)) {
             event.setCancelled();
-            p.sendMessage(PREFIX + "§cVoce esta em combate por mais " + ((taggedUntil.get(p) - System.currentTimeMillis()) / 1000 + 1) + " s.");
+            p.sendMessage(PREFIX + M.t("voce_esta_em_combate_por_mais", ((taggedUntil.get(p) - System.currentTimeMillis()) / 1000 + 1)));
         }
     }
 
@@ -241,12 +242,12 @@ public final class GoldPvP extends PluginBase implements Listener {
         boolean sameIp = Fraud.sameIp(ip(killer), ip(victim));
         boolean counts = fraud.killCounts(key(killer), key(victim), System.currentTimeMillis());
         if (sameIp || !counts) {
-            killer.sendMessage(PREFIX + "§cEste abate nao conta" + (sameIp ? " (mesmo IP da vitima)." : " (abates repetidos na mesma pessoa)."));
+            killer.sendMessage(PREFIX + M.t("este_abate_nao_conta", (sameIp ? M.t("mesmo_ip_da_vitima") : M.t("abates_repetidos_na_mesma_pessoa"))));
             if (!counts) { flag(killer, "abates repetidos em " + victim.getName()); flag(victim, "morreu varias vezes para " + killer.getName()); }
             return;
         }
         Profile pk = profile(killer), pv = profile(victim);
-        if (pk != null) { pk.kill(); touch(killer); rank(killer); if (pk.streak >= 5 && pk.streak % 5 == 0) { getServer().broadcastMessage(PREFIX + "§6" + killer.getName() + " esta com " + pk.streak + " abates seguidos!"); } }
+        if (pk != null) { pk.kill(); touch(killer); rank(killer); if (pk.streak >= 5 && pk.streak % 5 == 0) { getServer().broadcastMessage(PREFIX + M.t("esta_com_abates_seguidos", killer.getName(), pk.streak)); } }
         if (pv != null) { pv.death(); touch(victim); }
     }
 
@@ -278,7 +279,7 @@ public final class GoldPvP extends PluginBase implements Listener {
         if (match != null) {
             boolean fighting = match.fighting();
             end(match, fighting ? match.other(p) : null);
-            if (!fighting && match.other(p).isOnline()) { match.other(p).sendMessage(PREFIX + "Oponente saiu antes do inicio. Duelo cancelado."); }
+            if (!fighting && match.other(p).isOnline()) { match.other(p).sendMessage(PREFIX + M.t("oponente_saiu_antes_do_inicio_duelo")); }
         }
         boolean wasTagged = tagged(p);
         taggedUntil.remove(p);
@@ -288,7 +289,7 @@ public final class GoldPvP extends PluginBase implements Listener {
             p.getInventory().clearAll();
             Profile pr = profile(p);
             if (pr != null) { pr.death(); dirty.add(p); }
-            getServer().broadcastMessage(PREFIX + "§e" + p.getName() + "§f saiu em combate e perdeu os itens!");
+            getServer().broadcastMessage(PREFIX + M.t("saiu_em_combate_perdeu_os_itens", p.getName()));
         }
         save(p);
         dirty.remove(p);
@@ -374,34 +375,34 @@ public final class GoldPvP extends PluginBase implements Listener {
     /** Perfil detalhado em bau: estatisticas, elo, posicao, botoes do ranked, lista de elos e cosmeticos. */
     private void menu(Player viewer, Player target) {
         Profile pr = profile(target);
-        if (pr == null) { viewer.sendMessage(PREFIX + "Perfil ainda carregando."); return; }
+        if (pr == null) { viewer.sendMessage(PREFIX + M.t("perfil_ainda_carregando")); return; }
         String name = key(target);
         int killPos = boards.read(b -> Boards.position(b.kills, name)), rankPos = boards.read(b -> Boards.position(b.ladder, name));
         boolean divine = divine(name, pr.ladder);
         String rank = Ranks.display(pr.ladder, divine, pr.games());
         Map<Integer, Item> icons = new HashMap<>();
-        icons.put(4, icon(397, 3, "§e" + target.getName() + "\n" + rank + "\n§7Jogando desde " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new Date(pr.firstSeen))));
-        icons.put(10, icon(276, 0, "§aAbates: §f" + pr.kills + "\n§7Posicao: " + (killPos == 0 ? "-" : "#" + killPos)));
-        icons.put(11, icon(352, 0, "§cMortes: §f" + pr.deaths));
-        icons.put(12, icon(266, 0, "§6KDR: §f" + pr.kdr()));
-        icons.put(13, icon(377, 0, "§eSequencia: §f" + pr.streak + "\n§7Melhor: " + pr.bestStreak));
+        icons.put(4, icon(397, 3, M.t("jogando_desde", target.getName(), rank, new java.text.SimpleDateFormat("dd/MM/yyyy").format(new Date(pr.firstSeen)))));
+        icons.put(10, icon(276, 0, M.t("abates_posicao", pr.kills, (killPos == 0 ? "-" : "#" + killPos))));
+        icons.put(11, icon(352, 0, M.t("mortes", pr.deaths)));
+        icons.put(12, icon(266, 0, M.t("kdr", pr.kdr())));
+        icons.put(13, icon(377, 0, M.t("sequencia_melhor", pr.streak, pr.bestStreak)));
         int tier = pr.ladder < 0 ? -1 : Ranks.tier(pr.ladder, divine);
-        icons.put(14, icon(tier < 0 ? 388 : Ranks.ICONS[tier], tier < 0 ? 0 : Ranks.ICON_META[tier], "§bElo: " + rank + "\n§7Pico: " + (pr.peakLadder < 0 ? "-" : Ranks.name(pr.peakLadder, false)) + "\n§7Posicao: " + (rankPos == 0 ? "-" : "#" + rankPos)));
-        icons.put(15, icon(267, 0, "§dDuelos: §a" + pr.rankedWins + "V §c" + pr.rankedLosses + "D §7" + pr.rankedDraws + "E\n§fVitorias: " + pr.winRate()));
-        icons.put(16, icon(331, 0, "§4Dano causado: §f" + pr.damageDealt / 2 + " coracoes\n§4Dano recebido: §f" + pr.damageTaken / 2 + " coracoes"));
+        icons.put(14, icon(tier < 0 ? 388 : Ranks.ICONS[tier], tier < 0 ? 0 : Ranks.ICON_META[tier], M.t("elo_pico_posicao", rank, (pr.peakLadder < 0 ? "-" : Ranks.name(pr.peakLadder, false)), (rankPos == 0 ? "-" : "#" + rankPos))));
+        icons.put(15, icon(267, 0, M.t("duelos_vitorias", pr.rankedWins, pr.rankedLosses, pr.rankedDraws, pr.winRate())));
+        icons.put(16, icon(331, 0, M.t("dano_causado_coracoes_dano_recebido_coracoes", pr.damageDealt / 2, pr.damageTaken / 2)));
         boolean own = viewer == target;
         if (own) {
             boolean waiting = queue.containsKey(viewer);
-            icons.put(19, icon(35, waiting ? 14 : 5, waiting ? "§cSair da fila do ranked" : "§aJogar ranked 1v1\n§7Pareamento pelo MMR"));
-            icons.put(20, icon(351, pr.showElo ? 10 : 8, "§fElo no chat: " + (pr.showElo ? "§aligado" : "§cdesligado") + "\n§7Toque para " + (pr.showElo ? "esconder" : "mostrar")));
-            if (getServer().getServiceManager().load(CosmeticService.class) != null) { icons.put(25, icon(377, 0, "§dCosmeticos\n§7Pingentes, trilhas e efeitos")); }
+            icons.put(19, icon(35, waiting ? 14 : 5, waiting ? M.t("sair_da_fila_do_ranked") : M.t("jogar_ranked_1v1_pareamento_pelo_mmr")));
+            icons.put(20, icon(351, pr.showElo ? 10 : 8, M.t("elo_no_chat_toque_para", (pr.showElo ? M.t("ligado") : M.t("desligado")), (pr.showElo ? M.t("esconder") : M.t("mostrar")))));
+            if (getServer().getServiceManager().load(CosmeticService.class) != null) { icons.put(25, icon(377, 0, M.t("cosmeticos_pingentes_trilhas_efeitos"))); }
         }
-        icons.put(21, icon(323, 0, "§6Lista de elos\n§7Como funciona Imortal e Divino"));
-        icons.put(23, icon(339, 0, "§eTop 10 ranked"));
-        icons.put(24, icon(339, 0, "§eTop 10 abates"));
-        getServer().getServiceManager().load(MenuService.class).open(viewer, "Perfil de " + target.getName(), icons, (who, slot) -> {
+        icons.put(21, icon(323, 0, M.t("lista_de_elos_como_funciona_imortal")));
+        icons.put(23, icon(339, 0, M.t("top_10_ranked")));
+        icons.put(24, icon(339, 0, M.t("top_10_abates")));
+        getServer().getServiceManager().load(MenuService.class).open(viewer, M.t("perfil_de", target.getName()), icons, (who, slot) -> {
             if (slot == 19 && own) { try { toggleQueue(who); } catch (RuntimeException e) { who.sendMessage(PREFIX + "§c" + e.getMessage()); } }
-            else if (slot == 20 && own) { pr.showElo = !pr.showElo; dirty.add(who); who.sendMessage(PREFIX + "Elo no chat " + (pr.showElo ? "§aligado" : "§cdesligado") + "§f."); menu(who, target); }
+            else if (slot == 20 && own) { pr.showElo = !pr.showElo; dirty.add(who); who.sendMessage(PREFIX + M.t("elo_no_chat", (pr.showElo ? M.t("ligado") : M.t("desligado")))); menu(who, target); }
             else if (slot == 21) { elosMenu(who, target); }
             else if (slot == 23) { topMenu(who, target, "ranked"); }
             else if (slot == 24) { topMenu(who, target, "pvp"); }
@@ -414,8 +415,8 @@ public final class GoldPvP extends PluginBase implements Listener {
         List<RankingService.Entry> top = ranking == null ? Collections.emptyList() : ranking.top(board, 10);
         Map<Integer, Item> icons = new HashMap<>();
         for (int i = 0; i < top.size(); i++) { icons.put(i < 5 ? 2 + i : 6 + i, icon(i == 0 ? 266 : i < 3 ? 265 : 336, 0, "§e#" + (i + 1) + " §f" + top.get(i).player + "\n§7" + top.get(i).label)); }
-        icons.put(22, icon(262, 0, "§fVoltar ao perfil"));
-        getServer().getServiceManager().load(MenuService.class).open(p, board.equals("ranked") ? "Top ranked" : "Top abates", icons, (who, slot) -> menu(who, back.isOnline() ? back : who));
+        icons.put(22, icon(262, 0, M.t("voltar_ao_perfil")));
+        getServer().getServiceManager().load(MenuService.class).open(p, board.equals("ranked") ? M.t("top_ranked_2") : M.t("top_abates_2"), icons, (who, slot) -> menu(who, back.isOnline() ? back : who));
     }
 
     /** Todos os elos, do Ferro ao Divino, com os pontos de cada um; o do jogador aparece marcado. */
@@ -426,14 +427,14 @@ public final class GoldPvP extends PluginBase implements Listener {
         for (int t = 0; t < Ranks.NAMES.length; t++) {
             String color = "§" + Ranks.COLORS[t] + (t == 8 ? "§l" : "");
             String info;
-            if (t < 7) { info = "§7Divisoes 1, 2 e 3\n§7100 PR por divisao (" + t * 300 + " a " + (t * 300 + 299) + " pontos)"; }
-            else if (t == 7) { info = "§7A partir de " + Ranks.IMMORTAL + " pontos\n§7Sem teto: os PR acumulam\n§7Imortal 2 com " + Ranks.IMMORTAL_2 + " PR, Imortal 3 com " + Ranks.IMMORTAL_3 + " PR"; }
-            else { info = "§7So os " + Ranks.DIVINE_SLOTS + " Imortais com mais PR\n§7do servidor. Quem passar um\n§7Divino toma a vaga dele."; }
-            icons.put(t < 7 ? 1 + t : t == 7 ? 12 : 14, icon(Ranks.ICONS[t], Ranks.ICON_META[t], color + Ranks.NAMES[t] + (t == mine ? " §a<- voce" : "") + "\n" + info));
+            if (t < 7) { info = M.t("divisoes_1_2_3_100_pr", t * 300, (t * 300 + 299)); }
+            else if (t == 7) { info = M.t("partir_de_pontos_sem_teto_os", Ranks.IMMORTAL, Ranks.IMMORTAL_2, Ranks.IMMORTAL_3); }
+            else { info = M.t("so_os_imortais_com_mais_pr", Ranks.DIVINE_SLOTS); }
+            icons.put(t < 7 ? 1 + t : t == 7 ? 12 : 14, icon(Ranks.ICONS[t], Ranks.ICON_META[t], color + Ranks.NAMES[t] + (t == mine ? M.t("voce") : "") + "\n" + info));
         }
-        icons.put(18, icon(388, 0, "§fComo funciona\n§7" + Ranks.PLACEMENTS + " classificatorias definem o elo inicial\n§7(no maximo Ascendente 1).\n§7Vitoria +PR, derrota -PR; o MMR oculto\n§7decide quanto cada partida vale."));
-        icons.put(22, icon(262, 0, "§fVoltar ao perfil"));
-        getServer().getServiceManager().load(MenuService.class).open(p, "Elos do ranked", icons, (who, slot) -> menu(who, back.isOnline() ? back : who));
+        icons.put(18, icon(388, 0, M.t("como_funciona_classificatorias_definem_elo_inici", Ranks.PLACEMENTS)));
+        icons.put(22, icon(262, 0, M.t("voltar_ao_perfil")));
+        getServer().getServiceManager().load(MenuService.class).open(p, M.t("elos_do_ranked"), icons, (who, slot) -> menu(who, back.isOnline() ? back : who));
     }
 
     private static Item icon(int id, int meta, String name) { Item item = Item.get(id, meta, 1); item.setCustomName(name); return item; }
@@ -441,15 +442,15 @@ public final class GoldPvP extends PluginBase implements Listener {
     // ---------- ranked ----------
 
     private void toggleQueue(Player p) {
-        if (queue.remove(p) != null) { p.sendMessage(PREFIX + "Voce saiu da fila."); return; }
-        if (matches.containsKey(p)) { throw new IllegalArgumentException("Voce ja esta num duelo."); }
-        if (tagged(p)) { throw new IllegalArgumentException("Saia do combate antes."); }
-        if (profile(p) == null) { throw new IllegalArgumentException("Perfil ainda carregando."); }
+        if (queue.remove(p) != null) { p.sendMessage(PREFIX + M.t("voce_saiu_da_fila")); return; }
+        if (matches.containsKey(p)) { throw new IllegalArgumentException(M.t("voce_ja_esta_num_duelo")); }
+        if (tagged(p)) { throw new IllegalArgumentException(M.t("saia_do_combate_antes")); }
+        if (profile(p) == null) { throw new IllegalArgumentException(M.t("perfil_ainda_carregando")); }
         long ban = profile(p).rankedBanUntil - System.currentTimeMillis();
-        if (ban > 0) { throw new IllegalArgumentException("Ranked bloqueado por fraude por mais " + (ban / 3_600_000 + 1) + " h."); }
-        if (boards.read(b -> b.arenas.isEmpty())) { throw new IllegalArgumentException("Nenhuma arena de ranked configurada."); }
+        if (ban > 0) { throw new IllegalArgumentException(M.t("ranked_bloqueado_por_fraude_por_mais", (ban / 3_600_000 + 1))); }
+        if (boards.read(b -> b.arenas.isEmpty())) { throw new IllegalArgumentException(M.t("nenhuma_arena_de_ranked_configurada")); }
         queue.put(p, System.currentTimeMillis());
-        p.sendMessage(PREFIX + "Na fila do ranked (" + rankText(key(p), profile(p)) + "§f). Procurando oponente...");
+        p.sendMessage(PREFIX + M.t("na_fila_do_ranked_procurando_oponente", rankText(key(p), profile(p))));
     }
 
     /** A cada segundo: contagem dos duelos, tempo limite e pareamento da fila. */
@@ -459,8 +460,8 @@ public final class GoldPvP extends PluginBase implements Listener {
         for (Match m : new HashSet<>(matches.values())) {
             if (!m.ready || m.over) { continue; }
             long left = m.startAt - now;
-            if (left > 0) { for (Player p : new Player[] {m.a, m.b}) { p.sendTip("§eDuelo comeca em §f" + (left / 1000 + 1)); } }
-            else if (now - m.startAt > MATCH_MS) { for (Player p : new Player[] {m.a, m.b}) { p.sendMessage(PREFIX + "Tempo esgotado: empate."); } end(m, null); }
+            if (left > 0) { for (Player p : new Player[] {m.a, m.b}) { p.sendTip(M.t("duelo_comeca_em", (left / 1000 + 1))); } }
+            else if (now - m.startAt > MATCH_MS) { for (Player p : new Player[] {m.a, m.b}) { p.sendMessage(PREFIX + M.t("tempo_esgotado_empate")); } end(m, null); }
         }
         if (queue.size() < 2 || !boards.isLoaded()) { return; }
         List<Player> waiting = new ArrayList<>(queue.keySet());
@@ -507,8 +508,8 @@ public final class GoldPvP extends PluginBase implements Listener {
             prepare(a, spots.a, kit); prepare(b, spots.b, kit);
             m.ready = true;
             Profile pa = profile(a), pb = profile(b);
-            a.sendMessage(PREFIX + "§6Duelo contra " + b.getName() + " " + rankText(key(b), pb));
-            b.sendMessage(PREFIX + "§6Duelo contra " + a.getName() + " " + rankText(key(a), pa));
+            a.sendMessage(PREFIX + M.t("duelo_contra", b.getName(), rankText(key(b), pb)));
+            b.sendMessage(PREFIX + M.t("duelo_contra", a.getName(), rankText(key(a), pa)));
         });
     }
 
@@ -562,7 +563,7 @@ public final class GoldPvP extends PluginBase implements Listener {
         if (fed || idle) {
             started = false;
             for (Player p : new Player[] {m.a, m.b}) {
-                if (p.isOnline()) { p.sendMessage(PREFIX + "§cPartida anulada: suspeita de fraude (" + (fed ? "derrota entregue" : "ninguem lutou") + "). Nao vale pontos."); }
+                if (p.isOnline()) { p.sendMessage(PREFIX + M.t("partida_anulada_suspeita_de_fraude_nao", (fed ? M.t("derrota_entregue") : M.t("ninguem_lutou")))); }
                 // Quem perdeu sem reagir sempre leva advertencia; o vencedor so quando a dupla repete (combinado).
                 boolean repeat = !fraud.canPair(key(m.a), key(m.b), System.currentTimeMillis());
                 if (idle || p != winner || repeat) { flag(p, fed ? "partida entregue contra " + m.other(p).getName() : "duelo parado contra " + m.other(p).getName()); }
@@ -571,15 +572,15 @@ public final class GoldPvP extends PluginBase implements Listener {
         if (started && pa != null && pb != null) {
             if (winner == null) {
                 pa.rankedDraws++; pb.rankedDraws++;
-                for (Player p : new Player[] {m.a, m.b}) { if (p.isOnline()) { p.sendMessage(PREFIX + "§7Empate."); } applyRank(p, profile(p), 0); }
+                for (Player p : new Player[] {m.a, m.b}) { if (p.isOnline()) { p.sendMessage(PREFIX + M.t("empate")); } applyRank(p, profile(p), 0); }
             } else {
                 Player loser = m.other(winner);
                 Profile pw = profile(winner), pl = profile(loser);
                 int delta = Profile.eloDelta(pw.rating, pl.rating);
                 pw.rating += delta; pw.peakRating = Math.max(pw.peakRating, pw.rating); pw.rankedWins++;
                 pl.rating = Math.max(0, pl.rating - delta); pl.rankedLosses++;
-                winner.sendMessage(PREFIX + "§aVitoria!");
-                if (loser.isOnline()) { loser.sendMessage(PREFIX + "§cDerrota."); }
+                winner.sendMessage(PREFIX + M.t("vitoria"));
+                if (loser.isOnline()) { loser.sendMessage(PREFIX + M.t("derrota")); }
                 applyRank(winner, pw, 1);
                 applyRank(loser, pl, -1);
                 EffectService effects = getServer().getServiceManager().load(EffectService.class);
@@ -601,7 +602,7 @@ public final class GoldPvP extends PluginBase implements Listener {
         String name = key(p);
         int count = fraud.strike(name, System.currentTimeMillis());
         // Staff online (goldcore.alertas) e Discord, se configurado no /painel.
-        Settings.alert("Anti-fraude PvP", p.getName() + ": " + reason + " (" + count + "/" + kickAt + ")" + (count >= kickAt ? " - expulso" : "") + (count >= banAt ? ", ranked bloqueado 24 h" : ""));
+        Settings.alert(M.t("anti_fraude_pvp"), p.getName() + ": " + reason + " (" + count + "/" + kickAt + ")" + (count >= kickAt ? M.t("expulso") : "") + (count >= banAt ? M.t("ranked_bloqueado_24") : ""));
         if (count >= banAt) {
             Profile pr = profile(p);
             if (pr != null) { pr.rankedBanUntil = System.currentTimeMillis() + Fraud.RANKED_BAN_MS; dirty.add(p); }
@@ -611,7 +612,7 @@ public final class GoldPvP extends PluginBase implements Listener {
             Player target = p;
             // Expulsa no tick seguinte para nao derrubar o jogador no meio do evento atual.
             getServer().getScheduler().scheduleDelayedTask(new PluginTask<GoldPvP>(this) {
-                @Override public void onRun(int tick) { if (target.isOnline()) { target.kick(fraudKick.replace("{motivo}", reason) + (count >= banAt ? " Ranked bloqueado por 24 h." : " Na proxima o ranked sera bloqueado."), false); } }
+                @Override public void onRun(int tick) { if (target.isOnline()) { target.kick(fraudKick.replace("{motivo}", reason) + (count >= banAt ? M.t("ranked_bloqueado_por_24") : M.t("na_proxima_ranked_sera_bloqueado")), false); } }
             }, 1);
         } else {
             p.sendMessage(PREFIX + fraudWarning.replace("{n}", String.valueOf(count)).replace("{max}", String.valueOf(kickAt)).replace("{motivo}", reason));
@@ -623,22 +624,22 @@ public final class GoldPvP extends PluginBase implements Listener {
         String name = key(p);
         int oldTier = pr.ladder < 0 ? -1 : Ranks.tier(pr.ladder, false);
         if (pr.ladder < 0) {
-            if (pr.games() < Ranks.PLACEMENTS) { if (p.isOnline()) { p.sendMessage(PREFIX + "§7Classificatoria " + pr.games() + "/" + Ranks.PLACEMENTS + "."); } return; }
+            if (pr.games() < Ranks.PLACEMENTS) { if (p.isOnline()) { p.sendMessage(PREFIX + M.t("classificatoria", pr.games(), Ranks.PLACEMENTS)); } return; }
             pr.ladder = Ranks.placement(pr.rating);
-            if (p.isOnline()) { p.sendMessage(PREFIX + "§6Classificatorias concluidas! §fSeu elo: " + Ranks.display(pr.ladder, false, pr.games())); }
+            if (p.isOnline()) { p.sendMessage(PREFIX + M.t("classificatorias_concluidas_seu_elo", Ranks.display(pr.ladder, false, pr.games()))); }
         } else {
             int change = result > 0 ? Ranks.winGain(pr.rating, pr.ladder) : result < 0 ? -Ranks.lossCost(pr.rating, pr.ladder) : Ranks.drawChange(pr.rating, pr.ladder);
             pr.ladder = Math.max(0, pr.ladder + change);
-            if (p.isOnline()) { p.sendMessage(PREFIX + (change >= 0 ? "§a+" : "§c") + change + " PR §f-> " + Ranks.display(pr.ladder, false, pr.games())); }
+            if (p.isOnline()) { p.sendMessage(PREFIX + M.t("pr", ((change >= 0 ? "§a+" : "§c") + change), Ranks.display(pr.ladder, false, pr.games()))); }
         }
         pr.peakLadder = Math.max(pr.peakLadder, pr.ladder);
         int newTier = Ranks.tier(pr.ladder, false);
         if (oldTier >= 0 && newTier != oldTier && p.isOnline()) {
             String tier = "§" + Ranks.COLORS[newTier] + Ranks.NAMES[newTier];
             if (newTier > oldTier) {
-                p.sendMessage(PREFIX + "§6Voce subiu para " + tier + "§6!");
-                if (newTier >= 6) { getServer().broadcastMessage(PREFIX + "§e" + p.getName() + " §falcancou " + tier + "§f!"); }
-            } else { p.sendMessage(PREFIX + "§cVoce caiu para " + tier + "§c."); }
+                p.sendMessage(PREFIX + M.t("voce_subiu_para", tier));
+                if (newTier >= 6) { getServer().broadcastMessage(PREFIX + M.t("alcancou", p.getName(), tier)); }
+            } else { p.sendMessage(PREFIX + M.t("voce_caiu_para", tier)); }
         }
         // Pingentes de cada elo ja alcancado (pico) e de vitorias.
         List<String> ids = new ArrayList<>();
@@ -656,8 +657,8 @@ public final class GoldPvP extends PluginBase implements Listener {
             if (!cosmetics.exists(id)) { continue; }
             cosmetics.unlock(key(p), id).thenAccept(fresh -> {
                 if (!fresh || !p.isOnline()) { return; }
-                p.sendMessage(PREFIX + "§dNovo cosmetico desbloqueado: §f" + id.replace('_', ' ') + "§d. Veja em /cosmeticos.");
-                if (id.equals("pingente_divino")) { getServer().broadcastMessage(PREFIX + "§6§l" + p.getName() + " entrou para os Divinos!"); }
+                p.sendMessage(PREFIX + M.t("novo_cosmetico_desbloqueado_veja_em_cosmeticos", id.replace('_', ' ')));
+                if (id.equals("pingente_divino")) { getServer().broadcastMessage(PREFIX + M.t("entrou_para_os_divinos", p.getName())); }
             });
         }
     }
@@ -681,7 +682,7 @@ public final class GoldPvP extends PluginBase implements Listener {
         Level level = local == null ? null : getServer().getLevelByName(local.target);
         if (teleport && level != null) { p.teleport(new Location(local.x, local.y, local.z, local.yaw, local.pitch, level)); }
         core.getStore().delete(STASH, key(p));
-        p.sendMessage(PREFIX + "Seu inventario foi devolvido.");
+        p.sendMessage(PREFIX + M.t("seu_inventario_foi_devolvido"));
         giveMenuItem(p);
     }
 
@@ -702,7 +703,7 @@ public final class GoldPvP extends PluginBase implements Listener {
                     Profile pr = profile((Player) sender);
                     if (pr == null) { return true; }
                     pr.showElo = !pr.showElo; dirty.add((Player) sender);
-                    sender.sendMessage(PREFIX + "Elo no chat " + (pr.showElo ? "§aligado" : "§cdesligado") + "§f.");
+                    sender.sendMessage(PREFIX + M.t("elo_no_chat", (pr.showElo ? M.t("ligado") : M.t("desligado"))));
                     return true;
                 }
                 case "perfil": {
@@ -711,11 +712,11 @@ public final class GoldPvP extends PluginBase implements Listener {
                     if (args.length == 0) { return false; }
                     String name = args[0].toLowerCase(Locale.ROOT);
                     core.getStore().get(PROFILES, name).whenComplete((value, error) -> {
-                        if (error != null || !value.isPresent()) { sender.sendMessage(PREFIX + "Perfil nao encontrado."); return; }
+                        if (error != null || !value.isPresent()) { sender.sendMessage(PREFIX + M.t("perfil_nao_encontrado")); return; }
                         Profile pr = GSON.fromJson(value.get(), Profile.class);
-                        sender.sendMessage(PREFIX + "§6" + name + " §f- " + rankText(name, pr) + " §7(pico " + (pr.peakLadder < 0 ? "-" : Ranks.name(pr.peakLadder, false)) + ")");
-                        sender.sendMessage("§fAbates " + pr.kills + " | Mortes " + pr.deaths + " | KDR " + pr.kdr() + " | Melhor sequencia " + pr.bestStreak);
-                        sender.sendMessage("§fRanked " + pr.rankedWins + "V " + pr.rankedLosses + "D " + pr.rankedDraws + "E (" + pr.winRate() + ")");
+                        sender.sendMessage(PREFIX + M.t("pico", name, rankText(name, pr), (pr.peakLadder < 0 ? "-" : Ranks.name(pr.peakLadder, false))));
+                        sender.sendMessage(M.t("abates_mortes_kdr_melhor_sequencia", pr.kills, pr.deaths, pr.kdr(), pr.bestStreak));
+                        sender.sendMessage(M.t("ranked", pr.rankedWins, pr.rankedLosses, pr.rankedDraws, pr.winRate()));
                     });
                     return true;
                 }
@@ -725,7 +726,7 @@ public final class GoldPvP extends PluginBase implements Listener {
     }
 
     private void printTop(CommandSender sender, String board) {
-        sender.sendMessage(PREFIX + (board.equals("ranked") ? "§6Top ranked:" : "§6Top abates:"));
+        sender.sendMessage(PREFIX + (board.equals("ranked") ? M.t("top_ranked") : M.t("top_abates")));
         int i = 1;
         for (RankingService.Entry e : getServer().getServiceManager().load(RankingService.class).top(board, 10)) { sender.sendMessage("§e" + (i++) + ". §f" + e.player + " §7- " + e.label); }
     }
@@ -739,44 +740,44 @@ public final class GoldPvP extends PluginBase implements Listener {
             case "sair": {
                 if (p == null) { return true; }
                 Match m = matches.get(p);
-                if (m != null) { p.sendMessage(PREFIX + "Voce desistiu."); end(m, m.other(p)); } else if (queue.remove(p) != null) { p.sendMessage(PREFIX + "Voce saiu da fila."); }
+                if (m != null) { p.sendMessage(PREFIX + M.t("voce_desistiu")); end(m, m.other(p)); } else if (queue.remove(p) != null) { p.sendMessage(PREFIX + M.t("voce_saiu_da_fila")); }
                 return true;
             }
             default: break;
         }
-        if (!sender.hasPermission("goldpvp.admin")) { sender.sendMessage(PREFIX + "/ranked, /ranked fila, /ranked sair, /perfil [jogador], /topranked, /topkills"); return true; }
+        if (!sender.hasPermission("goldpvp.admin")) { sender.sendMessage(PREFIX + M.t("ranked_ranked_fila_ranked_sair_perfil")); return true; }
         switch (sub) {
             case "arena": {
-                if (p == null || args.length < 3) { sender.sendMessage(PREFIX + "Uso: /ranked arena <nome> <a|b|remover>"); return true; }
+                if (p == null || args.length < 3) { sender.sendMessage(PREFIX + M.t("uso_ranked_arena_nome_remover")); return true; }
                 String name = args[1].toLowerCase(Locale.ROOT);
-                if (!name.matches("[a-z0-9_-]{1,20}")) { throw new IllegalArgumentException("Nome invalido."); }
+                if (!name.matches("[a-z0-9_-]{1,20}")) { throw new IllegalArgumentException(M.t("nome_invalido")); }
                 String what = args[2].toLowerCase(Locale.ROOT);
-                if (busyArenas.contains(name)) { throw new IllegalArgumentException("Arena em uso; espere o duelo acabar."); }
+                if (busyArenas.contains(name)) { throw new IllegalArgumentException(M.t("arena_em_uso_espere_duelo_acabar")); }
                 Destination here = Destination.position(p.level.getFolderName(), p.x, p.y, p.z, (float) p.yaw, (float) p.pitch);
                 boards.change(b -> {
                     if (what.equals("remover")) { b.arenas.remove(name); return; }
                     Boards.Arena a = b.arenas.computeIfAbsent(name, k -> new Boards.Arena());
-                    if (what.equals("a")) { a.a = here; } else if (what.equals("b")) { a.b = here; } else { throw new IllegalArgumentException("Use a, b ou remover."); }
+                    if (what.equals("a")) { a.a = here; } else if (what.equals("b")) { a.b = here; } else { throw new IllegalArgumentException(M.t("use_ou_remover")); }
                     if (a.a == null) { a.a = here; }
                     if (a.b == null) { a.b = here; }
-                }).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + e.getMessage() : "Arena " + name + " atualizada (" + what + ").")));
+                }).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + e.getMessage() : M.t("arena_atualizada", name, what))));
                 return true;
             }
             case "kit": {
                 if (p == null) { return true; }
                 List<ItemData> kit = new ArrayList<>(ItemData.snapshot(p.getInventory().getContents(), 36).values());
                 for (Item armor : p.getInventory().getArmorContents()) { if (armor.getId() != 0) { kit.add(ItemData.of(armor)); } }
-                boards.change(b -> { b.kit.clear(); b.kit.addAll(kit); }).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + e.getMessage() : "Kit do ranked salvo (" + kit.size() + " itens).")));
+                boards.change(b -> { b.kit.clear(); b.kit.addAll(kit); }).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + e.getMessage() : M.t("kit_do_ranked_salvo_itens", kit.size()))));
                 return true;
             }
             case "lobby": {
-                if (args.length < 2) { sender.sendMessage(PREFIX + "Uso: /ranked lobby <mundo> (alterna onde o item do perfil aparece)"); return true; }
+                if (args.length < 2) { sender.sendMessage(PREFIX + M.t("uso_ranked_lobby_mundo_alterna_onde")); return true; }
                 String world = Destination.world(args[1]).target;
-                boards.change(b -> { if (!b.lobbyWorlds.remove(world)) { b.lobbyWorlds.add(world); } }).whenComplete((v, e) -> sender.sendMessage(PREFIX + "Mundos com o item: " + boards.read(b -> b.lobbyWorlds)));
+                boards.change(b -> { if (!b.lobbyWorlds.remove(world)) { b.lobbyWorlds.add(world); } }).whenComplete((v, e) -> sender.sendMessage(PREFIX + M.t("mundos_com_item", boards.<Object>read(b -> b.lobbyWorlds))));
                 return true;
             }
             default:
-                sender.sendMessage(PREFIX + "Admin: /ranked arena <nome> a|b|remover, /ranked kit, /ranked lobby <mundo>");
+                sender.sendMessage(PREFIX + M.t("admin_ranked_arena_nome_remover_ranked"));
                 return true;
         }
     }

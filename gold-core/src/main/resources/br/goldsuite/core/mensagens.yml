@@ -1,0 +1,106 @@
+aguarde_viagem_atual_terminar: "Aguarde a viagem atual terminar."
+aguarde_whenready_antes_de_acessar_assinatura: "Aguarde whenReady antes de acessar a assinatura de itens."
+alterado: " &e(alterado)"
+armazenamento_encerrado_ou_fila_cheia: "Armazenamento encerrado ou fila cheia."
+# {0} = (secret(d) ? shown(d) : raw(id).replace('§', '&')), {1} = d.def
+atual_padrao: "&7Atual: &r{0}  &7| padrao: {1}"
+# {0} = d.key, {1} = (custom ? M.t("alterado") : ""), {2} = d.description, {3} = shown(d)
+atual_toque_para_editar: "&f{0}{1}\n&7{2}\n&7Atual: &r{3}\n&eToque para editar"
+chave_de_assinatura_precisa_ter_32: "A chave de assinatura precisa ter 32 bytes."
+# {0} = key
+chave_de_placeholder_invalida: "Chave de placeholder invalida: {0}"
+# {0} = plugin, {1} = key
+chave_invalida: "Chave invalida: {0}:{1}"
+chave_precisa_ter_pelo_menos_32: "A chave precisa ter pelo menos 32 bytes."
+# {0} = id
+configuracao_inexistente: "&cConfiguracao inexistente: {0}"
+configuracao_invalida: "Configuracao invalida."
+cor_invalida_use_0_9_opcionalmente: "Cor invalida: use &&0-&&9, &&a-&&f e opcionalmente &&l/&&o (ex.: &&6&&l)."
+definir_webhook_cole_url_do_webhook: "&aDefinir webhook\n&7Cole a URL do webhook no chat"
+desligado: "&cdesligado"
+desligar: "&cDesligar"
+discord: "Discord"
+# {0} = (hook ? "§aligado" : "§cdesligado")
+discord_avisos_da_staff: "&9Discord\n&7Avisos da staff: {0}"
+# {0} = MAX_TICKS
+duracao_entre_1_ticks: "Duracao entre 1 e {0} ticks."
+edicao_cancelada: "&7Edicao cancelada."
+enviar_teste: "&eEnviar teste"
+espaco_de_dados_ou_chave_invalida: "Espaco de dados ou chave invalida."
+finalidade_de_assinatura_invalida: "Finalidade de assinatura invalida."
+goldcore_encerrado: "GoldCore encerrado."
+goldcore_foi_desativado_durante_inicio: "GoldCore foi desativado durante o inicio."
+jogador_offline: "Jogador offline."
+ligado: "&aligado"
+# {0} = texto atual
+msg_atual: "&7Atual: &r{0}"
+# {0} = chave, {1} = texto
+msg_busca_linha: "&e{0}&7: &r{1}"
+# {0} = plugin, {1} = busca, {2} = proxima pagina
+msg_busca_mais: "&7Mais: /painel msg {0} {1}{2}"
+# {0} = plugin, {1} = encontradas, {2} = pagina, {3} = total de paginas
+msg_busca_titulo: "&6{0}: {1} mensagens &7(pagina {2}/{3})"
+# {0} = plugin, {1} = chave
+msg_chave: "&6{0} &7> &e{1}"
+# {0} = plugin, {1} = chave
+msg_editar_uso: "&7Trocar: /painel msg {0} {1} <texto> (ou padrao)"
+# {0} = erro
+msg_falha_salvar: "&cNao foi possivel salvar: {0}"
+# {0} = plugin, {1} = total de mensagens, {2} = alteradas
+msg_lista_linha: "&e{0} &7- {1} mensagens, &f{2} &7alteradas"
+msg_lista_titulo: "&6--- Mensagens dos plugins ---"
+msg_lista_uso: "&7Use /painel msg <plugin> [busca] para ver e /painel msg <plugin> <chave> <texto> para trocar."
+# {0} = texto padrao
+msg_padrao: "&7Padrao: &r{0}"
+# {0} = nome digitado
+msg_plugin_invalido: "&cPlugin sem mensagens: {0}. Veja a lista em /painel msg."
+# {0} = quantidade de plugins
+msg_recarregadas: "&aMensagens recarregadas dos arquivos ({0} plugins)."
+# {0} = chave
+msg_salva: "&aMensagem {0} salva. Assim ela fica:"
+# {0} = o que sao os valores {0} {1}...
+msg_valores: "&7Valores: &f{0}"
+# {0} = destination.target
+mundo_inexistente: "Mundo inexistente: {0}"
+nao_foi_possivel_assinar_item: "Nao foi possivel assinar o item."
+# {0} = GoldCore.root(e)
+nao_foi_possivel_gravar: "&cNao foi possivel gravar: {0}"
+nao_foi_possivel_gravar_2: "&cNao foi possivel gravar."
+nao_foi_possivel_preparar_armazenamento_da: "Nao foi possivel preparar o armazenamento da GoldSuite."
+nbt_profundo_demais_para_assinatura: "NBT profundo demais para assinatura."
+numero_fora_do_limite: "Numero fora do limite."
+pagina_anterior: "&f< Pagina anterior"
+# {0} = r
+painel: "&6[Painel] &f{0}"
+painel_cole_no_chat_url_do: "&9[Painel] &fCole no chat a URL do webhook (Discord > canal > Integracoes > Webhooks). 'cancelar' sai."
+# {0} = d.plugin, {1} = d.key
+painel_digite_no_chat_novo_valor: "&6[Painel] &fDigite no chat o novo valor de &e{0} / {1}&f."
+painel_discord_desligado: "&9[Painel] &fDiscord desligado."
+painel_do_servidor: "Painel do servidor"
+painel_painel_ver_plugin_painel_set: "/painel, /painel ver <plugin>, /painel set <plugin> <chave> <valor>, /painel discord <url|off|teste>, /painel msg [plugin] [chave|busca] [texto], /painel mensagens recarregar"
+painel_teste_enviado: "&9[Painel] &fTeste enviado."
+painel_ver_plugin_set_plugin_chave: "/painel ver <plugin>, set <plugin> <chave> <valor>, discord <url|off|teste>, msg [plugin] [chave|busca] [texto], mensagens recarregar"
+painel_webhook_salvo_use_teste_no: "&9[Painel] &fWebhook salvo. Use o teste no painel."
+# {0} = count
+paleta_servidor_opcoes: "&6Paleta e servidor\n&7{0} opcoes"
+posicao_sem_mundo: "Posicao sem mundo."
+proxima_pagina: "&fProxima pagina >"
+quadro_invalido: "Quadro invalido."
+sem_permissao: "&cSem permissao."
+# {0} = (3 - age / 20)
+teleportando_em: "Teleportando em {0}..."
+teleporte_cancelado_voce_se_moveu: "Teleporte cancelado: voce se moveu."
+# {0} = who.getName()
+teste_de_aviso_enviado_por: "Teste de aviso enviado por {0}"
+texto_de_1_200_caracteres: "Texto de 1 a 200 caracteres."
+tipo_de_nbt_nao_reconhecido: "Tipo de NBT nao reconhecido."
+transferencia_entre_servidores_exige_proxy_da: "Transferencia entre servidores exige o proxy da GoldSuite; a 0.15.10 nao tem TransferPacket."
+url_invalida_precisa_ser_https_discord: "&cURL invalida. Precisa ser https://discord.com/api/webhooks/..."
+use_para_cores_primaria_secundaria_destaque: "&7Use && para cores e {primaria} {secundaria} {destaque} {sucesso} {erro} {texto}. 'padrao' restaura, 'cancelar' sai."
+use_um_numero_inteiro: "Use um numero inteiro."
+uso_painel_discord_url_off_teste: "Uso: /painel discord <url | off | teste>"
+uso_painel_set_plugin_chave_valor: "Uso: /painel set <plugin> <chave> <valor | padrao>"
+valor_ausente_ou_excessivo: "Valor ausente ou excessivo."
+# {0} = e.getKey()
+valor_invalido: "Valor invalido: {0}"
+voltar: "&fVoltar"

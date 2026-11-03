@@ -34,7 +34,7 @@ public final class Profile {
 
     public void validate() {
         if (kills < 0 || deaths < 0 || streak < 0 || bestStreak < 0 || rating < 0 || rating > 10000 || rankedWins < 0 || rankedLosses < 0 || rankedDraws < 0 || ladder < -1 || ladder > 1_000_000 || peakLadder < -1 || peakLadder > 1_000_000 || damageDealt < 0 || damageTaken < 0) {
-            throw new IllegalArgumentException("Perfil invalido.");
+            throw new IllegalArgumentException(M.t("perfil_invalido"));
         }
     }
 }

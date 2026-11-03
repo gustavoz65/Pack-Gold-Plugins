@@ -14,8 +14,9 @@ public final class GoldEconomy extends PluginBase implements EconomyService {
     /** Jogadores com operacao pendente; impede que um cliente lote a fila de gravacao. */
     private final Set<String> busy = new HashSet<>();
     @Override public void onEnable() {
+        M.B.attach(this);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldEconomy."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new AccountStore(core.getStore(), msg -> getLogger().info(msg));
         getServer().getScheduler().scheduleRepeatingTask(new cn.nukkit.scheduler.PluginTask<GoldEconomy>(this) { @Override public void onRun(int tick) { data.flush(); } }, 20);
         Settings.text(this, "banco.valores", "5000,25000,50000,100000,500000", "Valores dos botoes de deposito e saque do /banco (ate 5, separados por virgula)", v -> {
@@ -25,7 +26,7 @@ public final class GoldEconomy extends PluginBase implements EconomyService {
         });
         data.ready().whenComplete((unused, error) -> {
             if (!isEnabled()) { return; }
-            if (error != null) { getLogger().error("Falha ao carregar economia.", error); getServer().getPluginManager().disablePlugin(this); }
+            if (error != null) { getLogger().error(M.t("falha_ao_carregar_economia"), error); getServer().getPluginManager().disablePlugin(this); }
             else {
                 getLogger().info(data.size() + " conta(s) carregada(s).");
                 getServer().getServiceManager().register(EconomyService.class, this, this);
@@ -46,15 +47,15 @@ public final class GoldEconomy extends PluginBase implements EconomyService {
         if (menus == null) { return; }
         long wallet = balance(p.getName(), Currency.MONEY), bank = data.read(s -> s.bank(p.getName()));
         Map<Integer, cn.nukkit.item.Item> icons = new HashMap<>();
-        icons.put(4, icon(340, 0, "\u00a7aSaldo\n\u00a77Carteira: \u00a7f$" + Ledger.format(wallet, Currency.MONEY) + "\n\u00a77Banco: \u00a7f$" + Ledger.format(bank, Currency.MONEY)));
+        icons.put(4, icon(340, 0, M.t("saldo_carteira_banco", Ledger.format(wallet, Currency.MONEY), Ledger.format(bank, Currency.MONEY))));
         for (int i = 0; i < bankValues.size(); i++) {
             long v = bankValues.get(i);
-            icons.put(10 + i, icon(339, 0, "\u00a7aDepositar $" + PlaceholderService.compact(v) + "\n\u00a77Carteira -> banco"));
-            icons.put(19 + i, icon(339, 0, "\u00a76Sacar $" + PlaceholderService.compact(v) + "\n\u00a77Banco -> carteira"));
+            icons.put(10 + i, icon(339, 0, M.t("depositar_carteira_banco", PlaceholderService.compact(v))));
+            icons.put(19 + i, icon(339, 0, M.t("sacar_banco_carteira", PlaceholderService.compact(v))));
         }
-        icons.put(16, icon(266, 0, "\u00a7aDepositar tudo\n\u00a77$" + Ledger.format(wallet, Currency.MONEY)));
-        icons.put(25, icon(266, 0, "\u00a76Sacar tudo\n\u00a77$" + Ledger.format(bank, Currency.MONEY)));
-        menus.open(p, "Banco Central", icons, (who, slot) -> {
+        icons.put(16, icon(266, 0, M.t("depositar_tudo", Ledger.format(wallet, Currency.MONEY))));
+        icons.put(25, icon(266, 0, M.t("sacar_tudo", Ledger.format(bank, Currency.MONEY))));
+        menus.open(p, M.t("banco_central"), icons, (who, slot) -> {
             long amount; boolean deposit;
             if (slot >= 10 && slot < 10 + bankValues.size()) { amount = bankValues.get(slot - 10) * 100; deposit = true; }
             else if (slot >= 19 && slot < 19 + bankValues.size()) { amount = bankValues.get(slot - 19) * 100; deposit = false; }
@@ -66,12 +67,12 @@ public final class GoldEconomy extends PluginBase implements EconomyService {
     }
 
     void bankMove(Player p, long cents, boolean deposit, boolean reopen) {
-        if (cents <= 0) { p.sendMessage("\u00a7cNada para " + (deposit ? "depositar." : "sacar.")); return; }
+        if (cents <= 0) { p.sendMessage(M.t("nada_para", (deposit ? M.t("depositar") : M.t("sacar")))); return; }
         CompletableFuture<Void> op = guarded(p, () -> data.change(s -> { if (deposit) { s.deposit(p.getName(), cents); } else { s.withdraw(p.getName(), cents); } }));
-        if (op == null) { p.sendMessage("\u00a7cAguarde a operacao anterior terminar."); return; }
+        if (op == null) { p.sendMessage(M.t("aguarde_operacao_anterior_terminar")); return; }
         op.whenComplete((v, e) -> getServer().getScheduler().scheduleTask(() -> {
             if (!isEnabled() || !p.isOnline()) { return; }
-            p.sendMessage(e != null ? "\u00a7c" + message(e) : (deposit ? "\u00a7aVoce depositou $" : "\u00a7aVoce sacou $") + Ledger.format(cents, Currency.MONEY) + (deposit ? " no banco." : " do banco."));
+            p.sendMessage(e != null ? "\u00a7c" + message(e) : (deposit ? M.t("voce_depositou") : M.t("voce_sacou")) + Ledger.format(cents, Currency.MONEY) + (deposit ? M.t("no_banco") : M.t("do_banco")));
             if (reopen && e == null) { openBank(p); }
         }));
     }
@@ -83,14 +84,14 @@ public final class GoldEconomy extends PluginBase implements EconomyService {
     @Override public CompletableFuture<Void> transfer(String from, String to, Currency currency, long amount) { Objects.requireNonNull(currency); return data.change(s -> s.transfer(from, to, currency, amount)); }
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         AuthService auth = getServer().getServiceManager().load(AuthService.class);
-        if (sender instanceof Player && auth != null && !auth.isAuthenticated((Player) sender)) { sender.sendMessage("Autentique-se primeiro."); return true; }
+        if (sender instanceof Player && auth != null && !auth.isAuthenticated((Player) sender)) { sender.sendMessage(M.t("autentique_se_primeiro")); return true; }
         try {
             Currency currency = command.getName().equals("cash") ? Currency.CASH : Currency.MONEY;
             CompletableFuture<Void> operation;
             switch (command.getName()) {
                 case "money": case "cash":
                     String target = args.length == 0 ? sender.getName() : args[0];
-                    sender.sendMessage("Saldo de " + target + ": " + Ledger.format(balance(target, currency), currency) + (currency == Currency.CASH ? " cash" : " moedas")); return true;
+                    sender.sendMessage(M.t("saldo_de", target, Ledger.format(balance(target, currency), currency), (currency == Currency.CASH ? M.t("cash") : M.t("moedas")))); return true;
                 case "topmoney":
                     List<Map.Entry<String, Long>> accounts = data.read(s -> {
                         List<Map.Entry<String, Long>> list = new ArrayList<>(s.accounts.size());
@@ -98,7 +99,7 @@ public final class GoldEconomy extends PluginBase implements EconomyService {
                         return list;
                     });
                     accounts.sort(Map.Entry.<String, Long>comparingByValue().reversed().thenComparing(Map.Entry.comparingByKey()));
-                    sender.sendMessage("Maiores saldos:");
+                    sender.sendMessage(M.t("maiores_saldos"));
                     for (int i = 0; i < Math.min(10, accounts.size()); i++) { sender.sendMessage((i + 1) + ". " + accounts.get(i).getKey() + ": " + Ledger.format(accounts.get(i).getValue(), Currency.MONEY)); }
                     return true;
                 case "banco":
@@ -108,11 +109,11 @@ public final class GoldEconomy extends PluginBase implements EconomyService {
                         bankMove((Player) sender, Ledger.parse(args[1], Currency.MONEY), args[0].equalsIgnoreCase("depositar"), false);
                         return true;
                     }
-                    sender.sendMessage("Carteira: $" + Ledger.format(balance(sender.getName(), Currency.MONEY), Currency.MONEY) + " | Banco: $" + Ledger.format(data.read(s -> s.bank(sender.getName())), Currency.MONEY) + ". Use /banco, /banco depositar <valor> ou /banco sacar <valor>.");
+                    sender.sendMessage(M.t("carteira_banco_use_banco_banco_depositar", Ledger.format(balance(sender.getName(), Currency.MONEY), Currency.MONEY), Ledger.format(data.read(s -> s.bank(sender.getName())), Currency.MONEY)));
                     return true;
                 case "pagar":
                     if (!(sender instanceof Player) || args.length != 2) { return false; }
-                    if (!knownPlayer(args[0])) { sender.sendMessage("Jogador nunca entrou no servidor."); return true; }
+                    if (!knownPlayer(args[0])) { sender.sendMessage(M.t("jogador_nunca_entrou_no_servidor")); return true; }
                     long payment = Ledger.parse(args[1], Currency.MONEY);
                     operation = guarded(sender, () -> transfer(sender.getName(), args[0], Currency.MONEY, payment)); break;
                 case "trocarcash":
@@ -120,7 +121,7 @@ public final class GoldEconomy extends PluginBase implements EconomyService {
                     long amount = Ledger.parse(args[0], Currency.CASH);
                     operation = guarded(sender, () -> data.change(s -> s.exchange(sender.getName(), amount))); break;
                 case "economia":
-                    if (!sender.hasPermission("goldeconomy.admin")) { sender.sendMessage("Sem permissao."); return true; }
+                    if (!sender.hasPermission("goldeconomy.admin")) { sender.sendMessage(M.t("sem_permissao")); return true; }
                     if (args.length != 4 || !Arrays.asList("money", "cash").contains(args[1])) { return false; }
                     Currency selected = args[1].equals("cash") ? Currency.CASH : Currency.MONEY;
                     switch (args[0]) {
@@ -132,9 +133,9 @@ public final class GoldEconomy extends PluginBase implements EconomyService {
                     break;
                 default: return false;
             }
-            if (operation == null) { sender.sendMessage("Aguarde a operacao anterior terminar."); return true; }
-            operation.whenComplete((unused, error) -> { if (isEnabled()) { sender.sendMessage(error == null ? "Operacao salva com sucesso." : "Operacao recusada: " + message(error)); } });
-        } catch (RuntimeException error) { sender.sendMessage("Operacao recusada: " + message(error)); }
+            if (operation == null) { sender.sendMessage(M.t("aguarde_operacao_anterior_terminar_2")); return true; }
+            operation.whenComplete((unused, error) -> { if (isEnabled()) { sender.sendMessage(error == null ? M.t("operacao_salva_com_sucesso") : M.t("operacao_recusada", message(error))); } });
+        } catch (RuntimeException error) { sender.sendMessage(M.t("operacao_recusada", message(error))); }
         return true;
     }
     /** Uma operacao pendente por jogador; null quando ja existe outra em andamento. */

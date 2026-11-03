@@ -29,36 +29,36 @@ public final class ShopState {
             int id = Integer.parseInt(parts[0]), meta = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
             if (id < 1 || id > 511 || meta < 0 || meta > 32767 || parts.length > 2) { throw new NumberFormatException(); }
             return new int[] {id, meta};
-        } catch (NumberFormatException e) { throw new IllegalArgumentException("Item: use id ou id:meta (ex.: 264 ou 351:4)."); }
+        } catch (NumberFormatException e) { throw new IllegalArgumentException(M.t("item_use_id_ou_id_meta")); }
     }
 
     public static int amount(String text) {
         try { int n = Integer.parseInt(text.trim()); if (n < 1 || n > 64) { throw new NumberFormatException(); } return n; }
-        catch (NumberFormatException e) { throw new IllegalArgumentException("Quantidade entre 1 e 64."); }
+        catch (NumberFormatException e) { throw new IllegalArgumentException(M.t("quantidade_entre_1_64")); }
     }
 
     /** Preco em reais com ate 2 casas ("10", "10,50", "$ 10.5") para centavos. */
     public static long price(String text) {
         String t = text.replace("$", "").replace(",", ".").trim();
-        if (!t.matches("[0-9]{1,11}(\\.[0-9]{1,2})?")) { throw new IllegalArgumentException("Preco invalido (ex.: 10 ou 10,50)."); }
+        if (!t.matches("[0-9]{1,11}(\\.[0-9]{1,2})?")) { throw new IllegalArgumentException(M.t("preco_invalido_ex_10_ou_10")); }
         long cents = new BigDecimal(t).movePointRight(2).longValueExact();
-        if (cents < 1 || cents > MAX_PRICE) { throw new IllegalArgumentException("Preco fora do limite."); }
+        if (cents < 1 || cents > MAX_PRICE) { throw new IllegalArgumentException(M.t("preco_fora_do_limite")); }
         return cents;
     }
 
     public static String money(long cents) { return BigDecimal.valueOf(cents, 2).toPlainString(); }
 
     public static void validate(ShopState s) {
-        if (s == null || s.shops == null || s.sellPrices == null || s.shops.size() > 5000 || s.sellPrices.size() > 1000) { throw new IllegalArgumentException("Lojas invalidas."); }
+        if (s == null || s.shops == null || s.sellPrices == null || s.shops.size() > 5000 || s.sellPrices.size() > 1000) { throw new IllegalArgumentException(M.t("lojas_invalidas")); }
         for (Map.Entry<String, Shop> e : s.shops.entrySet()) {
             Shop shop = e.getValue();
             if (!e.getKey().matches("[A-Za-z0-9_][A-Za-z0-9_.-]{0,31}:-?\\d+:\\d+:-?\\d+") || shop == null || shop.type == null || shop.owner == null
                     || shop.id < 1 || shop.id > 511 || shop.meta < 0 || shop.amount < 1 || shop.amount > 64 || shop.price < 1 || shop.price > MAX_PRICE
-                    || (shop.type == Type.LOJA && !shop.owner.matches("[a-z0-9_]{3,16}"))) { throw new IllegalArgumentException("Loja invalida: " + e.getKey()); }
+                    || (shop.type == Type.LOJA && !shop.owner.matches("[a-z0-9_]{3,16}"))) { throw new IllegalArgumentException(M.t("loja_invalida", e.getKey())); }
         }
         for (Map.Entry<String, Long> e : s.sellPrices.entrySet()) {
             item(e.getKey());
-            if (e.getValue() == null || e.getValue() < 1 || e.getValue() > MAX_PRICE) { throw new IllegalArgumentException("Preco de venda invalido."); }
+            if (e.getValue() == null || e.getValue() < 1 || e.getValue() > MAX_PRICE) { throw new IllegalArgumentException(M.t("preco_de_venda_invalido")); }
         }
     }
 }

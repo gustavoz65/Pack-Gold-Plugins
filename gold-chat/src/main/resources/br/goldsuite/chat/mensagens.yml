@@ -1,0 +1,46 @@
+# {0} = ChatState.color(String.join(" ", args))
+anuncio: "&6[&eAnuncio&6] &f{0}"
+anuncio_invalido: "Anuncio invalido."
+# {0} = text
+aviso: "&c&lAVISO &8» &f{0}"
+aviso_2: "&c&lAVISO"
+chat: "&b[&3Chat&b]&f "
+chat_ativado: "&aChat ativado."
+chat_desativado_pela_staff: "&cChat desativado pela staff."
+chat_esta_desativado: "O chat esta desativado."
+# {0} = sender.getName()
+chat_limpo_por: "Chat limpo por {0}."
+configuracao_de_chat_invalida: "Configuracao de chat invalida."
+# {0} = to.getName()
+desativou_mensagens_privadas: "{0} desativou mensagens privadas."
+devagar: "Devagar."
+devagar_espere_um_pouco_entre_as: "&cDevagar: espere um pouco entre as mensagens."
+echame_amigos_use_tpa_epara_ir: "&&eChame amigos! Use &&f/tpa &&epara ir ate eles."
+eregras_sem_hack_sem_ofensa_bom: "&&eRegras: sem hack, sem ofensa. Bom jogo!"
+euse_kits_epara_ver_os_kits: "&&eUse &&f/kits &&epara ver os kits do HG."
+formato_precisa_de_mensagem_ate_120: "Formato precisa de {mensagem} e ate 120 caracteres."
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldChat."
+jogador_offline: "Jogador offline."
+links_ips_nao_sao_permitidos: "&cLinks e IPs nao sao permitidos."
+mensagens_privadas_ativadas: "Mensagens privadas ativadas."
+mensagens_privadas_desativadas: "Mensagens privadas desativadas."
+minutos_entre_0_permanente_525600: "Minutos entre 0 (permanente) e 525600."
+nao_repita_mesma_mensagem: "&cNao repita a mesma mensagem."
+ninguem_para_responder: "Ninguem para responder."
+nome_invalido: "Nome invalido."
+numero_invalido: "&cNumero invalido."
+permanentemente: "permanentemente."
+# {0} = name
+pode_falar_de_novo: "{0} pode falar de novo."
+# {0} = minutes
+por_min: "por {0} min."
+# {0} = name, {1} = (minutes == 0 ? "permanentemente." : "por " + minutes + " min.")
+silenciado: "{0} silenciado {1}"
+# {0} = from.getName(), {1} = message
+voce: "&d[{0} -> voce] &f{1}"
+# {0} = to.getName(), {1} = message
+voce_2: "&d[voce -> {0}] &f{1}"
+voce_esta_silenciado: "Voce esta silenciado."
+# {0} = ((until - System.currentTimeMillis()) / 60000 + 1)
+voce_esta_silenciado_por_mais_min: "Voce esta silenciado por mais {0} min."
+voce_nao_pode_mandar_mensagem_para: "Voce nao pode mandar mensagem para si mesmo."

@@ -48,13 +48,14 @@ public final class GoldNPC extends PluginBase implements Listener {
     private final Map<Integer, String> rankName = new HashMap<>();
 
     @Override public void onEnable() {
+        M.B.attach(this);
         core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldNPC."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new PersistentState<>(core.getStore(), "goldnpc", NpcState.class, NpcState::new, NpcState::validate);
         getServer().getPluginManager().registerEvents(this, this);
         data.ready().thenCompose(ignored -> loadSkins()).whenComplete((unused, error) -> {
             if (!isEnabled()) { return; }
-            if (error != null) { getLogger().error("Falha ao carregar NPCs.", error); getServer().getPluginManager().disablePlugin(this); return; }
+            if (error != null) { getLogger().error(M.t("falha_ao_carregar_npcs"), error); getServer().getPluginManager().disablePlugin(this); return; }
             rebuildAll();
             getLogger().info(views.size() + " NPC(s) carregado(s).");
         });
@@ -181,7 +182,7 @@ public final class GoldNPC extends PluginBase implements Listener {
             int position = Integer.parseInt(spec.substring(colon + 1));
             List<RankingService.Entry> top = ranking.top(board, position);
             RankingService.Entry entry = top.size() >= position ? top.get(position - 1) : null;
-            String name = medal(position) + (entry == null ? "\u00a77(vago)" : "\u00a7f" + entry.player + "\n\u00a7e" + entry.label);
+            String name = medal(position) + (entry == null ? M.t("vago") : "\u00a7f" + entry.player + "\n\u00a7e" + entry.label);
             String player = entry == null ? null : entry.player;
             if (Objects.equals(player, rankShown.get(id)) && name.equals(rankName.get(id))) { continue; }
             if (Objects.equals(player, rankShown.get(id))) { rankName.put(id, name); view.updateName(name); continue; }
@@ -233,11 +234,11 @@ public final class GoldNPC extends PluginBase implements Listener {
         lastClick.put(player, now);
         if (picking.remove(player)) {
             selected.put(player, view.id);
-            player.sendMessage("NPC #" + view.id + " selecionado. " + describe(view.id, view.data));
+            player.sendMessage(M.t("npc_selecionado", view.id, describe(view.id, view.data)));
             return;
         }
         AuthService auth = getServer().getServiceManager().load(AuthService.class);
-        if (auth != null && !auth.isAuthenticated(player)) { player.sendTip("Autentique-se primeiro."); return; }
+        if (auth != null && !auth.isAuthenticated(player)) { player.sendTip(M.t("autentique_se_primeiro")); return; }
         NpcState.Npc npc = view.data;
         if (!npc.command.isEmpty()) {
             getServer().dispatchCommand(player, npc.command.replace("{jogador}", player.getName()));
@@ -246,7 +247,7 @@ public final class GoldNPC extends PluginBase implements Listener {
             TravelService travel = getServer().getServiceManager().load(TravelService.class);
             if (travel == null || travel.isTraveling(player)) { return; }
             travel.travel(player, npc.destination, npc.transition()).whenComplete((ok, error) -> {
-                if (error != null && player.isOnline()) { player.sendMessage("Nao foi possivel viajar: " + root(error)); }
+                if (error != null && player.isOnline()) { player.sendMessage(M.t("nao_foi_possivel_viajar", root(error))); }
             });
         }
     }
@@ -254,37 +255,37 @@ public final class GoldNPC extends PluginBase implements Listener {
     // ---------- comandos ----------
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("goldnpc.admin")) { sender.sendMessage("Sem permissao."); return true; }
-        if (!(sender instanceof Player)) { sender.sendMessage("Use dentro do jogo."); return true; }
+        if (!sender.hasPermission("goldnpc.admin")) { sender.sendMessage(M.t("sem_permissao")); return true; }
+        if (!(sender instanceof Player)) { sender.sendMessage(M.t("use_dentro_do_jogo")); return true; }
         Player player = (Player) sender;
         AuthService auth = getServer().getServiceManager().load(AuthService.class);
-        if (auth != null && !auth.isAuthenticated(player)) { player.sendMessage("Autentique-se primeiro."); return true; }
+        if (auth != null && !auth.isAuthenticated(player)) { player.sendMessage(M.t("autentique_se_primeiro")); return true; }
         if (args.length == 0) { help(player); return true; }
         try {
             String rest = join(args, 1);
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "criar": {
-                    if (args.length < 2) { player.sendMessage("Uso: /npc criar <tipo> [nome]"); return true; }
+                    if (args.length < 2) { player.sendMessage(M.t("uso_npc_criar_tipo_nome")); return true; }
                     String type = NpcState.type(args[1]);
                     String name = NpcState.name(args.length > 2 ? join(args, 2) : player.getName());
                     CompletableFuture<String> skin = type.equals("humano") ? saveSkin(player.getSkin()) : CompletableFuture.completedFuture("");
                     int[] created = new int[1];
                     result(player, skin.thenCompose(hash -> data.change(s -> {
-                        if (s.npcs.size() >= NpcState.MAX_NPCS) { throw new IllegalArgumentException("Limite de NPCs atingido."); }
+                        if (s.npcs.size() >= NpcState.MAX_NPCS) { throw new IllegalArgumentException(M.t("limite_de_npcs_atingido")); }
                         NpcState.Npc npc = new NpcState.Npc();
                         npc.type = type; npc.name = name; npc.skin = hash;
                         place(npc, player);
                         created[0] = s.nextId++;
                         s.npcs.put(created[0], npc);
-                    })), () -> { selected.put(player, created[0]); rebuild(created[0]); player.sendMessage("NPC #" + created[0] + " criado e selecionado. Configure com /npc destino e /npc transicao."); });
+                    })), () -> { selected.put(player, created[0]); rebuild(created[0]); player.sendMessage(M.t("npc_criado_selecionado_configure_com_npc", created[0])); });
                     return true;
                 }
                 case "selecionar":
-                    if (args.length == 2) { int id = parseId(args[1]); data.read(s -> s.require(id)); selected.put(player, id); player.sendMessage("NPC #" + id + " selecionado."); }
-                    else { picking.add(player); player.sendMessage("Toque no NPC que deseja selecionar."); }
+                    if (args.length == 2) { int id = parseId(args[1]); data.read(s -> s.require(id)); selected.put(player, id); player.sendMessage(M.t("npc_selecionado_2", id)); }
+                    else { picking.add(player); player.sendMessage(M.t("toque_no_npc_que_deseja_selecionar")); }
                     return true;
                 case "lista":
-                    data.read(s -> { if (s.npcs.isEmpty()) { player.sendMessage("Nenhum NPC criado."); } for (Map.Entry<Integer, NpcState.Npc> e : s.npcs.entrySet()) { player.sendMessage(describe(e.getKey(), e.getValue())); } return null; });
+                    data.read(s -> { if (s.npcs.isEmpty()) { player.sendMessage(M.t("nenhum_npc_criado")); } for (Map.Entry<Integer, NpcState.Npc> e : s.npcs.entrySet()) { player.sendMessage(describe(e.getKey(), e.getValue())); } return null; });
                     return true;
                 case "info": { int id = selection(player); player.sendMessage(describe(id, data.read(s -> s.require(id)))); return true; }
                 case "nome": { String name = NpcState.name(rest); edit(player, npc -> npc.name = name); return true; }
@@ -294,33 +295,33 @@ public final class GoldNPC extends PluginBase implements Listener {
                 case "mover": edit(player, npc -> place(npc, player)); return true;
                 case "item": { Item hand = player.getInventory().getItemInHand(); edit(player, npc -> { npc.itemId = hand.getId(); npc.itemMeta = Math.max(0, hand.getDamage()); }); return true; }
                 case "ranking": {
-                    if (args.length < 2) { player.sendMessage("Uso: /npc ranking <quadro> <posicao 1-10> | nenhum. Quadros: " + rankingBoards()); return true; }
+                    if (args.length < 2) { player.sendMessage(M.t("uso_npc_ranking_quadro_posicao_1", rankingBoards())); return true; }
                     String spec;
                     if (args[1].equalsIgnoreCase("nenhum")) { spec = ""; }
                     else {
                         String board = args[1].toLowerCase(Locale.ROOT);
-                        if (!rankingBoards().contains(board)) { player.sendMessage("Quadro inexistente. Disponiveis: " + rankingBoards()); return true; }
+                        if (!rankingBoards().contains(board)) { player.sendMessage(M.t("quadro_inexistente_disponiveis", rankingBoards())); return true; }
                         int position = args.length > 2 ? parseId(args[2]) : 1;
-                        if (position < 1 || position > 10) { player.sendMessage("Posicao de 1 a 10."); return true; }
+                        if (position < 1 || position > 10) { player.sendMessage(M.t("posicao_de_1_10")); return true; }
                         spec = board + ":" + position;
                     }
                     int id = selection(player);
                     result(player, data.change(s -> { NpcState.Npc npc = s.require(id); npc.ranking = spec; if (!spec.isEmpty()) { npc.type = "humano"; } }), () -> {
                         rankShown.remove(id); rankSkin.remove(id); rankName.remove(id);
                         rebuild(id); rankings();
-                        player.sendMessage(spec.isEmpty() ? "NPC desligado do ranking." : "NPC #" + id + " agora mostra a posicao " + spec.replace(":", " #") + ". Atualiza a cada 30 s.");
+                        player.sendMessage(spec.isEmpty() ? M.t("npc_desligado_do_ranking") : M.t("npc_agora_mostra_posicao_atualiza_cada", id, spec.replace(":", " #")));
                     });
                     return true;
                 }
                 case "comando": {
-                    if (args.length < 2) { player.sendMessage("Uso: /npc comando <comando sem /> ou /npc comando limpar"); return true; }
+                    if (args.length < 2) { player.sendMessage(M.t("uso_npc_comando_comando_sem_ou")); return true; }
                     String cmd = args[1].equalsIgnoreCase("limpar") ? "" : NpcState.command(rest);
                     edit(player, npc -> npc.command = cmd); return true;
                 }
                 case "destino": { Destination destination = destination(player, args); edit(player, npc -> npc.destination = destination); return true; }
                 case "skin": {
                     Player source = args.length > 1 ? getServer().getPlayerExact(args[1]) : player;
-                    if (source == null) { player.sendMessage("Jogador precisa estar online."); return true; }
+                    if (source == null) { player.sendMessage(M.t("jogador_precisa_estar_online")); return true; }
                     int id = selection(player);
                     result(player, saveSkin(source.getSkin()).thenCompose(hash -> data.change(s -> s.require(id).skin = hash)), () -> rebuild(id));
                     return true;
@@ -334,12 +335,12 @@ public final class GoldNPC extends PluginBase implements Listener {
                 }
                 case "remover": {
                     int id = selection(player);
-                    result(player, data.change(s -> { s.require(id); s.npcs.remove(id); }), () -> { selected.values().removeIf(v -> v == id); rebuild(id); player.sendMessage("NPC #" + id + " removido."); });
+                    result(player, data.change(s -> { s.require(id); s.npcs.remove(id); }), () -> { selected.values().removeIf(v -> v == id); rebuild(id); player.sendMessage(M.t("npc_removido", id)); });
                     return true;
                 }
                 default: help(player); return true;
             }
-        } catch (RuntimeException error) { player.sendMessage("Erro: " + root(error)); return true; }
+        } catch (RuntimeException error) { player.sendMessage(M.t("erro", root(error))); return true; }
     }
 
     private Destination destination(Player player, String[] args) {
@@ -351,25 +352,25 @@ public final class GoldNPC extends PluginBase implements Listener {
             case "nenhum": return null;
             default:
         }
-        throw new IllegalArgumentException("Uso: /npc destino mundo <mundo> | aqui | servidor <nome> | nenhum");
+        throw new IllegalArgumentException(M.t("uso_npc_destino_mundo_mundo_aqui"));
     }
 
     private void edit(Player player, java.util.function.Consumer<NpcState.Npc> mutation) {
         int id = selection(player);
-        result(player, data.change(s -> mutation.accept(s.require(id))), () -> { rebuild(id); player.sendMessage("NPC #" + id + " atualizado."); });
+        result(player, data.change(s -> mutation.accept(s.require(id))), () -> { rebuild(id); player.sendMessage(M.t("npc_atualizado", id)); });
     }
 
     private void result(Player player, CompletableFuture<?> operation, Runnable success) {
         operation.whenComplete((unused, error) -> {
             if (!isEnabled()) { return; }
-            if (error != null) { if (player.isOnline()) { player.sendMessage("Erro: " + root(error)); } }
+            if (error != null) { if (player.isOnline()) { player.sendMessage(M.t("erro", root(error))); } }
             else { success.run(); }
         });
     }
 
     private int selection(Player player) {
         Integer id = selected.get(player);
-        if (id == null) { throw new IllegalArgumentException("Selecione um NPC: /npc selecionar (e toque nele) ou /npc selecionar <id>."); }
+        if (id == null) { throw new IllegalArgumentException(M.t("selecione_um_npc_npc_selecionar_toque")); }
         return id;
     }
 
@@ -382,7 +383,7 @@ public final class GoldNPC extends PluginBase implements Listener {
 
     /** Salva a skin uma vez por conteudo (SHA-256) e devolve o hash. */
     private CompletableFuture<String> saveSkin(Skin skin) {
-        if (skin == null || !skin.isValid()) { return PersistentState.failed(new IllegalArgumentException("Skin invalida.")); }
+        if (skin == null || !skin.isValid()) { return PersistentState.failed(new IllegalArgumentException(M.t("skin_invalida"))); }
         String hash = sha256(skin.getData());
         if (skins.containsKey(hash)) { return CompletableFuture.completedFuture(hash); }
         Skin copy = new Skin(skin.getData().clone(), skin.getModel());
@@ -418,12 +419,11 @@ public final class GoldNPC extends PluginBase implements Listener {
     }
 
     private static void help(Player player) {
-        player.sendMessage("NPC: /npc criar <tipo> [nome], selecionar [id], lista, info, nome <texto, | quebra linha>, tipo <tipo>, skin [jogador], item, mover,"
-                + " olhar sim|nao, ranking <quadro> <posicao>|nenhum, destino mundo <m>|aqui|servidor <s>|nenhum, transicao <instantanea|portal|espiral|escurecer|contagem|explosao>, comando <cmd>|limpar, tp [id], remover");
+        player.sendMessage(M.t("npc_npc_criar_tipo_nome_selecionar"));
     }
 
     private static int parseId(String text) {
-        try { return Integer.parseInt(text); } catch (NumberFormatException error) { throw new IllegalArgumentException("Id invalido."); }
+        try { return Integer.parseInt(text); } catch (NumberFormatException error) { throw new IllegalArgumentException(M.t("id_invalido")); }
     }
     private static String join(String[] args, int from) { return from >= args.length ? "" : String.join(" ", Arrays.copyOfRange(args, from, args.length)); }
     private static String root(Throwable error) { while (error.getCause() != null) { error = error.getCause(); } return error.getMessage(); }

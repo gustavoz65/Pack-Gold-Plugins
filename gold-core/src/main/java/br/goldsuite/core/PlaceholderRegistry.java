@@ -31,7 +31,7 @@ final class PlaceholderRegistry implements PlaceholderService {
     }
 
     @Override public void register(Plugin owner, String key, Function<Player, String> value) {
-        if (key == null || !key.matches("[a-z0-9_]{1,32}") || value == null) { throw new IllegalArgumentException("Chave de placeholder invalida: " + key); }
+        if (key == null || !key.matches("[a-z0-9_]{1,32}") || value == null) { throw new IllegalArgumentException(M.t("chave_de_placeholder_invalida", key)); }
         values.put(key, value);
     }
 

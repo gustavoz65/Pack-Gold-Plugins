@@ -111,3 +111,32 @@ tasks.register('dist') {
         }
     }
 }
+
+// Mensagens: toda chave usada em M.t("...") precisa existir no mensagens.yml do modulo e nenhum texto colorido
+// (§ ou \u00a7) pode ficar fixo no codigo. Assim todas as mensagens continuam editaveis em plugins/<Plugin>/mensagens.yml.
+tasks.register('mensagens') {
+    def modulos = subprojects.findAll { it.name != 'gold-api' && it.file('src/main/java').isDirectory() }
+    inputs.files(modulos.collect { it.fileTree('src/main') })
+    doLast {
+        def erros = []
+        def literal = ~/"((?:\\.|[^"\\])*)"/
+        modulos.each { m ->
+            def yml = m.fileTree('src/main/resources') { include '**/mensagens.yml' }.files
+            def chaves = [] as Set
+            yml.each { f -> f.eachLine('UTF-8') { l -> if (!l.startsWith('#') && l.contains(': ')) { chaves << l.substring(0, l.indexOf(': ')).trim() } } }
+            m.fileTree('src/main/java') { include '**/*.java' }.each { f ->
+                f.readLines('UTF-8').eachWithIndex { linha, i ->
+                    (linha =~ /M\.t\("([a-z0-9_]+)"/).each { mm -> if (!chaves.contains(mm[1])) { erros << "${m.name}/${f.name}:${i + 1}: chave sem texto no mensagens.yml: ${mm[1]}" } }
+                    if (linha.contains('getLogger()') || linha.contains('Settings.') || linha.trim().startsWith('//') || linha.trim().startsWith('*')) { return }
+                    (linha =~ literal).each { mm ->
+                        def t = mm[1].replace('\\u00a7', '\u00a7')
+                        if (t.contains('\u00a7') && (t.replaceAll(/\u00a7./, '') =~ /[A-Za-z]{3}/).find()) { erros << "${m.name}/${f.name}:${i + 1}: texto fixo no codigo: \"${mm[1]}\"" }
+                    }
+                }
+            }
+        }
+        if (!erros.isEmpty()) { throw new GradleException("Mensagens fora do mensagens.yml:\n" + erros.take(40).join('\n')) }
+    }
+}
+tasks.matching { it.name == 'check' }.configureEach { dependsOn 'mensagens' }
+subprojects { tasks.matching { it.name == 'check' }.configureEach { dependsOn rootProject.tasks.named('mensagens') } }

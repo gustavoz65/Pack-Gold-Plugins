@@ -34,7 +34,7 @@ import java.util.*;
 
 /** Mundos (ManyWorlds), hora real (RealTime), /fundir (MegaFornalha), SilkSpawners, StackingMobs e AutoInv. */
 public final class GoldWorld extends PluginBase implements Listener {
-    static String PREFIX = "§2[§aMundos§2]§f ";
+    static String PREFIX = M.t("mundos");
     static final int STACK_RADIUS = 6, STACK_MAX = 50;
     private static final ZoneId BRASILIA = ZoneId.of("America/Sao_Paulo");
     private PersistentState<WorldState> data;
@@ -46,16 +46,17 @@ public final class GoldWorld extends PluginBase implements Listener {
         public Set<String> autoInv = new TreeSet<>();
         public boolean stackMobs = true;
         static void validate(WorldState s) {
-            if (s == null || s.realTime == null || s.autoInv == null || s.realTime.size() > 64 || s.autoInv.size() > 64) { throw new IllegalArgumentException("Configuracao de mundos invalida."); }
+            if (s == null || s.realTime == null || s.autoInv == null || s.realTime.size() > 64 || s.autoInv.size() > 64) { throw new IllegalArgumentException(M.t("configuracao_de_mundos_invalida")); }
             for (String w : s.realTime) { Destination.world(w); }
             for (String w : s.autoInv) { Destination.world(w); }
         }
     }
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldWorld."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new PersistentState<>(core.getStore(), "goldworld", WorldState.class, WorldState::new, WorldState::validate);
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldWorld>(this) { @Override public void onRun(int tick) { realTime(); } }, 20 * 60);
@@ -126,7 +127,7 @@ public final class GoldWorld extends PluginBase implements Listener {
             int type = tile instanceof BlockEntityMobSpawner ? ((BlockEntityMobSpawner) tile).getEntityId() : 32;
             Item spawner = Item.get(Block.MONSTER_SPAWNER, 0, 1);
             spawner.setCustomBlockData(new CompoundTag().putInt("EntityId", type));
-            spawner.setCustomName("§r§eSpawner (" + type + ")");
+            spawner.setCustomName(M.t("spawner", type));
             event.setDrops(new Item[] {spawner});
         }
         if (!data.isLoaded() || !data.read(s -> s.autoInv.contains(b.level.getFolderName())) || p.isCreative()) { return; }
@@ -160,36 +161,36 @@ public final class GoldWorld extends PluginBase implements Listener {
                 case "lista": {
                     StringBuilder b = new StringBuilder();
                     for (Level l : getServer().getLevels().values()) { b.append(l.getFolderName()).append(" (").append(l.getPlayers().size()).append(") "); }
-                    sender.sendMessage(PREFIX + "Carregados: " + b.toString().trim());
+                    sender.sendMessage(PREFIX + M.t("carregados", b.toString().trim()));
                     return true;
                 }
                 case "tp": {
                     if (!(sender instanceof Player)) { return true; }
                     String name = Destination.world(arg(args, 1)).target;
-                    if (!sender.hasPermission("goldworld.tp." + name.toLowerCase(Locale.ROOT)) && !sender.hasPermission("goldworld.admin")) { throw new IllegalArgumentException("Sem permissao para este mundo."); }
+                    if (!sender.hasPermission("goldworld.tp." + name.toLowerCase(Locale.ROOT)) && !sender.hasPermission("goldworld.admin")) { throw new IllegalArgumentException(M.t("sem_permissao_para_este_mundo")); }
                     getServer().getServiceManager().load(TravelService.class).travel((Player) sender, Destination.world(name), Transition.PORTAL)
                             .whenComplete((ok, e) -> { if (e != null) { sender.sendMessage(PREFIX + "§c" + root(e)); } });
                     return true;
                 }
                 default: break;
             }
-            if (!sender.hasPermission("goldworld.admin")) { throw new IllegalArgumentException("Sem permissao."); }
+            if (!sender.hasPermission("goldworld.admin")) { throw new IllegalArgumentException(M.t("sem_permissao")); }
             switch (sub) {
                 case "criar": {
                     String name = Destination.world(arg(args, 1)).target;
                     String type = args.length > 2 ? args[2].toLowerCase(Locale.ROOT) : "normal";
                     Class<? extends Generator> generator = Generator.getGenerator(type.equals("plano") ? "flat" : type);
-                    if (getServer().isLevelGenerated(name)) { throw new IllegalArgumentException("O mundo ja existe."); }
-                    sender.sendMessage(PREFIX + "Gerando " + name + "...");
-                    sender.sendMessage(PREFIX + (getServer().generateLevel(name, new Random().nextLong(), generator) ? "Mundo " + name + " criado. Use /mundo tp " + name : "§cNao foi possivel criar."));
+                    if (getServer().isLevelGenerated(name)) { throw new IllegalArgumentException(M.t("mundo_ja_existe")); }
+                    sender.sendMessage(PREFIX + M.t("gerando", name));
+                    sender.sendMessage(PREFIX + (getServer().generateLevel(name, new Random().nextLong(), generator) ? M.t("mundo_criado_use_mundo_tp", name, name) : M.t("nao_foi_possivel_criar")));
                     return true;
                 }
-                case "carregar": { String name = Destination.world(arg(args, 1)).target; sender.sendMessage(PREFIX + (getServer().loadLevel(name) ? name + " carregado." : "§cMundo inexistente.")); return true; }
+                case "carregar": { String name = Destination.world(arg(args, 1)).target; sender.sendMessage(PREFIX + (getServer().loadLevel(name) ? M.t("carregado", name) : M.t("mundo_inexistente"))); return true; }
                 case "descarregar": {
                     Level level = getServer().getLevelByName(Destination.world(arg(args, 1)).target);
-                    if (level == null || level == getServer().getDefaultLevel()) { throw new IllegalArgumentException("Mundo nao carregado ou e o principal."); }
+                    if (level == null || level == getServer().getDefaultLevel()) { throw new IllegalArgumentException(M.t("mundo_nao_carregado_ou_principal")); }
                     for (Player p : new ArrayList<>(level.getPlayers().values())) { p.teleport(getServer().getDefaultLevel().getSafeSpawn()); }
-                    sender.sendMessage(PREFIX + (getServer().unloadLevel(level) ? "Descarregado." : "§cNao foi possivel descarregar."));
+                    sender.sendMessage(PREFIX + (getServer().unloadLevel(level) ? M.t("descarregado") : M.t("nao_foi_possivel_descarregar")));
                     return true;
                 }
                 case "horareal": case "autoinv": {
@@ -198,18 +199,18 @@ public final class GoldWorld extends PluginBase implements Listener {
                     data.change(s -> { Set<String> set = sub.equals("horareal") ? s.realTime : s.autoInv; on[0] = set.add(name); if (!on[0]) { set.remove(name); } })
                             .whenComplete((v, e) -> {
                                 if (e == null && sub.equals("horareal") && !on[0]) { Level l = getServer().getLevelByName(name); if (l != null) { l.startTime(); } }
-                                sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : (sub.equals("horareal") ? "Hora real" : "AutoInv") + (on[0] ? " ligado" : " desligado") + " em " + name + "."));
+                                sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("em", ((sub.equals("horareal") ? M.t("hora_real") : "AutoInv") + (on[0] ? " ligado" : " desligado")), name)));
                             });
                     if (sub.equals("horareal")) { realTime(); }
                     return true;
                 }
                 case "empilhar": {
                     boolean[] on = new boolean[1];
-                    data.change(s -> { s.stackMobs = !s.stackMobs; on[0] = s.stackMobs; }).thenRun(() -> sender.sendMessage(PREFIX + "Mobs empilhados " + (on[0] ? "ligado." : "desligado.")));
+                    data.change(s -> { s.stackMobs = !s.stackMobs; on[0] = s.stackMobs; }).thenRun(() -> sender.sendMessage(PREFIX + M.t("mobs_empilhados", (on[0] ? M.t("ligado") : M.t("desligado")))));
                     return true;
                 }
                 default:
-                    sender.sendMessage(PREFIX + "/mundo lista, tp <mundo>, criar <mundo> [normal|plano], carregar, descarregar, horareal <mundo>, autoinv <mundo>, empilhar; /fundir");
+                    sender.sendMessage(PREFIX + M.t("mundo_lista_tp_mundo_criar_mundo"));
                     return true;
             }
         } catch (RuntimeException e) { sender.sendMessage(PREFIX + "§c" + root(e)); return true; }
@@ -230,9 +231,9 @@ public final class GoldWorld extends PluginBase implements Listener {
             p.getInventory().setItem(slot, result);
             count += it.getCount();
         }
-        p.sendMessage(PREFIX + (count == 0 ? "Nada para fundir." : count + " itens fundidos."));
+        p.sendMessage(PREFIX + (count == 0 ? M.t("nada_para_fundir") : M.t("itens_fundidos", count)));
     }
 
-    private static String arg(String[] args, int i) { if (args.length <= i) { throw new IllegalArgumentException("Faltam argumentos. Use /mundo."); } return args[i]; }
+    private static String arg(String[] args, int i) { if (args.length <= i) { throw new IllegalArgumentException(M.t("faltam_argumentos_use_mundo")); } return args[i]; }
     static String root(Throwable e) { while (e.getCause() != null) { e = e.getCause(); } return e.getMessage(); }
 }

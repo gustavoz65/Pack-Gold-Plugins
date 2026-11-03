@@ -30,7 +30,7 @@ final class MapStore {
             private Throwable error;
             @Override public void onRun() {
                 try {
-                    if (!Files.isDirectory(from)) { throw new IOException("Pasta inexistente: " + from); }
+                    if (!Files.isDirectory(from)) { throw new IOException(M.t("pasta_inexistente", from)); }
                     delete(to);
                     Files.walkFileTree(from, new SimpleFileVisitor<Path>() {
                         @Override public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {

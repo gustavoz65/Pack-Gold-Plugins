@@ -43,17 +43,17 @@ public final class KeyState {
     static String price(long cents) { return String.format(Locale.ROOT, "R$ %d,%02d", cents / 100, cents % 100); }
 
     public static void validate(KeyState s) {
-        if (s == null || s.products == null || s.pending == null || s.products.size() > 200 || s.pending.size() > 2000) { throw new IllegalArgumentException("Loja de keys invalida."); }
+        if (s == null || s.products == null || s.pending == null || s.products.size() > 200 || s.pending.size() > 2000) { throw new IllegalArgumentException(M.t("loja_de_keys_invalida")); }
         for (Map.Entry<String, Product> e : s.products.entrySet()) {
             Product p = e.getValue();
             if (!e.getKey().matches("[a-z0-9_]{2,24}") || p == null || p.name == null || p.name.length() > 48 || p.priceCents < 0 || p.cash < 0 || p.moneyCents < 0
                     || p.cosmetics == null || p.cosmetics.size() > 20 || p.vipDays < 0 || p.vipDays > 3650 || (p.vipGroup != null && !p.vipGroup.matches("[a-z0-9_]{1,32}"))) {
-                throw new IllegalArgumentException("Produto invalido: " + e.getKey());
+                throw new IllegalArgumentException(M.t("produto_invalido", e.getKey()));
             }
         }
         for (Map.Entry<String, Order> e : s.pending.entrySet()) {
             Order o = e.getValue();
-            if (!e.getKey().matches("[A-Z2-9]{6}") || o == null || o.player == null || o.product == null || o.keyHash == null || !o.keyHash.matches("[0-9a-f]{64}")) { throw new IllegalArgumentException("Pedido invalido: " + e.getKey()); }
+            if (!e.getKey().matches("[A-Z2-9]{6}") || o == null || o.player == null || o.product == null || o.keyHash == null || !o.keyHash.matches("[0-9a-f]{64}")) { throw new IllegalArgumentException(M.t("pedido_invalido", e.getKey())); }
         }
     }
 }

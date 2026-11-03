@@ -49,6 +49,22 @@ O [roadmap](ROADMAP.md) mostra a origem de cada módulo.
 - **Discord:** `/painel discord <url do webhook>` (ou pelo menu), `/painel discord teste`, `/painel discord off`. Alertas da staff (ex.: anti-fraude) vão para o canal; só URLs oficiais do Discord são aceitas e menções são bloqueadas.
 - Permissões: `goldcore.painel` (editar) e `goldcore.alertas` (receber alertas), ambas OP por padrão.
 
+## Mensagens (todas editáveis)
+
+Nenhuma mensagem fica presa no código: cada plugin grava `plugins/<Plugin>/mensagens.yml` na primeira vez que liga, com todas as mensagens dele (chat, popups, avisos, erros de comando, nomes de itens de menu e descrições de kits).
+
+```yaml
+# {0} = target, {1} = Ledger.format(...), {2} = (currency == Currency.CASH ? ... : ...)
+saldo_de: "Saldo de {0}: {1} {2}"
+```
+
+- `&a`...`&f`, `&l`, `&r` são cores; `&&` mostra um `&`; `{0}`, `{1}`... são os valores que o plugin preenche (o comentário acima diz quais).
+- `{primaria}` `{secundaria}` `{destaque}` `{sucesso}` `{erro}` `{texto}` usam a paleta do `/painel`.
+- Depois de editar o arquivo: `/painel mensagens recarregar` (nomes de itens e de kits valem depois de reiniciar).
+- No jogo: `/painel msg` lista os plugins, `/painel msg GoldEconomy saldo` busca, `/painel msg GoldEconomy saldo_de &bCarteira de {0}: &f{1} {2}` troca e `... padrao` volta ao original.
+- Atualizações acrescentam as mensagens novas no fim do arquivo sem apagar as que você editou.
+- O `gradle check` falha se algum texto colorido for escrito direto no código ou se uma chave não existir no `mensagens.yml`.
+
 ## Compilar
 
 1. Baixe o core usado só para compilar (fica em `lib/`, fora do Git):

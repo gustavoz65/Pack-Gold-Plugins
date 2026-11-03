@@ -21,8 +21,8 @@ import java.util.*;
  * autorizado. Cada comando digitado custa so duas consultas em mapas.
  */
 public final class GoldComandos extends PluginBase implements Listener, ZoneService {
-    static String PREFIX = "§6[Comandos]§f ";
-    private String blockedMessage = "§cEsse comando nao esta disponivel aqui.";
+    static String PREFIX = M.t("comandos");
+    private String blockedMessage = M.t("esse_comando_nao_esta_disponivel_aqui");
     private PersistentState<CmdState> data;
     /** Mundo (minusculo) -> zona; refeito a cada mudanca. */
     private Map<String, String> index = new HashMap<>();
@@ -30,10 +30,11 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
     private final Map<Player, String> zoneOf = new IdentityHashMap<>();
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         Settings.text(this, "mensagem_bloqueado", "&cEsse comando nao esta disponivel aqui.", "Mensagem quando o comando nao e liberado no mundo", v -> blockedMessage = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldComandos."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new PersistentState<>(core.getStore(), "goldcomandos", CmdState.class, CmdState::new, CmdState::validate);
         data.ready().thenRun(this::reindex);
         getServer().getServiceManager().register(ZoneService.class, this, this);
@@ -82,8 +83,8 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
         // OP so pelo console ou de um IP autorizado.
         if ((real.equals("op") || real.equals("deop")) && !data.read(s -> s.opAllowed(p.getName(), p.getAddress()))) {
             e.setCancelled();
-            p.sendMessage(PREFIX + "§cOP so pode ser dado pelo console ou de um IP autorizado (/opseguro).");
-            Settings.alert("Comandos", p.getName() + " (" + p.getAddress() + ") tentou usar /" + real + ".");
+            p.sendMessage(PREFIX + M.t("op_so_pode_ser_dado_pelo"));
+            Settings.alert("Comandos", M.t("tentou_usar", p.getName(), p.getAddress(), real));
             return;
         }
         if (typed.equals("help") || typed.equals("?") || real.equals("help")) {
@@ -114,7 +115,7 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
         int per = 8, pages = Math.max(1, (list.size() + per - 1) / per);
         page = Math.min(page, pages);
         String zn = zoneName(p.level);
-        p.sendMessage("§6--- Comandos" + (zn != null ? " (" + zn + ")" : "") + " - pagina " + page + "/" + pages + " ---");
+        p.sendMessage(M.t("comandos_pagina", (zn != null ? " (" + zn + ")" : ""), page, pages));
         if (z != null && page == 1) { for (String h : z.help) { p.sendMessage(h.replace('&', '§')); } }
         int i = 0;
         for (Map.Entry<String, String> e : list.entrySet()) {
@@ -122,7 +123,7 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
             if (i > page * per) { break; }
             p.sendMessage("§e/" + e.getKey() + " §7" + e.getValue());
         }
-        if (page < pages) { p.sendMessage("§7Mais: /help " + (page + 1)); }
+        if (page < pages) { p.sendMessage(M.t("mais_help", (page + 1))); }
     }
 
     // ---------- OP por IP ----------
@@ -137,11 +138,11 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
         if (listed && p.isOp() && !ok) {
             p.setOp(false);
             data.change(s -> s.suspended.add(name));
-            Settings.alert("Comandos", "OP de " + p.getName() + " suspenso: entrou de um IP nao autorizado (" + p.getAddress() + ").");
+            Settings.alert("Comandos", M.t("op_de_suspenso_entrou_de_um", p.getName(), p.getAddress()));
         } else if (ok && data.read(s -> s.suspended.contains(name))) {
             p.setOp(true);
             data.change(s -> s.suspended.remove(name));
-            p.sendMessage(PREFIX + "§aSeu OP voltou (IP autorizado).");
+            p.sendMessage(PREFIX + M.t("seu_op_voltou_ip_autorizado"));
         }
         enter(p, p.level, true, true);
     }
@@ -244,11 +245,11 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
     // ---------- administracao ----------
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!data.isLoaded()) { sender.sendMessage(PREFIX + "Carregando..."); return true; }
+        if (!data.isLoaded()) { sender.sendMessage(PREFIX + M.t("carregando")); return true; }
         try {
             if (command.getName().equals("opseguro")) { opseguro(sender, args); return true; }
             zona(sender, args);
-        } catch (NumberFormatException e) { sender.sendMessage(PREFIX + "§cNumero invalido."); }
+        } catch (NumberFormatException e) { sender.sendMessage(PREFIX + M.t("numero_invalido")); }
         catch (RuntimeException e) { sender.sendMessage(PREFIX + "§c" + root(e)); }
         return true;
     }
@@ -263,7 +264,7 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
         }));
     }
 
-    private static CmdState.Zone need(CmdState s, String z) { CmdState.Zone zone = s.zones.get(z); if (zone == null) { throw new IllegalArgumentException("Zona inexistente: " + z); } return zone; }
+    private static CmdState.Zone need(CmdState s, String z) { CmdState.Zone zone = s.zones.get(z); if (zone == null) { throw new IllegalArgumentException(M.t("zona_inexistente", z)); } return zone; }
     private static String rest(String[] a, int from) { return String.join(" ", Arrays.copyOfRange(a, from, a.length)); }
 
     private void zona(CommandSender sender, String[] a) {
@@ -271,110 +272,110 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
         String z = a.length > 1 ? CmdState.zone(a[1]) : "";
         switch (sub) {
             case "lista": {
-                sender.sendMessage(PREFIX + "Zonas:");
+                sender.sendMessage(PREFIX + M.t("zonas"));
                 for (Map.Entry<String, CmdState.Zone> e : data.read(s -> new ArrayList<>(s.zones.entrySet()))) {
-                    sender.sendMessage("§e" + e.getKey() + " §7mundos " + e.getValue().worlds + ", " + (e.getValue().whitelist ? "so libera " : "bloqueia ") + e.getValue().commands.size() + " comando(s), " + e.getValue().items.size() + " item(ns)");
+                    sender.sendMessage(M.t("mundos_comando_item_ns", e.getKey(), e.getValue().worlds, (e.getValue().whitelist ? M.t("so_libera") : M.t("bloqueia")), e.getValue().commands.size(), e.getValue().items.size()));
                 }
-                sender.sendMessage("§7Sempre liberados: " + data.read(s -> String.join(", ", s.always)));
+                sender.sendMessage(M.t("sempre_liberados", data.<String>read(s -> String.join(", ", s.always))));
                 return;
             }
             case "ver": {
                 CmdState.Zone zone = data.read(s -> need(s, z));
-                sender.sendMessage("§6--- Zona " + z + " ---");
-                sender.sendMessage("§fMundos: §7" + zone.worlds);
-                sender.sendMessage("§fModo: §7" + (zone.whitelist ? "so os comandos da lista funcionam" : "os comandos da lista ficam bloqueados") + ": " + zone.commands);
-                sender.sendMessage("§fBoas-vindas" + (zone.welcomeAlways ? " (sempre)" : " (primeira vez)") + ": §r" + zone.welcome.replace('&', '§'));
-                for (Map.Entry<Integer, CmdState.HubItem> e : zone.items.entrySet()) { sender.sendMessage("§fSlot " + e.getKey() + ": §r" + e.getValue().name.replace('&', '§') + " §7(" + e.getValue().id + ":" + e.getValue().meta + ") -> /" + e.getValue().command); }
-                for (String h : zone.help) { sender.sendMessage("§fAjuda: §r" + h.replace('&', '§')); }
+                sender.sendMessage(M.t("zona", z));
+                sender.sendMessage(M.t("mundos", zone.worlds));
+                sender.sendMessage(M.t("modo", (zone.whitelist ? M.t("so_os_comandos_da_lista_funcionam") : M.t("os_comandos_da_lista_ficam_bloqueados")), zone.commands));
+                sender.sendMessage(M.t("boas_vindas", (zone.welcomeAlways ? M.t("sempre") : M.t("primeira_vez")), zone.welcome.replace('&', '§')));
+                for (Map.Entry<Integer, CmdState.HubItem> e : zone.items.entrySet()) { sender.sendMessage(M.t("slot", e.getKey(), e.getValue().name.replace('&', '§'), e.getValue().id, e.getValue().meta, e.getValue().command)); }
+                for (String h : zone.help) { sender.sendMessage(M.t("ajuda", h.replace('&', '§'))); }
                 return;
             }
-            case "criar": change(sender, s -> { if (s.zones.containsKey(z)) { throw new IllegalArgumentException("Zona ja existe."); } s.zones.put(z, new CmdState.Zone()); }, "Zona " + z + " criada. Adicione mundos: /zona mundo " + z + " <mundo>"); return;
-            case "apagar": change(sender, s -> { if (s.zones.remove(z) == null) { throw new IllegalArgumentException("Zona inexistente."); } }, "Zona " + z + " apagada."); return;
+            case "criar": change(sender, s -> { if (s.zones.containsKey(z)) { throw new IllegalArgumentException(M.t("zona_ja_existe")); } s.zones.put(z, new CmdState.Zone()); }, "Zona " + z + " criada. Adicione mundos: /zona mundo " + z + " <mundo>"); return;
+            case "apagar": change(sender, s -> { if (s.zones.remove(z) == null) { throw new IllegalArgumentException(M.t("zona_inexistente_2")); } }, "Zona " + z + " apagada."); return;
             case "mundo": {
                 String w = a.length > 2 ? a[2] : "";
-                if (w.isEmpty() || getServer().getLevelByName(w) == null && !new java.io.File(getServer().getDataPath() + "worlds/" + w).isDirectory()) { throw new IllegalArgumentException("Mundo inexistente: " + w); }
+                if (w.isEmpty() || getServer().getLevelByName(w) == null && !new java.io.File(getServer().getDataPath() + "worlds/" + w).isDirectory()) { throw new IllegalArgumentException(M.t("mundo_inexistente", w)); }
                 change(sender, s -> {
                     CmdState.Zone zone = need(s, z);
                     if (!zone.worlds.remove(w)) {
-                        for (Map.Entry<String, CmdState.Zone> e : s.zones.entrySet()) { if (e.getValue().worlds.stream().anyMatch(x -> x.equalsIgnoreCase(w))) { throw new IllegalArgumentException("O mundo ja esta na zona " + e.getKey() + "."); } }
+                        for (Map.Entry<String, CmdState.Zone> e : s.zones.entrySet()) { if (e.getValue().worlds.stream().anyMatch(x -> x.equalsIgnoreCase(w))) { throw new IllegalArgumentException(M.t("mundo_ja_esta_na_zona", e.getKey())); } }
                         zone.worlds.add(w);
                     }
-                }, "Mundos da zona " + z + " atualizados.");
+                }, M.t("mundos_da_zona_atualizados", z));
                 return;
             }
             case "modo": {
                 boolean wl = a.length > 2 && a[2].toLowerCase(Locale.ROOT).startsWith("lib");
-                change(sender, s -> need(s, z).whitelist = wl, wl ? "Zona " + z + ": so os comandos da lista funcionam (/zona cmd " + z + " <comando>)." : "Zona " + z + ": os comandos da lista ficam bloqueados.");
+                change(sender, s -> need(s, z).whitelist = wl, wl ? "Zona " + z + ": so os comandos da lista funcionam (/zona cmd " + z + " <comando>)." : M.t("zona_os_comandos_da_lista_ficam", z));
                 return;
             }
             case "cmd": {
-                if (a.length < 3) { throw new IllegalArgumentException("Uso: /zona cmd <zona> <comando...> (alterna cada um)"); }
+                if (a.length < 3) { throw new IllegalArgumentException(M.t("uso_zona_cmd_zona_comando_alterna")); }
                 List<String> cmds = new ArrayList<>();
                 for (int i = 2; i < a.length; i++) { cmds.add(CmdState.command(a[i])); }
-                change(sender, s -> { Set<String> set = need(s, z).commands; for (String c : cmds) { if (!set.remove(c)) { set.add(c); } } if (set.size() > CmdState.MAX_COMMANDS) { throw new IllegalArgumentException("Comandos demais."); } }, "Lista da zona " + z + " atualizada (/zona ver " + z + ").");
+                change(sender, s -> { Set<String> set = need(s, z).commands; for (String c : cmds) { if (!set.remove(c)) { set.add(c); } } if (set.size() > CmdState.MAX_COMMANDS) { throw new IllegalArgumentException(M.t("comandos_demais")); } }, M.t("lista_da_zona_atualizada_zona_ver", z, z));
                 return;
             }
             case "plugin": {
                 String pl = CmdState.plugin(a.length > 2 ? a[2] : "");
-                change(sender, s -> { Set<String> set = need(s, z).plugins; if (!set.remove(pl)) { set.add(pl); } }, "Plugins desligados na zona " + z + " atualizados (/zona ver " + z + ").");
+                change(sender, s -> { Set<String> set = need(s, z).plugins; if (!set.remove(pl)) { set.add(pl); } }, M.t("plugins_desligados_na_zona_atualizados_zona", z, z));
                 return;
             }
             case "recurso": {
                 String f = CmdState.feature(a.length > 2 ? a[2] : "");
-                change(sender, s -> { Set<String> set = need(s, z).features; if (!set.remove(f)) { set.add(f); } }, "Recursos desligados na zona " + z + " atualizados.");
+                change(sender, s -> { Set<String> set = need(s, z).features; if (!set.remove(f)) { set.add(f); } }, M.t("recursos_desligados_na_zona_atualizados", z));
                 return;
             }
             case "recursos": {
-                sender.sendMessage(PREFIX + "Recursos que da para desligar por zona (/zona recurso <zona> <recurso>):");
+                sender.sendMessage(PREFIX + M.t("recursos_que_da_para_desligar_por"));
                 for (String[] f : CmdState.FEATURES) { sender.sendMessage("\u00a7e" + f[0] + " \u00a77" + f[1]); }
-                sender.sendMessage("\u00a77Para desligar um plugin inteiro (comandos e recursos): /zona plugin <zona> <Plugin>, ex.: GoldFactions, GoldSkyWars, GoldPvP.");
+                sender.sendMessage(M.t("para_desligar_um_plugin_inteiro_comandos"));
                 return;
             }
             case "hud": {
                 int line = Integer.parseInt(a.length > 2 ? a[2] : "0");
                 String text = rest(a, 3);
-                if ((line != 1 && line != 2) || text.length() > 200) { throw new IllegalArgumentException("Uso: /zona hud <zona> <1|2> <texto|padrao|nenhuma>"); }
-                change(sender, s -> { CmdState.Zone zone = need(s, z); String v = text.equalsIgnoreCase("padrao") ? "" : text; if (line == 1) { zone.hud1 = v; } else { zone.hud2 = v; } }, "Barra da zona " + z + " atualizada.");
+                if ((line != 1 && line != 2) || text.length() > 200) { throw new IllegalArgumentException(M.t("uso_zona_hud_zona_1_2")); }
+                change(sender, s -> { CmdState.Zone zone = need(s, z); String v = text.equalsIgnoreCase("padrao") ? "" : text; if (line == 1) { zone.hud1 = v; } else { zone.hud2 = v; } }, M.t("barra_da_zona_atualizada", z));
                 return;
             }
             case "sempre": {
                 String c = CmdState.command(a.length > 1 ? a[1] : "");
-                change(sender, s -> { if (!s.always.remove(c)) { s.always.add(c); } }, "Comandos sempre liberados atualizados.");
+                change(sender, s -> { if (!s.always.remove(c)) { s.always.add(c); } }, M.t("comandos_sempre_liberados_atualizados"));
                 return;
             }
             case "boasvindas": {
                 String text = rest(a, 2);
-                if (text.length() > 200) { throw new IllegalArgumentException("Ate 200 caracteres."); }
-                change(sender, s -> need(s, z).welcome = text.equalsIgnoreCase("nenhuma") ? "" : text, "Boas-vindas da zona " + z + " salva. {nome} vira o nick.");
+                if (text.length() > 200) { throw new IllegalArgumentException(M.t("ate_200_caracteres")); }
+                change(sender, s -> need(s, z).welcome = text.equalsIgnoreCase("nenhuma") ? "" : text, M.t("boas_vindas_da_zona_salva_nome", z));
                 return;
             }
             case "boasvindas_sempre": {
                 boolean on = a.length > 2 && (a[2].equalsIgnoreCase("on") || a[2].equalsIgnoreCase("sim"));
-                change(sender, s -> need(s, z).welcomeAlways = on, on ? "Boas-vindas a cada entrada." : "Boas-vindas so na primeira visita.");
+                change(sender, s -> need(s, z).welcomeAlways = on, on ? M.t("boas_vindas_cada_entrada") : M.t("boas_vindas_so_na_primeira_visita"));
                 return;
             }
             case "ajuda": {
                 String text = rest(a, 2);
-                change(sender, s -> { List<String> h = need(s, z).help; if (text.equalsIgnoreCase("limpar")) { h.clear(); } else { if (text.isEmpty() || text.length() > 150 || h.size() >= 15) { throw new IllegalArgumentException("Linha de 1 a 150 caracteres, ate 15 linhas."); } h.add(text); } }, "Ajuda da zona " + z + " atualizada.");
+                change(sender, s -> { List<String> h = need(s, z).help; if (text.equalsIgnoreCase("limpar")) { h.clear(); } else { if (text.isEmpty() || text.length() > 150 || h.size() >= 15) { throw new IllegalArgumentException(M.t("linha_de_1_150_caracteres_ate")); } h.add(text); } }, M.t("ajuda_da_zona_atualizada", z));
                 return;
             }
             case "item": {
-                if (a.length < 6) { throw new IllegalArgumentException("Uso: /zona item <zona> <slot 1-9> <id[:meta]> <nome_com_underline> <comando...>"); }
+                if (a.length < 6) { throw new IllegalArgumentException(M.t("uso_zona_item_zona_slot_1")); }
                 int slot = Integer.parseInt(a[2]) - 1;
                 String[] id = a[3].split(":");
                 CmdState.HubItem h = new CmdState.HubItem(Integer.parseInt(id[0]), id.length > 1 ? Integer.parseInt(id[1]) : 0, a[4].replace('_', ' '), rest(a, 5).replaceFirst("^/", ""));
-                change(sender, s -> { if (slot < 0 || slot > 8) { throw new IllegalArgumentException("Slot de 1 a 9."); } need(s, z).items.put(slot, h); }, "Item no slot " + (slot + 1) + " da zona " + z + " executa /" + h.command + ".");
+                change(sender, s -> { if (slot < 0 || slot > 8) { throw new IllegalArgumentException(M.t("slot_de_1_9")); } need(s, z).items.put(slot, h); }, M.t("item_no_slot_da_zona_executa", (slot + 1), z, h.command));
                 return;
             }
             case "itemremover": {
                 int slot = Integer.parseInt(a.length > 2 ? a[2] : "0") - 1;
-                change(sender, s -> { if (need(s, z).items.remove(slot) == null) { throw new IllegalArgumentException("Nao ha item nesse slot."); } }, "Item removido.");
+                change(sender, s -> { if (need(s, z).items.remove(slot) == null) { throw new IllegalArgumentException(M.t("nao_ha_item_nesse_slot")); } }, M.t("item_removido"));
                 return;
             }
             default:
-                sender.sendMessage(PREFIX + "/zona lista | ver <zona> | criar <zona> | apagar <zona> | mundo <zona> <mundo> | modo <zona> liberar|bloquear | cmd <zona> <comandos...>");
-                sender.sendMessage(PREFIX + "/zona plugin <zona> <Plugin> (desliga o plugin na zona) | recurso <zona> <recurso> | recursos | hud <zona> <1|2> <texto|padrao|nenhuma>");
-                sender.sendMessage(PREFIX + "/zona boasvindas <zona> <texto|nenhuma> | boasvindas_sempre <zona> on|off | ajuda <zona> <linha|limpar> | item <zona> <slot> <id[:meta]> <nome> <comando> | itemremover <zona> <slot> | sempre <comando>");
+                sender.sendMessage(PREFIX + M.t("zona_lista_ver_zona_criar_zona"));
+                sender.sendMessage(PREFIX + M.t("zona_plugin_zona_plugin_desliga_plugin"));
+                sender.sendMessage(PREFIX + M.t("zona_boasvindas_zona_texto_nenhuma_boasvindas"));
         }
     }
 
@@ -382,32 +383,32 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
     private void opseguro(CommandSender sender, String[] a) {
         boolean console = sender instanceof ConsoleCommandSender;
         if (!console && !(sender instanceof Player && data.read(s -> s.opAllowed(sender.getName(), ((Player) sender).getAddress())))) {
-            sender.sendMessage(PREFIX + "§cSo pelo console do servidor.");
+            sender.sendMessage(PREFIX + M.t("so_pelo_console_do_servidor"));
             return;
         }
         String sub = a.length > 0 ? a[0].toLowerCase(Locale.ROOT) : "lista";
         switch (sub) {
             case "add": {
-                if (a.length < 3) { throw new IllegalArgumentException("Uso: /opseguro add <nick> <ip>"); }
+                if (a.length < 3) { throw new IllegalArgumentException(M.t("uso_opseguro_add_nick_ip")); }
                 String nick = a[1].toLowerCase(Locale.ROOT), ip = CmdState.ip(a[2]);
-                change(sender, s -> { Set<String> set = s.opIps.computeIfAbsent(nick, k -> new TreeSet<>()); set.add(ip); if (set.size() > 10) { throw new IllegalArgumentException("Ate 10 IPs por nick."); } }, nick + " pode usar OP pelo IP " + ip + ".");
+                change(sender, s -> { Set<String> set = s.opIps.computeIfAbsent(nick, k -> new TreeSet<>()); set.add(ip); if (set.size() > 10) { throw new IllegalArgumentException(M.t("ate_10_ips_por_nick")); } }, nick + " pode usar OP pelo IP " + ip + ".");
                 return;
             }
             case "remover": {
-                if (a.length < 2) { throw new IllegalArgumentException("Uso: /opseguro remover <nick> [ip]"); }
+                if (a.length < 2) { throw new IllegalArgumentException(M.t("uso_opseguro_remover_nick_ip")); }
                 String nick = a[1].toLowerCase(Locale.ROOT);
                 String ip = a.length > 2 ? CmdState.ip(a[2]) : null;
-                change(sender, s -> { Set<String> set = s.opIps.get(nick); if (set == null) { throw new IllegalArgumentException("Nick fora da lista."); } if (ip == null || (set.remove(ip) && set.isEmpty())) { s.opIps.remove(nick); } }, "Lista de OP atualizada.");
+                change(sender, s -> { Set<String> set = s.opIps.get(nick); if (set == null) { throw new IllegalArgumentException(M.t("nick_fora_da_lista")); } if (ip == null || (set.remove(ip) && set.isEmpty())) { s.opIps.remove(nick); } }, M.t("lista_de_op_atualizada"));
                 return;
             }
             case "exigir": {
                 boolean on = a.length > 1 && (a[1].equalsIgnoreCase("on") || a[1].equalsIgnoreCase("sim"));
-                change(sender, s -> s.opRequireIp = on, on ? "OP fora da lista de IPs fica suspenso ao entrar." : "OP nao e mais suspenso por IP (so /op e /deop continuam protegidos).");
+                change(sender, s -> s.opRequireIp = on, on ? M.t("op_fora_da_lista_de_ips") : M.t("op_nao_mais_suspenso_por_ip"));
                 return;
             }
             default:
-                sender.sendMessage(PREFIX + "IPs do OP " + (data.read(s -> s.opRequireIp) ? "(exigido)" : "(nao exigido)") + ": " + data.read(s -> s.opIps.toString()));
-                sender.sendMessage(PREFIX + "/opseguro add <nick> <ip> | remover <nick> [ip] | exigir on|off");
+                sender.sendMessage(PREFIX + M.t("ips_do_op", (data.<Boolean>read(s -> s.opRequireIp) ? M.t("exigido") : M.t("nao_exigido")), data.read(s -> s.opIps.toString())));
+                sender.sendMessage(PREFIX + M.t("opseguro_add_nick_ip_remover_nick"));
         }
     }
 

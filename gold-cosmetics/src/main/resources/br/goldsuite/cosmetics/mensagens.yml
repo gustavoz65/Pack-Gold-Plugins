@@ -1,0 +1,67 @@
+# {0} = c.source
+bloqueado_como_ganhar: "&c[BLOQUEADO]\n&7Como ganhar: {0}"
+cancelar: "&cCancelar"
+carregando_tente_de_novo: "Carregando, tente de novo."
+chaveiro_3d_ao_seu_lado_lobby: "&7Chaveiro 3D ao seu lado (lobby)"
+chuva_de_coracoes: "Chuva de coracoes"
+como_usar_1_toque_num_cosmetico: "&eComo usar\n&a1. &fToque num cosmetico que voce tem para &aUSAR\n&c2. &fToque no que esta &a[USANDO] &fpara &cTIRAR\n&63. &fItens da loja: toque e confirme a compra\n&74. &fBloqueados mostram como ganhar"
+compra_em_andamento: "&cCompra em andamento."
+# {0} = root(e), {1} = (paid[0] ? " (dinheiro devolvido)" : "")
+compra_nao_concluida: "&cCompra nao concluida: {0}{1}"
+# {0} = c.name, {1} = Catalog.price(c, price(c))
+comprar: "&aComprar {0}\n&f{1}"
+confirmar_compra: "Confirmar compra"
+cor_do_nome: "Cor do nome"
+coroa_imortal: "Coroa Imortal"
+# {0} = id
+cosmetico_inexistente: "Cosmetico inexistente: {0}"
+cosmeticos: "&5[&dCosmeticos&5]&f "
+cosmeticos_2: "Cosmeticos"
+dinheiro_devolvido: " (dinheiro devolvido)"
+dourado_divino: "Dourado Divino"
+efeito_onde_sua_vitima_cai: "&7Efeito onde sua vitima cai"
+efeitos_de_abate: "Efeitos de abate"
+ele_ja_tinha: "Ele ja tinha."
+entregue: "Entregue."
+# {0} = c.name, {1} = c.source
+exclusivo_como_ganhar: "&c{0} e exclusivo. Como ganhar: {1}."
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldCosmetics."
+id_inexistente_use_cosmeticos_lista: "&cId inexistente. Use /cosmeticos lista."
+loja_indisponivel_goldeconomy_desligado: "&cLoja indisponivel (GoldEconomy desligado)."
+modelo_3d_que_te_acompanha_lobby: "&7Modelo 3D que te acompanha (lobby)"
+# {0} = c.display, {1} = p.getName()
+no_chat: "&7No chat: {0}{1}"
+nuvem_voadora: "Nuvem Voadora"
+nuvem_voadora_pule_duas_vezes_para: "&eNuvem Voadora: &fpule duas vezes para voar"
+particulas_por_onde_voce_anda: "&7Particulas por onde voce anda"
+pingente_divino: "Pingente Divino"
+ranked_100_vitorias: "Ranked: 100 vitorias"
+ranked_10_vitorias: "Ranked: 10 vitorias"
+ranked_50_vitorias: "Ranked: 50 vitorias"
+# {0} = t[1]
+ranked_alcance: "Ranked: alcance {0}"
+ranked_alcance_imortal: "Ranked: alcance Imortal"
+ranked_entre_no_top_10_divino: "Ranked: entre no top 10 (Divino)"
+# {0} = current.name, {1} = type.title.toLowerCase(Locale.ROOT)
+tirar_para_de_usar_este: "&c&lTirar {0}\n&7Para de usar este {1}"
+tirar_tudo_para_de_usar_todos: "&c&lTirar tudo\n&7Para de usar todos os cosmeticos"
+# {0} = on.name
+usando: "&aUsando: &f{0}"
+usando_nenhum: "&7Usando: nenhum"
+usando_toque_para_tirar: "&a&l[USANDO]\n&cToque para TIRAR"
+use_cosmeticos_lista_ou_cosmeticos_dar: "Use /cosmeticos lista ou /cosmeticos dar <jogador> <id>."
+# {0} = Catalog.price(c, price(c))
+venda_toque_para_comprar: "&6[A VENDA] {0}\n&fToque para comprar"
+# {0} = c.name
+voce_comprou_equipou_cosmeticos_para_trocar: "&aVoce comprou e equipou {0}! &7(/cosmeticos para trocar)"
+# {0} = c.name
+voce_esta_usando_toque_nele_de: "&aVoce esta usando {0}. &7Toque nele de novo para tirar."
+voce_ja_tem: "Voce ja tem."
+voce_nao_tem_esse_cosmetico: "Voce nao tem esse cosmetico."
+# {0} = type.title, {1} = have, {2} = Catalog.of(type).size(), {3} = (on == null ? "§7Usando: nenhum" : "§aUsando: §f" + on.name)
+voce_tem_de_toque_para_abrir: "&d&l{0}\n&7Voce tem {1} de {2}\n{3}\n&eToque para abrir"
+voce_tem_toque_para_usar: "&e[VOCE TEM]\n&aToque para USAR"
+# {0} = current.name
+voce_tirou: "Voce tirou {0}."
+voce_tirou_todos_os_cosmeticos: "Voce tirou todos os cosmeticos."
+voltar: "&fVoltar"

@@ -48,12 +48,12 @@ final class Groq {
             pool.execute(() -> {
                 try { out.complete(parse(post(u, k, payload))); } catch (Throwable e) { out.completeExceptionally(e); }
             });
-        } catch (RejectedExecutionException e) { out.completeExceptionally(new IOException("Muitas triagens ao mesmo tempo.")); }
+        } catch (RejectedExecutionException e) { out.completeExceptionally(new IOException(M.t("muitas_triagens_ao_mesmo_tempo"))); }
         return out;
     }
 
     private static String post(String u, String k, String payload) throws IOException {
-        if (!validUrl(u)) { throw new IOException("Endereco da IA invalido."); }
+        if (!validUrl(u)) { throw new IOException(M.t("endereco_da_ia_invalido")); }
         HttpURLConnection c = (HttpURLConnection) new URL(u).openConnection();
         try {
             c.setRequestMethod("POST"); c.setDoOutput(true); c.setConnectTimeout(6000); c.setReadTimeout(25000);
@@ -64,8 +64,8 @@ final class Groq {
             int code = c.getResponseCode();
             InputStream in = code >= 300 ? c.getErrorStream() : c.getInputStream();
             String text = read(in);
-            if (code == 401) { throw new IOException("Chave da Groq recusada (401). Confira no /painel."); }
-            if (code >= 300) { throw new IOException("IA respondeu " + code + ": " + TicketState.clean(text, 160)); }
+            if (code == 401) { throw new IOException(M.t("chave_da_groq_recusada_401_confira")); }
+            if (code >= 300) { throw new IOException(M.t("ia_respondeu", code, TicketState.clean(text, 160))); }
             return text;
         } finally { c.disconnect(); }
     }
@@ -76,7 +76,7 @@ final class Groq {
             ByteArrayOutputStream b = new ByteArrayOutputStream();
             byte[] buf = new byte[4096];
             int n;
-            while ((n = s.read(buf)) > 0) { b.write(buf, 0, n); if (b.size() > 256 * 1024) { throw new IOException("Resposta da IA grande demais."); } }
+            while ((n = s.read(buf)) > 0) { b.write(buf, 0, n); if (b.size() > 256 * 1024) { throw new IOException(M.t("resposta_da_ia_grande_demais")); } }
             return new String(b.toByteArray(), StandardCharsets.UTF_8);
         }
     }
@@ -87,9 +87,9 @@ final class Groq {
             JsonObject root = new JsonParser().parse(response).getAsJsonObject();
             String content = root.getAsJsonArray("choices").get(0).getAsJsonObject().getAsJsonObject("message").get("content").getAsString();
             int a = content.indexOf('{'), b = content.lastIndexOf('}');
-            if (a < 0 || b <= a) { throw new IOException("IA nao respondeu em JSON."); }
+            if (a < 0 || b <= a) { throw new IOException(M.t("ia_nao_respondeu_em_json")); }
             return new JsonParser().parse(content.substring(a, b + 1)).getAsJsonObject();
-        } catch (RuntimeException e) { throw new IOException("Resposta da IA ilegivel."); }
+        } catch (RuntimeException e) { throw new IOException(M.t("resposta_da_ia_ilegivel")); }
     }
 
     static String str(JsonObject o, String field) { JsonElement e = o.get(field); return e == null || e.isJsonNull() ? "" : e.isJsonPrimitive() ? e.getAsString() : e.toString(); }

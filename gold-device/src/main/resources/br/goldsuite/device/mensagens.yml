@@ -1,0 +1,19 @@
+# {0} = name, {1} = Platforms.label(pl)
+agora_conta_como: "{0} agora conta como {1}."
+aparelho: "&b[&3Aparelho&b]&f "
+celular_travando_use_fps_para_modo: "Celular travando? Use &e/fps&f para o modo leve (menos particulas e efeitos)."
+# {0} = aim.get(target).aligned(), {1} = aim.get(target).count()
+confirmando_pela_mira_cliques_no_centro: "&7 (confirmando pela mira: {0}/{1} cliques no centro)"
+desligado: "&7desligado"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldDevice."
+jogador_offline: "Jogador offline."
+ligado: "&aligado"
+# {0} = target.getName(), {1} = Platforms.label(platform(target)), {2} = limit(target), {3} = (lowEffects(target) ? "§aligado" : "§7desligado"), {4} = target.getProtocol(), {5} = (aim.containsKey(target) ? "§7 (confirmando pela mira: " + aim.get(target).aligned() + "/" + aim.get(target).count() + " cliques no centro)" : "")
+limite_de_cps_modo_leve_protocolo: "{0}: &e{1}&f, limite de &e{2} CPS&f, modo leve {3}&f, protocolo {4}{5}"
+modo_leve_desligado_efeitos_completos: "Modo leve desligado: efeitos completos."
+modo_leve_ligado_sem_particulas_decorativas: "&aModo leve ligado: &fsem particulas decorativas, trilhas, modelos 3D e animacoes. &7(/fps para desligar)"
+nao_foi_possivel_gravar: "&cNao foi possivel gravar."
+# {0} = p.getName(), {1} = limit(p), {2} = Platforms.label(platform(p))
+passou_de_cps_varias_vezes: "{0} passou de {1} CPS ({2}) varias vezes"
+sem_permissao: "&cSem permissao."
+use_windows_android_ou_ios: "Use windows, android ou ios."

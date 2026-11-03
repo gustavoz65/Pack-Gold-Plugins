@@ -31,13 +31,13 @@ public final class ProtectState {
 
     public static String name(String text) {
         String name = text == null ? "" : text.toLowerCase(Locale.ROOT);
-        if (!name.matches("[a-z0-9_-]{1,24}")) { throw new IllegalArgumentException("Nome: ate 24 letras, numeros, _ ou -."); }
+        if (!name.matches("[a-z0-9_-]{1,24}")) { throw new IllegalArgumentException(M.t("nome_ate_24_letras_numeros_ou")); }
         return name;
     }
 
     public static String flag(String text) {
         String flag = text.toLowerCase(Locale.ROOT);
-        if (!FLAGS.contains(flag)) { throw new IllegalArgumentException("Flags: " + FLAGS); }
+        if (!FLAGS.contains(flag)) { throw new IllegalArgumentException(M.t("flags", FLAGS)); }
         return flag;
     }
 
@@ -48,20 +48,20 @@ public final class ProtectState {
         a.minX = Math.min(x1, x2); a.maxX = Math.max(x1, x2);
         a.minY = Math.max(0, Math.min(y1, y2)); a.maxY = Math.min(255, Math.max(y1, y2));
         a.minZ = Math.min(z1, z2); a.maxZ = Math.max(z1, z2);
-        if (a.maxX - a.minX > 2048 || a.maxZ - a.minZ > 2048) { throw new IllegalArgumentException("Area maior que 2048 blocos de lado."); }
+        if (a.maxX - a.minX > 2048 || a.maxZ - a.minZ > 2048) { throw new IllegalArgumentException(M.t("area_maior_que_2048_blocos_de")); }
         return a;
     }
 
     public static void validate(ProtectState s) {
-        if (s == null || s.areas == null || s.worlds == null || s.antiVoid == null || s.areas.size() > MAX_AREAS || s.worlds.size() > 64 || s.antiVoid.size() > 64) { throw new IllegalArgumentException("Protecoes invalidas."); }
+        if (s == null || s.areas == null || s.worlds == null || s.antiVoid == null || s.areas.size() > MAX_AREAS || s.worlds.size() > 64 || s.antiVoid.size() > 64) { throw new IllegalArgumentException(M.t("protecoes_invalidas")); }
         for (Map.Entry<String, Area> e : s.areas.entrySet()) {
             name(e.getKey());
             Area a = e.getValue();
-            if (a == null || a.world == null || a.deny == null || a.members == null || a.owner == null || a.effect == null || a.greeting == null || a.members.size() > 64 || a.greeting.length() > 100) { throw new IllegalArgumentException("Area invalida: " + e.getKey()); }
+            if (a == null || a.world == null || a.deny == null || a.members == null || a.owner == null || a.effect == null || a.greeting == null || a.members.size() > 64 || a.greeting.length() > 100) { throw new IllegalArgumentException(M.t("area_invalida", e.getKey())); }
             Destination.world(a.world);
-            if (a.minX > a.maxX || a.minY > a.maxY || a.minZ > a.maxZ || a.maxX - a.minX > 2048 || a.maxZ - a.minZ > 2048) { throw new IllegalArgumentException("Limites invalidos: " + e.getKey()); }
+            if (a.minX > a.maxX || a.minY > a.maxY || a.minZ > a.maxZ || a.maxX - a.minX > 2048 || a.maxZ - a.minZ > 2048) { throw new IllegalArgumentException(M.t("limites_invalidos", e.getKey())); }
             for (String f : a.deny) { flag(f); }
-            if (a.effect.length != 0 && (a.effect.length != 2 || a.effect[0] < 1 || a.effect[0] > 23 || a.effect[1] < 0 || a.effect[1] > 4)) { throw new IllegalArgumentException("Efeito invalido."); }
+            if (a.effect.length != 0 && (a.effect.length != 2 || a.effect[0] < 1 || a.effect[0] > 23 || a.effect[1] < 0 || a.effect[1] > 4)) { throw new IllegalArgumentException(M.t("efeito_invalido")); }
         }
         for (Map.Entry<String, Set<String>> e : s.worlds.entrySet()) { Destination.world(e.getKey()); for (String f : e.getValue()) { flag(f); } }
         for (String w : s.antiVoid) { Destination.world(w); }

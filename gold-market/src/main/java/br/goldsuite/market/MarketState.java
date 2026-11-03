@@ -32,14 +32,14 @@ public final class MarketState {
     void giveBack(String player, ItemData item) { returns.computeIfAbsent(player, k -> new ArrayList<>()).add(item); }
 
     public static void validate(MarketState s) {
-        if (s == null || s.listings == null || s.returns == null || s.listings.size() > MAX_LISTINGS || s.returns.size() > 10000 || s.nextId < 1) { throw new IllegalArgumentException("Leilao invalido."); }
+        if (s == null || s.listings == null || s.returns == null || s.listings.size() > MAX_LISTINGS || s.returns.size() > 10000 || s.nextId < 1) { throw new IllegalArgumentException(M.t("leilao_invalido")); }
         for (Map.Entry<Long, Listing> e : s.listings.entrySet()) {
             Listing l = e.getValue();
-            if (e.getKey() == null || e.getKey() >= s.nextId || l == null || l.seller == null || !l.seller.matches("[a-z0-9_]{3,16}") || l.item == null || l.price < 1 || l.price > 1_000_000_000_00L) { throw new IllegalArgumentException("Anuncio invalido."); }
+            if (e.getKey() == null || e.getKey() >= s.nextId || l == null || l.seller == null || !l.seller.matches("[a-z0-9_]{3,16}") || l.item == null || l.price < 1 || l.price > 1_000_000_000_00L) { throw new IllegalArgumentException(M.t("anuncio_invalido")); }
             l.item.validate();
         }
         for (Map.Entry<String, List<ItemData>> e : s.returns.entrySet()) {
-            if (!e.getKey().matches("[a-z0-9_]{3,16}") || e.getValue() == null || e.getValue().size() > 100) { throw new IllegalArgumentException("Coleta invalida."); }
+            if (!e.getKey().matches("[a-z0-9_]{3,16}") || e.getValue() == null || e.getValue().size() > 100) { throw new IllegalArgumentException(M.t("coleta_invalida")); }
             for (ItemData d : e.getValue()) { d.validate(); }
         }
     }

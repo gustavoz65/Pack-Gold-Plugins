@@ -1,0 +1,114 @@
+# {0} = c, {1} = s.factions.get(owner).tag, {2} = owner, {3} = s.power(owner)
+0_poder: "&&{0}&l[{1}] {2}&r &7- poder &f{3}"
+# {0} = MiniMap.CHAT[MiniMap.colorIndex(s, f)], {1} = x.tag, {2} = f, {3} = s.power(f)
+0_poder_2: "&&{0}&l[{1}] {2} &r&7- poder &f{3}"
+# {0} = (i + 1), {1} = MiniMap.CHAT[MiniMap.colorIndex(s, n)], {2} = s.factions.get(n).tag, {3} = n, {4} = s.power(n), {5} = s.claimsOf(n)
+1_poder_terras: "&e{0}. &&{1}[{2}] {3} &7- poder &f{4} &8({5} terras)"
+# {0} = x.kills, {1} = w.abates, {2} = x.deaths, {3} = w.mortes
+abates_mortes_cada: "&7Abates &a{0} &8(x{1})  &7Mortes &c{2} &8(-{3} cada)"
+admin_mundo_mundo_peso_fator_valor: "Admin: /f mundo <mundo>, peso <fator> <valor>, recontar, mapa definir [raio], mapa centro, mapa remover"
+# {0} = target, {1} = role.name().toLowerCase(Locale.ROOT)
+agora: "{0} agora e {1}."
+cada_faccao_precisa_de_exatamente_um: "Cada faccao precisa de exatamente um lider."
+# {0} = (on ? "§aligado" : "§cdesligado")
+chat_interno: "Chat interno {0}."
+chunk_abandonado: "Chunk abandonado."
+# {0} = (spawners > 0 ? " com " + spawners + " spawner(s)!" : ".")
+chunk_dominado: "Chunk dominado{0}"
+# {0} = counted.size()
+chunks_carregados_recontados: "{0} chunks carregados recontados."
+claim_unclaim_mapa_info_poder_top: "/f claim, unclaim, mapa, info, poder, top, sethome, home, chat"
+# {0} = spawners
+com_spawner: " com {0} spawner(s)!"
+contagem_de_spawners_invalida: "Contagem de spawners invalida."
+# {0} = f
+convite_de_use_aceitar_2_min: "Convite de &b{0}&f. Use &a/f aceitar&f (2 min)."
+convite_enviado: "Convite enviado."
+criar_nome_tag_convidar_aceitar_sair: "/f criar <nome> [tag], convidar, aceitar, sair, expulsar, promover, rebaixar, lider, desfazer"
+defina_mapa_antes_mapa_definir: "Defina o mapa antes (/f mapa definir)."
+desligado: "&cdesligado"
+ele_ja_tem_faccao: "Ele ja tem faccao."
+# {0} = p.getName()
+entrou: "&a{0} entrou."
+este_chunk_ja_seu: "Este chunk ja e seu."
+este_chunk_nao_seu: "Este chunk nao e seu."
+faccao_cheia: "Faccao cheia."
+faccao_inexistente: "Faccao inexistente."
+# {0} = e.getKey()
+faccao_invalida: "Faccao invalida: {0}"
+faccao_nao_existe_mais: "A faccao nao existe mais."
+faccoes_invalidas: "Faccoes invalidas."
+faltam_argumentos_use: "Faltam argumentos. Use /f."
+fatores_terras_membros_spawners_abates_mortes: "Fatores: terras, membros, spawners, abates, mortes."
+# {0} = f
+foi_desfeita: "&7{0} foi desfeita."
+# {0} = target
+foi_expulso: "&c{0} foi expulso."
+# {0} = p.getName(), {1} = name, {2} = tag
+fundou: "&e{0} fundou &b{1} &8«&b{2}&8»"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldFactions."
+home_da_faccao_salva: "Home da faccao salva."
+home_precisa_ficar_no_seu_territorio: "A home precisa ficar no seu territorio."
+indice_de_membros_inconsistente: "Indice de membros inconsistente."
+# {0} = f, {1} = victim[0]
+invadiu_terras_de: "&c{0} invadiu terras de {1}!"
+jogador_offline: "Jogador offline."
+lider_passa_lideranca_lider_ou_desfaz: "O lider passa a lideranca (/f lider) ou desfaz (/f desfazer)."
+ligado: "&aligado"
+# {0} = FactionState.maxClaims(x)
+limite_de_chunks_cresce_com_membros: "Limite de {0} chunks (cresce com membros)."
+# {0} = world
+mapa_agora_mostra_centrado_no_seu: "O mapa agora mostra {0} centrado no seu chunk."
+mapa_norte_em_cima: "&7Mapa (norte em cima):"
+membro_da_sua_faccao: "&eMembro da sua faccao"
+membro_invalido: "Membro invalido."
+# {0} = e.getKey()
+membro_invalido_em: "Membro invalido em {0}"
+# {0} = x.roster.size(), {1} = FactionState.MAX_MEMBERS, {2} = w.membros, {3} = x.roster.size() * w.membros
+membros: "&7Membros &f{0}/{1} &8(x{2} = {3})"
+# {0} = (radius * 2 + 1), {1} = (radius * 2 + 1), {2} = map.source
+mini_mapa_de_no_chao_sob: "Mini mapa de {0}x{1} no chao sob voce, mostrando {2}. Use /f mapa centro para mudar o centro."
+mini_mapa_desligado_os_blocos_ficam: "Mini mapa desligado (os blocos ficam onde estao)."
+mini_mapa_invalido: "Mini mapa invalido."
+# {0} = data.read(s -> s.worlds.isEmpty() ? "todos" : String.join(", ", s.worlds))
+mundos_de_faccoes: "Mundos de faccoes: {0}"
+nao_da_sua_faccao: "Nao e da sua faccao."
+nenhum_convite_valido: "Nenhum convite valido."
+nome_3_16_letras_numeros_ou: "Nome: 3 a 16 letras, numeros ou _."
+nome_em_uso: "Nome em uso."
+# {0} = target
+novo_lider: "&6{0} e o novo lider."
+peso_entre_0_1000: "Peso entre 0 e 1000."
+# {0} = w.terras, {1} = w.membros, {2} = w.spawners, {3} = w.abates, {4} = w.mortes
+pesos_terras_membros_spawners_abates_mortes: "Pesos: terras {0}, membros {1}, spawners {2}, abates {3}, mortes -{4}"
+# {0} = s.power(faction), {1} = s.claimsOf(faction)
+poder_terras: "&7poder &f{0} &8| &7{1} terras"
+# {0} = p.getName()
+saiu: "&c{0} saiu."
+sem_home_sethome: "Sem home (/f sethome)."
+sem_permissao: "Sem permissao."
+seu_cargo_nao_permite: "Seu cargo nao permite."
+so_borda_do_territorio_inimigo_pode: "So a borda do territorio inimigo pode ser invadida."
+so_pode_expulsar_cargos_abaixo_do: "So pode expulsar cargos abaixo do seu."
+# {0} = spawners, {1} = w.spawners, {2} = spawners * w.spawners
+spawners: "&7Spawners &f{0} &8(x{1} = {2})"
+sua: " &a(sua)"
+tag_2_4_letras_ou_numeros: "Tag: 2 a 4 letras ou numeros."
+tag_em_uso: "Tag em uso."
+# {0} = terras, {1} = FactionState.maxClaims(x), {2} = w.terras, {3} = terras * w.terras
+terras: "&7Terras &f{0}/{1} &8(x{2} = {3})"
+# {0} = String.join(", ", worlds)
+terras_so_podem_ser_dominadas_em: "Terras so podem ser dominadas em: {0}"
+# {0} = owner, {1} = theirs, {2} = mine
+territorio_de_poder_seu_poder_precisa: "Territorio de {0} (poder {1}). Seu poder ({2}) precisa ser maior para invadir."
+territorio_inimigo: "&cTerritorio inimigo"
+territorio_sem_faccao: "Territorio sem faccao."
+top_por_poder: "&6Top por poder:"
+use_dentro_do_jogo: "Use dentro do jogo."
+use_info_faccao: "Use /f info <faccao>."
+uso_mapa_definir_raio_4_24: "Uso: /f mapa definir [raio 4-24] | centro | remover"
+voce_ja_tem_faccao: "Voce ja tem faccao."
+voce_livre: "&e+ &7voce  &8- &7livre"
+voce_nao_tem_faccao_use_criar: "Voce nao tem faccao. Use /f criar."
+voce_saiu: "Voce saiu."
+zona_livre: "&7Zona livre"

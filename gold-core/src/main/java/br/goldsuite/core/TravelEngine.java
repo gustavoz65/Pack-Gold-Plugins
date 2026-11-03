@@ -35,8 +35,8 @@ final class TravelEngine implements TravelService {
     @Override public CompletableFuture<Boolean> travel(Player player, Destination destination, Transition transition) {
         CompletableFuture<Boolean> result = new CompletableFuture<>();
         try {
-            if (!player.isOnline()) { throw new IllegalStateException("Jogador offline."); }
-            if (trips.containsKey(player)) { throw new IllegalStateException("Aguarde a viagem atual terminar."); }
+            if (!player.isOnline()) { throw new IllegalStateException(M.t("jogador_offline")); }
+            if (trips.containsKey(player)) { throw new IllegalStateException(M.t("aguarde_viagem_atual_terminar")); }
             // Valida antes da animacao para nao mostrar efeitos de uma viagem impossivel.
             resolve(destination);
         } catch (RuntimeException error) { result.completeExceptionally(error); return result; }
@@ -97,8 +97,8 @@ final class TravelEngine implements TravelService {
                     t.finish(true);
                     return false;
                 case CONTAGEM:
-                    if (p.distanceSquared(t.origin) > 1.0) { p.sendTip("Teleporte cancelado: voce se moveu."); t.finish(false); return false; }
-                    if (age % 20 == 0 && age < 60) { p.sendTip("Teleportando em " + (3 - age / 20) + "..."); sound(p, new ClickSound(p)); }
+                    if (p.distanceSquared(t.origin) > 1.0) { p.sendTip(M.t("teleporte_cancelado_voce_se_moveu")); t.finish(false); return false; }
+                    if (age % 20 == 0 && age < 60) { p.sendTip(M.t("teleportando_em", (3 - age / 20))); sound(p, new ClickSound(p)); }
                     if (age < 60) { return true; }
                     return arrive(t, new EndermanTeleportSound(p));
                 case EXPLOSAO:
@@ -133,7 +133,7 @@ final class TravelEngine implements TravelService {
 
     private Location resolve(Destination destination) {
         if (destination.type == Destination.Type.SERVER) {
-            throw new IllegalStateException("Transferencia entre servidores exige o proxy da GoldSuite; a 0.15.10 nao tem TransferPacket.");
+            throw new IllegalStateException(M.t("transferencia_entre_servidores_exige_proxy_da"));
         }
         Server server = plugin.getServer();
         Level level = server.getLevelByName(destination.target);
@@ -141,7 +141,7 @@ final class TravelEngine implements TravelService {
             server.loadLevel(destination.target);
             level = server.getLevelByName(destination.target);
         }
-        if (level == null) { throw new IllegalArgumentException("Mundo inexistente: " + destination.target); }
+        if (level == null) { throw new IllegalArgumentException(M.t("mundo_inexistente", destination.target)); }
         if (destination.type == Destination.Type.WORLD) {
             Position spawn = level.getSafeSpawn();
             return new Location(spawn.x, spawn.y, spawn.z, 0, 0, level);

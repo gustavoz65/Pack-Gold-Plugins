@@ -28,7 +28,7 @@ public final class VipState {
 
     public static String normalize(String key) {
         String k = key.toUpperCase(Locale.ROOT).replace(" ", "");
-        if (!k.matches("[A-Z0-9]{4}-?[A-Z0-9]{4}-?[A-Z0-9]{4}")) { throw new IllegalArgumentException("Chave invalida."); }
+        if (!k.matches("[A-Z0-9]{4}-?[A-Z0-9]{4}-?[A-Z0-9]{4}")) { throw new IllegalArgumentException(M.t("chave_invalida")); }
         k = k.replace("-", "");
         return k.substring(0, 4) + "-" + k.substring(4, 8) + "-" + k.substring(8);
     }
@@ -40,11 +40,11 @@ public final class VipState {
     }
 
     public static void validate(VipState s) {
-        if (s == null || s.keys == null || s.announced == null || s.keys.size() > 5000 || s.announced.size() > 32) { throw new IllegalArgumentException("Dados de VIP invalidos."); }
+        if (s == null || s.keys == null || s.announced == null || s.keys.size() > 5000 || s.announced.size() > 32) { throw new IllegalArgumentException(M.t("dados_de_vip_invalidos")); }
         for (Map.Entry<String, Key> e : s.keys.entrySet()) {
             normalize(e.getKey());
             Key k = e.getValue();
-            if (k == null || k.group == null || !k.group.matches("[a-z0-9_-]{1,24}") || k.days < 1 || k.days > 3650) { throw new IllegalArgumentException("Chave invalida."); }
+            if (k == null || k.group == null || !k.group.matches("[a-z0-9_-]{1,24}") || k.days < 1 || k.days > 3650) { throw new IllegalArgumentException(M.t("chave_invalida")); }
         }
     }
 }

@@ -1,0 +1,39 @@
+admin_vip_gerar_grupo_dias_qtd: "Admin: /vip gerar <grupo> <dias> [qtd], dar <jogador> <grupo> <dias>, chaves, anunciar <grupo>, tempo <jogador>"
+# {0} = name, {1} = group, {2} = (days == 0 ? " permanente." : " por " + remaining(expiry) + ".")
+agora: "{0} agora e {1}{2}"
+# {0} = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date(expiry)), {1} = remaining(expiry)
+ate: " ate {0} ({1})"
+# {0} = p.getName(), {1} = taken[0].group.toUpperCase(Locale.ROOT)
+ativou_obrigado_pelo_apoio: "&e{0}&f ativou &6{1}&f! Obrigado pelo apoio!"
+# {0} = amount, {1} = group, {2} = days
+chave_de_por_dia: "{0} chave(s) de {1} por {2} dia(s):"
+chave_invalida: "Chave invalida."
+chave_invalida_ou_ja_usada: "Chave invalida ou ja usada."
+# {0} = data.read(s -> s.keys.size())
+chave_sem_uso: "{0} chave(s) sem uso."
+dados_de_vip_invalidos: "Dados de VIP invalidos."
+# {0} = p.getName(), {1} = group.toUpperCase(Locale.ROOT)
+entrou_no_servidor: "&e{0} &f({1}) entrou no servidor!"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldVip."
+goldperms_precisa_estar_instalado: "O GoldPerms precisa estar instalado."
+# {0} = name, {1} = group, {2} = (group.equals("padrao") ? "" : expiry == 0 ? " (permanente)" : " ate " + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date(expiry)) + " (" + remaining(expiry) + ")")
+grupo: "{0}: grupo &e{1}&f{2}"
+# {0} = data.read(s -> s.announced)
+grupos_anunciados: "Grupos anunciados: {0}"
+# {0} = root(error)
+nao_foi_possivel_ativar: "Nao foi possivel ativar: {0}"
+nao_sera_anunciado: " nao sera anunciado."
+numero_invalido: "&cNumero invalido."
+permanente: " (permanente)"
+permanente_2: " permanente."
+# {0} = remaining(expiry)
+por: " por {0}."
+sem_permissao: "Sem permissao."
+sera_anunciado: " sera anunciado."
+# {0} = remaining(expiry)
+seu_vip_vence_em: "&cSeu VIP vence em {0}."
+uso_vip_ativar_chave: "Uso: /vip ativar <chave>"
+uso_vip_dar_jogador_grupo_dias: "Uso: /vip dar <jogador> <grupo> <dias, 0 = permanente>"
+uso_vip_gerar_grupo_dias_quantidade: "Uso: /vip gerar <grupo> <dias> [quantidade]"
+vip: "&6[&eVIP&6]&f "
+vip_ativar_chave_vip_tempo: "/vip ativar <chave>, /vip tempo"

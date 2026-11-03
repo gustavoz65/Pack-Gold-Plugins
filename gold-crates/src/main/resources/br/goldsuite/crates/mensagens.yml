@@ -1,0 +1,69 @@
+6_jogador_cganhou_um_item_raridade: "&&6{jogador} &&cganhou um item {raridade} &&cna caixa {caixa}!"
+# {0} = display(crate)
+abrir_abre_1_caixa: "&a&lABRIR\n&7Abre 1 caixa {0}"
+bloco_de_caixa_invalido: "Bloco de caixa invalido."
+# {0} = display(crate)
+caixa: "&6Caixa {0}"
+caixa_apagada: "Caixa apagada."
+# {0} = name, {1} = name, {2} = name
+caixa_criada_use_caixa_vincular_toque: "Caixa {0} criada. Use /caixa vincular {1} e toque num bau; /caixa premio {2} <peso> com o item na mao."
+caixa_criar_nome_nome_caixa_nome: "/caixa criar <nome>, nome <caixa> <nome de exibicao>, vincular <nome>, premio <nome> <peso>, premiocomando <nome> <peso> <nome_do_premio> <comando>, limpar <nome>, apagar <nome>, chave <jogador> <nome> [qtd], misteriosa <jogador> <nome> [qtd], lista"
+caixa_desvinculada_deste_bau: "Caixa desvinculada deste bau."
+caixa_inexistente: "Caixa inexistente."
+caixa_invalida: "Caixa invalida."
+# {0} = display(crate)
+caixa_misteriosa_selecione_para_abrir: "&r&6Caixa Misteriosa: &f{0}\n&7Selecione para abrir"
+# {0} = crate
+caixa_premios: "Caixa {0} - premios"
+caixa_sem_premios: "Caixa sem premios."
+caixas: "&d[&5Caixas&d]&f "
+caixas_entregues: "Caixas entregues."
+caixas_invalidas: "Caixas invalidas."
+cancelar: "&c&lCANCELAR"
+# {0} = icon.getCount(), {1} = icon.getName(), {2} = String.format(Locale.ROOT, "%.1f", CrateState.chance(rewards, rewards.get(i)))
+chance: "&e{0}x {1}\n&7Chance: {2}%"
+# {0} = crate
+chave: "&r&dChave: &f{0}"
+chaves_entregues: "Chaves entregues."
+comando_de_1_120_caracteres: "Comando de 1 a 120 caracteres."
+deseja_abrir_caixa: "Deseja abrir a caixa?"
+esta_caixa_ainda_nao_tem_premios: "&cEsta caixa ainda nao tem premios."
+# {0} = linkTo
+este_bau_agora_caixa: "Este bau agora e a caixa {0}."
+faltam_argumentos_use_caixa: "Faltam argumentos. Use /caixa."
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldCrates."
+jogador_offline: "Jogador offline."
+limite_de_27_premios: "Limite de 27 premios."
+limite_de_caixas: "Limite de caixas."
+muito_raro: "MUITO RARO"
+nenhuma_caixa: "Nenhuma caixa."
+nome_ate_20_letras_numeros_ou: "Nome: ate 20 letras, numeros, _ ou -."
+# {0} = display.replace('&', '\u00a7')
+nome_da_caixa: "Nome da caixa: {0}"
+nome_de_1_40_caracteres: "Nome de 1 a 40 caracteres."
+nome_de_caixa_invalido: "Nome de caixa invalido."
+numero_invalido: "&cNumero invalido."
+# {0} = weight
+premio_adicionado_com_peso: "Premio adicionado com peso {0}."
+# {0} = cmd
+premio_de_comando_adicionado: "Premio de comando adicionado: /{0}"
+premio_invalido: "Premio invalido."
+premios_removidos: "Premios removidos."
+# {0} = crate
+segure_chave_da_caixa_para_abrir: "&dSegure a chave da caixa {0} para abrir"
+segure_item_do_premio: "Segure o item do premio."
+sem_permissao: "Sem permissao."
+# {0} = p.getName(), {1} = item.getName(), {2} = crate
+tirou_raro_na_caixa: "&6{0} tirou {1} (raro!) na caixa {2}!"
+toque_no_bau_que_vai_virar: "Toque no bau que vai virar a caixa."
+ver_os_premios_chance_de_cada: "&eVer os premios\n&7E a chance de cada um"
+# {0} = prize, {1} = String.format(Locale.ROOT, "%.1f", chance), {2} = (rarity != null ? ", " + rarity : "")
+voce_ganhou: "Voce ganhou &e{0}&f! &7({1}%{2})"
+# {0} = item.getCount(), {1} = item.getName(), {2} = String.format(Locale.ROOT, "%.1f", chance)
+voce_ganhou_2: "Voce ganhou &e{0}x {1}&f! &7({2}%)"
+voce_nao_tem_essa_caixa: "&cVoce nao tem essa caixa."
+# {0} = amount, {1} = display(name)
+voce_recebeu_caixa_misteriosa_selecione_na: "Voce recebeu {0} caixa(s) misteriosa(s) {1}&f! Selecione na hotbar para abrir."
+# {0} = amount, {1} = name
+voce_recebeu_chave_da_caixa: "Voce recebeu {0} chave(s) da caixa {1}!"
+raro: "RARO"

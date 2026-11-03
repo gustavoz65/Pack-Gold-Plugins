@@ -24,7 +24,7 @@ import java.util.*;
  * por plataforma, tudo configuravel no /painel. Nenhuma tarefa repetitiva: so trabalha no login e em cada hit.
  */
 public final class GoldDevice extends PluginBase implements Listener, DeviceService {
-    static String PREFIX = "§b[§3Aparelho§b]§f ";
+    static String PREFIX = M.t("aparelho");
     static final String FPS = "golddevice-fps", OVERRIDE = "golddevice-plataforma", LEARNED = "golddevice-aprendido";
 
     private CoreService core;
@@ -38,6 +38,7 @@ public final class GoldDevice extends PluginBase implements Listener, DeviceServ
     private String fallback = "android";
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         Settings.number(this, "cps.celular", 12, "Cliques por segundo maximos no celular (Android/iOS)", v -> cpsMobile = Math.max(1, v));
         Settings.number(this, "cps.windows", 16, "Cliques por segundo maximos no Windows 10", v -> cpsWindows = Math.max(1, v));
@@ -45,7 +46,7 @@ public final class GoldDevice extends PluginBase implements Listener, DeviceServ
         Settings.number(this, "fps.sugerir_celular", 1, "1 = sugere /fps ao entrar pelo celular, 0 = nao", v -> suggestLow = v);
         Settings.text(this, "plataforma.padrao", "android", "Plataforma assumida quando o cliente nao informa (0.15 quase nunca informa): windows ou android", v -> fallback = v);
         core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldDevice."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         getServer().getServiceManager().register(DeviceService.class, this, this);
         getServer().getPluginManager().registerEvents(this, this);
         for (Player p : getServer().getOnlinePlayers().values()) { join(p); }
@@ -75,7 +76,7 @@ public final class GoldDevice extends PluginBase implements Listener, DeviceServ
         core.getStore().get(FPS, name).thenAccept(v -> {
             if (!p.isOnline()) { return; }
             if (v.isPresent() && v.get().equals("1")) { low.add(p); }
-            else if (!v.isPresent() && suggestLow == 1 && platform(p).mobile()) { p.sendMessage(PREFIX + "Celular travando? Use §e/fps§f para o modo leve (menos particulas e efeitos)."); }
+            else if (!v.isPresent() && suggestLow == 1 && platform(p).mobile()) { p.sendMessage(PREFIX + M.t("celular_travando_use_fps_para_modo")); }
         });
         getLogger().info(p.getName() + " entrou pelo " + Platforms.label(platform(p)) + " (protocolo " + p.getProtocol() + ", " + Platforms.evidence(p.getLoginData()) + (aim.containsKey(p) ? "; confirmando pela mira" : "") + ")");
     }
@@ -139,7 +140,7 @@ public final class GoldDevice extends PluginBase implements Listener, DeviceServ
         // Muitos hits barrados seguidos: provavel autoclick; avisa a staff (e o Discord) no maximo 1x por minuto.
         if (limiter.blocked(now) >= 15 && now - alerted.getOrDefault(p, 0L) > 60_000) {
             alerted.put(p, now);
-            Settings.alert("Anti-autoclick", p.getName() + " passou de " + limit(p) + " CPS (" + Platforms.label(platform(p)) + ") varias vezes");
+            Settings.alert("Anti-autoclick", M.t("passou_de_cps_varias_vezes", p.getName(), limit(p), Platforms.label(platform(p))));
         }
     }
 
@@ -150,25 +151,25 @@ public final class GoldDevice extends PluginBase implements Listener, DeviceServ
             boolean on = low.add(p);
             if (!on) { low.remove(p); }
             core.getStore().put(FPS, key(p), on ? "1" : "0");
-            p.sendMessage(PREFIX + (on ? "§aModo leve ligado: §fsem particulas decorativas, trilhas, modelos 3D e animacoes. §7(/fps para desligar)" : "Modo leve desligado: efeitos completos."));
+            p.sendMessage(PREFIX + (on ? M.t("modo_leve_ligado_sem_particulas_decorativas") : M.t("modo_leve_desligado_efeitos_completos")));
             return true;
         }
         // /plataforma [jogador] | definir <jogador> <windows|android|ios>
         if (args.length >= 3 && args[0].equalsIgnoreCase("definir")) {
-            if (!sender.hasPermission("golddevice.admin")) { sender.sendMessage(PREFIX + "§cSem permissao."); return true; }
+            if (!sender.hasPermission("golddevice.admin")) { sender.sendMessage(PREFIX + M.t("sem_permissao")); return true; }
             Platform pl;
             try { pl = Platforms.parse(args[2]); } catch (IllegalArgumentException e) { sender.sendMessage(PREFIX + "§c" + e.getMessage()); return true; }
             String name = args[1].toLowerCase(Locale.ROOT);
             core.getStore().put(OVERRIDE, name, args[2].toLowerCase(Locale.ROOT)).whenComplete((v, e) -> {
                 Player target = getServer().getPlayerExact(name);
                 if (target != null) { platforms.put(target, pl); }
-                sender.sendMessage(PREFIX + (e != null ? "§cNao foi possivel gravar." : name + " agora conta como " + Platforms.label(pl) + "."));
+                sender.sendMessage(PREFIX + (e != null ? M.t("nao_foi_possivel_gravar") : M.t("agora_conta_como", name, Platforms.label(pl))));
             });
             return true;
         }
         Player target = args.length > 0 ? getServer().getPlayerExact(args[0]) : sender instanceof Player ? (Player) sender : null;
-        if (target == null) { sender.sendMessage(PREFIX + "Jogador offline."); return true; }
-        sender.sendMessage(PREFIX + target.getName() + ": §e" + Platforms.label(platform(target)) + "§f, limite de §e" + limit(target) + " CPS§f, modo leve " + (lowEffects(target) ? "§aligado" : "§7desligado") + "§f, protocolo " + target.getProtocol() + (aim.containsKey(target) ? "§7 (confirmando pela mira: " + aim.get(target).aligned() + "/" + aim.get(target).count() + " cliques no centro)" : ""));
+        if (target == null) { sender.sendMessage(PREFIX + M.t("jogador_offline")); return true; }
+        sender.sendMessage(PREFIX + M.t("limite_de_cps_modo_leve_protocolo", target.getName(), Platforms.label(platform(target)), limit(target), (lowEffects(target) ? M.t("ligado") : M.t("desligado")), target.getProtocol(), (aim.containsKey(target) ? M.t("confirmando_pela_mira_cliques_no_centro", aim.get(target).aligned(), aim.get(target).count()) : "")));
         return true;
     }
 }

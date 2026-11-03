@@ -28,7 +28,7 @@ final class Ranks {
     static int points(int ladder) { return ladder >= IMMORTAL ? ladder - IMMORTAL : Math.max(0, ladder) % DIVISION; }
 
     static String name(int ladder, boolean divine) {
-        if (ladder < 0) { return "Sem elo"; }
+        if (ladder < 0) { return M.t("sem_elo"); }
         int t = tier(ladder, divine);
         if (t == 8) { return NAMES[8]; }
         int division;
@@ -39,7 +39,7 @@ final class Ranks {
 
     /** Nome colorido com os pontos, para o perfil e mensagens. */
     static String display(int ladder, boolean divine, int games) {
-        if (ladder < 0) { return "§7Sem elo §8(classificatoria " + Math.min(games, PLACEMENTS) + "/" + PLACEMENTS + ")"; }
+        if (ladder < 0) { return M.t("sem_elo_classificatoria", Math.min(games, PLACEMENTS), PLACEMENTS); }
         int t = tier(ladder, divine);
         return "§" + COLORS[t] + (t == 8 ? "§l" : "") + name(ladder, divine) + "§r §7(" + points(ladder) + " PR)";
     }

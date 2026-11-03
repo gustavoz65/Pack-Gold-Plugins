@@ -29,18 +29,18 @@ public final class CrateState {
 
     /** Raridade pela chance (como o yCaixasMisteriosas): null quando e comum. */
     public static String rarity(double chance, double rare, double veryRare) {
-        return chance <= veryRare ? "MUITO RARO" : chance <= rare ? "RARO" : null;
+        return chance <= veryRare ? M.t("muito_raro") : chance <= rare ? M.t("raro") : null;
     }
 
     public static String command(String text) {
         String c = text == null ? "" : text.trim().replaceFirst("^/", "");
-        if (c.isEmpty() || c.length() > 120 || c.indexOf('\n') >= 0) { throw new IllegalArgumentException("Comando de 1 a 120 caracteres."); }
+        if (c.isEmpty() || c.length() > 120 || c.indexOf('\n') >= 0) { throw new IllegalArgumentException(M.t("comando_de_1_120_caracteres")); }
         return c;
     }
 
     public static String name(String text) {
         String n = text == null ? "" : text.toLowerCase(Locale.ROOT);
-        if (!n.matches("[a-z0-9_-]{1,20}")) { throw new IllegalArgumentException("Nome: ate 20 letras, numeros, _ ou -."); }
+        if (!n.matches("[a-z0-9_-]{1,20}")) { throw new IllegalArgumentException(M.t("nome_ate_20_letras_numeros_ou")); }
         return n;
     }
 
@@ -48,7 +48,7 @@ public final class CrateState {
     public static Reward roll(List<Reward> rewards, IntUnaryOperator random) {
         int total = 0;
         for (Reward r : rewards) { total += r.weight; }
-        if (total <= 0) { throw new IllegalArgumentException("Caixa sem premios."); }
+        if (total <= 0) { throw new IllegalArgumentException(M.t("caixa_sem_premios")); }
         int pick = random.applyAsInt(total);
         for (Reward r : rewards) { pick -= r.weight; if (pick < 0) { return r; } }
         return rewards.get(rewards.size() - 1);
@@ -61,16 +61,16 @@ public final class CrateState {
     }
 
     public static void validate(CrateState s) {
-        if (s == null || s.crates == null || s.blocks == null || s.crates.size() > 50 || s.blocks.size() > 200) { throw new IllegalArgumentException("Caixas invalidas."); }
+        if (s == null || s.crates == null || s.blocks == null || s.crates.size() > 50 || s.blocks.size() > 200) { throw new IllegalArgumentException(M.t("caixas_invalidas")); }
         for (Map.Entry<String, Crate> e : s.crates.entrySet()) {
             name(e.getKey());
-            if (e.getValue() == null || e.getValue().rewards == null || e.getValue().rewards.size() > 27) { throw new IllegalArgumentException("Caixa invalida."); }
-            if (e.getValue().display == null || e.getValue().display.length() > 40) { throw new IllegalArgumentException("Nome de caixa invalido."); }
+            if (e.getValue() == null || e.getValue().rewards == null || e.getValue().rewards.size() > 27) { throw new IllegalArgumentException(M.t("caixa_invalida")); }
+            if (e.getValue().display == null || e.getValue().display.length() > 40) { throw new IllegalArgumentException(M.t("nome_de_caixa_invalido")); }
             for (Reward r : e.getValue().rewards) {
-                if (r == null || r.item == null || r.weight < 1 || r.weight > 10000 || r.command == null || r.command.length() > 120 || (r.commandOnly && r.command.isEmpty())) { throw new IllegalArgumentException("Premio invalido."); }
+                if (r == null || r.item == null || r.weight < 1 || r.weight > 10000 || r.command == null || r.command.length() > 120 || (r.commandOnly && r.command.isEmpty())) { throw new IllegalArgumentException(M.t("premio_invalido")); }
                 r.item.validate();
             }
         }
-        for (Map.Entry<String, String> e : s.blocks.entrySet()) { if (!s.crates.containsKey(e.getValue()) || !e.getKey().matches("[A-Za-z0-9_][A-Za-z0-9_.-]{0,31}:-?\\d+:\\d+:-?\\d+")) { throw new IllegalArgumentException("Bloco de caixa invalido."); } }
+        for (Map.Entry<String, String> e : s.blocks.entrySet()) { if (!s.crates.containsKey(e.getValue()) || !e.getKey().matches("[A-Za-z0-9_][A-Za-z0-9_.-]{0,31}:-?\\d+:\\d+:-?\\d+")) { throw new IllegalArgumentException(M.t("bloco_de_caixa_invalido")); } }
     }
 }

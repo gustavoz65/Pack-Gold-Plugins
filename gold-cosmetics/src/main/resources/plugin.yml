@@ -7,6 +7,6 @@ softdepend: [GoldEconomy]
 author: gustavoz65
 description: Cosmeticos - pingentes, cor do nome, trilhas e efeitos de abate (loja e recompensas do ranked)
 commands:
- cosmeticos: {description: Menu de cosmeticos, usage: "/cosmeticos [tirar|lista|dar <jogador> <id>]", aliases: [cosmetico, cos]}
+ cosmeticos: {description: "Menu de cosmeticos", usage: "/cosmeticos [tirar|lista|dar <jogador> <id>]", aliases: [cosmetico, cos]}
 permissions:
- goldcosmetics.admin: {default: op, description: Entrega cosmeticos}
+ goldcosmetics.admin: {default: op, description: "Entrega cosmeticos"}

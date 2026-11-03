@@ -9,7 +9,7 @@ final class RankingRegistry implements RankingService {
     private final Map<String, IntFunction<List<Entry>>> sources = new TreeMap<>();
 
     @Override public void register(String board, IntFunction<List<Entry>> source) {
-        if (board == null || !board.matches("[a-z0-9_-]{1,24}")) { throw new IllegalArgumentException("Quadro invalido."); }
+        if (board == null || !board.matches("[a-z0-9_-]{1,24}")) { throw new IllegalArgumentException(M.t("quadro_invalido")); }
         sources.put(board, Objects.requireNonNull(source));
     }
     @Override public void unregister(String board) { sources.remove(board); }

@@ -30,7 +30,7 @@ final class HmacItemSigner implements ItemSigner {
     private final byte[] key;
 
     HmacItemSigner(byte[] key) {
-        if (key == null || key.length < 32) { throw new IllegalArgumentException("A chave precisa ter pelo menos 32 bytes."); }
+        if (key == null || key.length < 32) { throw new IllegalArgumentException(M.t("chave_precisa_ter_pelo_menos_32")); }
         this.key = key.clone();
     }
 
@@ -65,7 +65,7 @@ final class HmacItemSigner implements ItemSigner {
     }
 
     private static void validatePurpose(String purpose) {
-        if (purpose == null || !purpose.matches("[a-z0-9:_-]{1,80}")) { throw new IllegalArgumentException("Finalidade de assinatura invalida."); }
+        if (purpose == null || !purpose.matches("[a-z0-9:_-]{1,80}")) { throw new IllegalArgumentException(M.t("finalidade_de_assinatura_invalida")); }
     }
 
     private byte[] calculate(Item item, CompoundTag tag) {
@@ -80,7 +80,7 @@ final class HmacItemSigner implements ItemSigner {
             mac.init(new SecretKeySpec(this.key, "HmacSHA256"));
             return mac.doFinal(bytes.toByteArray());
         } catch (IOException | GeneralSecurityException error) {
-            throw new IllegalStateException("Nao foi possivel assinar o item.", error);
+            throw new IllegalStateException(M.t("nao_foi_possivel_assinar_item"), error);
         }
     }
 
@@ -91,7 +91,7 @@ final class HmacItemSigner implements ItemSigner {
     }
 
     private static void writeTag(DataOutputStream out, Tag tag, int depth) throws IOException {
-        if (depth > 32) { throw new IllegalArgumentException("NBT profundo demais para assinatura."); }
+        if (depth > 32) { throw new IllegalArgumentException(M.t("nbt_profundo_demais_para_assinatura")); }
         out.writeByte(tag.getId());
         text(out, tag.getName());
         switch (tag.getId()) {
@@ -122,7 +122,7 @@ final class HmacItemSigner implements ItemSigner {
                 out.writeInt(children.size());
                 for (Tag child : children) { writeTag(out, child, depth + 1); }
                 return;
-            default: throw new IllegalArgumentException("Tipo de NBT nao reconhecido.");
+            default: throw new IllegalArgumentException(M.t("tipo_de_nbt_nao_reconhecido"));
         }
     }
 }

@@ -1,0 +1,113 @@
+# {0} = score.get(killer)
+1_abate: "&a+1 abate &7({0})"
+# {0} = p.getName()
+acertou_agua: "&a{0} &facertou a agua!"
+amarelo: "&eAMARELO"
+as_arenas_serao_montadas_de_novo: "As arenas serao montadas de novo no proximo uso."
+azul: "&9AZUL"
+cada_bloco_que_voce_pisa_some: "Cada bloco que voce pisa some logo depois. Nao pare de correr e economize o chao: quem cair no vazio sai."
+carregando_tente_em_instantes: "Carregando, tente em instantes."
+# {0} = super.tip(p), {1} = finishedAt.size(), {2} = room.players.size()
+chegaram: "{0} &7| chegaram &a{1}/{2}"
+# {0} = p.getName(), {1} = place, {2} = String.format(Locale.ROOT, "%.1f", elapsedTicks / 20.0)
+chegou_em: "&a{0} &fchegou em &e{1}o &7({2} s)"
+color_floor: "Color Floor"
+comecando_em_5_mesmo_sem_minimo: "Comecando em 5 s (mesmo sem o minimo)."
+contagem_cancelada_faltam_jogadores: "&cContagem cancelada: faltam jogadores."
+corrida_de_grappler: "Corrida de Grappler"
+corrida_de_kangaroo: "Corrida de Kangaroo"
+corrida_mortal: "Corrida Mortal"
+dados_do_party_invalidos: "Dados do Party invalidos."
+deathmatch_arco_com_2_flechas_espada: "Deathmatch: arco com 2 flechas e espada de madeira, sem armadura. Flecha mata na hora e cada abate da mais uma flecha. 2 minutos, vence quem matar mais."
+derrube_os_outros_das_ilhas_graveto: "Derrube os outros das ilhas! Graveto de repulsao, espada, la e um balde de agua para salvar a queda (a agua some em 3 s)."
+durante_party_so_party_sair_funciona: "&cDurante o Party so /party sair funciona."
+entre_numa_sala_em_espera_primeiro: "Entre numa sala em espera primeiro."
+# {0} = room.color(p) + p.getName(), {1} = room.players.size(), {2} = maxPlayers
+entrou: "{0} &fentrou &7({1}/{2})"
+errou_agua: "&cErrou a agua!"
+estatistica_invalida: "Estatistica invalida."
+# {0} = p.getName()
+fisgado_por: "&cFisgado por {0}!"
+fisherman: "&eFisherman"
+# {0} = room.color(victim) + victim.getName()
+foi_eliminado: "{0} &7foi eliminado."
+# {0} = room.color(victim) + victim.getName(), {1} = room.color(killer), {2} = killer.getName()
+foi_eliminado_por: "{0} &7foi eliminado por {1}{2}"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldParty."
+grappler: "&bGrappler"
+guarde_seus_itens_antes_de_entrar: "&cGuarde seus itens antes de entrar (so itens do lobby podem ficar)."
+kangaroo: "&aKangaroo"
+laranja: "&6LARANJA"
+# {0} = room.color(killer) + killer.getName(), {1} = room.color(victim), {2} = victim.getName()
+matou: "{0} &7matou {1}{2}"
+mire_num_adversario: "&7Mire num adversario"
+mire_num_adversario_toque_com_vara: "Mire num adversario e toque com a vara para puxa-lo ate voce. Tire todos da plataforma; o ultimo em pe vence."
+mire_num_bloco: "&7Mire num bloco"
+parkour_sobre_vazio_chegue_primeiro_ao: "Parkour sobre o vazio: chegue primeiro ao bloco de ouro. Caiu, volta ao ultimo bloco de esmeralda."
+# {0} = countdown
+partida_comecando_em: "&aPartida comecando em {0} s!"
+party: "&d[&fParty&d]&f "
+party_2: "&6&l===== PARTY ====="
+# {0} = players.size(), {1} = plugin.maxPlayers, {2} = plugin.minPlayers
+party_aguardando_jogadores_minimo: "&eParty &7| aguardando jogadores &f{0}/{1} &7(minimo {2})"
+# {0} = countdown, {1} = players.size(), {2} = plugin.maxPlayers
+party_comeca_em_jogadores: "&eParty &7| comeca em &f{0} s &7| jogadores &f{1}/{2}"
+# {0} = (sender.hasPermission("goldparty.admin") ? ", /party iniciar, /party reconstruir" : "")
+party_entrar_party_sair_party_top: "/party entrar, /party sair, /party top, /party stats [nick], /party salas{0}"
+party_iniciar_party_reconstruir: ", /party iniciar, /party reconstruir"
+# {0} = prizes[i] / 100, {1} = (i + 1)
+pelo_lugar: "&a+${0} pelo {1}o lugar!"
+# {0} = standings(3)
+placar: "&7Placar: {0}"
+plataforma_pequena_um_graveto_de_repulsao: "Plataforma pequena e um graveto de repulsao: empurre todos para fora. Sem dano, so empurrao."
+# {0} = score.getOrDefault(p, 0)
+pontos: " &7| pontos &a{0}"
+# {0} = (i == 0 ? "§6§l1o " : i == 1 ? "§f§l2o " : i == 2 ? "§c§l3o " : "§7" + (i + 1) + "o "), {1} = color(p), {2} = p.getName(), {3} = total.getOrDefault(p, 0)
+pontos_2: "{0}&r{1}{2} &7- &f{3} pontos"
+# {0} = names
+provas: "&fProvas: &f{0}"
+pule_do_alto_caia_dentro_da: "Pule do alto e caia dentro da agua! Controle a queda no ar. 3 rodadas, a piscina fica menor e aparecem obstaculos."
+pvp_mlg: "PvP MLG"
+ranking_final: "&6&l===== RANKING FINAL ====="
+# {0} = mini.name()
+resultado: "&6--- Resultado: {0} ---"
+# {0} = round, {1} = NAMES[color]
+rodada: "&fRodada &e{0}&f: &l{1}"
+# {0} = ROUNDS
+rodada_1_pule: "&fRodada &e1/{0}&f: pule!"
+# {0} = name(), {1} = Math.min(ROUNDS, round + 1), {2} = ROUNDS, {3} = score.getOrDefault(p, 0)
+rodada_acertos: "&e{0} &7| rodada &f{1}/{2} &7| acertos &a{3}"
+# {0} = (round + 1), {1} = ROUNDS
+rodada_pule: "&fRodada &e{0}/{1}&f: pule!"
+roxo: "&5ROXO"
+# {0} = p.getName()
+saiu_da_sala: "&7{0} saiu da sala."
+# {0} = rooms.size(), {1} = maxRooms
+sala_limite: "{0} sala(s), limite {1}:"
+sem_partidas: "Sem partidas."
+sem_permissao: "&cSem permissao."
+suba_poco_ate_topo_mire_num: "Suba o poco ate o topo! Mire num bloco acima e toque com a vara (Grappler) para ser puxado. Passe pelos buracos das tampas."
+tempo_esgotado: "&cTempo esgotado!"
+tnt_run: "TNT Run"
+todas_as_salas_estao_jogando_tente: "&cTodas as salas estao jogando. Tente em alguns minutos."
+top_vitorias: "&6Top vitorias:"
+toque_com_item_kangaroo_para_dar: "Toque com o item Kangaroo para dar um impulso (no chao e mais um no ar). Atravesse ilhas e muros ate o ouro."
+uma_cor_sorteada_aparece_na_hotbar: "Uma cor e sorteada (aparece na hotbar). Corra para um bloco dessa cor antes do tempo acabar: o resto do chao some!"
+# {0} = r.id, {1} = r.slot, {2} = r.phase, {3} = r.players.size(), {4} = (r.mini != null ? " - " + r.mini.name() : "")
+vaga_jogador_es: "&e#{0} &7vaga {1} &f{2} &7{3} jogador(es){4}"
+vai: "&a&lVAI!"
+vale_ordem_de_chegada: "Vale a ordem de chegada."
+vale_quem_fizer_mais_pontos: "Vale quem fizer mais pontos."
+vale_quem_sobreviver_mais: "Vale quem sobreviver mais."
+# {0} = w.getName(), {1} = r.total.getOrDefault(w, 0)
+venceu_party_com_pontos: "&6{0} &fvenceu o Party com &e{1} pontos&f!"
+verde: "&aVERDE"
+vermelho: "&cVERMELHO"
+# {0} = name, {1} = st.wins, {2} = st.games, {3} = st.points, {4} = st.firsts
+vitorias_partidas_pontos_provas_em_1o: "{0}: &e{1} &fvitorias, {2} partidas, {3} pontos, {4} provas em 1o"
+# {0} = room.aliveCount()
+vivos: " &7| vivos &a{0}"
+voce_ja_esta_numa_sala_party: "Voce ja esta numa sala. /party sair"
+voce_nao_esta_numa_sala: "Voce nao esta numa sala."
+voce_saiu_do_party: "Voce saiu do Party."
+water_drop: "Water Drop"

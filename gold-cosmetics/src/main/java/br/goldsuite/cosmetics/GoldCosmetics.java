@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
  * Uns se compram com dinheiro do GoldEconomy; outros so se ganham no ranked (GoldPvP libera pelo CosmeticService).
  */
 public final class GoldCosmetics extends PluginBase implements Listener, CosmeticService {
-    static String PREFIX = "§5[§dCosmeticos§5]§f ";
+    static String PREFIX = M.t("cosmeticos");
     static final String STORE = "goldcos-guarda-roupa";
     private static final Gson GSON = new Gson();
 
@@ -52,9 +52,10 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
     private String noBalance, rechargeHint;
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldCosmetics."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         getServer().getServiceManager().register(CosmeticService.class, this, this);
         getServer().getPluginManager().registerEvents(this, this);
         for (Player p : getServer().getOnlinePlayers().values()) { load(p); }
@@ -94,7 +95,7 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
 
     /** Quem esta na nuvem voa (como no desenho). So tira o voo que a nuvem deu; /fly e criativo continuam. */
     private void flight(Player p, boolean riding) {
-        if (riding && !p.getAllowFlight()) { p.setAllowFlight(true); flyers.add(p); p.sendTip("§eNuvem Voadora: §fpule duas vezes para voar"); }
+        if (riding && !p.getAllowFlight()) { p.setAllowFlight(true); flyers.add(p); p.sendTip(M.t("nuvem_voadora_pule_duas_vezes_para")); }
         else if (!riding && flyers.remove(p) && !p.isCreative() && !p.isSpectator()) { p.setAllowFlight(false); }
     }
 
@@ -154,7 +155,7 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
     }
 
     @Override public CompletableFuture<Boolean> unlock(String player, String id) {
-        if (!Catalog.ALL.containsKey(id)) { CompletableFuture<Boolean> f = new CompletableFuture<>(); f.completeExceptionally(new IllegalArgumentException("Cosmetico inexistente: " + id)); return f; }
+        if (!Catalog.ALL.containsKey(id)) { CompletableFuture<Boolean> f = new CompletableFuture<>(); f.completeExceptionally(new IllegalArgumentException(M.t("cosmetico_inexistente", id))); return f; }
         String name = key(player);
         Player p = onlinePlayer(name);
         // Ja tem: responde na hora, sem gravar (o GoldPvP pergunta a cada partida).
@@ -264,26 +265,25 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
 
     /** Explica o menu em um icone: tocar para usar, tocar de novo para tirar, loja pede confirmacao. */
     private static Item help() {
-        return icon(323, 0, "§eComo usar\n§a1. §fToque num cosmetico que voce tem para §aUSAR\n§c2. §fToque no que esta §a[USANDO] §fpara §cTIRAR\n§63. §fItens da loja: toque e confirme a compra\n§74. §fBloqueados mostram como ganhar");
+        return icon(323, 0, M.t("como_usar_1_toque_num_cosmetico"));
     }
 
     @Override public void openMenu(Player p) {
         Wardrobe w = online.get(p);
-        if (w == null) { p.sendMessage(PREFIX + "Carregando, tente de novo."); return; }
+        if (w == null) { p.sendMessage(PREFIX + M.t("carregando_tente_de_novo")); return; }
         Map<Integer, Item> icons = new HashMap<>();
         icons.put(4, help());
         int slot = 10;
         for (Type type : Type.values()) {
             Cosmetic on = equipped(p, type);
             int have = 0; for (Cosmetic c : Catalog.of(type)) { if (w.owned.contains(c.id)) { have++; } }
-            Item item = icon(type.icon, type.meta, "§d§l" + type.title + "\n§7Voce tem " + have + " de " + Catalog.of(type).size()
-                    + "\n" + (on == null ? "§7Usando: nenhum" : "§aUsando: §f" + on.name) + "\n§eToque para abrir");
+            Item item = icon(type.icon, type.meta, M.t("voce_tem_de_toque_para_abrir", type.title, have, Catalog.of(type).size(), (on == null ? M.t("usando_nenhum") : M.t("usando", on.name))));
             icons.put(slot, on == null ? item : PacketModel.glint(item));
             slot += 2;
         }
         boolean any = !w.equipped.isEmpty();
-        if (any) { icons.put(22, icon(35, 14, "§c§lTirar tudo\n§7Para de usar todos os cosmeticos")); }
-        menus().open(p, "Cosmeticos", icons, (who, s) -> {
+        if (any) { icons.put(22, icon(35, 14, M.t("tirar_tudo_para_de_usar_todos"))); }
+        menus().open(p, M.t("cosmeticos_2"), icons, (who, s) -> {
             if (s >= 10 && s <= 18 && s % 2 == 0) { category(who, Type.values()[(s - 10) / 2]); }
             else if (s == 22 && any) { takeOffAll(who); }
         });
@@ -291,7 +291,7 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
 
     private void takeOffAll(Player who) {
         modify(key(who.getName()), x -> { boolean had = !x.equipped.isEmpty(); x.equipped.clear(); return had; })
-                .whenComplete((v, e) -> { if (who.isOnline()) { who.sendMessage(PREFIX + (e != null ? "§c" + root(e) : "Voce tirou todos os cosmeticos.")); } });
+                .whenComplete((v, e) -> { if (who.isOnline()) { who.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("voce_tirou_todos_os_cosmeticos"))); } });
     }
 
     private void category(Player p, Type type) {
@@ -303,25 +303,25 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
         for (int i = 0; i < list.size() && i < 18; i++) {
             Cosmetic c = list.get(i);
             boolean using = c.id.equals(on), owned = w.owned.contains(c.id);
-            String state = using ? "§a§l[USANDO]\n§cToque para TIRAR"
-                    : owned ? "§e[VOCE TEM]\n§aToque para USAR"
-                    : c.forSale() ? "§6[A VENDA] " + Catalog.price(c, price(c)) + "\n§fToque para comprar"
-                    : "§c[BLOQUEADO]\n§7Como ganhar: " + c.source;
-            String preview = type == Type.PINGENTE ? "§7Chaveiro 3D ao seu lado (lobby)" : type == Type.COR ? "§7No chat: " + c.display + p.getName()
-                    : type == Type.MONTARIA ? "§7Modelo 3D que te acompanha (lobby)" : type == Type.TRILHA ? "§7Particulas por onde voce anda" : "§7Efeito onde sua vitima cai";
+            String state = using ? M.t("usando_toque_para_tirar")
+                    : owned ? M.t("voce_tem_toque_para_usar")
+                    : c.forSale() ? M.t("venda_toque_para_comprar", Catalog.price(c, price(c)))
+                    : M.t("bloqueado_como_ganhar", c.source);
+            String preview = type == Type.PINGENTE ? M.t("chaveiro_3d_ao_seu_lado_lobby") : type == Type.COR ? M.t("no_chat", c.display, p.getName())
+                    : type == Type.MONTARIA ? M.t("modelo_3d_que_te_acompanha_lobby") : type == Type.TRILHA ? M.t("particulas_por_onde_voce_anda") : M.t("efeito_onde_sua_vitima_cai");
             Item item = icon(c.icon, c.meta, (using ? "§a" : owned ? "§f" : "§7") + c.name + "\n" + preview + "\n" + state);
             // So o que esta em uso brilha: fica facil achar.
             icons.put(i, using ? PacketModel.glint(item) : item);
         }
         Cosmetic current = on == null ? null : Catalog.ALL.get(on);
         icons.put(18, help());
-        if (current != null) { icons.put(22, icon(35, 14, "§c§lTirar " + current.name + "\n§7Para de usar este " + type.title.toLowerCase(Locale.ROOT))); }
-        icons.put(26, icon(262, 0, "§fVoltar"));
+        if (current != null) { icons.put(22, icon(35, 14, M.t("tirar_para_de_usar_este", current.name, type.title.toLowerCase(Locale.ROOT)))); }
+        icons.put(26, icon(262, 0, M.t("voltar")));
         menus().open(p, type.title, icons, (who, slot) -> {
             if (slot == 26) { openMenu(who); return; }
             String name = key(who.getName());
             if (slot == 22 && current != null) {
-                modify(name, x -> x.equipped.remove(type.name()) != null).whenComplete((v, e) -> { if (who.isOnline()) { who.sendMessage(PREFIX + (e != null ? "§c" + root(e) : "Voce tirou " + current.name + ".")); category(who, type); } });
+                modify(name, x -> x.equipped.remove(type.name()) != null).whenComplete((v, e) -> { if (who.isOnline()) { who.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("voce_tirou", current.name))); category(who, type); } });
                 return;
             }
             if (slot >= list.size() || slot >= 18) { return; }
@@ -330,30 +330,30 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
             if (now != null && now.owned.contains(c.id)) {
                 modify(name, x -> x.toggle(c)).whenComplete((equippedNow, e) -> {
                     if (!who.isOnline()) { return; }
-                    who.sendMessage(PREFIX + (e != null ? "§c" + root(e) : equippedNow ? "§aVoce esta usando " + c.name + ". §7Toque nele de novo para tirar." : "Voce tirou " + c.name + "."));
+                    who.sendMessage(PREFIX + (e != null ? "§c" + root(e) : equippedNow ? M.t("voce_esta_usando_toque_nele_de", c.name) : M.t("voce_tirou", c.name)));
                     category(who, type);
                 });
             } else if (c.forSale()) { confirm(who, c); }
-            else { who.sendMessage(PREFIX + "§c" + c.name + " e exclusivo. Como ganhar: " + c.source + "."); }
+            else { who.sendMessage(PREFIX + M.t("exclusivo_como_ganhar", c.name, c.source)); }
         });
     }
 
     private void confirm(Player p, Cosmetic c) {
         Map<Integer, Item> icons = new HashMap<>();
-        icons.put(11, icon(35, 5, "§aComprar " + c.name + "\n§f" + Catalog.price(c, price(c))));
+        icons.put(11, icon(35, 5, M.t("comprar", c.name, Catalog.price(c, price(c)))));
         icons.put(13, icon(c.icon, c.meta, "§f" + c.name + "\n§7" + c.type.title));
-        icons.put(15, icon(35, 14, "§cCancelar"));
-        menus().open(p, "Confirmar compra", icons, (who, slot) -> { if (slot == 11) { buy(who, c); } else { category(who, c.type); } });
+        icons.put(15, icon(35, 14, M.t("cancelar")));
+        menus().open(p, M.t("confirmar_compra"), icons, (who, slot) -> { if (slot == 11) { buy(who, c); } else { category(who, c.type); } });
     }
 
     /** Debita, grava o cosmetico e so entao confirma; se a gravacao falhar, devolve o dinheiro. */
     private void buy(Player p, Cosmetic c) {
         EconomyService economy = getServer().getServiceManager().load(EconomyService.class);
         String name = key(p.getName());
-        if (economy == null) { p.sendMessage(PREFIX + "§cLoja indisponivel (GoldEconomy desligado)."); return; }
-        if (!buying.add(name)) { p.sendMessage(PREFIX + "§cCompra em andamento."); return; }
+        if (economy == null) { p.sendMessage(PREFIX + M.t("loja_indisponivel_goldeconomy_desligado")); return; }
+        if (!buying.add(name)) { p.sendMessage(PREFIX + M.t("compra_em_andamento")); return; }
         Wardrobe w = online.get(p);
-        if (w != null && w.owned.contains(c.id)) { buying.remove(name); p.sendMessage(PREFIX + "Voce ja tem."); return; }
+        if (w != null && w.owned.contains(c.id)) { buying.remove(name); p.sendMessage(PREFIX + M.t("voce_ja_tem")); return; }
         EconomyService.Currency currency = c.cash ? EconomyService.Currency.CASH : EconomyService.Currency.MONEY;
         long cost = price(c);
         if (economy.balance(name, currency) < cost) {
@@ -369,11 +369,11 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
                     buying.remove(name);
                     if (e != null) {
                         if (paid[0]) { economy.credit(name, currency, cost); }
-                        if (p.isOnline()) { p.sendMessage(PREFIX + "§cCompra nao concluida: " + root(e) + (paid[0] ? " (dinheiro devolvido)" : "")); }
+                        if (p.isOnline()) { p.sendMessage(PREFIX + M.t("compra_nao_concluida", root(e), (paid[0] ? M.t("dinheiro_devolvido") : ""))); }
                         return;
                     }
                     // Nao reabre o menu aqui: o cliente ainda fecha a janela de confirmacao e o HUD podia sumir.
-                    if (p.isOnline()) { p.sendMessage(PREFIX + "§aVoce comprou e equipou " + c.name + "! §7(/cosmeticos para trocar)"); }
+                    if (p.isOnline()) { p.sendMessage(PREFIX + M.t("voce_comprou_equipou_cosmeticos_para_trocar", c.name)); }
                 });
     }
 
@@ -382,8 +382,8 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length >= 3 && args[0].equalsIgnoreCase("dar") && sender.hasPermission("goldcosmetics.admin")) {
             String id = args[2].toLowerCase(Locale.ROOT);
-            if (!exists(id)) { sender.sendMessage(PREFIX + "§cId inexistente. Use /cosmeticos lista."); return true; }
-            unlock(args[1], id).whenComplete((fresh, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : fresh ? "Entregue." : "Ele ja tinha.")));
+            if (!exists(id)) { sender.sendMessage(PREFIX + M.t("id_inexistente_use_cosmeticos_lista")); return true; }
+            unlock(args[1], id).whenComplete((fresh, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : fresh ? M.t("entregue") : M.t("ele_ja_tinha"))));
             return true;
         }
         if (args.length >= 1 && args[0].equalsIgnoreCase("tirar") && sender instanceof Player) { takeOffAll((Player) sender); return true; }
@@ -395,7 +395,7 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
             }
             return true;
         }
-        if (sender instanceof Player) { openMenu((Player) sender); } else { sender.sendMessage("Use /cosmeticos lista ou /cosmeticos dar <jogador> <id>."); }
+        if (sender instanceof Player) { openMenu((Player) sender); } else { sender.sendMessage(M.t("use_cosmeticos_lista_ou_cosmeticos_dar")); }
         return true;
     }
 

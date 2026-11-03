@@ -67,7 +67,7 @@ final class MiniMap {
             label.setComponents(at.x, at.y, at.z);
             label.setInvisible(false);
             label.setTitle("§l§" + CHAT[colorIndex(s, faction)] + "[" + s.factions.get(faction).tag + "] " + faction);
-            label.setText("§7poder §f" + s.power(faction) + " §8| §7" + s.claimsOf(faction) + " terras");
+            label.setText(M.t("poder_terras", s.power(faction), s.claimsOf(faction)));
             if (viewers.length > 0) { level.addParticle(label, viewers); }
         }
         for (Iterator<Map.Entry<String, FloatingTextParticle>> it = labels.entrySet().iterator(); it.hasNext(); ) {
@@ -109,7 +109,7 @@ final class MiniMap {
             }
             lines.add(row.toString());
         }
-        StringBuilder l = new StringBuilder("§e+ §7voce  §8- §7livre");
+        StringBuilder l = new StringBuilder(M.t("voce_livre"));
         for (Map.Entry<String, Character> e : legend.entrySet()) { l.append("  §").append(e.getValue()).append("# §7").append(s.factions.get(e.getKey()).tag); }
         lines.add(l.toString());
         return lines;

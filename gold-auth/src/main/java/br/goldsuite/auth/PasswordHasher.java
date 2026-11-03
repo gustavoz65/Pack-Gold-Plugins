@@ -13,7 +13,7 @@ final class PasswordHasher {
 
     static void validate(char[] password) {
         if (password == null || password.length < 8 || password.length > 128) {
-            throw new IllegalArgumentException("A senha precisa ter entre 8 e 128 caracteres.");
+            throw new IllegalArgumentException(M.t("senha_precisa_ter_entre_8_128"));
         }
     }
 
@@ -43,7 +43,7 @@ final class PasswordHasher {
     private static byte[] derive(char[] password, byte[] salt, int iterations) {
         PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, 256);
         try { return SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded(); }
-        catch (GeneralSecurityException error) { throw new IllegalStateException("PBKDF2-HMAC-SHA256 indisponivel na JVM.", error); }
+        catch (GeneralSecurityException error) { throw new IllegalStateException(M.t("pbkdf2_hmac_sha256_indisponivel_na_jvm"), error); }
         finally { spec.clearPassword(); }
     }
 }

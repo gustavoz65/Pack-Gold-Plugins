@@ -1,0 +1,112 @@
+# {0} = (2 + lvl / 50)
+agache_com_ferramenta_use_dura: " &7(agache com a ferramenta e use; dura {0} s)"
+arquivo_corrompido: "Arquivo corrompido."
+# {0} = (s.abilities ? "§aligada" : "§cdesligada")
+ativacao_de_poderes: "Ativacao de poderes {0}&f."
+# {0} = skill.ability.toUpperCase(Locale.ROOT), {1} = seconds
+ativado: "&a&l{0} ATIVADO! &r&7({1} s)"
+# {0} = ((b[1] - now) / 1000)
+ativo_mais: "\n&aAtivo: mais {0} s"
+# {0} = mult, {1} = (target == N ? "todas as habilidades" : Skill.ALL[target].label), {2} = (until - now) / 60000
+booster_em_ativo_por_min: "&dBooster {0}x em {1} ativo por {2} min!"
+booster_entregue: "Booster entregue."
+boosters_compre_xp_em_dobro: "&d&lBoosters\n&7Compre XP em dobro"
+boosters_de_xp: "Boosters de XP"
+# {0} = fmt(Math.min(8, 3 + lvl / 50.0)), {1} = fmt(Xp.chance(lvl, 33, 1000)), {2} = fmt(Xp.chance(lvl, 50, 1000))
+braco_de_ferro_desarmar_desviar_flechas: "&7Braco de ferro: &f+{0} &7| Desarmar: &f{1}% &7| Desviar flechas: &f{2}%"
+compra_recusada: "&cCompra recusada."
+# {0} = fmt(Xp.chance(lvl, 37.5, 750)), {1} = fmt(Math.min(4, lvl / 50.0))
+critico_dano_extra: "&7Critico: &f{0}% &7| Dano extra: &f+{1}"
+derrubador_de_arvores: "Derrubador de Arvores"
+desligada: "&cdesligada"
+desligado_no_servidor: " &8(desligado no servidor)"
+# {0} = price
+dinheiro_insuficiente_custa: "&cDinheiro insuficiente: custa ${0}."
+# {0} = fmt(Xp.chance(lvl, 100, 1000))
+drop_duplo: "&7Drop duplo: &f{0}%"
+economia_indisponivel: "&cEconomia indisponivel."
+esquiva: "&aEsquiva!"
+este_item_nao_precisa_de_reparo: "&7Este item nao precisa de reparo."
+evento_de_xp_acabou: "&cO evento de XP acabou."
+# {0} = fmt(rate), {1} = minutes
+evento_xp_em_todas_as_habilidades: "&d&lEVENTO: XP {0}x em todas as habilidades por {1} min!"
+faltam_argumentos: "Faltam argumentos."
+ferramenta: "a ferramenta"
+flecha_desviada: "&aFlecha desviada!"
+formato_desconhecido: "Formato desconhecido."
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldSkills."
+golpe_critico: "&cGolpe critico!"
+golpes_serrilhados: "Golpes Serrilhados"
+# {0} = text
+habilidade_invalida_use_mineracao_lenhador_escav: "Habilidade invalida: {0}. Use: mineracao, lenhador, escavacao, herbalismo, espadas, machado, arqueiro, desarmado, acrobacia, reparacao."
+habilidades: "&6[&eHabilidades&6]&f "
+habilidades_2: "Habilidades"
+# {0} = t.getName()
+habilidades_de_atualizadas: "Habilidades de {0} atualizadas."
+# {0} = t.getName(), {1} = s.power()
+habilidades_de_poder: "&6--- Habilidades de {0} (poder {1}) ---"
+habilidades_zeradas: "Habilidades zeradas."
+# {0} = (int) (100.0 * (max - after) / max)
+item_reparado_de_durabilidade: "&aItem reparado &7({0}% de durabilidade)."
+jogador_offline: "Jogador offline."
+ligada: "&aligada"
+# {0} = (int) (Math.min(2.0, lvl / 500.0) * 100), {1} = fmt(Xp.chance(lvl, 100, 1000))
+maestria_super_reparo_toque_num_bloco: "&7Maestria: &f+{0}% &7| Super reparo: &f{1}% &7(toque num bloco de ferro com o item)"
+multiplicador_de_1_10_minutos_de: "Multiplicador de 1 a 10 e minutos de 1 a 10080."
+# {0} = file
+nao_foi_possivel_trocar: "Nao foi possivel trocar {0}"
+ninguem_no_ranking_ainda: "&7Ninguem no ranking ainda."
+# {0} = sk.label, {1} = lvl
+nivel: "&6--- {0} &f(nivel {1}) &6---"
+# {0} = sk.label, {1} = s.level[i], {2} = s.xp[i], {3} = Xp.needed(s.level[i]), {4} = percent(s, i), {5} = (sk.ability != null ? "\n§7Poder: " + sk.ability : "")
+nivel_xp: "&6{0} &fnivel {1}\n&7XP: {2}/{3} ({4}%){5}"
+numero_invalido: "&cNumero invalido."
+os_punhos: "os punhos"
+perfil_carregando: "Perfil carregando..."
+perfil_carregando_2: "Perfil carregando."
+# {0} = sk.ability
+poder: "\n&7Poder: {0}"
+# {0} = sk.ability, {1} = (abilitiesOn ? " §7(agache com a ferramenta e use; dura " + (2 + lvl / 50) + " s)" : " §8(desligado no servidor)")
+poder_2: "&7Poder: &f{0}{1}"
+poder_3: "poder"
+# {0} = position(ranking(null), name)
+poder_4: "&ePoder: &f#{0}"
+# {0} = ((s.cooldown[skill.ordinal()] - now) / 1000 + 1)
+poder_recarregando: "&cPoder recarregando: {0} s"
+# {0} = s.power(), {1} = (rank > 0 ? "#" + rank : "-")
+poder_total_posicao_no_ranking_toque: "&e&lPoder total: &f{0}\n&7Posicao no ranking: &f{1}\n&7Toque numa habilidade para ver os detalhes"
+# {0} = sk.label, {1} = boosterMult, {2} = boosterSeconds / 60, {3} = boosterPrice, {4} = (b != null && b[1] > now ? "\n§aAtivo: mais " + ((b[1] - now) / 1000) + " s" : "")
+por_min_preco: "&d{0} &f{1}x por {2} min\n&7Preco: &a${3}{4}"
+# {0} = name
+posicoes_de: "&6--- Posicoes de {0} ---"
+racha_cranio: "Racha Cranio"
+rolamento: "&aRolamento!"
+# {0} = fmt(Xp.chance(lvl, 100, 1000)), {1} = fmt(Xp.chance(lvl, 20, 800))
+rolamento_esquiva: "&7Rolamento: &f{0}% &7| Esquiva: &f{1}%"
+rolamento_perfeito: "&aRolamento perfeito!"
+# {0} = fmt(Xp.chance(lvl, 75, 750))
+sangramento: "&7Sangramento: &f{0}%"
+# {0} = skill.label, {1} = level
+subiu_para_nivel: "&a{0} subiu para o nivel &f{1}&a!"
+super_pa: "Super Pa"
+super_picareta: "Super Picareta"
+super_reparo: "&aSuper reparo!"
+terra_verde: "Terra Verde"
+# {0} = Xp.TREASURES.stream().filter(t -> lvl >= t.level).count(), {1} = Xp.TREASURES.size()
+tesouros_liberados: "&7Tesouros liberados: &f{0}/{1}"
+# {0} = (int) (Math.min(2.0, lvl / 50 * 0.1) * 100), {1} = fmt(Xp.chance(lvl, 50, 1000))
+tiro_certeiro_atordoar: "&7Tiro certeiro: &f+{0}% &7| Atordoar: &f{1}%"
+todas_as_habilidades: "todas as habilidades"
+# {0} = boosterMult, {1} = boosterSeconds / 60, {2} = boosterAllPrice
+todas_as_habilidades_por_min_preco: "&d&lTodas as habilidades &f{0}x por {1} min\n&7Preco: &a${2}"
+# {0} = (sk == null ? "poder" : sk.label), {1} = page
+top_pagina: "&6--- Top {0} (pagina {1}) ---"
+voce_esta_sangrando: "&cVoce esta sangrando!"
+voce_ficou_tonto: "&eVoce ficou tonto!"
+voce_foi_desarmado: "&cVoce foi desarmado!"
+# {0} = material.getName()
+voce_precisa_de_para_reparar: "&cVoce precisa de {0} para reparar."
+# {0} = (skill == Skill.DESARMADO ? "os punhos" : "a ferramenta")
+voce_prepara: "&eVoce prepara {0}..."
+# {0} = gain, {1} = skill.label, {2} = s.level[i], {3} = percent(s, i)
+xp: "&e+{0} XP &6{1} &7({2}) {3}%"

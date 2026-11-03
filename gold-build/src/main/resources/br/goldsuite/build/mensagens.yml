@@ -1,0 +1,23 @@
+# {0} = text
+bloco_invalido_use_id_ou_id: "Bloco invalido: {0} (use id ou id:meta)"
+# {0} = volume(sel[0], sel[1])
+blocos: " ({0} blocos)"
+# {0} = job.changed, {1} = (job.undoable ? " /we undo desfaz." : " Grande demais para desfazer.")
+blocos_alterados: "{0} blocos alterados.{1}"
+faltam_argumentos_use_we: "Faltam argumentos. Use /we."
+grande_demais_para_desfazer: " Grande demais para desfazer."
+marque_we_pos1_we_pos2_antes: "Marque /we pos1 e /we pos2 antes."
+mire_num_bloco: "Mire num bloco."
+# {0} = queue.size(), {1} = PER_TICK
+na_fila_ate_blocos_por_tick: "Na fila ({0}). Ate {1} blocos por tick."
+nada_para_desfazer: "Nada para desfazer."
+numero_invalido: "&cNumero invalido."
+# {0} = sub.charAt(3), {1} = p.getFloorX(), {2} = p.getFloorY(), {3} = p.getFloorZ(), {4} = (sel[0] != null && sel[1] != null ? " (" + volume(sel[0], sel[1]) + " blocos)" : "")
+ponto: "Ponto {0}: {1} {2} {3}{4}"
+raio_entre_1_30: "Raio entre 1 e 30."
+# {0} = MAX_BLOCKS
+selecao_maior_que_blocos: "Selecao maior que {0} blocos."
+use_dentro_do_jogo: "Use dentro do jogo."
+we: "&6[&eWE&6]&f "
+we_pos1_pos2_set_bloco_walls: "/we pos1, pos2, set <bloco>, walls <bloco>, replace <de> <para>, esfera <raio> <bloco> (onde voce mira), undo"
+we_undo_desfaz: " /we undo desfaz."

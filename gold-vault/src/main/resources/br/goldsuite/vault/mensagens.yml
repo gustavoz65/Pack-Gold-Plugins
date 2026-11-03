@@ -1,0 +1,14 @@
+autentique_se_primeiro: "Autentique-se primeiro."
+bau: "&5[&dBau&5]&f "
+bau_com_dados_invalidos_fale_com: "&cBau com dados invalidos; fale com a staff."
+# {0} = owner
+bau_de: "Bau de {0}"
+este_bau_ja_esta_aberto: "&cEste bau ja esta aberto."
+# {0} = owner
+falha_ao_gravar_bau_de: "Falha ao gravar o bau de {0}"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldVault."
+jogador_invalido: "&cJogador invalido."
+nao_foi_possivel_abrir_bau: "&cNao foi possivel abrir o bau."
+seu_bau: "Seu bau"
+slot_invalido: "Slot invalido."
+use_dentro_do_jogo: "Use dentro do jogo."

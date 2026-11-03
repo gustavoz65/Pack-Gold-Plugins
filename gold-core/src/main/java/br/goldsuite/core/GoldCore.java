@@ -61,14 +61,14 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
                 Files.write(keyFile, secret, StandardOpenOption.CREATE_NEW);
             }
             byte[] secret = Files.readAllBytes(keyFile);
-            if (secret.length != 32) { throw new IllegalStateException("A chave de assinatura precisa ter 32 bytes."); }
+            if (secret.length != 32) { throw new IllegalStateException(M.t("chave_de_assinatura_precisa_ter_32")); }
             return secret;
         }).whenComplete((secret, error) -> {
             if (error != null || !isEnabled()) {
-                Throwable cause = error == null ? new IllegalStateException("GoldCore foi desativado durante o inicio.") : error;
+                Throwable cause = error == null ? new IllegalStateException(M.t("goldcore_foi_desativado_durante_inicio")) : error;
                 this.ready.completeExceptionally(cause);
                 if (isEnabled()) {
-                    getLogger().error("Nao foi possivel preparar o armazenamento da GoldSuite.", cause);
+                    getLogger().error(M.t("nao_foi_possivel_preparar_armazenamento_da"), cause);
                     getServer().getPluginManager().disablePlugin(this);
                 }
                 return;
@@ -81,12 +81,13 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
         this.settings = new SettingsEngine(this);
         getServer().getServiceManager().register(SettingsService.class, this.settings, this);
         getServer().getPluginManager().registerEvents(this.settings, this);
+        M.B.attach(this);
     }
 
     @Override public CompletableFuture<Void> whenReady() { return this.ready; }
     @Override public AsyncStore getStore() { return this; }
     @Override public ItemSigner getItemSigner() {
-        if (this.signer == null) { throw new IllegalStateException("Aguarde whenReady antes de acessar a assinatura de itens."); }
+        if (this.signer == null) { throw new IllegalStateException(M.t("aguarde_whenready_antes_de_acessar_assinatura")); }
         return this.signer;
     }
 
@@ -131,6 +132,6 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
         if (this.dispatcher != null && !this.dispatcher.closeAndDrain()) {
             getLogger().warning("O armazenamento nao terminou todas as operacoes no prazo de desligamento.");
         }
-        if (this.ready != null && !this.ready.isDone()) { this.ready.completeExceptionally(new IllegalStateException("GoldCore encerrado.")); }
+        if (this.ready != null && !this.ready.isDone()) { this.ready.completeExceptionally(new IllegalStateException(M.t("goldcore_encerrado"))); }
     }
 }

@@ -33,19 +33,19 @@ public final class StaffState {
     public static String command(String text) {
         String c = text.toLowerCase(Locale.ROOT);
         if (c.startsWith("/")) { c = c.substring(1); }
-        if (!c.matches("[a-z0-9_:-]{1,32}")) { throw new IllegalArgumentException("Comando invalido."); }
+        if (!c.matches("[a-z0-9_:-]{1,32}")) { throw new IllegalArgumentException(M.t("comando_invalido")); }
         return c;
     }
 
     public static void validate(StaffState s) {
         if (s == null || s.reports == null || s.blocked == null || s.help == null || s.scheduled == null || s.reports.size() > MAX_REPORTS
                 || s.blocked.size() > 200 || s.help.size() > 30 || s.scheduled.size() > 50 || s.clearlagMinutes < 0 || s.clearlagMinutes > 120
-                || s.restartHours < 0 || s.restartHours > 72 || s.nextReport < 1) { throw new IllegalArgumentException("Configuracao da staff invalida."); }
-        for (Report r : s.reports.values()) { if (r == null || r.reporter == null || r.target == null || r.reason == null || r.reason.length() > 150) { throw new IllegalArgumentException("Report invalido."); } }
+                || s.restartHours < 0 || s.restartHours > 72 || s.nextReport < 1) { throw new IllegalArgumentException(M.t("configuracao_da_staff_invalida")); }
+        for (Report r : s.reports.values()) { if (r == null || r.reporter == null || r.target == null || r.reason == null || r.reason.length() > 150) { throw new IllegalArgumentException(M.t("report_invalido")); } }
         for (String b : s.blocked) { command(b); }
-        for (String h : s.help) { if (h == null || h.length() > 200) { throw new IllegalArgumentException("Linha de ajuda invalida."); } }
+        for (String h : s.help) { if (h == null || h.length() > 200) { throw new IllegalArgumentException(M.t("linha_de_ajuda_invalida")); } }
         for (Map.Entry<String, Integer> e : s.scheduled.entrySet()) {
-            if (e.getKey() == null || e.getKey().length() > 200 || e.getKey().indexOf('\n') >= 0 || e.getValue() == null || e.getValue() < 1 || e.getValue() > 1440) { throw new IllegalArgumentException("Agendamento invalido."); }
+            if (e.getKey() == null || e.getKey().length() > 200 || e.getKey().indexOf('\n') >= 0 || e.getValue() == null || e.getValue() < 1 || e.getValue() > 1440) { throw new IllegalArgumentException(M.t("agendamento_invalido")); }
         }
     }
 }

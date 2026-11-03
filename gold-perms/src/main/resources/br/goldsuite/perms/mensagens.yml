@@ -1,0 +1,66 @@
+# {0} = target, {1} = shown, {2} = (days > 0 ? " \u00a77por " + days + " dia(s)" : "")
+agora: "&a{0} agora e {1}{2}&a."
+# {0} = rootMessage(error)
+alteracao_recusada: "Alteracao recusada: {0}"
+# {0} = rootMessage(e)
+alteracao_recusada_2: "&cAlteracao recusada: {0}"
+atende_tickets_silencia_no_chat: "Atende tickets e silencia no chat"
+autentique_se_primeiro: "Autentique-se primeiro."
+ban_teleporte_modo_de_jogo_ferramentas: "Ban, teleporte, modo de jogo e ferramentas da staff"
+cargo_inexistente_veja_cargos: "&cCargo inexistente. Veja /cargos."
+cargo_inexistente_veja_cargos_2: "Cargo inexistente. Veja /cargos."
+cargos_do_maior_para_menor: "&6--- Cargos (do maior para o menor) ---"
+dados_de_permissoes_invalidos_ou_excessivos: "Dados de permissoes invalidos ou excessivos."
+descricao_de_ate_100_caracteres: "Descricao de ate 100 caracteres."
+dias_de_0_permanente_3650: "Dias de 0 (permanente) a 3650."
+dias_invalidos: "&cDias invalidos."
+# {0} = target, {1} = shown
+entrou_para_equipe_como: "&6{0} &fentrou para a equipe como {1}&f!"
+equipe: ", equipe"
+equipe_online: "&6--- Equipe online ---"
+falha_ao_carregar_permissoes: "Falha ao carregar permissoes."
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldPerms."
+grupo_ainda_possui_jogadores: "Grupo ainda possui jogadores."
+grupo_inexistente: "Grupo inexistente."
+# {0} = name
+grupo_inexistente_2: "Grupo inexistente: {0}"
+grupo_invalido: "Grupo invalido."
+grupo_ja_existe: "Grupo ja existe."
+grupo_padrao_nao_pode_ser_apagado: "O grupo padrao nao pode ser apagado."
+grupo_use_ate_24_letras_minusculas: "Grupo: use ate 24 letras minusculas, numeros, _ ou -."
+# {0} = data.read(s -> new ArrayList<>(s.groups.keySet()))
+grupos: "Grupos: {0}"
+heranca_circular_de_grupos: "Heranca circular de grupos."
+# {0} = g.parent
+herda_tudo_de: "&7Herda tudo de: &f{0}"
+# {0} = (nodes.size() - 40)
+mais: "&7... e mais {0}"
+metricas_da_equipe_cargos_abaixo_dele: "Metricas da equipe, cargos abaixo dele e alertas"
+ninguem_da_equipe_online_agora_use: "&7Ninguem da equipe online agora. Use /suporte para abrir um ticket."
+no_de_permissao_invalido_use_nomes: "No de permissao invalido. Use nomes exatos."
+nome_de_jogador_invalido: "Nome de jogador invalido."
+numero_invalido: "Numero invalido."
+permissoes_ainda_carregando: "Permissoes ainda carregando."
+permissoes_salvas_aplicadas: "Permissoes salvas e aplicadas."
+# {0} = args[1], {1} = getGroup(args[1]), {2} = getWeight(args[1]), {3} = getPermissions(args[1])
+peso: "{0}: {1} (peso {2}) {3}"
+# {0} = (g.tag.isEmpty() ? "\u00a77" + e.getKey() : color(g.tag)), {1} = e.getKey(), {2} = g.weight, {3} = (g.staff ? ", equipe" : ""), {4} = g.description
+peso_2: "{0} &8({1}, peso {2}{3})&7 {4}"
+# {0} = (g.tag.isEmpty() ? name : color(g.tag)), {1} = g.weight
+peso_3: "&6--- {0} &6(peso {1}) ---"
+peso_de_0_1000: "Peso de 0 a 1000."
+# {0} = days
+por_dia: " &7por {0} dia(s)"
+reports_kick_links_no_chat: "Reports, kick e links no chat"
+sem_permissao: "Sem permissao."
+sem_permissoes_extras: "&7Sem permissoes extras."
+# {0} = shown, {1} = group
+seu_cargo_agora_veja_que_pode: "&aSeu cargo agora e {0}&a. Veja o que pode fazer: /cargos {1}"
+tag_de_ate_32_caracteres: "Tag de ate 32 caracteres."
+tudo_inclusive_painel_grupos: "Tudo, inclusive painel e grupos"
+uso_cargo_jogador_cargo_dias_cargo: "Uso: /cargo <jogador> <cargo> [dias] | /cargo remover <jogador>"
+vantagens_de_vip: "Vantagens de VIP"
+veja_que_cada_um_pode_cargos: "&7Veja o que cada um pode: /cargos <cargo>"
+vinculo_de_jogador_invalido: "Vinculo de jogador invalido."
+voce_nao_pode_mexer_no_cargo: "Voce nao pode mexer no cargo de quem esta no mesmo nivel ou acima."
+voce_so_pode_dar_cargos_abaixo: "Voce so pode dar cargos abaixo do seu."

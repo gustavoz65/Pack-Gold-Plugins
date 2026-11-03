@@ -47,9 +47,10 @@ public final class GoldFactions extends PluginBase implements Listener {
     private final Map<Player, String> lastChunk = new IdentityHashMap<>();
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldFactions."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new PersistentState<>(core.getStore(), "goldfactions", FactionState.class, FactionState::new, FactionState::validate);
         miniMap = new MiniMap(getServer());
         Settings.placeholder(this, "clan", p -> { String f = factionOf(p.getName()); return f == null ? "Nenhum" : f; });
@@ -82,14 +83,14 @@ public final class GoldFactions extends PluginBase implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void breakBlock(BlockBreakEvent e) {
         Block b = e.getBlock();
-        if (blockedHere(e.getPlayer(), b.level, b.getFloorX(), b.getFloorZ())) { e.setCancelled(); e.getPlayer().sendPopup("§cTerritorio inimigo"); return; }
+        if (blockedHere(e.getPlayer(), b.level, b.getFloorX(), b.getFloorZ())) { e.setCancelled(); e.getPlayer().sendPopup(M.t("territorio_inimigo")); return; }
         if (b.getId() == Block.MONSTER_SPAWNER) { countSpawner(b, -1); }
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void place(BlockPlaceEvent e) {
         Block b = e.getBlock();
-        if (blockedHere(e.getPlayer(), b.level, b.getFloorX(), b.getFloorZ())) { e.setCancelled(); e.getPlayer().sendPopup("§cTerritorio inimigo"); return; }
+        if (blockedHere(e.getPlayer(), b.level, b.getFloorX(), b.getFloorZ())) { e.setCancelled(); e.getPlayer().sendPopup(M.t("territorio_inimigo")); return; }
         if (b.getId() == Block.MONSTER_SPAWNER) { countSpawner(b, 1); }
     }
 
@@ -112,14 +113,14 @@ public final class GoldFactions extends PluginBase implements Listener {
     public void interact(PlayerInteractEvent e) {
         Block b = e.getBlock();
         if (b == null || b.level == null || b.getId() == 0) { return; }
-        if (e.getAction() == PlayerInteractEvent.RIGHT_CLICK_BLOCK && blockedHere(e.getPlayer(), b.level, b.getFloorX(), b.getFloorZ())) { e.setCancelled(); e.getPlayer().sendPopup("§cTerritorio inimigo"); }
+        if (e.getAction() == PlayerInteractEvent.RIGHT_CLICK_BLOCK && blockedHere(e.getPlayer(), b.level, b.getFloorX(), b.getFloorZ())) { e.setCancelled(); e.getPlayer().sendPopup(M.t("territorio_inimigo")); }
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void damage(EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof Player) || !(e.getDamager() instanceof Player)) { return; }
         String a = factionOf(e.getDamager().getName()), v = factionOf(e.getEntity().getName());
-        if (a != null && a.equals(v)) { e.setCancelled(); ((Player) e.getDamager()).sendPopup("§eMembro da sua faccao"); }
+        if (a != null && a.equals(v)) { e.setCancelled(); ((Player) e.getDamager()).sendPopup(M.t("membro_da_sua_faccao")); }
     }
 
     /** Abates somam e mortes descontam no poder. */
@@ -177,19 +178,19 @@ public final class GoldFactions extends PluginBase implements Listener {
             String owner = data.read(s -> s.claims.get(key));
             String before = lastChunk.put(p, owner == null ? "" : owner);
             if (before == null || before.equals(owner == null ? "" : owner)) { continue; }
-            if (owner == null) { p.sendTip("§7Zona livre"); continue; }
+            if (owner == null) { p.sendTip(M.t("zona_livre")); continue; }
             String text = data.read(s -> {
                 char c = MiniMap.CHAT[MiniMap.colorIndex(s, owner)];
-                return "§" + c + "§l[" + s.factions.get(owner).tag + "] " + owner + "§r §7- poder §f" + s.power(owner);
+                return M.t("0_poder", c, s.factions.get(owner).tag, owner, s.power(owner));
             });
-            p.sendTip(text + (owner.equals(factionOf(p.getName())) ? " §a(sua)" : ""));
+            p.sendTip(text + (owner.equals(factionOf(p.getName())) ? M.t("sua") : ""));
         }
     }
 
     // ---------- comandos ----------
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) { sender.sendMessage("Use dentro do jogo."); return true; }
+        if (!(sender instanceof Player)) { sender.sendMessage(M.t("use_dentro_do_jogo")); return true; }
         Player p = (Player) sender;
         String me = p.getName().toLowerCase(Locale.ROOT);
         String sub = args.length == 0 ? "ajuda" : args[0].toLowerCase(Locale.ROOT);
@@ -198,44 +199,44 @@ public final class GoldFactions extends PluginBase implements Listener {
                 case "criar": {
                     String name = FactionState.name(arg(args, 1)), tag = FactionState.tag(args.length > 2 ? args[2] : name.substring(0, Math.min(4, name.length())));
                     change(p, s -> {
-                        if (s.members.containsKey(me)) { throw new IllegalArgumentException("Voce ja tem faccao."); }
-                        if (s.factions.containsKey(name)) { throw new IllegalArgumentException("Nome em uso."); }
-                        for (Faction f : s.factions.values()) { if (f.tag.equals(tag)) { throw new IllegalArgumentException("Tag em uso."); } }
+                        if (s.members.containsKey(me)) { throw new IllegalArgumentException(M.t("voce_ja_tem_faccao")); }
+                        if (s.factions.containsKey(name)) { throw new IllegalArgumentException(M.t("nome_em_uso")); }
+                        for (Faction f : s.factions.values()) { if (f.tag.equals(tag)) { throw new IllegalArgumentException(M.t("tag_em_uso")); } }
                         Faction f = new Faction(); f.tag = tag; f.created = System.currentTimeMillis(); f.roster.put(me, Role.LIDER);
                         s.factions.put(name, f); s.members.put(me, name);
-                    }, () -> getServer().broadcastMessage(PREFIX + "§e" + p.getName() + " fundou §b" + name + " §8«§b" + tag + "§8»"));
+                    }, () -> getServer().broadcastMessage(PREFIX + M.t("fundou", p.getName(), name, tag)));
                     return true;
                 }
                 case "convidar": {
                     Player target = getServer().getPlayerExact(arg(args, 1));
-                    if (target == null) { throw new IllegalArgumentException("Jogador offline."); }
+                    if (target == null) { throw new IllegalArgumentException(M.t("jogador_offline")); }
                     String f = need(me, Role.OFICIAL);
-                    if (factionOf(target.getName()) != null) { throw new IllegalArgumentException("Ele ja tem faccao."); }
+                    if (factionOf(target.getName()) != null) { throw new IllegalArgumentException(M.t("ele_ja_tem_faccao")); }
                     invites.put(target.getName().toLowerCase(Locale.ROOT), new Object[] {f, System.currentTimeMillis()});
-                    target.sendMessage(PREFIX + "Convite de §b" + f + "§f. Use §a/f aceitar§f (2 min).");
-                    p.sendMessage(PREFIX + "Convite enviado.");
+                    target.sendMessage(PREFIX + M.t("convite_de_use_aceitar_2_min", f));
+                    p.sendMessage(PREFIX + M.t("convite_enviado"));
                     return true;
                 }
                 case "aceitar": {
                     Object[] inv = invites.remove(me);
-                    if (inv == null || System.currentTimeMillis() - (Long) inv[1] > INVITE_MS) { throw new IllegalArgumentException("Nenhum convite valido."); }
+                    if (inv == null || System.currentTimeMillis() - (Long) inv[1] > INVITE_MS) { throw new IllegalArgumentException(M.t("nenhum_convite_valido")); }
                     String f = (String) inv[0];
                     change(p, s -> {
                         Faction x = s.factions.get(f);
-                        if (x == null) { throw new IllegalArgumentException("A faccao nao existe mais."); }
-                        if (s.members.containsKey(me)) { throw new IllegalArgumentException("Voce ja tem faccao."); }
-                        if (x.roster.size() >= FactionState.MAX_MEMBERS) { throw new IllegalArgumentException("Faccao cheia."); }
+                        if (x == null) { throw new IllegalArgumentException(M.t("faccao_nao_existe_mais")); }
+                        if (s.members.containsKey(me)) { throw new IllegalArgumentException(M.t("voce_ja_tem_faccao")); }
+                        if (x.roster.size() >= FactionState.MAX_MEMBERS) { throw new IllegalArgumentException(M.t("faccao_cheia")); }
                         x.roster.put(me, Role.MEMBRO); s.members.put(me, f);
-                    }, () -> { broadcast(f, "§a" + p.getName() + " entrou."); mapDirty = true; });
+                    }, () -> { broadcast(f, M.t("entrou", p.getName())); mapDirty = true; });
                     return true;
                 }
                 case "sair": {
                     String f = need(me, Role.MEMBRO);
                     change(p, s -> {
                         Faction x = s.factions.get(f);
-                        if (x.roster.get(me) == Role.LIDER) { throw new IllegalArgumentException("O lider passa a lideranca (/f lider) ou desfaz (/f desfazer)."); }
+                        if (x.roster.get(me) == Role.LIDER) { throw new IllegalArgumentException(M.t("lider_passa_lideranca_lider_ou_desfaz")); }
                         x.roster.remove(me); s.members.remove(me);
-                    }, () -> { broadcast(f, "§c" + p.getName() + " saiu."); p.sendMessage(PREFIX + "Voce saiu."); mapDirty = true; });
+                    }, () -> { broadcast(f, M.t("saiu", p.getName())); p.sendMessage(PREFIX + M.t("voce_saiu")); mapDirty = true; });
                     return true;
                 }
                 case "expulsar": {
@@ -243,46 +244,46 @@ public final class GoldFactions extends PluginBase implements Listener {
                     change(p, s -> {
                         Faction x = s.factions.get(f);
                         Role r = x.roster.get(target);
-                        if (r == null) { throw new IllegalArgumentException("Nao e da sua faccao."); }
-                        if (r.ordinal() >= x.roster.get(me).ordinal()) { throw new IllegalArgumentException("So pode expulsar cargos abaixo do seu."); }
+                        if (r == null) { throw new IllegalArgumentException(M.t("nao_da_sua_faccao")); }
+                        if (r.ordinal() >= x.roster.get(me).ordinal()) { throw new IllegalArgumentException(M.t("so_pode_expulsar_cargos_abaixo_do")); }
                         x.roster.remove(target); s.members.remove(target);
-                    }, () -> { broadcast(f, "§c" + target + " foi expulso."); mapDirty = true; });
+                    }, () -> { broadcast(f, M.t("foi_expulso", target)); mapDirty = true; });
                     return true;
                 }
                 case "promover": case "rebaixar": {
                     String target = arg(args, 1).toLowerCase(Locale.ROOT), f = need(me, Role.LIDER);
                     Role role = sub.equals("promover") ? Role.OFICIAL : Role.MEMBRO;
-                    change(p, s -> { Faction x = s.factions.get(f); if (!x.roster.containsKey(target) || target.equals(me)) { throw new IllegalArgumentException("Membro invalido."); } x.roster.put(target, role); }, () -> broadcast(f, target + " agora e " + role.name().toLowerCase(Locale.ROOT) + "."));
+                    change(p, s -> { Faction x = s.factions.get(f); if (!x.roster.containsKey(target) || target.equals(me)) { throw new IllegalArgumentException(M.t("membro_invalido")); } x.roster.put(target, role); }, () -> broadcast(f, M.t("agora", target, role.name().toLowerCase(Locale.ROOT))));
                     return true;
                 }
                 case "lider": {
                     String target = arg(args, 1).toLowerCase(Locale.ROOT), f = need(me, Role.LIDER);
-                    change(p, s -> { Faction x = s.factions.get(f); if (!x.roster.containsKey(target) || target.equals(me)) { throw new IllegalArgumentException("Membro invalido."); } x.roster.put(target, Role.LIDER); x.roster.put(me, Role.OFICIAL); }, () -> broadcast(f, "§6" + target + " e o novo lider."));
+                    change(p, s -> { Faction x = s.factions.get(f); if (!x.roster.containsKey(target) || target.equals(me)) { throw new IllegalArgumentException(M.t("membro_invalido")); } x.roster.put(target, Role.LIDER); x.roster.put(me, Role.OFICIAL); }, () -> broadcast(f, M.t("novo_lider", target)));
                     return true;
                 }
                 case "desfazer": {
                     String f = need(me, Role.LIDER);
-                    change(p, s -> s.remove(f), () -> { getServer().broadcastMessage(PREFIX + "§7" + f + " foi desfeita."); mapDirty = true; });
+                    change(p, s -> s.remove(f), () -> { getServer().broadcastMessage(PREFIX + M.t("foi_desfeita", f)); mapDirty = true; });
                     return true;
                 }
                 case "claim": case "dominar": { claim(p, me); return true; }
                 case "unclaim": case "abandonar": {
                     String f = need(me, Role.OFICIAL), key = FactionState.chunk(p.level.getFolderName(), p.getFloorX(), p.getFloorZ());
-                    change(p, s -> { if (!f.equals(s.claims.get(key))) { throw new IllegalArgumentException("Este chunk nao e seu."); } s.claims.remove(key); s.spawners.remove(key); }, () -> { p.sendMessage(PREFIX + "Chunk abandonado."); mapDirty = true; });
+                    change(p, s -> { if (!f.equals(s.claims.get(key))) { throw new IllegalArgumentException(M.t("este_chunk_nao_seu")); } s.claims.remove(key); s.spawners.remove(key); }, () -> { p.sendMessage(PREFIX + M.t("chunk_abandonado")); mapDirty = true; });
                     return true;
                 }
                 case "sethome": {
                     String f = need(me, Role.OFICIAL);
                     String key = FactionState.chunk(p.level.getFolderName(), p.getFloorX(), p.getFloorZ());
-                    if (!f.equals(data.read(s -> s.claims.get(key)))) { throw new IllegalArgumentException("A home precisa ficar no seu territorio."); }
+                    if (!f.equals(data.read(s -> s.claims.get(key)))) { throw new IllegalArgumentException(M.t("home_precisa_ficar_no_seu_territorio")); }
                     Destination here = Destination.position(p.level.getFolderName(), p.x, p.y, p.z, (float) p.yaw, (float) p.pitch);
-                    change(p, s -> s.factions.get(f).home = here, () -> p.sendMessage(PREFIX + "Home da faccao salva."));
+                    change(p, s -> s.factions.get(f).home = here, () -> p.sendMessage(PREFIX + M.t("home_da_faccao_salva")));
                     return true;
                 }
                 case "home": {
                     String f = need(me, Role.MEMBRO);
                     Destination home = data.read(s -> s.factions.get(f).home);
-                    if (home == null) { throw new IllegalArgumentException("Sem home (/f sethome)."); }
+                    if (home == null) { throw new IllegalArgumentException(M.t("sem_home_sethome")); }
                     getServer().getServiceManager().load(TravelService.class).travel(p, home, Transition.CONTAGEM);
                     return true;
                 }
@@ -290,29 +291,29 @@ public final class GoldFactions extends PluginBase implements Listener {
                     need(me, Role.MEMBRO);
                     boolean on = factionChat.add(p);
                     if (!on) { factionChat.remove(p); }
-                    p.sendMessage(PREFIX + "Chat interno " + (on ? "§aligado" : "§cdesligado") + ".");
+                    p.sendMessage(PREFIX + M.t("chat_interno", (on ? M.t("ligado") : M.t("desligado"))));
                     return true;
                 }
                 case "info": case "poder": {
                     String f = args.length > 1 ? FactionState.name(args[1]) : factionOf(me);
-                    if (f == null) { throw new IllegalArgumentException("Use /f info <faccao>."); }
+                    if (f == null) { throw new IllegalArgumentException(M.t("use_info_faccao")); }
                     List<String> lines = data.read(s -> {
                         Faction x = s.factions.get(f);
                         if (x == null) { return null; }
                         FactionState.Weights w = s.weights;
                         int terras = s.claimsOf(f), spawners = s.spawnersOf(f);
                         List<String> out = new ArrayList<>();
-                        out.add("§" + MiniMap.CHAT[MiniMap.colorIndex(s, f)] + "§l[" + x.tag + "] " + f + " §r§7- poder §f" + s.power(f));
-                        out.add("§7Terras §f" + terras + "/" + FactionState.maxClaims(x) + " §8(x" + w.terras + " = " + terras * w.terras + ")");
-                        out.add("§7Membros §f" + x.roster.size() + "/" + FactionState.MAX_MEMBERS + " §8(x" + w.membros + " = " + x.roster.size() * w.membros + ")");
-                        out.add("§7Spawners §f" + spawners + " §8(x" + w.spawners + " = " + spawners * w.spawners + ")");
-                        out.add("§7Abates §a" + x.kills + " §8(x" + w.abates + ")  §7Mortes §c" + x.deaths + " §8(-" + w.mortes + " cada)");
+                        out.add(M.t("0_poder_2", MiniMap.CHAT[MiniMap.colorIndex(s, f)], x.tag, f, s.power(f)));
+                        out.add(M.t("terras", terras, FactionState.maxClaims(x), w.terras, terras * w.terras));
+                        out.add(M.t("membros", x.roster.size(), FactionState.MAX_MEMBERS, w.membros, x.roster.size() * w.membros));
+                        out.add(M.t("spawners", spawners, w.spawners, spawners * w.spawners));
+                        out.add(M.t("abates_mortes_cada", x.kills, w.abates, x.deaths, w.mortes));
                         StringBuilder roster = new StringBuilder("§f");
                         for (Map.Entry<String, Role> m : x.roster.entrySet()) { roster.append(m.getValue() == Role.LIDER ? "**" : m.getValue() == Role.OFICIAL ? "*" : "").append(m.getKey()).append(' '); }
                         out.add(roster.toString().trim());
                         return out;
                     });
-                    if (lines == null) { throw new IllegalArgumentException("Faccao inexistente."); }
+                    if (lines == null) { throw new IllegalArgumentException(M.t("faccao_inexistente")); }
                     for (String l : lines) { p.sendMessage(l); }
                     return true;
                 }
@@ -321,10 +322,10 @@ public final class GoldFactions extends PluginBase implements Listener {
                         List<String> names = new ArrayList<>(s.factions.keySet());
                         names.sort((a, b) -> Long.compare(s.power(b), s.power(a)));
                         List<String> out = new ArrayList<>();
-                        for (int i = 0; i < Math.min(10, names.size()); i++) { String n = names.get(i); out.add("§e" + (i + 1) + ". §" + MiniMap.CHAT[MiniMap.colorIndex(s, n)] + "[" + s.factions.get(n).tag + "] " + n + " §7- poder §f" + s.power(n) + " §8(" + s.claimsOf(n) + " terras)"); }
+                        for (int i = 0; i < Math.min(10, names.size()); i++) { String n = names.get(i); out.add(M.t("1_poder_terras", (i + 1), MiniMap.CHAT[MiniMap.colorIndex(s, n)], s.factions.get(n).tag, n, s.power(n), s.claimsOf(n))); }
                         return out;
                     });
-                    p.sendMessage(PREFIX + "§6Top por poder:");
+                    p.sendMessage(PREFIX + M.t("top_por_poder"));
                     for (String l : top) { p.sendMessage(l); }
                     return true;
                 }
@@ -332,15 +333,15 @@ public final class GoldFactions extends PluginBase implements Listener {
                     if (args.length > 1 && p.hasPermission("goldfactions.admin")) { mapAdmin(p, args); return true; }
                     String mine = factionOf(me);
                     List<String> lines = data.read(s -> MiniMap.ascii(s, p.level.getFolderName(), p.getFloorX() >> 4, p.getFloorZ() >> 4, mine));
-                    p.sendMessage(PREFIX + "§7Mapa (norte em cima):");
+                    p.sendMessage(PREFIX + M.t("mapa_norte_em_cima"));
                     for (String l : lines) { p.sendMessage(l); }
                     return true;
                 }
                 case "mundo": case "peso": case "recontar": { admin(p, sub, args); return true; }
                 default:
-                    p.sendMessage(PREFIX + "/f criar <nome> [tag], convidar, aceitar, sair, expulsar, promover, rebaixar, lider, desfazer");
-                    p.sendMessage(PREFIX + "/f claim, unclaim, mapa, info, poder, top, sethome, home, chat");
-                    if (p.hasPermission("goldfactions.admin")) { p.sendMessage(PREFIX + "Admin: /f mundo <mundo>, peso <fator> <valor>, recontar, mapa definir [raio], mapa centro, mapa remover"); }
+                    p.sendMessage(PREFIX + M.t("criar_nome_tag_convidar_aceitar_sair"));
+                    p.sendMessage(PREFIX + M.t("claim_unclaim_mapa_info_poder_top"));
+                    if (p.hasPermission("goldfactions.admin")) { p.sendMessage(PREFIX + M.t("admin_mundo_mundo_peso_fator_valor")); }
                     return true;
             }
         } catch (RuntimeException e) { p.sendMessage(PREFIX + "§c" + root(e)); return true; }
@@ -352,26 +353,26 @@ public final class GoldFactions extends PluginBase implements Listener {
         int cx = p.getFloorX() >> 4, cz = p.getFloorZ() >> 4;
         String key = world + ":" + cx + ":" + cz;
         Set<String> worlds = data.read(s -> s.worlds);
-        if (!worlds.isEmpty() && !worlds.contains(world)) { throw new IllegalArgumentException("Terras so podem ser dominadas em: " + String.join(", ", worlds)); }
+        if (!worlds.isEmpty() && !worlds.contains(world)) { throw new IllegalArgumentException(M.t("terras_so_podem_ser_dominadas_em", String.join(", ", worlds))); }
         int spawners = spawnersIn(p.level, cx, cz);
         String[] victim = new String[1];
         change(p, s -> {
             String owner = s.claims.get(key);
             Faction x = s.factions.get(f);
             if (owner != null) {
-                if (owner.equals(f)) { throw new IllegalArgumentException("Este chunk ja e seu."); }
+                if (owner.equals(f)) { throw new IllegalArgumentException(M.t("este_chunk_ja_seu")); }
                 long mine = s.power(f), theirs = s.power(owner);
-                if (mine <= theirs) { throw new IllegalArgumentException("Territorio de " + owner + " (poder " + theirs + "). Seu poder (" + mine + ") precisa ser maior para invadir."); }
-                if (!s.border(world, cx, cz, owner)) { throw new IllegalArgumentException("So a borda do territorio inimigo pode ser invadida."); }
+                if (mine <= theirs) { throw new IllegalArgumentException(M.t("territorio_de_poder_seu_poder_precisa", owner, theirs, mine)); }
+                if (!s.border(world, cx, cz, owner)) { throw new IllegalArgumentException(M.t("so_borda_do_territorio_inimigo_pode")); }
                 victim[0] = owner;
             }
-            if (s.claimsOf(f) >= FactionState.maxClaims(x)) { throw new IllegalArgumentException("Limite de " + FactionState.maxClaims(x) + " chunks (cresce com membros)."); }
+            if (s.claimsOf(f) >= FactionState.maxClaims(x)) { throw new IllegalArgumentException(M.t("limite_de_chunks_cresce_com_membros", FactionState.maxClaims(x))); }
             s.claims.put(key, f);
             if (spawners > 0) { s.spawners.put(key, spawners); } else { s.spawners.remove(key); }
         }, () -> {
             mapDirty = true;
-            if (victim[0] == null) { p.sendMessage(PREFIX + "Chunk dominado" + (spawners > 0 ? " com " + spawners + " spawner(s)!" : ".")); return; }
-            getServer().broadcastMessage(PREFIX + "§c" + f + " invadiu terras de " + victim[0] + "!");
+            if (victim[0] == null) { p.sendMessage(PREFIX + M.t("chunk_dominado", (spawners > 0 ? M.t("com_spawner", spawners) : "."))); return; }
+            getServer().broadcastMessage(PREFIX + M.t("invadiu_terras_de", f, victim[0]));
         });
     }
 
@@ -386,31 +387,31 @@ public final class GoldFactions extends PluginBase implements Listener {
 
     private void mapAdmin(Player p, String[] args) {
         String what = args[1].toLowerCase(Locale.ROOT);
-        if (what.equals("remover")) { change(p, s -> s.map = null, () -> { mapDirty = true; p.sendMessage(PREFIX + "Mini mapa desligado (os blocos ficam onde estao)."); }); return; }
+        if (what.equals("remover")) { change(p, s -> s.map = null, () -> { mapDirty = true; p.sendMessage(PREFIX + M.t("mini_mapa_desligado_os_blocos_ficam")); }); return; }
         if (what.equals("centro")) {
             int cx = p.getFloorX() >> 4, cz = p.getFloorZ() >> 4;
             String world = p.level.getFolderName();
-            change(p, s -> { if (s.map == null) { throw new IllegalArgumentException("Defina o mapa antes (/f mapa definir)."); } s.map.source = world; s.map.sourceCx = cx; s.map.sourceCz = cz; },
-                    () -> { mapDirty = true; p.sendMessage(PREFIX + "O mapa agora mostra " + world + " centrado no seu chunk."); });
+            change(p, s -> { if (s.map == null) { throw new IllegalArgumentException(M.t("defina_mapa_antes_mapa_definir")); } s.map.source = world; s.map.sourceCx = cx; s.map.sourceCz = cz; },
+                    () -> { mapDirty = true; p.sendMessage(PREFIX + M.t("mapa_agora_mostra_centrado_no_seu", world)); });
             return;
         }
-        if (!what.equals("definir")) { p.sendMessage(PREFIX + "Uso: /f mapa definir [raio 4-24] | centro | remover"); return; }
+        if (!what.equals("definir")) { p.sendMessage(PREFIX + M.t("uso_mapa_definir_raio_4_24")); return; }
         int radius = args.length > 2 ? Integer.parseInt(args[2]) : 12;
         FactionState.MiniMap map = new FactionState.MiniMap();
         map.world = p.level.getFolderName(); map.x = p.getFloorX(); map.y = p.getFloorY() - 1; map.z = p.getFloorZ(); map.radius = radius;
         map.source = data.read(s -> s.worlds.isEmpty() ? map.world : s.worlds.iterator().next());
         Level source = getServer().getLevelByName(map.source);
         if (source != null) { map.sourceCx = source.getSafeSpawn().getFloorX() >> 4; map.sourceCz = source.getSafeSpawn().getFloorZ() >> 4; }
-        change(p, s -> s.map = map, () -> { mapDirty = true; p.sendMessage(PREFIX + "Mini mapa de " + (radius * 2 + 1) + "x" + (radius * 2 + 1) + " no chao sob voce, mostrando " + map.source + ". Use /f mapa centro para mudar o centro."); });
+        change(p, s -> s.map = map, () -> { mapDirty = true; p.sendMessage(PREFIX + M.t("mini_mapa_de_no_chao_sob", (radius * 2 + 1), (radius * 2 + 1), map.source)); });
     }
 
     private void admin(Player p, String sub, String[] args) {
-        if (!p.hasPermission("goldfactions.admin")) { throw new IllegalArgumentException("Sem permissao."); }
+        if (!p.hasPermission("goldfactions.admin")) { throw new IllegalArgumentException(M.t("sem_permissao")); }
         switch (sub) {
             case "mundo": {
                 String world = Destination.world(arg(args, 1)).target;
                 boolean[] on = new boolean[1];
-                change(p, s -> { on[0] = s.worlds.add(world); if (!on[0]) { s.worlds.remove(world); } }, () -> p.sendMessage(PREFIX + "Mundos de faccoes: " + data.read(s -> s.worlds.isEmpty() ? "todos" : String.join(", ", s.worlds))));
+                change(p, s -> { on[0] = s.worlds.add(world); if (!on[0]) { s.worlds.remove(world); } }, () -> p.sendMessage(PREFIX + M.t("mundos_de_faccoes", data.<String>read(s -> s.worlds.isEmpty() ? "todos" : String.join(", ", s.worlds)))));
                 return;
             }
             case "peso": {
@@ -424,9 +425,9 @@ public final class GoldFactions extends PluginBase implements Listener {
                         case "spawners": w.spawners = value; break;
                         case "abates": w.abates = value; break;
                         case "mortes": w.mortes = value; break;
-                        default: throw new IllegalArgumentException("Fatores: terras, membros, spawners, abates, mortes.");
+                        default: throw new IllegalArgumentException(M.t("fatores_terras_membros_spawners_abates_mortes"));
                     }
-                }, () -> { mapDirty = true; FactionState.Weights w = data.read(s -> s.weights); p.sendMessage(PREFIX + "Pesos: terras " + w.terras + ", membros " + w.membros + ", spawners " + w.spawners + ", abates " + w.abates + ", mortes -" + w.mortes); });
+                }, () -> { mapDirty = true; FactionState.Weights w = data.read(s -> s.weights); p.sendMessage(PREFIX + M.t("pesos_terras_membros_spawners_abates_mortes", w.terras, w.membros, w.spawners, w.abates, w.mortes)); });
                 return;
             }
             default: {
@@ -439,7 +440,7 @@ public final class GoldFactions extends PluginBase implements Listener {
                     counted.put(key, spawnersIn(level, Integer.parseInt(parts[1]), Integer.parseInt(parts[2])));
                 }
                 change(p, s -> { for (Map.Entry<String, Integer> e : counted.entrySet()) { if (!s.claims.containsKey(e.getKey())) { continue; } if (e.getValue() == 0) { s.spawners.remove(e.getKey()); } else { s.spawners.put(e.getKey(), e.getValue()); } } },
-                        () -> { mapDirty = true; p.sendMessage(PREFIX + counted.size() + " chunks carregados recontados."); });
+                        () -> { mapDirty = true; p.sendMessage(PREFIX + M.t("chunks_carregados_recontados", counted.size())); });
             }
         }
     }
@@ -447,9 +448,9 @@ public final class GoldFactions extends PluginBase implements Listener {
     /** Faccao do jogador, exigindo um cargo minimo. */
     private String need(String player, Role min) {
         String f = factionOf(player);
-        if (f == null) { throw new IllegalArgumentException("Voce nao tem faccao. Use /f criar."); }
+        if (f == null) { throw new IllegalArgumentException(M.t("voce_nao_tem_faccao_use_criar")); }
         Role r = data.read(s -> s.factions.get(f).roster.get(player));
-        if (r == null || r.ordinal() < min.ordinal()) { throw new IllegalArgumentException("Seu cargo nao permite."); }
+        if (r == null || r.ordinal() < min.ordinal()) { throw new IllegalArgumentException(M.t("seu_cargo_nao_permite")); }
         return f;
     }
 
@@ -461,6 +462,6 @@ public final class GoldFactions extends PluginBase implements Listener {
         data.change(mutation).whenComplete((v, e) -> { if (!isEnabled()) { return; } if (e != null) { if (p.isOnline()) { p.sendMessage(PREFIX + "§c" + root(e)); } } else { success.run(); } });
     }
 
-    private static String arg(String[] args, int i) { if (args.length <= i) { throw new IllegalArgumentException("Faltam argumentos. Use /f."); } return args[i]; }
+    private static String arg(String[] args, int i) { if (args.length <= i) { throw new IllegalArgumentException(M.t("faltam_argumentos_use")); } return args[i]; }
     static String root(Throwable e) { while (e.getCause() != null) { e = e.getCause(); } return e.getMessage(); }
 }

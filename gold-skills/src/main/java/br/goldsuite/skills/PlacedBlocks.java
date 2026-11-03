@@ -63,19 +63,19 @@ final class PlacedBlocks {
             out.writeInt(size);
             for (long v : table) { if (v != EMPTY && v != TOMB) { out.writeLong(v); } }
         }
-        if (!tmp.renameTo(file)) { file.delete(); if (!tmp.renameTo(file)) { throw new IOException("Nao foi possivel trocar " + file); } }
+        if (!tmp.renameTo(file)) { file.delete(); if (!tmp.renameTo(file)) { throw new IOException(M.t("nao_foi_possivel_trocar", file)); } }
     }
 
     void load(File file) throws IOException {
         if (!file.exists()) { return; }
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(file))))) {
-            if (in.readInt() != 1) { throw new IOException("Formato desconhecido."); }
+            if (in.readInt() != 1) { throw new IOException(M.t("formato_desconhecido")); }
             int nw = in.readInt();
-            if (nw < 0 || nw > 255) { throw new IOException("Arquivo corrompido."); }
+            if (nw < 0 || nw > 255) { throw new IOException(M.t("arquivo_corrompido")); }
             worlds.clear();
             for (int i = 0; i < nw; i++) { worlds.add(in.readUTF()); }
             int n = in.readInt();
-            if (n < 0 || n > 50_000_000) { throw new IOException("Arquivo corrompido."); }
+            if (n < 0 || n > 50_000_000) { throw new IOException(M.t("arquivo_corrompido")); }
             rehash(n * 2 + 2);
             for (int i = 0; i < n; i++) { add(in.readLong()); }
         }

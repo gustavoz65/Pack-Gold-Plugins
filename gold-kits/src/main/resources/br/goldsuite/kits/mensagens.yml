@@ -1,0 +1,35 @@
+autentique_se_primeiro: "Autentique-se primeiro."
+coloque_os_itens_do_kit_no: "Coloque os itens do kit no seu inventario primeiro."
+disponivel: "&aDisponivel"
+# {0} = time(until - now)
+disponivel_em: "Disponivel em {0}."
+# {0} = time(until - now)
+disponivel_em_2: "&cDisponivel em {0}"
+# {0} = name
+exige_goldkits_kit: " (exige goldkits.kit.{0})"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldKits."
+item_nulo: "Item nulo."
+# {0} = e.getKey(), {1} = kit.items.size(), {2} = time(kit.cooldownMinutes * 60_000L), {3} = state
+itens_recarga: "&e{0}\n&7{1} itens | recarga {2}\n{3}"
+kit_apagado: "Kit apagado."
+kit_inexistente: "Kit inexistente."
+kit_inexistente_use_kits: "Kit inexistente. Use /kits."
+# {0} = e.getKey()
+kit_invalido: "Kit invalido: {0}"
+kit_ja_resgatado: "Kit ja resgatado."
+# {0} = name
+kit_recebido: "Kit &e{0}&f recebido!"
+kits: "&a[&2Kits&a]&f "
+kits_2: "Kits"
+kits_invalidos: "Kits invalidos."
+# {0} = kit.items.size()
+libere_espacos_no_inventario: "Libere {0} espacos no inventario."
+limite_de_kits: "Limite de kits."
+nenhum_kit_criado_ainda: "Nenhum kit criado ainda."
+nome_ate_20_letras_numeros_ou: "Nome: ate 20 letras, numeros, _ ou -."
+numero_invalido: "&cNumero invalido."
+sem_permissao: "Sem permissao."
+sem_permissao_2: "&cSem permissao"
+use_dentro_do_jogo: "Use dentro do jogo."
+uso_kit_criar_nome_minutos_de: "Uso: /kit criar <nome> <minutos de recarga> [restrito]"
+voce_nao_tem_permissao_para_este: "Voce nao tem permissao para este kit."

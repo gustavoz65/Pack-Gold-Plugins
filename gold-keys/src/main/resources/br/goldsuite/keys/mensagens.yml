@@ -1,0 +1,65 @@
+# {0} = failed
+avise_staff: " &c(avise a staff: {0})"
+carregando_tente_em_instantes: "Carregando, tente em instantes."
+compre_com_key_comprar_produto: "&7Compre com /key comprar <produto>"
+# {0} = code
+depois_de_confirmado_use_key_resgatar: "Depois de confirmado, use &e/key resgatar {0}"
+essa_key_foi_cancelada: "Essa key foi cancelada."
+essa_key_ja_esta_sendo_resgatada: "Essa key ja esta sendo resgatada."
+essa_key_ja_foi_usada: "Essa key ja foi usada."
+essa_key_pertence_outro_jogador: "Essa key pertence a outro jogador."
+essa_key_venceu: "Essa key venceu."
+falha_ao_gravar_uma_key: "&cFalha ao gravar uma key."
+# {0} = failed
+falhou_entregar: " - FALHOU entregar: {0}"
+faltam_argumentos_use_key: "Faltam argumentos. Use /key."
+formato_de_key_invalido_gold_xxxxx: "Formato de key invalido (GOLD-XXXXX-XXXXX-XXXXX-XXXXX)."
+gere_de_1_20_por_vez: "Gere de 1 a 20 por vez."
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldKeys."
+# {0} = e.getKey(), {1} = e.getValue().player, {2} = e.getValue().product, {3} = min
+ha_min: "&e#{0} &f{1} - {2} &7(ha {3} min)"
+key_do_pedido_nao_esta_pendente: "A key do pedido nao esta pendente."
+key_inexistente: "Key inexistente."
+key_produtos_key_comprar_produto_key: "/key produtos, /key comprar <produto>, /key resgatar <codigo>"
+# {0} = product.rewards(), {1} = (failed.isEmpty() ? "" : " §c(avise a staff: " + failed + ")")
+key_resgatada_voce_recebeu: "&aKey resgatada! &fVoce recebeu: {0}{1}"
+keys: "&6[&eKeys&6]&f "
+loja_de_keys_invalida: "Loja de keys invalida."
+muitas_keys_invalidas_aguarde_um_minuto: "Muitas keys invalidas. Aguarde um minuto."
+nao_foi_possivel_criar_pedido: "&cNao foi possivel criar o pedido."
+nenhum_pedido_aguardando_pagamento: "Nenhum pedido aguardando pagamento."
+nenhum_produto_venda_ainda: "Nenhum produto a venda ainda."
+numero_invalido: "&cNumero invalido."
+pagamento_dessa_key_ainda_nao_foi: "O pagamento dessa key ainda nao foi confirmado."
+# {0} = orderId, {1} = validityHours
+pagamento_do_pedido_confirmado_use_key: "&aPagamento do pedido #{0} confirmado! &fUse /key resgatar <sua key> (vale {1} h)."
+# {0} = orderId
+pedido_cancelado: "Pedido #{0} cancelado."
+# {0} = orderId, {1} = product.name, {2} = KeyState.price(product.priceCents)
+pedido_criado_por: "&aPedido &e#{0}&a criado: {1} por {2}."
+# {0} = orderId, {1} = o.player, {2} = sender.getName()
+pedido_de_confirmado_por: "Pedido #{0} de {1} confirmado por {2}"
+pedido_inexistente: "Pedido inexistente."
+# {0} = e.getKey()
+pedido_invalido: "Pedido invalido: {0}"
+# {0} = orderId
+pedido_nao_esta_aguardando_pagamento: "Pedido #{0} nao esta aguardando pagamento."
+# {0} = orderId, {1} = o.player, {2} = validityHours
+pedido_pago_key_de_vale_por: "Pedido #{0} pago. A key de {1} vale por {2} h."
+# {0} = orderId, {1} = p.getName(), {2} = product.name, {3} = KeyState.price(product.priceCents), {4} = orderId
+pedido_quer_confirme_pix_com_key: "Pedido #{0}: {1} quer {2} ({3}). Confirme o Pix com /key pago {4}"
+produto_dessa_key_nao_existe_mais: "O produto dessa key nao existe mais. Fale com a staff."
+produto_inexistente: "Produto inexistente."
+produto_inexistente_veja_key_produtos: "Produto inexistente. Veja /key produtos."
+# {0} = e.getKey()
+produto_invalido: "Produto invalido: {0}"
+produtos: "&6Produtos:"
+# {0} = name, {1} = product.name, {2} = (failed.isEmpty() ? "" : " - FALHOU entregar: " + failed)
+resgatou: "{0} resgatou {1}{2}"
+staff_key_pedidos_key_pago_pedido: "Staff: /key pedidos, /key pago <pedido>, /key cancelar <pedido>, /key gerar <produto> [qtd], /key produto criar <id> <preco> <nome> | <id> cash|dinheiro|cosmetico|vip|remover ..."
+# {0} = code
+sua_key_guarde_so_vale_depois: "Sua key: &e&l{0} &7(guarde! so vale depois do pagamento)"
+use_cash_dinheiro_cosmetico_vip_ou: "Use cash, dinheiro, cosmetico, vip ou remover."
+use_dentro_do_jogo: "Use dentro do jogo."
+# {0} = open
+voce_ja_tem_pedidos_esperando_pagamento: "Voce ja tem {0} pedidos esperando pagamento."

@@ -1,0 +1,48 @@
+anuncio_cancelado_pegue_item_com_leilao: "Anuncio cancelado. Pegue o item com /leilao coletar."
+# {0} = id[0], {1} = money(price)
+anuncio_criado_por_vence_em_48: "Anuncio #{0} criado por ${1}. Vence em 48 h."
+anuncio_invalido: "Anuncio invalido."
+anuncio_nao_encontrado: "Anuncio nao encontrado."
+# {0} = p.getName(), {1} = item.count, {2} = item.toItem().getName(), {3} = money(price)
+anunciou_por_leilao: "&e{0}&f anunciou {1}x {2} por &a${3}&f. /leilao"
+autentique_se_primeiro: "Autentique-se primeiro."
+cancelar: "&cCancelar"
+coleta_invalida: "Coleta invalida."
+# {0} = money(l.price)
+comprar_por: "Comprar por ${0}?"
+# {0} = item.getCount(), {1} = item.getName(), {2} = money(taken[0].price)
+comprou_por: "Comprou {0}x {1} por ${2}."
+# {0} = p.getName(), {1} = item.getName(), {2} = money(taken[0].price)
+comprou_seu_por: "&a{0} comprou seu {1} por ${2}!"
+# {0} = money(l.price)
+confirmar_compra: "&aConfirmar compra\n&f${0}"
+este_anuncio_ja_foi_vendido: "&cEste anuncio ja foi vendido."
+este_anuncio_ja_foi_vendido_2: "Este anuncio ja foi vendido."
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldMarket."
+goldeconomy_precisa_estar_instalado: "O GoldEconomy precisa estar instalado."
+# {0} = taken.size()
+item_ns_coletado: "{0} item(ns) coletado(s)."
+leilao: "&6[&eLeilao&6]&f "
+# {0} = (current + 1), {1} = pages
+leilao_2: "Leilao ({0}/{1})"
+leilao_esta_cheio: "O leilao esta cheio."
+leilao_invalido: "Leilao invalido."
+leilao_ver_anuncios_vender_preco_meus: "/leilao (ver anuncios), vender <preco>, meus, cancelar <id>, coletar"
+libere_espaco_no_inventario: "Libere espaco no inventario."
+nada_para_coletar: "Nada para coletar."
+nenhum_anuncio_venda_com_leilao_vender: "Nenhum anuncio. Venda com /leilao vender <preco>."
+pagina_anterior: "&f< Pagina anterior"
+preco_fora_do_limite: "Preco fora do limite."
+preco_invalido_ex_100_ou_99: "Preco invalido (ex.: 100 ou 99,90)."
+proxima_pagina: "&fProxima pagina >"
+segure_item_que_quer_anunciar: "Segure o item que quer anunciar."
+use_dentro_do_jogo: "Use dentro do jogo."
+# {0} = id
+use_leilao_cancelar_para_retirar_seu: "Use /leilao cancelar {0} para retirar seu anuncio."
+uso_leilao_cancelar_id_veja_em: "Uso: /leilao cancelar <id> (veja em /leilao meus)"
+uso_leilao_vender_preco_com_item: "Uso: /leilao vender <preco> (com o item na mao)"
+# {0} = icon.getCount(), {1} = icon.getName(), {2} = money(e.getValue().price), {3} = e.getValue().seller
+vendedor_toque_para_comprar: "&e{0}x {1}\n&a${2}\n&7Vendedor: {3}\n&fToque para comprar"
+# {0} = MarketState.PER_PLAYER
+voce_ja_tem_anuncios: "Voce ja tem {0} anuncios."
+voce_nao_tem_anuncios: "Voce nao tem anuncios."

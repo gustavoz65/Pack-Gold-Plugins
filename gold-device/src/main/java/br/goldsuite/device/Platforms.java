@@ -42,7 +42,7 @@ final class Platforms {
             case "windows": case "win10": case "pc": return Platform.WINDOWS10;
             case "android": case "mobile": case "celular": return Platform.ANDROID;
             case "ios": case "iphone": return Platform.IOS;
-            default: throw new IllegalArgumentException("Use windows, android ou ios.");
+            default: throw new IllegalArgumentException(M.t("use_windows_android_ou_ios"));
         }
     }
 

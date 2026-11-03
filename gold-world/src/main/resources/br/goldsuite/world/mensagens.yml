@@ -1,0 +1,33 @@
+# {0} = name
+carregado: "{0} carregado."
+# {0} = b.toString().trim()
+carregados: "Carregados: {0}"
+configuracao_de_mundos_invalida: "Configuracao de mundos invalida."
+descarregado: "Descarregado."
+desligado: "desligado."
+# {0} = (sub.equals("horareal") ? "Hora real" : "AutoInv") + (on[0] ? " ligado" : " desligado"), {1} = name
+em: "{0} em {1}."
+faltam_argumentos_use_mundo: "Faltam argumentos. Use /mundo."
+# {0} = name
+gerando: "Gerando {0}..."
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldWorld."
+hora_real: "Hora real"
+# {0} = count
+itens_fundidos: "{0} itens fundidos."
+ligado: "ligado."
+# {0} = (on[0] ? "ligado." : "desligado.")
+mobs_empilhados: "Mobs empilhados {0}"
+# {0} = name, {1} = name
+mundo_criado_use_mundo_tp: "Mundo {0} criado. Use /mundo tp {1}"
+mundo_inexistente: "&cMundo inexistente."
+mundo_ja_existe: "O mundo ja existe."
+mundo_lista_tp_mundo_criar_mundo: "/mundo lista, tp <mundo>, criar <mundo> [normal|plano], carregar, descarregar, horareal <mundo>, autoinv <mundo>, empilhar; /fundir"
+mundo_nao_carregado_ou_principal: "Mundo nao carregado ou e o principal."
+mundos: "&2[&aMundos&2]&f "
+nada_para_fundir: "Nada para fundir."
+nao_foi_possivel_criar: "&cNao foi possivel criar."
+nao_foi_possivel_descarregar: "&cNao foi possivel descarregar."
+sem_permissao: "Sem permissao."
+sem_permissao_para_este_mundo: "Sem permissao para este mundo."
+# {0} = type
+spawner: "&r&eSpawner ({0})"

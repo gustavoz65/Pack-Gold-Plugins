@@ -16,7 +16,7 @@ import java.util.*;
 
 /** Formato por grupo, anti-spam, mensagens privadas, mute e anuncios automaticos. */
 public final class GoldChat extends PluginBase implements Listener {
-    static String PREFIX = "§b[§3Chat§b]§f ";
+    static String PREFIX = M.t("chat");
     private static final long MIN_INTERVAL_MS = 1500, REPEAT_WINDOW_MS = 30_000;
 
     private PersistentState<ChatState> data;
@@ -27,9 +27,10 @@ public final class GoldChat extends PluginBase implements Listener {
     private boolean showJoinQuit = true;
 
     @Override public void onEnable() {
+        M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
-        if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldChat."); }
+        if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new PersistentState<>(core.getStore(), "goldchat", ChatState.class, ChatState::new, ChatState::validate);
         Settings.number(this, "entrada_saida", 1, "1 = mostra quem entrou e saiu; 0 = esconde (como o OcultJoinQuit)", v -> showJoinQuit = v != 0);
         getServer().getPluginManager().registerEvents(this, this);
@@ -63,10 +64,10 @@ public final class GoldChat extends PluginBase implements Listener {
         if (!staff) {
             long now = System.currentTimeMillis();
             long[] last = lastAt.computeIfAbsent(p, k -> new long[1]);
-            if (now - last[0] < MIN_INTERVAL_MS) { event.setCancelled(); p.sendMessage(PREFIX + "§cDevagar: espere um pouco entre as mensagens."); return; }
+            if (now - last[0] < MIN_INTERVAL_MS) { event.setCancelled(); p.sendMessage(PREFIX + M.t("devagar_espere_um_pouco_entre_as")); return; }
             String previous = lastText.get(p);
-            if (message.equalsIgnoreCase(previous) && now - last[0] < REPEAT_WINDOW_MS) { event.setCancelled(); p.sendMessage(PREFIX + "§cNao repita a mesma mensagem."); return; }
-            if (!p.hasPermission("goldchat.links") && ChatState.LINK.matcher(message).find()) { event.setCancelled(); p.sendMessage(PREFIX + "§cLinks e IPs nao sao permitidos."); return; }
+            if (message.equalsIgnoreCase(previous) && now - last[0] < REPEAT_WINDOW_MS) { event.setCancelled(); p.sendMessage(PREFIX + M.t("nao_repita_mesma_mensagem")); return; }
+            if (!p.hasPermission("goldchat.links") && ChatState.LINK.matcher(message).find()) { event.setCancelled(); p.sendMessage(PREFIX + M.t("links_ips_nao_sao_permitidos")); return; }
             message = ChatState.calm(message);
             if (message.length() > 200) { message = message.substring(0, 200); }
             last[0] = now;
@@ -102,10 +103,10 @@ public final class GoldChat extends PluginBase implements Listener {
 
     /** Motivo de bloqueio ou null. */
     private String blocked(Player p, String name, boolean staff) {
-        if (!staff && !data.read(s -> s.enabled)) { return "O chat esta desativado."; }
+        if (!staff && !data.read(s -> s.enabled)) { return M.t("chat_esta_desativado"); }
         Long until = data.read(s -> s.mutes.get(name));
         if (until != null && (until == 0 || until > System.currentTimeMillis())) {
-            return until == 0 ? "Voce esta silenciado." : "Voce esta silenciado por mais " + ((until - System.currentTimeMillis()) / 60000 + 1) + " min.";
+            return until == 0 ? M.t("voce_esta_silenciado") : M.t("voce_esta_silenciado_por_mais_min", ((until - System.currentTimeMillis()) / 60000 + 1));
         }
         return null;
     }
@@ -146,7 +147,7 @@ public final class GoldChat extends PluginBase implements Listener {
                 case "r": {
                     if (!(sender instanceof Player) || args.length == 0) { return false; }
                     Player to = lastTell.get(sender);
-                    if (to == null || !to.isOnline()) { throw new IllegalArgumentException("Ninguem para responder."); }
+                    if (to == null || !to.isOnline()) { throw new IllegalArgumentException(M.t("ninguem_para_responder")); }
                     tell(sender, to, String.join(" ", args));
                     return true;
                 }
@@ -155,80 +156,80 @@ public final class GoldChat extends PluginBase implements Listener {
                     String name = sender.getName().toLowerCase(Locale.ROOT);
                     boolean[] off = new boolean[1];
                     data.change(s -> { off[0] = s.tellOff.add(name); if (!off[0]) { s.tellOff.remove(name); } })
-                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : off[0] ? "Mensagens privadas desativadas." : "Mensagens privadas ativadas.")));
+                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : off[0] ? M.t("mensagens_privadas_desativadas") : M.t("mensagens_privadas_ativadas"))));
                     return true;
                 }
                 case "chat": {
                     boolean on = args.length > 0 && (args[0].equalsIgnoreCase("on") || args[0].equalsIgnoreCase("ligar"));
-                    data.change(s -> s.enabled = on).thenRun(() -> getServer().broadcastMessage(PREFIX + (on ? "§aChat ativado." : "§cChat desativado pela staff.")));
+                    data.change(s -> s.enabled = on).thenRun(() -> getServer().broadcastMessage(PREFIX + (on ? M.t("chat_ativado") : M.t("chat_desativado_pela_staff"))));
                     return true;
                 }
                 case "aviso": {
                     if (args.length == 0) { return false; }
                     // Aviso grande (BaconAviso): no chat com destaque e no meio da tela por alguns segundos (o 0.15 nao tem titulo).
                     String text = ChatState.color(String.join(" ", args));
-                    for (Player p : getServer().getOnlinePlayers().values()) { p.sendMessage(""); p.sendMessage("\u00a7c\u00a7lAVISO \u00a78\u00bb \u00a7f" + text); p.sendMessage(""); }
+                    for (Player p : getServer().getOnlinePlayers().values()) { p.sendMessage(""); p.sendMessage(M.t("aviso", text)); p.sendMessage(""); }
                     for (int i = 0; i < 4; i++) {
-                        getServer().getScheduler().scheduleDelayedTask(() -> { for (Player p : getServer().getOnlinePlayers().values()) { p.sendPopup("\u00a7c\u00a7lAVISO", "\u00a7f" + text); } }, i * 30);
+                        getServer().getScheduler().scheduleDelayedTask(() -> { for (Player p : getServer().getOnlinePlayers().values()) { p.sendPopup(M.t("aviso_2"), "\u00a7f" + text); } }, i * 30);
                     }
                     return true;
                 }
                 case "limparchat": {
                     // Linhas vazias sao descartadas pelo sendMessage: cada linha leva um codigo de cor invisivel.
                     for (Player p : getServer().getOnlinePlayers().values()) { if (!p.hasPermission("goldchat.staff")) { for (int i = 0; i < 50; i++) { p.sendMessage("§r"); } } }
-                    getServer().broadcastMessage(PREFIX + "Chat limpo por " + sender.getName() + ".");
+                    getServer().broadcastMessage(PREFIX + M.t("chat_limpo_por", sender.getName()));
                     return true;
                 }
                 case "mute": {
                     if (args.length < 1) { return false; }
                     String name = args[0].toLowerCase(Locale.ROOT);
-                    if (!name.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException("Nome invalido."); }
+                    if (!name.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException(M.t("nome_invalido")); }
                     int minutes = args.length > 1 ? Integer.parseInt(args[1]) : 0;
-                    if (minutes < 0 || minutes > 525600) { throw new IllegalArgumentException("Minutos entre 0 (permanente) e 525600."); }
+                    if (minutes < 0 || minutes > 525600) { throw new IllegalArgumentException(M.t("minutos_entre_0_permanente_525600")); }
                     long until = minutes == 0 ? 0 : System.currentTimeMillis() + minutes * 60_000L;
-                    data.change(s -> s.mutes.put(name, until)).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : name + " silenciado " + (minutes == 0 ? "permanentemente." : "por " + minutes + " min."))));
+                    data.change(s -> s.mutes.put(name, until)).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("silenciado", name, (minutes == 0 ? M.t("permanentemente") : M.t("por_min", minutes))))));
                     return true;
                 }
                 case "desmute": {
                     if (args.length < 1) { return false; }
                     String name = args[0].toLowerCase(Locale.ROOT);
                     data.change(s -> { s.mutes.remove(name); s.mutes.values().removeIf(t -> t != 0 && t < System.currentTimeMillis()); })
-                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : name + " pode falar de novo.")));
+                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("pode_falar_de_novo", name))));
                     return true;
                 }
                 case "anuncio": {
                     if (args.length < 1) { return false; }
-                    getServer().broadcastMessage("§6[§eAnuncio§6] §f" + ChatState.color(String.join(" ", args)));
+                    getServer().broadcastMessage(M.t("anuncio", ChatState.color(String.join(" ", args))));
                     return true;
                 }
                 default: return false;
             }
-        } catch (NumberFormatException e) { sender.sendMessage(PREFIX + "§cNumero invalido."); return true; }
+        } catch (NumberFormatException e) { sender.sendMessage(PREFIX + M.t("numero_invalido")); return true; }
         catch (RuntimeException e) { sender.sendMessage(PREFIX + "§c" + root(e)); return true; }
     }
 
     private void tell(CommandSender from, Player to, String text) {
-        if (from == to) { throw new IllegalArgumentException("Voce nao pode mandar mensagem para si mesmo."); }
+        if (from == to) { throw new IllegalArgumentException(M.t("voce_nao_pode_mandar_mensagem_para")); }
         String fromName = from.getName().toLowerCase(Locale.ROOT), toName = to.getName().toLowerCase(Locale.ROOT);
         if (from instanceof Player) {
             String reason = blocked((Player) from, fromName, from.hasPermission("goldchat.staff"));
             if (reason != null && !reason.startsWith("O chat")) { throw new IllegalArgumentException(reason); }
             long now = System.currentTimeMillis();
             long[] last = lastAt.computeIfAbsent((Player) from, k -> new long[1]);
-            if (!from.hasPermission("goldchat.staff") && now - last[0] < MIN_INTERVAL_MS) { throw new IllegalArgumentException("Devagar."); }
+            if (!from.hasPermission("goldchat.staff") && now - last[0] < MIN_INTERVAL_MS) { throw new IllegalArgumentException(M.t("devagar")); }
             last[0] = now;
         }
-        if (!from.hasPermission("goldchat.staff") && data.read(s -> s.tellOff.contains(toName))) { throw new IllegalArgumentException(to.getName() + " desativou mensagens privadas."); }
+        if (!from.hasPermission("goldchat.staff") && data.read(s -> s.tellOff.contains(toName))) { throw new IllegalArgumentException(M.t("desativou_mensagens_privadas", to.getName())); }
         String message = ChatState.clean(text);
-        to.sendMessage("§d[" + from.getName() + " -> voce] §f" + message);
-        from.sendMessage("§d[voce -> " + to.getName() + "] §f" + message);
+        to.sendMessage(M.t("voce", from.getName(), message));
+        from.sendMessage(M.t("voce_2", to.getName(), message));
         if (from instanceof Player) { lastTell.put(to, (Player) from); lastTell.put((Player) from, to); }
     }
 
     private Player online(String name) {
         Player p = getServer().getPlayerExact(name);
         if (p == null) { p = getServer().getPlayer(name); }
-        if (p == null) { throw new IllegalArgumentException("Jogador offline."); }
+        if (p == null) { throw new IllegalArgumentException(M.t("jogador_offline")); }
         return p;
     }
 

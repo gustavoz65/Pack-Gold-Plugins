@@ -1,0 +1,48 @@
+apenas_staff_cria_placas_de_compra: "Apenas a staff cria placas de compra e venda."
+bau_desta_loja_nao_existe_mais: "O bau desta loja nao existe mais."
+bau_sumiu: "bau sumiu"
+coloque_placa_encostada_ou_em_cima: "Coloque a placa encostada ou em cima do seu bau."
+comprar: "Comprar "
+comprar_2: "&a[Comprar]"
+# {0} = p.getName(), {1} = shop.amount, {2} = item.getName(), {3} = ShopState.money(shop.price)
+comprou_da_sua_loja: "{0} comprou {1}x {2} da sua loja (${3})."
+erro: "&4[erro]"
+estoque_de_outra_loja: "&cEstoque de outra loja"
+# {0} = root(e)
+formato_comprar_vender_loja_item_quantidade: "&c{0} Formato: [comprar|vender|loja] / item / quantidade / preco"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldShop."
+goldeconomy_precisa_estar_instalado: "O GoldEconomy precisa estar instalado."
+inventario_cheio: "Inventario cheio."
+item_da_mao_nao_tem_preco: "O item da mao nao tem preco de venda. Itens encantados ou com nome nao sao vendidos."
+item_use_id_ou_id_meta: "Item: use id ou id:meta (ex.: 264 ou 351:4)."
+jogador_saiu_valor_devolvido: "Jogador saiu; valor devolvido."
+limite_de_lojas: "Limite de lojas."
+loja: "&2[&aLoja&2]&f "
+loja_criada_toque_duas_vezes_na: "Loja criada. Toque duas vezes na placa para usar."
+loja_de_outro_jogador: "&cLoja de outro jogador"
+# {0} = e.getKey()
+loja_invalida: "Loja invalida: {0}"
+loja_propria: "Loja propria."
+loja_removida: "Loja removida."
+loja_sem_estoque: "Loja sem estoque."
+lojas_invalidas: "Lojas invalidas."
+nada_vendavel_no_inventario: "Nada vendavel no inventario."
+# {0} = Item.get(item[0], item[1]).getName(), {1} = ShopState.money(price)
+por_unidade: "{0}: ${1} por unidade."
+preco_de_venda_invalido: "Preco de venda invalido."
+preco_fora_do_limite: "Preco fora do limite."
+preco_invalido_ex_10_ou_10: "Preco invalido (ex.: 10 ou 10,50)."
+preco_removido: "Preco removido."
+quantidade_entre_1_64: "Quantidade entre 1 e 64."
+# {0} = what, {1} = (chest == null ? "bau sumiu" : count(chest, shop.id, shop.meta))
+sua_loja_estoque: "Sua loja: {0} | estoque: {1}"
+# {0} = (shop.type == Type.VENDER ? "Vender " : "Comprar "), {1} = what
+toque_de_novo_para_confirmar: "&e{0}{1}\n&fToque de novo para confirmar"
+uso_preco_id_meta_valor_por: "Uso: /preco <id[:meta]> <valor por unidade | remover>"
+valor_alto_demais: "&cValor alto demais."
+vender: "Vender "
+vender_2: "&c[Vender]"
+# {0} = items, {1} = ShopState.money(value)
+vendeu_itens_por: "Vendeu {0} itens por ${1}."
+# {0} = item.getCount(), {1} = item.getName()
+voce_nao_tem: "Voce nao tem {0}x {1}."

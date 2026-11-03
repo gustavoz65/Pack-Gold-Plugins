@@ -1,0 +1,197 @@
+20_de_chance_de_golpe_critico: "20% de chance de golpe critico com 50% a mais de dano."
+33_de_chance_de_causar_lentidao: "33% de chance de causar lentidao a cada golpe."
+33_de_chance_de_envenenar_cada: "33% de chance de envenenar a cada golpe."
+33_de_chance_de_incendiar_ao: "33% de chance de incendiar ao bater. Imune a fogo e lava."
+admin_hg_criar_mundo_spawn_desfazer: "Admin: /hg criar <mundo>, spawn, desfazer, final, salvar, iniciar, regras, batalhafinal, remover <arena>, /sopa mundo <mundo>"
+# {0} = Math.min(4, count)
+afiacao: "&6Afiacao {0}!"
+agachado_recebe_no_maximo_meio_coracao: "Agachado recebe no maximo meio coracao, mas causa pouco dano."
+agache_para_aparecer_nas_costas_do: "Agache para aparecer nas costas do ultimo jogador que voce bateu ou que te bateu."
+# {0} = players.size(), {1} = rules.minPlayers
+aguardando_jogadores_bau_da_hotbar_kits: "&eAguardando jogadores &f{0}/{1}&7 | &fbau da hotbar: kits"
+# {0} = nearest.getName(), {1} = (int) Math.sqrt(best)
+alvo: "&7 | &eAlvo: &f{0} &7({1}m)"
+# {0} = name
+arena_criada_va_ao_mapa_fique: "Arena {0} criada. Va ao mapa, fique em cada spawn e use /hg spawn (ate 24). Depois /hg final no centro."
+# {0} = wanted
+arena_inexistente: "Arena inexistente: {0}"
+arena_inexistente_2: "Arena inexistente."
+# {0} = e.getKey()
+arena_invalida: "Arena invalida: {0}"
+arena_removida_copia_do_mapa_continua: "Arena removida (a copia do mapa continua em plugins/GoldHG/mapas)."
+autentique_se_primeiro: "Autentique-se primeiro."
+bastao_do_monge: "Bastao do Monge"
+bata_com_graveto_para_trocar_item: "Bata com o graveto para trocar o item da mao do inimigo por outro do inventario dele."
+batalha_final: "&4Batalha final!"
+batalha_final_em_10: "Batalha final em 10 s."
+bengala_do_vovo: "Bengala do Vovo"
+# {0} = charges[0]
+blink_3: "&dBlink &f{0}/3"
+blink_recarregado: "&aBlink recarregado"
+bolas_de_neve_trocam_voce_de: "Bolas de neve trocam voce de lugar com quem acertar."
+cada_abate_explode_no_local_imune: "Cada abate explode no local. Imune a explosoes e com Resistencia."
+cair_em_cima_dos_outros_repassa: "Cair em cima dos outros repassa o dano da queda; o seu fica em ate 2 coracoes."
+centro_do_feast_da_batalha_final: "Centro do feast e da batalha final salvo."
+coloque_portal_quem_estiver_acima_ou: "Coloque o portal: quem estiver acima ou abaixo dele e puxado para o combate."
+# {0} = GoldHG.PREFIX
+comando_bloqueado_durante_hg_use_hg: "{0}&cComando bloqueado durante o HG. Use /hg sair para sair."
+comecando_em_10: "Comecando em 10 s."
+copia_do_mapa_atualizada: "Copia do mapa atualizada."
+dados_do_hg_invalidos_ou_excessivos: "Dados do HG invalidos ou excessivos."
+# {0} = p.getName()
+desconectou: "&f{0} &7desconectou"
+# {0} = player.getName()
+desistiu: "&f{0}&7 desistiu"
+# {0} = GoldHG.PREFIX, {1} = second.getName()
+duelo_contra_2_minutos: "{0}&6Duelo contra {1}! 2 minutos."
+# {0} = GoldHG.PREFIX
+endermage_5_de_invencibilidade: "{0}&5Endermage! 5 s de invencibilidade."
+# {0} = player.getName(), {1} = target.players.size(), {2} = spawns.size()
+entrou: "&a{0}&f entrou ({1}/{2})"
+espada_do_barbaro: "&rEspada do Barbaro"
+espada_do_barbaro_2: "Espada do Barbaro"
+espadas_causam_1_3_do_dano: "Espadas causam 1/3 do dano em voce; socos e machados, 50% a mais."
+espere_sala_esvaziar: "Espere a sala esvaziar."
+esvazie_inventario_antes_de_entrar_no: "Esvazie o inventario antes de entrar no HG."
+falha_ao_carregar_hg: "Falha ao carregar o HG."
+# {0} = game.arena
+falha_ao_restaurar: "Falha ao restaurar {0}"
+feast_apareceu_no_centro: "&6O feast apareceu no centro!"
+# {0} = Game.clock(until), {1} = c.getFloorX(), {2} = c.getFloorY(), {3} = c.getFloorZ()
+feast_em_em: "&6Feast em &f{0}&6 em &fX {1} Y {2} Z {3}"
+# {0} = Game.clock(s)
+fim_em: "&cFim em {0}"
+fique_agachado_parado_por_3_para: "Fique agachado e parado por 3 s para ficar invisivel."
+# {0} = dead.getName(), {1} = killer.getName()
+foi_morto_por: "&f{0} &7foi morto por &c{1}"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldHG."
+golpes_com_enxada_aplicam_wither: "Golpes com a enxada aplicam Wither."
+graveto_com_repulsao_ii: "Graveto com Repulsao II."
+hg_entrar_arena_hg_sair_hg: "/hg entrar [arena], /hg sair, /hg lista, /hgkits, /hgkit <nome>, /sopa (alterna sopa ao selecionar)"
+# {0} = GoldHG.PREFIX
+hulk_te_arremessou: "{0}&cO Hulk te arremessou!"
+imune_projeteis_habilidades_que_movem_jogadores: "Imune a projeteis e a habilidades que movem jogadores."
+informe_arena: "Informe a arena."
+# {0} = Game.clock(game.seconds), {1} = players.size(), {2} = spawns(game).size(), {3} = kit(p).title
+iniciando_em_kit: "&aIniciando em &f{0}&7 | &f{1}/{2}&7 | kit: &e{3}"
+item_de_bau_invalido: "Item de bau invalido."
+jogadores_insuficientes_contagem_cancelada: "&cJogadores insuficientes. Contagem cancelada."
+# {0} = kit(p).title
+kit_entregue: "Kit entregue: &e{0}"
+# {0} = kit.title, {1} = kit.description
+kit_escolhido: "Kit escolhido: &e{0}&7 - {1}"
+kit_inexistente_use_hgkits_para_ver: "Kit inexistente. Use /hgkits para ver a lista."
+# {0} = (current + 1), {1} = pages
+kits: "Kits ({0}/{1})"
+kits_toque: "&r&eKits &7(toque)"
+limite_de_24_spawns: "Limite de 24 spawns."
+martelo_de_thor: "Martelo de Thor"
+mensagem: "&7[&fH&cG&7]&f "
+mesa_de_encantamento_portatil_3_niveis: "Mesa de encantamento portatil e 3 niveis de XP por abate."
+mina_armada: "&cMina armada"
+# {0} = rules.waitSeconds
+minimo_de_jogadores_atingido_partida_comeca: "&aMinimo de jogadores atingido! &fA partida comeca em &e{0}s&f."
+# {0} = r.minPlayers, {1} = r.waitSeconds, {2} = r.graceSeconds
+minimo_jogadores_contagem_pvp_apos_mude: "Minimo &e{0}&f jogadores, contagem &e{1}s&f, PvP apos &e{2}s&f. Mude com /hg regras <minimo|espera|pvp> <valor>"
+# {0} = (s / 60)
+minuto_restantes: "&c{0} &fminuto(s) restantes"
+mire_num_bloco: "&7Mire num bloco"
+mire_num_bloco_toque_com_vara: "Mire num bloco e toque com a vara: voce e puxado ate ele."
+mire_num_jogador_toque_com_vara: "Mire num jogador e toque com a vara: ele vem parar na sua frente."
+# {0} = dead.getName()
+morreu: "&f{0} &7morreu"
+mudas_sementes_crescem_na_hora_ao: "Mudas e sementes crescem na hora ao plantar."
+# {0} = name
+mundo_inexistente_em_worlds: "Mundo inexistente em worlds/: {0}"
+nao_foi_possivel_entrar: "Nao foi possivel entrar."
+nenhum_spawn: "Nenhum spawn."
+nenhuma_arena_criada: "Nenhuma arena criada."
+nenhuma_sala_aberta_agora: "Nenhuma sala aberta agora."
+ninguem_acima_ou_abaixo_do_portal: "&7Ninguem acima ou abaixo do portal"
+ninguem_venceu_desta_vez: "&fNinguem venceu desta vez."
+nome_invalido_na_lista_de_limpeza: "Nome invalido na lista de limpeza."
+nome_invalido_na_lista_de_sopa: "Nome invalido na lista de sopa."
+os_baus_foram_reabastecidos: "&eOs baus foram reabastecidos!"
+pagina_anterior: "&f< Pagina anterior"
+# {0} = s, {1} = (s == 1 ? "" : "s")
+partida_comeca_em_segundo: "&fA partida comeca em &e{0}&f segundo{1}."
+# {0} = Game.clock(rules.graceSeconds)
+partida_comecou_pvp_em_ainda_da: "&6A partida comecou! &bPvP em &f{0}&b. Ainda da para entrar ate o PvP ser liberado."
+partida_ja_comecou_kit_nao_pode: "A partida ja comecou; o kit nao pode mudar."
+partida_ja_comecou_mas_pvp_ainda: "&eA partida ja comecou, mas o PvP ainda nao. Escolha o kit em 15s (bau da hotbar)."
+# {0} = from
+pasta_inexistente: "Pasta inexistente: {0}"
+picareta_eficiente_minerio_de_ferro_ou: "Picareta eficiente; minerio de ferro ou carvao sai com o veio inteiro."
+placa_de_pressao_sobre_cascalho_vira: "Placa de pressao sobre cascalho vira mina: explode quando um inimigo pisa."
+premio_de_vitoria_depositado: "Premio de vitoria depositado."
+proxima_pagina: "&fProxima pagina >"
+# {0} = Game.clock(Math.max(0, rules.graceSeconds - elapsed - 1))
+pvp_em: "&bPvP em {0}"
+pvp_foi_ativado: "&cO PvP foi ativado!"
+pvp_ja_foi_liberado_nessa_sala: "O PvP ja foi liberado nessa sala. Espere a proxima."
+# {0} = left
+pvp_sera_ativado_em_segundos: "&bPvP sera ativado em &f{0}&b segundos"
+quebrar_base_com_machado_derruba_arvore: "Quebrar a base com o machado derruba a arvore inteira."
+# {0} = ((millis - (now - last)) / 1000 + 1)
+recarga: "&cRecarga: {0} s"
+regras_do_hg_invalidas: "Regras do HG invalidas."
+# {0} = message, {1} = game.players.size()
+restantes: "{0} &7({1} restantes)"
+# {0} = player.getName()
+saiu_antes_do_pvp: "&f{0}&7 saiu antes do PvP"
+# {0} = player.getName()
+saiu_da_sala: "&f{0} saiu da sala."
+sala_cheia: "Sala cheia."
+sala_cheia_comecando_em_10s: "&aSala cheia! Comecando em 10s."
+salvando_copia_do_mapa: "Salvando copia do mapa..."
+sem_cargas: "&cSem cargas"
+sem_kit: "Sem kit"
+# {0} = kit.title
+seu_kit_surpresa: "Seu kit surpresa e &e{0}"
+so_bussola: "So a bussola."
+soco_com_dano_de_espada_de: "Soco com dano de espada de pedra e meio coracao a menos de dano recebido."
+sopa_ao_selecionar_desligada_toque_na: "Sopa ao selecionar &cdesligada&f: toque na tela com a sopa na mao."
+sopa_ao_selecionar_ligada_toque_no: "Sopa ao selecionar &aligada&f: toque no slot da sopa na hotbar para tomar."
+# {0} = world
+sopa_instantanea_alternada_em: "Sopa instantanea alternada em {0}."
+spawn_invalido: "Spawn invalido."
+# {0} = spawns(games.get(name)).size()
+spawn_salvo: "Spawn {0} salvo."
+sua_espada_ganha_afiacao_cada_abate: "Sua espada ganha Afiacao a cada abate (ate IV)."
+# {0} = GoldHG.PREFIX, {1} = first.getName()
+te_desafiou_para_um_duelo_2: "{0}&6{1} te desafiou para um duelo! 2 minutos."
+teias_para_prender_inimigos_agachado_escala: "Teias para prender inimigos; agachado, escala paredes."
+tire_armadura_antes_de_entrar_no: "Tire a armadura antes de entrar no HG."
+toque_chao_com_machado_de_madeira: "Toque o chao com o machado de madeira para chamar um raio. Imune a raios."
+toque_com_carvao_para_criar_uma: "Toque com carvao para criar uma ponte de 5 blocos a frente."
+toque_com_creme_de_magma_para: "Toque com o creme de magma para ser lancado. Ao cair, explode e incendeia quem estiver perto."
+toque_com_pata_de_coelho_para: "Toque com a pata de coelho para saltar para cima ou para frente, ate no ar. Sem dano de queda logo apos saltar."
+toque_com_pena_para_voar_por: "Toque com a pena para voar por 5 s. Recarga de 60 s."
+toque_com_redstone_para_avancar_6: "Toque com a redstone para avancar 6 blocos. 3 cargas; recarrega em 15 s."
+toque_com_tocha_de_redstone_para: "Toque com a tocha de redstone para teleportar ao bloco que mira. Deixa um raio e gasta fome."
+toque_num_jogador_com_bloco_de: "Toque num jogador com o bloco de ferro: os dois vao para uma arena de vidro no ceu para um 1v1."
+toque_num_jogador_com_mao_vazia: "Toque num jogador com a mao vazia para agarra-lo e arremessa-lo longe."
+ultimo_spawn_removido: "Ultimo spawn removido."
+um_kit_aleatorio_no_inicio_da: "Um kit aleatorio no inicio da partida."
+# {0} = GoldHG.PREFIX
+um_monge_baguncou_seu_inventario: "{0}&cUm monge baguncou seu inventario!"
+use_minimo_espera_ou_pvp: "Use minimo, espera ou pvp."
+use_um_mundo_separado_do_lobby: "Use um mundo separado do lobby."
+uso_hg_criar_mundo: "Uso: /hg criar <mundo>"
+# {0} = winner.getName(), {1} = game.arena
+venceu_hg_em: "&e{0}&b venceu o HG em &f{1}&b!"
+vida_cheia: "&7Vida cheia"
+# {0} = players.size(), {1} = (game.phase == Phase.INVENCIVEL ? "§bPvP em " + Game.clock(Math.max(0, rules.graceSeconds - elapsed - 1)) : "§cFim em " + Game.clock(s))
+vivos: "&fVivos: &a{0}&7 | {1}"
+voando_por_5: "&bVoando por 5 s!"
+# {0} = GoldHG.PREFIX, {1} = stomper.getName()
+voce_foi_esmagado_por: "{0}&cVoce foi esmagado por {1}!"
+# {0} = GoldHG.PREFIX, {1} = p.getName()
+voce_foi_fisgado_por: "{0}&cVoce foi fisgado por {1}!"
+voce_ja_esta_numa_partida_use: "Voce ja esta numa partida. Use /hg sair."
+voce_nao_esta_numa_partida: "Voce nao esta numa partida."
+voce_nao_recebe_nao_causa_repulsao: "Voce nao recebe e nao causa repulsao."
+voce_precisa_estar_dentro_de_uma: "Voce precisa estar dentro de uma arena."
+# {0} = GoldHG.PREFIX
+voce_saiu_no_meio_do_hg: "{0}Voce saiu no meio do HG; os itens da partida foram removidos."
+voo_acabou: "&cVoo acabou"

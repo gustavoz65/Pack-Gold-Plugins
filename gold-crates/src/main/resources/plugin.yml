@@ -6,6 +6,6 @@ depend: [GoldCore]
 author: gustavoz65
 description: Caixas com chave assinada e caixas misteriosas (item que abre sozinho) com raridades, anuncio e premios de comando
 commands:
- caixa: {description: Gerencia caixas e entrega chaves, usage: "/caixa", aliases: [crate, caixas], permission: goldcrates.admin}
+ caixa: {description: "Gerencia caixas e entrega chaves", usage: "/caixa", aliases: [crate, caixas], permission: goldcrates.admin}
 permissions:
- goldcrates.admin: {default: op, description: Cria caixas e da chaves}
+ goldcrates.admin: {default: op, description: "Cria caixas e da chaves"}

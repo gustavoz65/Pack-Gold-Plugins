@@ -22,7 +22,7 @@ final class Security {
 
     void validate() {
         if (trusted == null) { trusted = new ArrayList<>(); }
-        if (secret != null && !secret.matches("[A-Z2-7]{16,64}")) { throw new IllegalArgumentException("Segredo 2FA invalido."); }
+        if (secret != null && !secret.matches("[A-Z2-7]{16,64}")) { throw new IllegalArgumentException(M.t("segredo_2fa_invalido")); }
         trusted.removeIf(d -> d == null || !d.matches("[0-9a-f]{32}"));
         while (trusted.size() > MAX_DEVICES) { trusted.remove(0); }
     }

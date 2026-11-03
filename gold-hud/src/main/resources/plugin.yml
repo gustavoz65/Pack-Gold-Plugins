@@ -7,7 +7,7 @@ softdepend: [GoldAuth, GoldEconomy, GoldPerms]
 author: gustavoz65
 description: Barra estilo scoreboard com money, cash, grupo, clan, KDR e coordenadas, configuravel no painel
 commands:
- hud: {description: Liga ou desliga a barra, usage: "/hud | /hud mundo <mundo>", aliases: [cordenadas, coords]}
- id: {description: Mostra o id do item na mao, usage: "/id", aliases: [itemid]}
+ hud: {description: "Liga ou desliga a barra", usage: "/hud | /hud mundo <mundo>", aliases: [cordenadas, coords]}
+ id: {description: "Mostra o id do item na mao", usage: "/id", aliases: [itemid]}
 permissions:
- goldhud.admin: {default: op, description: Esconde a barra em mundos}
+ goldhud.admin: {default: op, description: "Esconde a barra em mundos"}

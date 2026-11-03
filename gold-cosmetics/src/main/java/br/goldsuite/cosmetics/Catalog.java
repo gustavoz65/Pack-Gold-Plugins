@@ -5,7 +5,7 @@ import java.util.*;
 /** Todos os cosmeticos. Preco em centavos (0 = nao vende, so se ganha). Fica no codigo: nada a validar do disco. */
 final class Catalog {
     enum Type {
-        PINGENTE("Pingentes", 396, 0), TRILHA("Trilhas", 377, 0), ABATE("Efeitos de abate", 46, 0), COR("Cor do nome", 351, 12), MONTARIA("Montarias 3D", 35, 4);
+        PINGENTE("Pingentes", 396, 0), TRILHA("Trilhas", 377, 0), ABATE(M.t("efeitos_de_abate"), 46, 0), COR(M.t("cor_do_nome"), 351, 12), MONTARIA("Montarias 3D", 35, 4);
         final String title; final int icon, meta;
         Type(String title, int icon, int meta) { this.title = title; this.icon = icon; this.meta = meta; }
     }
@@ -30,11 +30,11 @@ final class Catalog {
         // Pingentes-chaveiro do ranked (como os do Valorant): o item flutua girando, com brilho, ao lado do jogador.
         String[][] tiers = {{"ferro", "Ferro", "265", "0"}, {"bronze", "Bronze", "336", "0"}, {"prata", "Prata", "406", "0"}, {"ouro", "Ouro", "266", "0"},
                 {"platina", "Platina", "351", "4"}, {"diamante", "Diamante", "264", "0"}, {"ascendente", "Ascendente", "388", "0"}, {"imortal", "Imortal", "331", "0"}};
-        for (String[] t : tiers) { add("pingente_" + t[0], Type.PINGENTE, "Pingente " + t[1], "chaveiro", Integer.parseInt(t[2]), Integer.parseInt(t[3]), 0, "Ranked: alcance " + t[1]); }
-        add("pingente_divino", Type.PINGENTE, "Pingente Divino", "chaveiro", 396, 0, 0, "Ranked: entre no top 10 (Divino)");
-        add("pingente_vitorias_10", Type.PINGENTE, "10 vitorias", "chaveiro", 267, 0, 0, "Ranked: 10 vitorias");
-        add("pingente_vitorias_50", Type.PINGENTE, "50 vitorias", "chaveiro", 283, 0, 0, "Ranked: 50 vitorias");
-        add("pingente_vitorias_100", Type.PINGENTE, "100 vitorias", "chaveiro", 276, 0, 0, "Ranked: 100 vitorias");
+        for (String[] t : tiers) { add("pingente_" + t[0], Type.PINGENTE, "Pingente " + t[1], "chaveiro", Integer.parseInt(t[2]), Integer.parseInt(t[3]), 0, M.t("ranked_alcance", t[1])); }
+        add("pingente_divino", Type.PINGENTE, M.t("pingente_divino"), "chaveiro", 396, 0, 0, M.t("ranked_entre_no_top_10_divino"));
+        add("pingente_vitorias_10", Type.PINGENTE, "10 vitorias", "chaveiro", 267, 0, 0, M.t("ranked_10_vitorias"));
+        add("pingente_vitorias_50", Type.PINGENTE, "50 vitorias", "chaveiro", 283, 0, 0, M.t("ranked_50_vitorias"));
+        add("pingente_vitorias_100", Type.PINGENTE, "100 vitorias", "chaveiro", 276, 0, 0, M.t("ranked_100_vitorias"));
         // Pingentes da loja.
         add("pingente_coracao", Type.PINGENTE, "Coracao", "chaveiro", 351, 1, 50_000, null);
         add("pingente_estrela", Type.PINGENTE, "Estrela", "chaveiro", 348, 0, 40_000, null);
@@ -50,12 +50,12 @@ final class Catalog {
         add("trilha_portal", Type.TRILHA, "Portal", "portal", 49, 0, 110_000, null);
         add("trilha_coracoes", Type.TRILHA, "Coracoes", "coracoes", 351, 1, 120_000, null);
         add("trilha_chamas", Type.TRILHA, "Chamas", "chamas", 377, 0, 150_000, null);
-        add("trilha_divina", Type.TRILHA, "Divina", "divina", 466, 0, 0, "Ranked: entre no top 10 (Divino)");
+        add("trilha_divina", Type.TRILHA, "Divina", "divina", 466, 0, 0, M.t("ranked_entre_no_top_10_divino"));
         // Efeitos de abate.
-        add("abate_coracoes", Type.ABATE, "Chuva de coracoes", "coracoes", 351, 1, 120_000, null);
+        add("abate_coracoes", Type.ABATE, M.t("chuva_de_coracoes"), "coracoes", 351, 1, 120_000, null);
         add("abate_lava", Type.ABATE, "Lava", "lava", 327, 0, 150_000, null);
         add("abate_explosao", Type.ABATE, "Explosao", "explosao", 46, 0, 200_000, null);
-        add("abate_imortal", Type.ABATE, "Coroa Imortal", "imortal", 331, 0, 0, "Ranked: alcance Imortal");
+        add("abate_imortal", Type.ABATE, M.t("coroa_imortal"), "imortal", 331, 0, 0, M.t("ranked_alcance_imortal"));
         // Cor do nome no chat.
         add("cor_verde", Type.COR, "Verde", "§a", 351, 10, 30_000, null);
         add("cor_azul", Type.COR, "Azul", "§b", 351, 12, 30_000, null);
@@ -63,8 +63,8 @@ final class Catalog {
         add("cor_amarelo", Type.COR, "Amarelo", "§e", 351, 11, 30_000, null);
         add("cor_vermelho", Type.COR, "Vermelho", "§c", 351, 1, 30_000, null);
         // Montarias 3D: modelo de blocos que segue o jogador (so no lobby). Paga com cash.
-        ALL.put("montaria_nuvem", new Cosmetic("montaria_nuvem", Type.MONTARIA, "Nuvem Voadora", "nuvem", 35, 4, 500, null, true));
-        add("cor_divina", Type.COR, "Dourado Divino", "§6§l", 266, 0, 0, "Ranked: entre no top 10 (Divino)");
+        ALL.put("montaria_nuvem", new Cosmetic("montaria_nuvem", Type.MONTARIA, M.t("nuvem_voadora"), "nuvem", 35, 4, 500, null, true));
+        add("cor_divina", Type.COR, M.t("dourado_divino"), "§6§l", 266, 0, 0, M.t("ranked_entre_no_top_10_divino"));
     }
 
     static List<Cosmetic> of(Type type) {

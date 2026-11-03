@@ -93,12 +93,12 @@ final class Abilities implements Listener {
         switch (kit) {
             case BLINK: {
                 int[] charges = blink.get(p);
-                if (charges != null && charges[0] < 3 && --charges[1] <= 0) { charges[0] = 3; p.sendPopup("§aBlink recarregado"); }
+                if (charges != null && charges[0] < 3 && --charges[1] <= 0) { charges[0] = 3; p.sendPopup(M.t("blink_recarregado")); }
                 break;
             }
             case FANTASMA: {
                 Long until = phantomUntil.get(p);
-                if (until != null && now >= until) { phantomUntil.remove(p); p.setAllowFlight(false); fallSafeUntil.put(p, now + 4000); p.sendPopup("§cVoo acabou"); }
+                if (until != null && now >= until) { phantomUntil.remove(p); p.setAllowFlight(false); fallSafeUntil.put(p, now + 4000); p.sendPopup(M.t("voo_acabou")); }
                 break;
             }
             case ESPIAO: {
@@ -128,7 +128,7 @@ final class Abilities implements Listener {
         int tick = plugin.getServer().getTick();
         Integer last = lastSoupTick.get(p);
         if (last != null && tick - last < 3) { return false; }
-        if (p.getHealth() >= p.getMaxHealth()) { p.sendPopup("§7Vida cheia"); return false; }
+        if (p.getHealth() >= p.getMaxHealth()) { p.sendPopup(M.t("vida_cheia")); return false; }
         HgState.Rules rules = plugin.rules();
         lastSoupTick.put(p, tick);
         p.setHealth(Math.min(p.getMaxHealth(), p.getHealth() + rules.soupHeal));
@@ -175,7 +175,7 @@ final class Abilities implements Listener {
             case GRAPPLER: {
                 if (hand.getId() != Kit.ROD || !ready(p, 1500)) { return; }
                 Block target = targetBlock(p, 30);
-                if (target == null) { p.sendPopup("§7Mire num bloco"); return; }
+                if (target == null) { p.sendPopup(M.t("mire_num_bloco")); return; }
                 Vector3 pull = new Vector3(target.x + 0.5 - p.x, target.y + 1 - p.y, target.z + 0.5 - p.z);
                 double length = pull.length();
                 p.setMotion(new Vector3(pull.x / length * 1.7, Math.min(1.6, pull.y / length * 1.7 + 0.45), pull.z / length * 1.7));
@@ -189,14 +189,14 @@ final class Abilities implements Listener {
                 if (target == null || plugin.kit(target) == Kit.NEO || !cooldownOk(p, 10_000)) { return; }
                 Vector3 dir = p.getDirectionVector();
                 target.teleport(new Location(p.x + dir.x * 1.5, p.y, p.z + dir.z * 1.5, (float) (p.yaw + 180), 0, p.level));
-                target.sendMessage(GoldHG.PREFIX + "§cVoce foi fisgado por " + p.getName() + "!");
+                target.sendMessage(M.t("voce_foi_fisgado_por", GoldHG.PREFIX, p.getName()));
                 event.setCancelled();
                 return;
             }
             case FLASH: {
                 if (hand.getId() != Kit.REDSTONE_TORCH || !cooldownOk(p, 15_000)) { return; }
                 Block target = targetBlock(p, 40);
-                if (target == null) { cooldown.remove(p); p.sendPopup("§7Mire num bloco"); return; }
+                if (target == null) { cooldown.remove(p); p.sendPopup(M.t("mire_num_bloco")); return; }
                 lightning(p.level, p.x, p.y, p.z);
                 p.teleport(new Location(target.x + 0.5, target.y + 1, target.z + 0.5, (float) p.yaw, (float) p.pitch, p.level));
                 p.getFoodData().setLevel(Math.max(0, p.getFoodData().getLevel() - 3));
@@ -206,14 +206,14 @@ final class Abilities implements Listener {
             case BLINK: {
                 if (hand.getId() != Kit.REDSTONE || !ready(p, 300)) { return; }
                 int[] charges = blink.get(p);
-                if (charges == null || charges[0] <= 0) { p.sendPopup("§cSem cargas"); return; }
+                if (charges == null || charges[0] <= 0) { p.sendPopup(M.t("sem_cargas")); return; }
                 Vector3 dir = p.getDirectionVector();
                 for (double distance = 6; distance >= 1; distance -= 0.5) {
                     Vector3 to = new Vector3(p.x + dir.x * distance, p.y + Math.max(0, dir.y * distance), p.z + dir.z * distance);
                     if (free(p.level, to)) {
                         p.teleport(new Location(to.x, to.y, to.z, (float) p.yaw, (float) p.pitch, p.level));
                         if (--charges[0] == 0) { charges[1] = 15; }
-                        p.sendPopup("§dBlink §f" + charges[0] + "/3");
+                        p.sendPopup(M.t("blink_3", charges[0]));
                         break;
                     }
                 }
@@ -259,7 +259,7 @@ final class Abilities implements Listener {
                 if (hand.getId() != Kit.FEATHER || !cooldownOk(p, 60_000)) { return; }
                 p.setAllowFlight(true);
                 phantomUntil.put(p, now + 5000);
-                p.sendPopup("§bVoando por 5 s!");
+                p.sendPopup(M.t("voando_por_5"));
                 event.setCancelled();
                 return;
             default:
@@ -332,14 +332,14 @@ final class Abilities implements Listener {
                         int other = random.nextInt(36);
                         Item a = victim.getInventory().getItem(heldSlot), b = victim.getInventory().getItem(other);
                         victim.getInventory().setItem(heldSlot, b); victim.getInventory().setItem(other, a);
-                        victim.sendMessage(GoldHG.PREFIX + "§cUm monge baguncou seu inventario!");
+                        victim.sendMessage(M.t("um_monge_baguncou_seu_inventario", GoldHG.PREFIX));
                     }
                     break;
                 case HULK:
                     if (hand.getId() == 0 && kv != Kit.NEO && cooldownOk(attacker, 12_000)) {
                         Vector3 dir = attacker.getDirectionVector();
                         victim.setMotion(new Vector3(dir.x * 2.2, 1.4, dir.z * 2.2));
-                        victim.sendMessage(GoldHG.PREFIX + "§cO Hulk te arremessou!");
+                        victim.sendMessage(M.t("hulk_te_arremessou", GoldHG.PREFIX));
                     }
                     break;
                 case GLADIADOR:
@@ -369,7 +369,7 @@ final class Abilities implements Listener {
             if (dx * dx + dz * dz <= 9 && dy >= -1 && dy <= 3) {
                 float hurt = other.isSneaking() ? Math.min(damage, 2f) : damage;
                 other.attack(new EntityDamageByEntityEvent(stomper, other, EntityDamageEvent.CAUSE_ENTITY_ATTACK, hurt, 0.4f));
-                other.sendMessage(GoldHG.PREFIX + "§cVoce foi esmagado por " + stomper.getName() + "!");
+                other.sendMessage(M.t("voce_foi_esmagado_por", GoldHG.PREFIX, stomper.getName()));
                 hit = true;
             }
         }
@@ -409,7 +409,7 @@ final class Abilities implements Listener {
         if (cause instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) cause).getDamager() instanceof Player) { killer = (Player) ((EntityDamageByEntityEvent) cause).getDamager(); }
         event.setDeathMessage("");
         plugin.returning.add(dead);
-        String message = killer != null ? "§f" + dead.getName() + " §7foi morto por §c" + killer.getName() : "§f" + dead.getName() + " §7morreu";
+        String message = killer != null ? M.t("foi_morto_por", dead.getName(), killer.getName()) : M.t("morreu", dead.getName());
         if (killer != null && plugin.inGame.get(killer) == game) { rewardKill(killer, dead); }
         plugin.eliminate(dead, game, message);
     }
@@ -426,10 +426,10 @@ final class Abilities implements Listener {
                 for (Map.Entry<Integer, Item> slot : killer.getInventory().getContents().entrySet()) {
                     if (!SWORDS.contains(slot.getValue().getId())) { continue; }
                     Item sword = Item.get(slot.getValue().getId(), slot.getValue().getDamage(), 1);
-                    sword.setCustomName("§rEspada do Barbaro");
+                    sword.setCustomName(M.t("espada_do_barbaro"));
                     sword.addEnchantment(Kit.enchant(Enchantment.ID_DAMAGE_ALL, Math.min(4, count)));
                     killer.getInventory().setItem(slot.getKey(), sword);
-                    killer.sendPopup("§6Afiacao " + Math.min(4, count) + "!");
+                    killer.sendPopup(M.t("afiacao", Math.min(4, count)));
                     break;
                 }
                 break;
@@ -454,7 +454,7 @@ final class Abilities implements Listener {
         String name = HgState.player(p.getName());
         plugin.data.change(s -> s.pendingClear.add(name));
         if (game.waiting()) { game.players.remove(p); plugin.inGame.remove(p); forget(p); }
-        else { plugin.eliminate(p, game, "§f" + p.getName() + " §7desconectou"); }
+        else { plugin.eliminate(p, game, M.t("desconectou", p.getName())); }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -467,7 +467,7 @@ final class Abilities implements Listener {
         plugin.getServer().getScheduler().scheduleDelayedTask(new PluginTask<GoldHG>(plugin) {
             @Override public void onRun(int tick) {
                 if (!p.isOnline() || plugin.inGame.containsKey(p)) { return; }
-                if (pending) { plugin.strip(p); plugin.data.change(s -> s.pendingClear.remove(name)); p.sendMessage(GoldHG.PREFIX + "Voce saiu no meio do HG; os itens da partida foram removidos."); }
+                if (pending) { plugin.strip(p); plugin.data.change(s -> s.pendingClear.remove(name)); p.sendMessage(M.t("voce_saiu_no_meio_do_hg", GoldHG.PREFIX)); }
                 if (plugin.isArena(p.level)) { p.teleport(plugin.lobby().getSafeSpawn()); }
             }
         }, 20);
@@ -558,7 +558,7 @@ final class Abilities implements Listener {
         if (kit == Kit.ENDERMAGE && id == 120) { event.setCancelled(); endermage(p, game, block); return; }
         if (kit == Kit.DEMOLIDOR && (id == 70 || id == 72) && p.level.getBlock(new Vector3(block.x, block.y - 1, block.z)).getId() == Block.GRAVEL) {
             mines.put(key(p.level, block), p);
-            p.sendPopup("§cMina armada");
+            p.sendPopup(M.t("mina_armada"));
             return;
         }
         if (kit == Kit.CULTIVADOR) {
@@ -595,14 +595,14 @@ final class Abilities implements Listener {
             double dx = other.x - (portal.x + 0.5), dz = other.z - (portal.z + 0.5), dy = Math.abs(other.y - portal.y);
             if (dx * dx + dz * dz <= 2.25 && dy >= 3) { pulled.add(other); }
         }
-        if (pulled.isEmpty()) { mage.sendPopup("§7Ninguem acima ou abaixo do portal"); cooldown.remove(mage); return; }
+        if (pulled.isEmpty()) { mage.sendPopup(M.t("ninguem_acima_ou_abaixo_do_portal")); cooldown.remove(mage); return; }
         long until = System.currentTimeMillis() + 5000;
         Location target = new Location(portal.x + 0.5, portal.y + 1, portal.z + 0.5, 0, 0, mage.level);
         pulled.add(mage);
         for (Player player : pulled) {
             player.teleport(target);
             invulnerableUntil.put(player, until);
-            player.sendMessage(GoldHG.PREFIX + "§5Endermage! 5 s de invencibilidade.");
+            player.sendMessage(M.t("endermage_5_de_invencibilidade", GoldHG.PREFIX));
         }
     }
 
@@ -636,7 +636,7 @@ final class Abilities implements Listener {
         Game game = plugin.inGame.get(event.getPlayer());
         if (game != null && !plugin.commandAllowed(event.getMessage())) {
             event.setCancelled();
-            event.getPlayer().sendMessage(GoldHG.PREFIX + "§cComando bloqueado durante o HG. Use /hg sair para sair.");
+            event.getPlayer().sendMessage(M.t("comando_bloqueado_durante_hg_use_hg", GoldHG.PREFIX));
         }
     }
 
@@ -667,7 +667,7 @@ final class Abilities implements Listener {
     private boolean cooldownOk(Player p, long millis) {
         long now = System.currentTimeMillis();
         Long last = cooldown.get(p);
-        if (last != null && now - last < millis) { p.sendPopup("§cRecarga: " + ((millis - (now - last)) / 1000 + 1) + " s"); return false; }
+        if (last != null && now - last < millis) { p.sendPopup(M.t("recarga", ((millis - (now - last)) / 1000 + 1))); return false; }
         cooldown.put(p, now);
         return true;
     }
@@ -745,8 +745,8 @@ final class Abilities implements Listener {
             duels.put(first, this); duels.put(second, this);
             first.teleport(new Location(cx + 3.5, y0 + 1, cz + 0.5, 90, 0, level));
             second.teleport(new Location(cx - 2.5, y0 + 1, cz + 0.5, 270, 0, level));
-            first.sendMessage(GoldHG.PREFIX + "§6Duelo contra " + second.getName() + "! 2 minutos.");
-            second.sendMessage(GoldHG.PREFIX + "§6" + first.getName() + " te desafiou para um duelo! 2 minutos.");
+            first.sendMessage(M.t("duelo_contra_2_minutos", GoldHG.PREFIX, second.getName()));
+            second.sendMessage(M.t("te_desafiou_para_um_duelo_2", GoldHG.PREFIX, first.getName()));
         }
 
         /** Desmonta a arena; o vencedor (ou os dois, sem vencedor) voltam ao ponto de origem. */

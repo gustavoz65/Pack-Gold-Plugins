@@ -32,7 +32,7 @@ final class SqliteBackend {
 
     private void validate(String namespace, String key) {
         if (namespace == null || !namespace.matches("[a-z0-9_-]{1,40}") || key == null || key.length() > 128) {
-            throw new IllegalArgumentException("Espaco de dados ou chave invalida.");
+            throw new IllegalArgumentException(M.t("espaco_de_dados_ou_chave_invalida"));
         }
     }
 
@@ -47,7 +47,7 @@ final class SqliteBackend {
 
     void put(String namespace, String key, String value) throws Exception {
         validate(namespace, key);
-        if (value == null || value.length() > 1024 * 1024) { throw new IllegalArgumentException("Valor ausente ou excessivo."); }
+        if (value == null || value.length() > 1024 * 1024) { throw new IllegalArgumentException(M.t("valor_ausente_ou_excessivo")); }
         try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement("INSERT OR REPLACE INTO gold_records(namespace, record_key, value) VALUES(?,?,?)")) {
             statement.setString(1, namespace);
             statement.setString(2, key);
@@ -69,7 +69,7 @@ final class SqliteBackend {
     void putAll(String namespace, java.util.Map<String, String> values) throws Exception {
         for (java.util.Map.Entry<String, String> e : values.entrySet()) {
             validate(namespace, e.getKey());
-            if (e.getValue() == null || e.getValue().length() > 1024 * 1024) { throw new IllegalArgumentException("Valor ausente ou excessivo."); }
+            if (e.getValue() == null || e.getValue().length() > 1024 * 1024) { throw new IllegalArgumentException(M.t("valor_ausente_ou_excessivo")); }
         }
         try (Connection connection = open()) {
             connection.setAutoCommit(false);

@@ -1,0 +1,51 @@
+# {0} = name, {1} = a.volume()
+area_criada_blocos_bloqueado_para_visitantes: "Area {0} criada ({1} blocos). Bloqueado para visitantes: construir e interagir."
+area_inexistente: "Area inexistente."
+# {0} = e.getKey()
+area_invalida: "Area invalida: {0}"
+area_maior_que_2048_blocos_de: "Area maior que 2048 blocos de lado."
+area_pos1_pos2_criar_nome_flag: "/area pos1, pos2, criar <nome>, flag <area> <flag> <on|off>, membro <area> adicionar|remover <jogador>, efeito <area> <id> [nivel], mensagem <area> <texto>, info, lista, remover <area>"
+area_protegida: "&cArea protegida"
+area_removida: "Area removida."
+barco: "barco"
+carrinho: "carrinho"
+# {0} = e.getKey(), {1} = e.getValue().owner, {2} = e.getValue().deny, {3} = e.getValue().members
+dono_bloqueado_membros: "{0} | dono: {1} | bloqueado: {2} | membros: {3}"
+# {0} = name
+efeito_de_atualizado: "Efeito de {0} atualizado."
+efeito_invalido: "Efeito invalido."
+este_veiculo_esta_proibido_para_evitar: "&cEste veiculo esta proibido para evitar bugs."
+falha_ao_carregar_protecoes: "Falha ao carregar protecoes."
+# {0} = FLAGS
+flags: "Flags: {0}"
+goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do GoldProtect."
+ja_existe_uma_area_com_esse: "Ja existe uma area com esse nome."
+jogador_invalido: "Jogador invalido."
+limite_de_areas: "Limite de areas."
+limite_de_membros: "Limite de membros."
+# {0} = e.getKey()
+limites_invalidos: "Limites invalidos: {0}"
+marque_area_pos1_area_pos2_antes: "Marque /area pos1 e /area pos2 antes."
+mensagem_ate_100_caracteres: "Mensagem ate 100 caracteres."
+mensagem_de_entrada_atualizada: "Mensagem de entrada atualizada."
+mundoprotecao_mundo_flag_on_off_antivoid: "/mundoprotecao <mundo> <flag> <on|off>, /antivoid [mundo]"
+nenhuma_area: "Nenhuma area."
+nenhuma_area_aqui: "Nenhuma area aqui."
+nome_ate_24_letras_numeros_ou: "Nome: ate 24 letras, numeros, _ ou -."
+# {0} = sub.charAt(3), {1} = p.getFloorX(), {2} = p.getFloorY(), {3} = p.getFloorZ()
+ponto_marcado_em: "Ponto {0} marcado em {1} {2} {3}."
+protecao: "&2[&aProtecao&2]&f "
+protecoes_invalidas: "Protecoes invalidas."
+pvp_desativado_aqui: "&cPvP desativado aqui"
+# {0} = p.getName(), {1} = m[1], {2} = m[0]
+ray_suspeito_minerios_raros_para_pedras: "&cX-ray suspeito: &f{0} &7({1} minerios raros para {2} pedras em 10 min)"
+# {0} = p.getName(), {1} = (cart ? "carrinho" : "barco")
+tentou_subir_num: "{0} tentou subir num {1}."
+# {0} = e.getPlayer().getName()
+tentou_usar_moldura_dentro_de_um: "{0} tentou usar a moldura dentro de um veiculo."
+uso_area_criar_nome_depois_de: "Uso: /area criar <nome> (depois de /area pos1 e pos2)"
+uso_area_efeito_area_id_1: "Uso: /area efeito <area> <id 1-23|nenhum> [nivel 0-4]"
+uso_area_flag_area_construir_pvp: "Uso: /area flag <area> <construir|pvp|interagir|dano> <on|off>  (off = bloqueado)"
+uso_area_membro_area_adicionar_remover: "Uso: /area membro <area> <adicionar|remover> <jogador>"
+voce_foi_salvo_do_void: "&eVoce foi salvo do void"
+voce_nao_pode_usar_moldura_dentro: "&cVoce nao pode usar a moldura dentro de um veiculo."

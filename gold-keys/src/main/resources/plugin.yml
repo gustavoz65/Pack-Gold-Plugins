@@ -7,6 +7,6 @@ softdepend: [GoldEconomy, GoldCosmetics, GoldPerms]
 author: gustavoz65
 description: Keys de liberacao (cash, dinheiro, cosmeticos, VIP) com pedidos, pagamento confirmado pela staff, validade e resgate unico
 commands:
- key: {description: Loja de keys, usage: "/key [produtos|comprar <produto>|resgatar <codigo>]", aliases: [keys, chave]}
+ key: {description: "Loja de keys", usage: "/key [produtos|comprar <produto>|resgatar <codigo>]", aliases: [keys, chave]}
 permissions:
- goldkeys.admin: {default: op, description: Confirma pagamentos, gera keys e configura produtos}
+ goldkeys.admin: {default: op, description: "Confirma pagamentos, gera keys e configura produtos"}

@@ -48,21 +48,21 @@ public final class Ledger {
         String[] p = v.split(",");
         Account a = new Account();
         a.money = Long.parseLong(p[0]); a.cash = Long.parseLong(p[1]); a.bank = p.length > 2 ? Long.parseLong(p[2]) : 0;
-        if (a.money < 0 || a.money > MAX_BALANCE || a.cash < 0 || a.cash > MAX_BALANCE || a.bank < 0 || a.bank > MAX_BALANCE) { throw new IllegalArgumentException("Conta invalida."); }
+        if (a.money < 0 || a.money > MAX_BALANCE || a.cash < 0 || a.cash > MAX_BALANCE || a.bank < 0 || a.bank > MAX_BALANCE) { throw new IllegalArgumentException(M.t("conta_invalida")); }
         return a;
     }
     public long centsPerCash = 10000;
     public static final class Account { public long money; public long cash; /** Dinheiro guardado no Banco Central (centavos). */ public long bank; }
     public static String name(String name) {
-        if (!PlayerName.isValid(name)) { throw new IllegalArgumentException("Jogador invalido."); }
+        if (!PlayerName.isValid(name)) { throw new IllegalArgumentException(M.t("jogador_invalido")); }
         return name.toLowerCase(Locale.ROOT);
     }
     public static long parse(String text, Currency currency) { long amount = parseBalance(text, currency); positive(amount); return amount; }
     /** Aceita zero; usado apenas para definir saldo. */
     public static long parseBalance(String text, Currency currency) {
-        if (text == null || !text.matches(currency == Currency.MONEY ? "[0-9]{1,12}([.,][0-9]{1,2})?" : "[0-9]{1,12}")) { throw new IllegalArgumentException("Informe um valor positivo, sem notacao cientifica."); }
+        if (text == null || !text.matches(currency == Currency.MONEY ? "[0-9]{1,12}([.,][0-9]{1,2})?" : "[0-9]{1,12}")) { throw new IllegalArgumentException(M.t("informe_um_valor_positivo_sem_notacao")); }
         long amount = new BigDecimal(text.replace(',', '.')).movePointRight(currency == Currency.MONEY ? 2 : 0).longValueExact();
-        if (amount > MAX_BALANCE) { throw new IllegalArgumentException("Valor fora do limite."); }
+        if (amount > MAX_BALANCE) { throw new IllegalArgumentException(M.t("valor_fora_do_limite")); }
         return amount;
     }
     public static String format(long amount, Currency currency) { return currency == Currency.MONEY ? BigDecimal.valueOf(amount, 2).toPlainString() : Long.toString(amount); }
@@ -71,23 +71,23 @@ public final class Ledger {
         return account == null ? 0 : currency == Currency.MONEY ? account.money : account.cash;
     }
     public void set(String player, Currency currency, long amount) {
-        if (amount < 0 || amount > MAX_BALANCE) { throw new IllegalArgumentException("Saldo fora do limite."); }
+        if (amount < 0 || amount > MAX_BALANCE) { throw new IllegalArgumentException(M.t("saldo_fora_do_limite")); }
         Account account = touch(name(player));
         if (currency == Currency.MONEY) { account.money = amount; } else { account.cash = amount; }
     }
     public void credit(String player, Currency currency, long amount) { positive(amount); set(player, currency, Math.addExact(balance(player, currency), amount)); }
-    public void debit(String player, Currency currency, long amount) { positive(amount); long balance = balance(player, currency); if (balance < amount) { throw new IllegalArgumentException("Saldo insuficiente."); } set(player, currency, balance - amount); }
+    public void debit(String player, Currency currency, long amount) { positive(amount); long balance = balance(player, currency); if (balance < amount) { throw new IllegalArgumentException(M.t("saldo_insuficiente")); } set(player, currency, balance - amount); }
     public void transfer(String from, String to, Currency currency, long amount) {
-        if (name(from).equals(name(to))) { throw new IllegalArgumentException("Nao e possivel pagar a si mesmo."); }
+        if (name(from).equals(name(to))) { throw new IllegalArgumentException(M.t("nao_possivel_pagar_si_mesmo")); }
         positive(amount);
         long source = balance(from, currency), destination = balance(to, currency);
-        if (source < amount || destination > MAX_BALANCE - amount) { throw new IllegalArgumentException("Saldo insuficiente ou limite do destinatario atingido."); }
+        if (source < amount || destination > MAX_BALANCE - amount) { throw new IllegalArgumentException(M.t("saldo_insuficiente_ou_limite_do_destinatario")); }
         set(from, currency, source - amount); set(to, currency, destination + amount);
     }
     public void exchange(String player, long cash) {
         positive(cash);
         long cents = Math.multiplyExact(cash, centsPerCash);
-        if (balance(player, Currency.CASH) < cash || cents > MAX_BALANCE - balance(player, Currency.MONEY)) { throw new IllegalArgumentException("Saldo insuficiente ou limite atingido."); }
+        if (balance(player, Currency.CASH) < cash || cents > MAX_BALANCE - balance(player, Currency.MONEY)) { throw new IllegalArgumentException(M.t("saldo_insuficiente_ou_limite_atingido")); }
         debit(player, Currency.CASH, cash); credit(player, Currency.MONEY, cents);
     }
     public long bank(String player) { Account a = accounts.get(name(player)); return a == null ? 0 : a.bank; }
@@ -96,8 +96,8 @@ public final class Ledger {
     public void deposit(String player, long cents) {
         positive(cents);
         Account a = touch(name(player));
-        if (a.money < cents) { throw new IllegalArgumentException("Voce nao tem esse valor na carteira."); }
-        if (a.bank > MAX_BALANCE - cents) { throw new IllegalArgumentException("Limite do banco atingido."); }
+        if (a.money < cents) { throw new IllegalArgumentException(M.t("voce_nao_tem_esse_valor_na")); }
+        if (a.bank > MAX_BALANCE - cents) { throw new IllegalArgumentException(M.t("limite_do_banco_atingido")); }
         a.money -= cents; a.bank += cents;
     }
 
@@ -105,17 +105,17 @@ public final class Ledger {
     public void withdraw(String player, long cents) {
         positive(cents);
         Account a = touch(name(player));
-        if (a.bank < cents) { throw new IllegalArgumentException("Voce nao tem esse valor no banco."); }
-        if (a.money > MAX_BALANCE - cents) { throw new IllegalArgumentException("Limite da carteira atingido."); }
+        if (a.bank < cents) { throw new IllegalArgumentException(M.t("voce_nao_tem_esse_valor_no")); }
+        if (a.money > MAX_BALANCE - cents) { throw new IllegalArgumentException(M.t("limite_da_carteira_atingido")); }
         a.bank -= cents; a.money += cents;
     }
 
-    public static void positive(long amount) { if (amount <= 0 || amount > MAX_BALANCE) { throw new IllegalArgumentException("Valor fora do limite."); } }
+    public static void positive(long amount) { if (amount <= 0 || amount > MAX_BALANCE) { throw new IllegalArgumentException(M.t("valor_fora_do_limite")); } }
     public static void validate(Ledger ledger) {
-        if (ledger == null || ledger.accounts == null || ledger.centsPerCash < 1 || ledger.centsPerCash > MAX_BALANCE) { throw new IllegalArgumentException("Livro de contas invalido."); }
+        if (ledger == null || ledger.accounts == null || ledger.centsPerCash < 1 || ledger.centsPerCash > MAX_BALANCE) { throw new IllegalArgumentException(M.t("livro_de_contas_invalido")); }
         for (Map.Entry<String, Account> entry : ledger.accounts.entrySet()) {
             Account account = entry.getValue();
-            if (!name(entry.getKey()).equals(entry.getKey()) || account == null || account.money < 0 || account.money > MAX_BALANCE || account.cash < 0 || account.cash > MAX_BALANCE || account.bank < 0 || account.bank > MAX_BALANCE) { throw new IllegalArgumentException("Conta invalida."); }
+            if (!name(entry.getKey()).equals(entry.getKey()) || account == null || account.money < 0 || account.money > MAX_BALANCE || account.cash < 0 || account.cash > MAX_BALANCE || account.bank < 0 || account.bank > MAX_BALANCE) { throw new IllegalArgumentException(M.t("conta_invalida")); }
         }
     }
 }
