@@ -22,6 +22,12 @@ public final class CratesTest {
         back.blocks.put("world:1:64:1", "inexistente");
         rejects(() -> CrateState.validate(back));
         rejects(() -> CrateState.roll(new ArrayList<>(), t -> 0));
+        if (!"MUITO RARO".equals(CrateState.rarity(2.0, 5, 2.5)) || !"RARO".equals(CrateState.rarity(4.9, 5, 2.5)) || CrateState.rarity(10, 5, 2.5) != null) { throw new AssertionError("Raridade errada."); }
+        CrateState.Reward cmd = new CrateState.Reward(br.goldsuite.api.ItemData.of(cn.nukkit.item.Item.get(339, 0, 1)), 5);
+        cmd.command = CrateState.command("/money adicionar {jogador} 100000"); cmd.commandOnly = true;
+        CrateState withCmd = new CrateState(); withCmd.crates.put("basica", new CrateState.Crate()); withCmd.crates.get("basica").rewards.add(cmd); withCmd.crates.get("basica").display = "&6Basica";
+        CrateState.validate(new com.google.gson.Gson().fromJson(new com.google.gson.Gson().toJson(withCmd), CrateState.class));
+        if (!cmd.command.equals("money adicionar {jogador} 100000")) { throw new AssertionError("Comando do premio nao normalizado."); }
         System.out.println("GoldCrates: sorteio por peso, chances e validacao aprovados.");
     }
     private static ItemData item(int id, int count) { ItemData d = new ItemData(); d.id = id; d.count = count; return d; }

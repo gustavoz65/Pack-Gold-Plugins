@@ -27,6 +27,8 @@ public final class GoldPerms extends PluginBase implements Listener, PermissionS
             if (!isEnabled()) { return; }
             if (error != null) { getLogger().error("Falha ao carregar permissoes.", error); getServer().getPluginManager().disablePlugin(this); return; }
             getServer().getServiceManager().register(PermissionService.class, this, this);
+            Settings.placeholder(this, "grupo", p -> getGroup(p.getName()).toUpperCase(Locale.ROOT));
+            Settings.placeholder(this, "tag", p -> { String t = getTag(p.getName()); return t.isEmpty() ? "\u00a77" + getGroup(p.getName()).toUpperCase(Locale.ROOT) : t; });
             if (data.read(st -> !st.groups.containsKey("dono"))) {
                 change(st -> st.preset()).whenComplete((v, e) -> { if (e != null) { getLogger().warning("Cargos padrao nao criados: " + rootMessage(e)); } else { getLogger().info("Cargos da equipe criados: dono, gerente, admin, moderador e ajudante (/cargos)."); } });
             }

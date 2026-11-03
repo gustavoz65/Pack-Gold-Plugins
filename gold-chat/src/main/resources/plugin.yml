@@ -14,6 +14,7 @@ commands:
  limparchat: {description: Limpa o chat, usage: "/limparchat", aliases: [cc], permission: goldchat.staff}
  mute: {description: Silencia um jogador, usage: "/mute <jogador> [minutos, 0 = sempre]", permission: goldchat.staff}
  desmute: {description: Tira o silencio, usage: "/desmute <jogador>", permission: goldchat.staff}
+ aviso: {description: Aviso grande no chat e no meio da tela, usage: "/aviso <texto>", permission: goldchat.staff}
  anuncio: {description: Anuncio para todos, usage: "/anuncio <texto>", aliases: [bc], permission: goldchat.staff}
 permissions:
  goldchat.staff: {default: op, description: Ignora anti-spam e modera o chat}

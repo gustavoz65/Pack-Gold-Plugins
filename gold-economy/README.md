@@ -20,3 +20,9 @@ Limites: 10.000 contas, 1 MiB para o documento e 1.000.000.000.000 unidades mín
 `EconomyService` oferece consulta, crédito, débito e transferência na thread principal com confirmação assíncrona. Não use débito seguido de entrega de item sem um protocolo de recuperação: lojas e leilão precisam tratar o intervalo entre persistência e inventário. Vendas de itens e compra de XP ainda não fazem parte desta base.
 
 Testado: conservação do dinheiro, destinatário no limite, saldo insuficiente, cash, valores malformados, precisão decimal, serialização e duas transferências concorrentes no servidor real com SQLite. Cliente MCPE real pendente.
+
+## Banco Central (`/banco`)
+Conta separada da carteira, como o OBancoCentral: `/banco` abre o menu com o saldo, botões de depósito e saque (valores no `/painel`, GoldEconomy > `banco.valores`) e "tudo". Também `/banco depositar <valor>` e `/banco sacar <valor>`. Para o NPC Bancário: `/npc comando banco`. Placeholder `{banco}`.
+
+## Armazenamento
+Uma linha por conta no SQLite (money, cash e banco) e as contas em memória (3 números por jogador): **sem limite de contas** (antes eram 10 mil num documento de 1 MiB) e cada operação grava só as contas que mudaram, em lote, uma vez por segundo. Uma operação que falha no meio é desfeita por inteiro. Na primeira vez, as contas do formato antigo são migradas sozinhas.

@@ -75,6 +75,9 @@ public final class GoldPvP extends PluginBase implements Listener {
             ranking.register("ranked", this::topRanked);
         }
         for (Player p : getServer().getOnlinePlayers().values()) { load(p); }
+        Settings.placeholder(this, "kills", p -> { Profile pr = profile(p); return pr == null ? "0" : String.valueOf(pr.kills); });
+        Settings.placeholder(this, "deaths", p -> { Profile pr = profile(p); return pr == null ? "0" : String.valueOf(pr.deaths); });
+        Settings.placeholder(this, "kdr", p -> { Profile pr = profile(p); return pr == null ? "0" : String.format(Locale.ROOT, "%.2f", pr.kills / (double) Math.max(1, pr.deaths)); });
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldPvP>(this) { @Override public void onRun(int tick) { second(); } }, 20);
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldPvP>(this) { @Override public void onRun(int tick) { flush(); } }, 20 * 30);
     }

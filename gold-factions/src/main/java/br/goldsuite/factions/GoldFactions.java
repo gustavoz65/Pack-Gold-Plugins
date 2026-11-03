@@ -52,6 +52,8 @@ public final class GoldFactions extends PluginBase implements Listener {
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldFactions."); }
         data = new PersistentState<>(core.getStore(), "goldfactions", FactionState.class, FactionState::new, FactionState::validate);
         miniMap = new MiniMap(getServer());
+        Settings.placeholder(this, "clan", p -> { String f = factionOf(p.getName()); return f == null ? "Nenhum" : f; });
+        Settings.placeholder(this, "clan_tag", p -> { String f = factionOf(p.getName()); if (f == null) { return ""; } String t = data.read(st -> st.factions.containsKey(f) ? st.factions.get(f).tag : ""); return t == null ? "" : t; });
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldFactions>(this) { @Override public void onRun(int tick) { territoryTips(); } }, 20);
         // Mapa: logo apos uma mudanca de territorio (no maximo 1x por segundo) e a cada minuto para os nomes.

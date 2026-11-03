@@ -21,6 +21,11 @@ commands:
  tpdeny: {description: Recusa pedido de teleporte, usage: "/tpdeny", aliases: [tprecusar]}
  back: {description: Volta ao ultimo local, usage: "/back", aliases: [voltar], permission: goldessentials.back}
  fly: {description: Liga ou desliga o voo, usage: "/fly [jogador]", aliases: [voar], permission: goldessentials.fly}
+ config: {description: Preferencias (tell, tpa e recebimento de coins), usage: "/config", aliases: [preferencias]}
+ luz: {description: Liga ou desliga a lanterna (visao noturna), usage: "/luz", permission: goldessentials.luz, aliases: [lanterna]}
+ setloja: {description: Marca a sua loja aqui, usage: "/setloja [remover]", permission: goldessentials.setloja}
+ loja: {description: Vai ate a loja de um jogador, usage: "/loja <jogador>"}
+ mundovip: {description: Vai ao mundo VIP, usage: "/mundovip | /mundovip definir|remover"}
  tpall: {description: Traz todos ate voce, usage: "/tpall", permission: goldessentials.admin}
 permissions:
  goldessentials.admin: {default: op, description: Warps, spawn e tpall}
@@ -30,3 +35,6 @@ permissions:
  goldessentials.instantaneo: {default: op, description: Teleporta sem contagem}
  goldessentials.warp.todas: {default: true, description: Usa todas as warps}
  goldessentials.homes.vip: {default: false, description: 5 homes em vez de 2}
+ goldessentials.luz: {default: op, description: Usa /luz (dar ao VIP pelo GoldPerms)}
+ goldessentials.setloja: {default: op, description: Marca a propria loja com /setloja (dar ao VIP)}
+ goldessentials.mundovip: {default: op, description: Entra no mundo VIP (dar ao VIP)}

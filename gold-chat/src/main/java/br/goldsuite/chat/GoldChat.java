@@ -24,12 +24,14 @@ public final class GoldChat extends PluginBase implements Listener {
     private final Map<Player, String> lastText = new IdentityHashMap<>();
     private final Map<Player, Player> lastTell = new IdentityHashMap<>();
     private int announceIndex, announceElapsed;
+    private boolean showJoinQuit = true;
 
     @Override public void onEnable() {
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldChat."); }
         data = new PersistentState<>(core.getStore(), "goldchat", ChatState.class, ChatState::new, ChatState::validate);
+        Settings.number(this, "entrada_saida", 1, "1 = mostra quem entrou e saiu; 0 = esconde (como o OcultJoinQuit)", v -> showJoinQuit = v != 0);
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldChat>(this) { @Override public void onRun(int tick) { announce(); } }, 20 * 10);
     }
@@ -101,6 +103,7 @@ public final class GoldChat extends PluginBase implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH) public void join(PlayerJoinEvent event) {
+        if (!showJoinQuit) { event.setJoinMessage(""); return; }
         if (data.isLoaded()) { event.setJoinMessage(ChatState.color(data.read(s -> s.join)).replace("{nome}", event.getPlayer().getName())); }
     }
 
@@ -108,6 +111,7 @@ public final class GoldChat extends PluginBase implements Listener {
         Player p = event.getPlayer();
         lastAt.remove(p); lastText.remove(p); lastTell.remove(p);
         lastTell.values().removeIf(other -> other == p);
+        if (!showJoinQuit) { event.setQuitMessage(""); return; }
         if (data.isLoaded()) { event.setQuitMessage(ChatState.color(data.read(s -> s.quit)).replace("{nome}", p.getName())); }
     }
 
@@ -139,6 +143,16 @@ public final class GoldChat extends PluginBase implements Listener {
                 case "chat": {
                     boolean on = args.length > 0 && (args[0].equalsIgnoreCase("on") || args[0].equalsIgnoreCase("ligar"));
                     data.change(s -> s.enabled = on).thenRun(() -> getServer().broadcastMessage(PREFIX + (on ? "§aChat ativado." : "§cChat desativado pela staff.")));
+                    return true;
+                }
+                case "aviso": {
+                    if (args.length == 0) { return false; }
+                    // Aviso grande (BaconAviso): no chat com destaque e no meio da tela por alguns segundos (o 0.15 nao tem titulo).
+                    String text = ChatState.color(String.join(" ", args));
+                    for (Player p : getServer().getOnlinePlayers().values()) { p.sendMessage(""); p.sendMessage("\u00a7c\u00a7lAVISO \u00a78\u00bb \u00a7f" + text); p.sendMessage(""); }
+                    for (int i = 0; i < 4; i++) {
+                        getServer().getScheduler().scheduleDelayedTask(() -> { for (Player p : getServer().getOnlinePlayers().values()) { p.sendPopup("\u00a7c\u00a7lAVISO", "\u00a7f" + text); } }, i * 30);
+                    }
                     return true;
                 }
                 case "limparchat": {

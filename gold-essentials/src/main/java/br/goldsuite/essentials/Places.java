@@ -10,6 +10,8 @@ public final class Places {
     public static final int MAX_WARPS = 200;
     public Map<String, Destination> warps = new TreeMap<>();
     public Destination spawn;
+    /** Mundo VIP (/mundovip), como o LRMundoVIP. */
+    public Destination vipWorld;
 
     /** Homes de um jogador, salvas em "homes:<nome>". */
     public static final class Homes {
@@ -26,6 +28,7 @@ public final class Places {
         if (places == null || places.warps == null || places.warps.size() > MAX_WARPS) { throw new IllegalArgumentException("Warps invalidas."); }
         for (Map.Entry<String, Destination> e : places.warps.entrySet()) { name(e.getKey()); check(e.getValue()); }
         if (places.spawn != null) { check(places.spawn); }
+        if (places.vipWorld != null) { check(places.vipWorld); }
     }
 
     public static void validate(Homes homes, int max) {

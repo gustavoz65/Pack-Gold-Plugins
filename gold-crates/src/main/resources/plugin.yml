@@ -4,7 +4,7 @@ version: "0.4.3"
 api: ["1.0.0"]
 depend: [GoldCore]
 author: gustavoz65
-description: Caixas com premios por peso e chaves assinadas
+description: Caixas com chave assinada e caixas misteriosas (item que abre sozinho) com raridades, anuncio e premios de comando
 commands:
  caixa: {description: Gerencia caixas e entrega chaves, usage: "/caixa", aliases: [crate, caixas], permission: goldcrates.admin}
 permissions:

@@ -12,13 +12,30 @@ public final class CrateState {
 
     public static final class Crate {
         public List<Reward> rewards = new ArrayList<>();
+        /** Nome mostrado na caixa misteriosa (item); vazio = usa o nome da caixa. */
+        public String display = "";
     }
 
     public static final class Reward {
         public ItemData item;
         public int weight;
+        /** Comando executado pelo console ao ganhar ({jogador} vira o nick); vazio = premio e so o item. */
+        public String command = "";
+        /** Premio so de comando (o item e apenas o icone na lista). */
+        public boolean commandOnly;
         public Reward() { }
         public Reward(ItemData item, int weight) { this.item = item; this.weight = weight; }
+    }
+
+    /** Raridade pela chance (como o yCaixasMisteriosas): null quando e comum. */
+    public static String rarity(double chance, double rare, double veryRare) {
+        return chance <= veryRare ? "MUITO RARO" : chance <= rare ? "RARO" : null;
+    }
+
+    public static String command(String text) {
+        String c = text == null ? "" : text.trim().replaceFirst("^/", "");
+        if (c.isEmpty() || c.length() > 120 || c.indexOf('\n') >= 0) { throw new IllegalArgumentException("Comando de 1 a 120 caracteres."); }
+        return c;
     }
 
     public static String name(String text) {
@@ -48,7 +65,11 @@ public final class CrateState {
         for (Map.Entry<String, Crate> e : s.crates.entrySet()) {
             name(e.getKey());
             if (e.getValue() == null || e.getValue().rewards == null || e.getValue().rewards.size() > 27) { throw new IllegalArgumentException("Caixa invalida."); }
-            for (Reward r : e.getValue().rewards) { if (r == null || r.item == null || r.weight < 1 || r.weight > 10000) { throw new IllegalArgumentException("Premio invalido."); } r.item.validate(); }
+            if (e.getValue().display == null || e.getValue().display.length() > 40) { throw new IllegalArgumentException("Nome de caixa invalido."); }
+            for (Reward r : e.getValue().rewards) {
+                if (r == null || r.item == null || r.weight < 1 || r.weight > 10000 || r.command == null || r.command.length() > 120 || (r.commandOnly && r.command.isEmpty())) { throw new IllegalArgumentException("Premio invalido."); }
+                r.item.validate();
+            }
         }
         for (Map.Entry<String, String> e : s.blocks.entrySet()) { if (!s.crates.containsKey(e.getValue()) || !e.getKey().matches("[A-Za-z0-9_][A-Za-z0-9_.-]{0,31}:-?\\d+:\\d+:-?\\d+")) { throw new IllegalArgumentException("Bloco de caixa invalido."); } }
     }

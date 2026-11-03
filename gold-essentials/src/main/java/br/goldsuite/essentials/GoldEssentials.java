@@ -9,6 +9,7 @@ import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.*;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
 import cn.nukkit.plugin.PluginBase;
 import com.google.gson.Gson;
@@ -21,6 +22,14 @@ public final class GoldEssentials extends PluginBase implements Listener {
     private static final String HOMES = "goldessentials-homes";
     private static final long TPA_TIMEOUT_MS = 60_000;
     private static final Gson GSON = new Gson();
+    static final String PREFS = "goldessentials-pref", SHOPS = "goldessentials-loja";
+    /** Bits das preferencias (como o OPreferencias): quem desligou nao recebe. */
+    static final int NO_TELL = 1, NO_TPA = 2, NO_COINS = 4;
+    static final String[][] PREF_COMMANDS = {{"tell", "msg", "w", "whisper"}, {"tpa", "tpahere", "etpa"}, {"pagar", "pay"}};
+    /** Preferencias de quem esta online (so de quem mudou algo; o resto e 0). */
+    private final Map<Player, Integer> prefs = new IdentityHashMap<>();
+    private final Set<Player> nightVision = Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Map<Player, Long> luzAt = new IdentityHashMap<>(), shopAt = new IdentityHashMap<>();
 
     private CoreService core;
     private PersistentState<Places> places;
@@ -40,6 +49,9 @@ public final class GoldEssentials extends PluginBase implements Listener {
         core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldEssentials."); }
         places = new PersistentState<>(core.getStore(), "goldessentials", Places.class, Places::new, Places::validate);
+        Settings.number(this, "luz.espera", 0, "Segundos entre um /luz e outro (0 = sem espera)", v -> luzDelay = Math.max(0, v));
+        Settings.number(this, "loja.espera", 30, "Segundos entre um /loja e outro", v -> shopCooldown = Math.max(0, v));
+        Settings.text(this, "mundovip.sem_vip", "&cOpa, este e o mundo VIP. Para acessa-lo adquira um VIP no nosso site.", "Mensagem para quem nao e VIP (| quebra a linha)", v -> vipOnly = v);
         getServer().getPluginManager().registerEvents(this, this);
         for (Player player : getServer().getOnlinePlayers().values()) { loadHomes(player); }
     }
@@ -51,11 +63,111 @@ public final class GoldEssentials extends PluginBase implements Listener {
 
     // ---------- eventos ----------
 
-    @EventHandler(priority = EventPriority.MONITOR) public void join(PlayerJoinEvent event) { loadHomes(event.getPlayer()); }
+    @EventHandler(priority = EventPriority.MONITOR) public void join(PlayerJoinEvent event) {
+        Player p = event.getPlayer();
+        loadHomes(p);
+        core.getStore().get(PREFS, p.getName().toLowerCase(Locale.ROOT)).thenAccept(v -> { if (v.isPresent() && p.isOnline()) { try { prefs.put(p, Integer.parseInt(v.get())); } catch (NumberFormatException ignored) { } } });
+    }
+
+    /** Pedido de tell/tpa/pagamento para quem desligou essa funcao no /config: barrado antes do comando. */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void preferences(cn.nukkit.event.player.PlayerCommandPreprocessEvent e) {
+        if (prefs.isEmpty()) { return; }
+        String[] parts = e.getMessage().substring(1).trim().split("\\s+");
+        if (parts.length < 2) { return; }
+        String cmd = parts[0].toLowerCase(Locale.ROOT);
+        if (cmd.contains(":")) { cmd = cmd.substring(cmd.indexOf(':') + 1); }
+        for (int bit = 0; bit < PREF_COMMANDS.length; bit++) {
+            if (!Arrays.asList(PREF_COMMANDS[bit]).contains(cmd)) { continue; }
+            Player target = getServer().getPlayerExact(parts[1]);
+            if (target == null || target == e.getPlayer() || e.getPlayer().hasPermission("goldessentials.admin")) { return; }
+            if ((prefs.getOrDefault(target, 0) & (1 << bit)) != 0) {
+                e.setCancelled();
+                e.getPlayer().sendMessage(PREFIX + "\u00a7c" + target.getName() + " esta com " + (bit == 0 ? "as mensagens privadas" : bit == 1 ? "os pedidos de teleporte" : "o recebimento de coins") + " desativado.");
+            }
+            return;
+        }
+    }
+
+    /** /config: liga e desliga quem pode mandar tell, tpa e coins para voce. */
+    private void config(Player p) {
+        MenuService menus = getServer().getServiceManager().load(MenuService.class);
+        if (menus == null) { return; }
+        int mask = prefs.getOrDefault(p, 0);
+        String[] names = {"Mensagens privadas (tell)", "Pedidos de teleporte (tpa)", "Recebimento de coins"};
+        int[] icons = {339, 368, 266};
+        Map<Integer, Item> menu = new HashMap<>();
+        for (int i = 0; i < 3; i++) {
+            boolean on = (mask & (1 << i)) == 0;
+            Item icon = Item.get(icons[i], 0, 1); icon.setCustomName("\u00a7f" + names[i] + "\n\u00a77Outros jogadores " + (on ? "podem" : "nao podem") + " te mandar isso");
+            Item state = Item.get(35, on ? 5 : 14, 1); state.setCustomName((on ? "\u00a7aAtivado" : "\u00a7cDesativado") + "\n\u00a77Toque para " + (on ? "desativar" : "ativar"));
+            menu.put(11 + i * 2, icon); menu.put(20 + i * 2, state);
+        }
+        menus.open(p, "Preferencias", menu, (who, slot) -> {
+            int bit = slot == 11 || slot == 20 ? 0 : slot == 13 || slot == 22 ? 1 : slot == 15 || slot == 24 ? 2 : -1;
+            if (bit < 0) { return; }
+            int next = prefs.getOrDefault(who, 0) ^ (1 << bit);
+            if (next == 0) { prefs.remove(who); } else { prefs.put(who, next); }
+            core.getStore().put(PREFS, who.getName().toLowerCase(Locale.ROOT), String.valueOf(next));
+            who.sendMessage(PREFIX + ((next & (1 << bit)) == 0 ? "\u00a7aFuncao ativada." : "\u00a7cFuncao desativada."));
+            config(who);
+        });
+    }
+
+    /** /luz: visao noturna enquanto estiver ligada (reLuz). */
+    private void luz(Player p) {
+        long now = System.currentTimeMillis();
+        if (luzDelay > 0 && !p.hasPermission("goldessentials.admin") && now - luzAt.getOrDefault(p, 0L) < luzDelay * 1000L) { throw new IllegalArgumentException("Aguarde para usar de novo."); }
+        luzAt.put(p, now);
+        if (nightVision.remove(p)) { p.removeEffect(cn.nukkit.potion.Effect.NIGHT_VISION); p.sendMessage(PREFIX + "\u00a7cLanterna desligada."); return; }
+        nightVision.add(p);
+        p.addEffect(cn.nukkit.potion.Effect.getEffect(cn.nukkit.potion.Effect.NIGHT_VISION).setDuration(20 * 60 * 60 * 24).setVisible(false));
+        p.sendMessage(PREFIX + "\u00a7eLanterna ligada, aproveite.");
+    }
+
+    /** /setloja e /loja <jogador> (T_SetLoja): cada jogador com permissao marca a propria loja. */
+    private void setShop(Player p, boolean remove) {
+        String key = p.getName().toLowerCase(Locale.ROOT);
+        CompletableFuture<Void> op = remove ? core.getStore().delete(SHOPS, key) : core.getStore().put(SHOPS, key, GSON.toJson(here(p)));
+        op.whenComplete((v, e) -> getServer().getScheduler().scheduleTask(() -> { if (p.isOnline()) { p.sendMessage(PREFIX + (e != null ? "\u00a7cNao foi possivel gravar." : remove ? "Loja removida." : "\u00a7aLoja marcada aqui! Outros chegam com /loja " + p.getName())); } }));
+    }
+
+    private void goShop(Player p, String owner) {
+        long now = System.currentTimeMillis();
+        if (!p.hasPermission("goldessentials.instantaneo") && now - shopAt.getOrDefault(p, 0L) < shopCooldown * 1000L) { throw new IllegalArgumentException("Aguarde " + ((shopCooldown * 1000L - (now - shopAt.get(p))) / 1000 + 1) + " s para ir a outra loja."); }
+        String key = owner.toLowerCase(Locale.ROOT);
+        if (!key.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException("Jogador invalido."); }
+        core.getStore().get(SHOPS, key).whenComplete((v, e) -> getServer().getScheduler().scheduleTask(() -> {
+            if (!p.isOnline()) { return; }
+            if (e != null || v == null || !v.isPresent()) { p.sendMessage(PREFIX + "\u00a7cEste jogador nao tem loja."); return; }
+            Destination d;
+            try { d = GSON.fromJson(v.get(), Destination.class); d.validate(); } catch (RuntimeException bad) { p.sendMessage(PREFIX + "\u00a7cLoja invalida."); return; }
+            shopAt.put(p, System.currentTimeMillis());
+            p.sendMessage(PREFIX + "Indo para a loja de " + key + "...");
+            go(p, d);
+        }));
+    }
+
+    private void vipWorld(Player p, String[] args) {
+        if (args.length > 0 && p.hasPermission("goldessentials.admin")) {
+            boolean remove = args[0].equalsIgnoreCase("remover");
+            Destination d = remove ? null : here(p);
+            places.change(s -> s.vipWorld = d).whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? "\u00a7cNao foi possivel gravar." : remove ? "Mundo VIP removido." : "\u00a7aMundo VIP definido aqui.")));
+            return;
+        }
+        if (!p.hasPermission("goldessentials.mundovip")) { for (String line : vipOnly.split("\\|")) { p.sendMessage(line.replace('&', '\u00a7')); } return; }
+        Destination d = places.isLoaded() ? places.read(s -> s.vipWorld) : null;
+        if (d == null) { throw new IllegalArgumentException("O mundo VIP ainda nao foi definido."); }
+        p.sendMessage(PREFIX + "\u00a7aSeja bem-vindo ao Mundo VIP.");
+        go(p, d);
+    }
+
+    private long luzDelay, shopCooldown = 30;
+    private String vipOnly = "&cOpa, este e o mundo VIP. Para acessa-lo adquira um VIP no nosso site.";
 
     @EventHandler(priority = EventPriority.MONITOR) public void quit(PlayerQuitEvent event) {
         Player p = event.getPlayer();
-        homes.remove(p); back.remove(p); requests.remove(p);
+        homes.remove(p); back.remove(p); requests.remove(p); prefs.remove(p); nightVision.remove(p); luzAt.remove(p); shopAt.remove(p);
         requests.values().removeIf(r -> r.from == p);
     }
 
@@ -95,6 +207,11 @@ public final class GoldEssentials extends PluginBase implements Listener {
         if (auth != null && !auth.isAuthenticated(p)) { p.sendMessage("Autentique-se primeiro."); return true; }
         try {
             switch (command.getName()) {
+                case "config": config(p); return true;
+                case "luz": luz(p); return true;
+                case "setloja": setShop(p, args.length > 0 && args[0].equalsIgnoreCase("remover")); return true;
+                case "loja": if (args.length == 0) { p.sendMessage(PREFIX + "Use /loja <jogador>. Para marcar a sua: /setloja"); return true; } goShop(p, args[0]); return true;
+                case "mundovip": vipWorld(p, args); return true;
                 case "sethome": setHome(p, args.length > 0 ? args[0] : "casa"); return true;
                 case "home": home(p, args.length > 0 ? args[0] : null); return true;
                 case "delhome": delHome(p, args.length > 0 ? args[0] : "casa"); return true;

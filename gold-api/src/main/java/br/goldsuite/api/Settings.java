@@ -32,6 +32,12 @@ public final class Settings {
     /** Prefixo das mensagens do plugin, editavel no painel. */
     public static void prefix(Plugin plugin, String defaultValue, Consumer<String> apply) { text(plugin, "prefixo", defaultValue, "Prefixo das mensagens", apply); }
 
+    /** Registra um placeholder {chave} se o GoldCore estiver ativo. */
+    public static void placeholder(Plugin plugin, String key, java.util.function.Function<cn.nukkit.Player, String> value) {
+        PlaceholderService s = Server.getInstance().getServiceManager().load(PlaceholderService.class);
+        if (s != null) { s.register(plugin, key, value); }
+    }
+
     public static void discord(String source, String message) {
         SettingsService s = service();
         if (s != null) { s.discord(source, message); }

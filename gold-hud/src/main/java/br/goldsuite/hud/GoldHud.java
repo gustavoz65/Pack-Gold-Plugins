@@ -14,7 +14,10 @@ import cn.nukkit.scheduler.PluginTask;
 import java.math.BigDecimal;
 import java.util.*;
 
-/** Barra acima da hotbar: coordenadas, dinheiro, grupo e armadura (superBAR, Cordenadas, Status Armor, itemID). */
+/**
+ * Barra acima da hotbar no lugar do scoreboard (o 0.15 nao tem placar lateral): duas linhas configuraveis no painel com
+ * qualquer placeholder ({money}, {cash}, {grupo}, {clan}, {kdr}, {online}...). Os modelos sao compilados uma vez.
+ */
 public final class GoldHud extends PluginBase implements Listener {
     static String PREFIX = "§9[§bHUD§9]§f ";
     /** Durabilidade maxima por id de armadura da 0.15 (couro, malha, ferro, diamante, ouro). */
@@ -24,6 +27,8 @@ public final class GoldHud extends PluginBase implements Listener {
         for (int[] a : t) { ARMOR.put(a[0], a[1]); }
     }
     private PersistentState<HudState> data;
+    private PlaceholderService.Template line1, line2;
+    private String raw1 = "", raw2 = "";
 
     public static final class HudState {
         public Set<String> off = new TreeSet<>();
@@ -40,38 +45,34 @@ public final class GoldHud extends PluginBase implements Listener {
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldHud."); }
         data = new PersistentState<>(core.getStore(), "goldhud", HudState.class, HudState::new, HudState::validate);
         getServer().getPluginManager().registerEvents(this, this);
+        Settings.placeholder(this, "armadura", p -> { int a = armorPercent(p.getInventory().getArmorContents()); return a < 0 ? "" : " \u00a78| " + (a <= 20 ? "\u00a7c" : "\u00a7b") + "Armadura " + a + "%"; });
+        Settings.text(this, "linha1", "&a$ {money} &8| &bCash &f{cash} &8| {tag}", "Linha de cima da barra (placeholders: {money} {cash} {grupo} {tag} {clan} {kdr} {kills} {online} {x} {y} {z} {dir} {mundo} {ping} {armadura}; vazio = sem linha)", v -> { raw1 = v; line1 = null; });
+        Settings.text(this, "linha2", "&e{x} {y} {z} &7{dir} &8| &7Clan &f{clan} &8| &7KDR &f{kdr}{armadura}", "Linha de baixo da barra (mesmos placeholders)", v -> { raw2 = v; line2 = null; });
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldHud>(this) { @Override public void onRun(int tick) { tick(); } }, 20);
     }
 
     @Override public void onDisable() { if (data != null) { data.close(); } }
 
-    /** Um popup por jogador por segundo; servicos e listas consultados uma vez por ciclo. */
+    /** Um popup por jogador por segundo, com os modelos ja compilados. */
     private void tick() {
         if (!data.isLoaded() || getServer().getOnlinePlayers().isEmpty()) { return; }
-        EconomyService economy = getServer().getServiceManager().load(EconomyService.class);
-        PermissionService perms = getServer().getServiceManager().load(PermissionService.class);
+        PlaceholderService ph = getServer().getServiceManager().load(PlaceholderService.class);
+        if (ph == null) { return; }
+        if (line1 == null) { line1 = raw1.trim().isEmpty() || raw1.equalsIgnoreCase("nenhuma") ? null : ph.compile(raw1); }
+        if (line2 == null) { line2 = raw2.trim().isEmpty() || raw2.equalsIgnoreCase("nenhuma") ? null : ph.compile(raw2); }
         AuthService auth = getServer().getServiceManager().load(AuthService.class);
         Set<String> off = data.read(s -> s.off), hidden = data.read(s -> s.hiddenWorlds);
         for (Player p : getServer().getOnlinePlayers().values()) {
             if (!p.spawned || hidden.contains(p.level.getFolderName()) || off.contains(p.getName().toLowerCase(Locale.ROOT))) { continue; }
             if (auth != null && !auth.isAuthenticated(p)) { continue; }
-            p.sendPopup(line(p, economy, perms));
+            String a = line1 == null ? "" : line1.render(p), b = line2 == null ? "" : line2.render(p);
+            p.sendPopup(a.isEmpty() ? b : b.isEmpty() ? a : a + "\n" + b);
         }
     }
 
     static String direction(double yaw) {
         String[] dirs = {"S", "SO", "O", "NO", "N", "NE", "L", "SE"};
         return dirs[(int) Math.floorMod(Math.round(((yaw % 360) + 360) % 360 / 45.0), 8)];
-    }
-
-    private static String line(Player p, EconomyService economy, PermissionService perms) {
-        StringBuilder b = new StringBuilder();
-        b.append("§e").append(p.getFloorX()).append(' ').append(p.getFloorY()).append(' ').append(p.getFloorZ()).append(" §7").append(direction(p.yaw));
-        if (economy != null) { try { b.append(" §8| §a$").append(BigDecimal.valueOf(economy.balance(p.getName(), EconomyService.Currency.MONEY), 2).toPlainString()); } catch (RuntimeException ignored) { } }
-        if (perms != null) { try { String g = perms.getGroup(p.getName()); if (!g.equals("padrao")) { b.append(" §8| §6").append(g.toUpperCase(Locale.ROOT)); } } catch (RuntimeException ignored) { } }
-        int armor = armorPercent(p.getInventory().getArmorContents());
-        if (armor >= 0) { b.append(" §8| ").append(armor <= 20 ? "§c" : "§b").append("Armadura ").append(armor).append('%'); }
-        return b.toString();
     }
 
     /** Media da durabilidade restante das pecas vestidas, ou -1 sem armadura. */

@@ -3,6 +3,7 @@ package br.goldsuite.core;
 import br.goldsuite.api.AsyncStore;
 import br.goldsuite.api.CoreService;
 import br.goldsuite.api.EffectService;
+import br.goldsuite.api.PlaceholderService;
 import br.goldsuite.api.ItemSigner;
 import br.goldsuite.api.MenuService;
 import br.goldsuite.api.RankingService;
@@ -49,6 +50,7 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
         this.menus = new MenuEngine(this);
         getServer().getServiceManager().register(MenuService.class, this.menus, this);
         getServer().getServiceManager().register(RankingService.class, new RankingRegistry(), this);
+        getServer().getServiceManager().register(PlaceholderService.class, new PlaceholderRegistry(), this);
         getServer().getPluginManager().registerEvents(this, this);
         this.dispatcher.submit(() -> {
             this.backend.initialize();
@@ -93,6 +95,13 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
     }
     @Override public CompletableFuture<Void> put(String namespace, String key, String value) {
         return this.ready.thenCompose(ignored -> this.dispatcher.submit(() -> { this.backend.put(namespace, key, value); return null; }));
+    }
+    @Override public CompletableFuture<java.util.Map<String, String>> all(String namespace) {
+        return this.ready.thenCompose(ignored -> this.dispatcher.submit(() -> this.backend.all(namespace)));
+    }
+    @Override public CompletableFuture<Void> putAll(String namespace, java.util.Map<String, String> values) {
+        java.util.Map<String, String> copy = new java.util.HashMap<>(values);
+        return this.ready.thenCompose(ignored -> this.dispatcher.submit(() -> { this.backend.putAll(namespace, copy); return null; }));
     }
     @Override public CompletableFuture<Void> delete(String namespace, String key) {
         return this.ready.thenCompose(ignored -> this.dispatcher.submit(() -> { this.backend.delete(namespace, key); return null; }));

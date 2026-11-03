@@ -34,11 +34,44 @@ public final class GoldProtect extends PluginBase implements Listener {
     /** {pedras, minerios raros, ultimo alerta em segundos} na janela atual. */
     private final Map<Player, long[]> mining = new IdentityHashMap<>();
 
+    private boolean noMinecart = true, noBoat = true, noFrameRiding = true, warnStaff;
+
+    /** Anti-dupe (como o TintaDupe): subir em veiculo chega como toque na entidade; barrado antes do core montar. */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void vehicle(cn.nukkit.event.server.DataPacketReceiveEvent e) {
+        if (!(e.getPacket() instanceof cn.nukkit.network.protocol.InteractPacket) || (!noMinecart && !noBoat)) { return; }
+        cn.nukkit.network.protocol.InteractPacket pk = (cn.nukkit.network.protocol.InteractPacket) e.getPacket();
+        if (pk.action != cn.nukkit.network.protocol.InteractPacket.ACTION_RIGHT_CLICK) { return; }
+        Player p = e.getPlayer();
+        if (p.level == null || p.hasPermission("goldprotect.admin")) { return; }
+        cn.nukkit.entity.Entity t = p.level.getEntity(pk.target);
+        boolean cart = t instanceof cn.nukkit.entity.item.EntityMinecartEmpty || t instanceof cn.nukkit.entity.item.EntityMinecartChest || t instanceof cn.nukkit.entity.item.EntityMinecartTNT;
+        boolean boat = t instanceof cn.nukkit.entity.item.EntityBoat;
+        if ((cart && noMinecart) || (boat && noBoat)) {
+            e.setCancelled();
+            p.sendMessage(PREFIX + "\u00a7cEste veiculo esta proibido para evitar bugs.");
+            if (warnStaff) { Settings.alert("Anti-dupe", p.getName() + " tentou subir num " + (cart ? "carrinho" : "barco") + "."); }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void frameInVehicle(PlayerInteractEvent e) {
+        Block b = e.getBlock();
+        if (!noFrameRiding || b == null || b.getId() != 199 || e.getPlayer().riding == null || e.getPlayer().hasPermission("goldprotect.admin")) { return; }
+        e.setCancelled();
+        e.getPlayer().sendMessage(PREFIX + "\u00a7cVoce nao pode usar a moldura dentro de um veiculo.");
+        if (warnStaff) { Settings.alert("Anti-dupe", e.getPlayer().getName() + " tentou usar a moldura dentro de um veiculo."); }
+    }
+
     @Override public void onEnable() {
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldProtect."); }
         data = new PersistentState<>(core.getStore(), "goldprotect", ProtectState.class, ProtectState::new, ProtectState::validate);
+        Settings.number(this, "antidupe.carrinho", 1, "1 = ninguem sobe em carrinho (dupe classico)", v -> noMinecart = v == 1);
+        Settings.number(this, "antidupe.barco", 1, "1 = ninguem sobe em barco", v -> noBoat = v == 1);
+        Settings.number(this, "antidupe.moldura_no_veiculo", 1, "1 = moldura nao pode ser usada de dentro de um veiculo", v -> noFrameRiding = v == 1);
+        Settings.number(this, "antidupe.avisar_staff", 0, "1 = avisa a staff quando alguem tenta", v -> warnStaff = v == 1);
         data.ready().whenComplete((v, e) -> {
             if (e != null) { getLogger().error("Falha ao carregar protecoes.", e); getServer().getPluginManager().disablePlugin(this); return; }
             reindex();

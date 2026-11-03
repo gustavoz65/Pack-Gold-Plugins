@@ -14,6 +14,10 @@ commands:
  cash:
   description: Consulta cash
   usage: "/cash [jogador]"
+ banco:
+  description: Banco Central (deposito e saque em conta separada da carteira)
+  usage: "/banco | /banco depositar <valor> | /banco sacar <valor>"
+  aliases: [bancocentral]
  pagar:
   description: Transfere moedas
   usage: "/pagar <jogador> <valor>"

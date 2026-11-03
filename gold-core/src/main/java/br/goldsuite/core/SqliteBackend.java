@@ -56,6 +56,34 @@ final class SqliteBackend {
         }
     }
 
+    java.util.Map<String, String> all(String namespace) throws Exception {
+        validate(namespace, "");
+        java.util.Map<String, String> out = new java.util.HashMap<>();
+        try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement("SELECT record_key, value FROM gold_records WHERE namespace=?")) {
+            statement.setString(1, namespace);
+            try (ResultSet rows = statement.executeQuery()) { while (rows.next()) { out.put(rows.getString(1), rows.getString(2)); } }
+        }
+        return out;
+    }
+
+    void putAll(String namespace, java.util.Map<String, String> values) throws Exception {
+        for (java.util.Map.Entry<String, String> e : values.entrySet()) {
+            validate(namespace, e.getKey());
+            if (e.getValue() == null || e.getValue().length() > 1024 * 1024) { throw new IllegalArgumentException("Valor ausente ou excessivo."); }
+        }
+        try (Connection connection = open()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement statement = connection.prepareStatement("INSERT OR REPLACE INTO gold_records(namespace, record_key, value) VALUES(?,?,?)")) {
+                for (java.util.Map.Entry<String, String> e : values.entrySet()) {
+                    statement.setString(1, namespace); statement.setString(2, e.getKey()); statement.setString(3, e.getValue());
+                    statement.addBatch();
+                }
+                statement.executeBatch();
+                connection.commit();
+            } catch (Exception e) { connection.rollback(); throw e; }
+        }
+    }
+
     void delete(String namespace, String key) throws Exception {
         validate(namespace, key);
         try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement("DELETE FROM gold_records WHERE namespace=? AND record_key=?")) {
