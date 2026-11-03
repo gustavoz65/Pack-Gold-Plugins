@@ -160,6 +160,7 @@ public final class GoldChat extends PluginBase implements Listener {
                     return true;
                 }
                 case "chat": {
+                    if (args.length > 0 && !args[0].matches("(?i)on|off|ligar|desligar")) { configure(sender, args); return true; }
                     boolean on = args.length > 0 && (args[0].equalsIgnoreCase("on") || args[0].equalsIgnoreCase("ligar"));
                     data.change(s -> s.enabled = on).thenRun(() -> getServer().broadcastMessage(PREFIX + (on ? M.t("chat_ativado") : M.t("chat_desativado_pela_staff"))));
                     return true;
@@ -206,6 +207,65 @@ public final class GoldChat extends PluginBase implements Listener {
             }
         } catch (NumberFormatException e) { sender.sendMessage(PREFIX + M.t("numero_invalido")); return true; }
         catch (RuntimeException e) { sender.sendMessage(PREFIX + "§c" + root(e)); return true; }
+    }
+
+    /** /chat formato|formatos|entrada|saida|anuncio: textos do chat que ficam gravados (por grupo e automaticos). */
+    private void configure(CommandSender sender, String[] args) {
+        String sub = args[0].toLowerCase(Locale.ROOT);
+        String rest = args.length > 1 ? String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length)) : "";
+        switch (sub) {
+            case "formatos": {
+                sender.sendMessage(M.t("chat_formatos_titulo"));
+                for (Map.Entry<String, String> f : data.read(s -> new java.util.TreeMap<>(s.formats)).entrySet()) { sender.sendMessage(M.t("chat_formato_linha", f.getKey(), f.getValue())); }
+                return;
+            }
+            case "formato": {
+                if (args.length < 3) { sender.sendMessage(M.t("chat_formato_uso")); return; }
+                String group = args[1].toLowerCase(Locale.ROOT);
+                if (!group.matches("[a-z0-9_]{1,32}")) { throw new IllegalArgumentException(M.t("chat_grupo_invalido")); }
+                String text = String.join(" ", java.util.Arrays.copyOfRange(args, 2, args.length));
+                boolean remove = text.equalsIgnoreCase("remover");
+                if (remove && group.equals("padrao")) { throw new IllegalArgumentException(M.t("chat_padrao_obrigatorio")); }
+                if (!remove && (!text.contains("{mensagem}") || text.length() > 120)) { throw new IllegalArgumentException(M.t("formato_precisa_de_mensagem_ate_120")); }
+                data.change(s -> { if (remove) { s.formats.remove(group); } else { s.formats.put(group, text); } })
+                        .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "\u00a7c" + root(e) : M.t("chat_formato_salvo", group))));
+                return;
+            }
+            case "entrada": case "saida": {
+                if (rest.isEmpty()) { sender.sendMessage(M.t("chat_entrada_uso")); return; }
+                boolean join = sub.equals("entrada");
+                String text = rest.equalsIgnoreCase("padrao") ? (join ? "&a+ &f{nome}" : "&c- &f{nome}") : rest;
+                if (text.length() > 120) { throw new IllegalArgumentException(M.t("chat_texto_longo")); }
+                data.change(s -> { if (join) { s.join = text; } else { s.quit = text; } })
+                        .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "\u00a7c" + root(e) : M.t("chat_entrada_salva"))));
+                return;
+            }
+            case "anuncio": case "anuncios": {
+                String op = args.length > 1 ? args[1].toLowerCase(Locale.ROOT) : "lista";
+                String text = args.length > 2 ? String.join(" ", java.util.Arrays.copyOfRange(args, 2, args.length)) : "";
+                if (op.equals("lista")) {
+                    List<String> list = data.read(s -> new ArrayList<>(s.announcements));
+                    sender.sendMessage(M.t("chat_anuncios_titulo", list.size(), data.<Object>read(s -> s.announceSeconds)));
+                    for (int i = 0; i < list.size(); i++) { sender.sendMessage(M.t("chat_anuncio_linha", i + 1, list.get(i))); }
+                    return;
+                }
+                java.util.function.Consumer<ChatState> change;
+                if (op.equals("adicionar") && !text.isEmpty()) {
+                    if (text.length() > 200) { throw new IllegalArgumentException(M.t("chat_texto_longo")); }
+                    change = s -> { if (s.announcements.size() >= 50) { throw new IllegalArgumentException(M.t("chat_anuncios_limite")); } s.announcements.add(text); };
+                } else if (op.equals("remover") && !text.isEmpty()) {
+                    int n = Integer.parseInt(text.trim());
+                    change = s -> { if (n < 1 || n > s.announcements.size()) { throw new IllegalArgumentException(M.t("chat_anuncio_inexistente")); } s.announcements.remove(n - 1); };
+                } else if (op.equals("intervalo") && !text.isEmpty()) {
+                    int sec = Integer.parseInt(text.trim());
+                    if (sec < 30 || sec > 3600) { throw new IllegalArgumentException(M.t("chat_intervalo_invalido")); }
+                    change = s -> s.announceSeconds = sec;
+                } else { sender.sendMessage(M.t("chat_anuncio_uso")); return; }
+                data.change(change).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "\u00a7c" + root(e) : M.t("chat_anuncios_salvos"))));
+                return;
+            }
+            default: sender.sendMessage(M.t("chat_config_uso"));
+        }
     }
 
     private void tell(CommandSender from, Player to, String text) {

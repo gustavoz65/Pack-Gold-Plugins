@@ -44,3 +44,24 @@ voce_esta_silenciado: "Voce esta silenciado."
 # {0} = ((until - System.currentTimeMillis()) / 60000 + 1)
 voce_esta_silenciado_por_mais_min: "Voce esta silenciado por mais {0} min."
 voce_nao_pode_mandar_mensagem_para: "Voce nao pode mandar mensagem para si mesmo."
+chat_formatos_titulo: "&6--- Formatos do chat por grupo ---"
+# {0} = grupo, {1} = formato
+chat_formato_linha: "&e{0}&7: &r{1}"
+chat_formato_uso: "Uso: /chat formato <grupo> <formato com {mensagem}|remover>  ({nome} {tag} {grupo} {mctop} e outros placeholders)"
+chat_grupo_invalido: "Grupo invalido."
+chat_padrao_obrigatorio: "O formato padrao nao pode ser removido (so trocado)."
+# {0} = grupo
+chat_formato_salvo: "&aFormato do grupo {0} salvo."
+chat_entrada_uso: "Uso: /chat entrada <texto|padrao> e /chat saida <texto|padrao> ({nome} vira o nick)"
+chat_texto_longo: "Texto muito longo."
+chat_entrada_salva: "&aMensagem salva."
+# {0} = quantidade, {1} = segundos
+chat_anuncios_titulo: "&6--- Anuncios automaticos ({0}, a cada {1} s) ---"
+# {0} = numero, {1} = texto
+chat_anuncio_linha: "&e{0}. &r{1}"
+chat_anuncios_limite: "Limite de 50 anuncios."
+chat_anuncio_inexistente: "Anuncio inexistente (veja /chat anuncio lista)."
+chat_intervalo_invalido: "Intervalo entre 30 e 3600 segundos."
+chat_anuncio_uso: "Uso: /chat anuncio lista | adicionar <texto> | remover <numero> | intervalo <segundos>"
+chat_anuncios_salvos: "&aAnuncios atualizados."
+chat_config_uso: "/chat on|off, formatos, formato <grupo> <formato|remover>, entrada <texto|padrao>, saida <texto|padrao>, anuncio lista|adicionar|remover|intervalo"
