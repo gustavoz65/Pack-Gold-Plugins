@@ -26,6 +26,7 @@ key_resgatada_voce_recebeu: "&aKey resgatada! &fVoce recebeu: {0}{1}"
 keys: "&6[&eKeys&6]&f "
 loja_de_keys_invalida: "Loja de keys invalida."
 muitas_keys_invalidas_aguarde_um_minuto: "Muitas keys invalidas. Aguarde um minuto."
+nada_configurado: "nada configurado"
 nao_foi_possivel_criar_pedido: "&cNao foi possivel criar o pedido."
 nenhum_pedido_aguardando_pagamento: "Nenhum pedido aguardando pagamento."
 nenhum_produto_venda_ainda: "Nenhum produto a venda ainda."
@@ -48,6 +49,8 @@ pedido_nao_esta_aguardando_pagamento: "Pedido #{0} nao esta aguardando pagamento
 pedido_pago_key_de_vale_por: "Pedido #{0} pago. A key de {1} vale por {2} h."
 # {0} = orderId, {1} = p.getName(), {2} = product.name, {3} = KeyState.price(product.priceCents), {4} = orderId
 pedido_quer_confirme_pix_com_key: "Pedido #{0}: {1} quer {2} ({3}). Confirme o Pix com /key pago {4}"
+# {0} = id, {1} = id
+produto_criado_configure_que_ele_entrega: "Produto {0} criado. Configure o que ele entrega: /key produto {1} cash|dinheiro|cosmetico|vip"
 produto_dessa_key_nao_existe_mais: "O produto dessa key nao existe mais. Fale com a staff."
 produto_inexistente: "Produto inexistente."
 produto_inexistente_veja_key_produtos: "Produto inexistente. Veja /key produtos."

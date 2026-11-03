@@ -34,7 +34,7 @@ final class Platforms {
     /** Resumo do que o login mostrou, para conferir a deteccao no console. */
     static String evidence(Map<String, String> login) {
         String os = login.get("DeviceOS");
-        return os != null ? "DeviceOS " + os : "conta Xbox " + (login.getOrDefault("Gold.XUID", "").isEmpty() ? "nao" : "sim") + ", cadeia " + login.getOrDefault("Gold.ChainLength", "?");
+        return os != null ? "DeviceOS " + os : M.t("conta_xbox_cadeia", (login.getOrDefault("Gold.XUID", "").isEmpty() ? M.t("nao") : M.t("sim")), login.getOrDefault("Gold.ChainLength", "?"));
     }
 
     static Platform parse(String text) {

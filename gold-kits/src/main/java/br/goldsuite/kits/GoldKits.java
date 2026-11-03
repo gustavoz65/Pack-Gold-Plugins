@@ -45,7 +45,7 @@ public final class GoldKits extends PluginBase {
                     for (Item armor : p.getInventory().getArmorContents()) { if (armor.getId() != 0) { kit.items.add(ItemData.of(armor)); } }
                     if (kit.items.isEmpty()) { throw new IllegalArgumentException(M.t("coloque_os_itens_do_kit_no")); }
                     save(p, data.change(s -> { if (s.kits.size() >= 54 && !s.kits.containsKey(name)) { throw new IllegalArgumentException(M.t("limite_de_kits")); } s.kits.put(name, kit); }),
-                            "Kit " + name + " salvo com " + kit.items.size() + " itens" + (kit.restricted ? M.t("exige_goldkits_kit", name) : "") + ".");
+                            M.t("kit_salvo_com_itens", name, kit.items.size(), (kit.restricted ? M.t("exige_goldkits_kit", name) : "")));
                     return true;
                 }
                 case "apagar": {
@@ -118,7 +118,7 @@ public final class GoldKits extends PluginBase {
 
     static String time(long millis) {
         long minutes = (millis + 59_999) / 60_000;
-        if (minutes == 0) { return "sem recarga"; }
+        if (minutes == 0) { return M.t("sem_recarga"); }
         if (minutes < 60) { return minutes + " min"; }
         if (minutes < 1440) { return (minutes / 60) + " h " + (minutes % 60) + " min"; }
         return (minutes / 1440) + " d " + ((minutes % 1440) / 60) + " h";

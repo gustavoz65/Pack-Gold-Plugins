@@ -243,7 +243,7 @@ public final class GoldPvP extends PluginBase implements Listener {
         boolean counts = fraud.killCounts(key(killer), key(victim), System.currentTimeMillis());
         if (sameIp || !counts) {
             killer.sendMessage(PREFIX + M.t("este_abate_nao_conta", (sameIp ? M.t("mesmo_ip_da_vitima") : M.t("abates_repetidos_na_mesma_pessoa"))));
-            if (!counts) { flag(killer, "abates repetidos em " + victim.getName()); flag(victim, "morreu varias vezes para " + killer.getName()); }
+            if (!counts) { flag(killer, M.t("abates_repetidos_em", victim.getName())); flag(victim, M.t("morreu_varias_vezes_para", killer.getName())); }
             return;
         }
         Profile pk = profile(killer), pv = profile(victim);
@@ -566,7 +566,7 @@ public final class GoldPvP extends PluginBase implements Listener {
                 if (p.isOnline()) { p.sendMessage(PREFIX + M.t("partida_anulada_suspeita_de_fraude_nao", (fed ? M.t("derrota_entregue") : M.t("ninguem_lutou")))); }
                 // Quem perdeu sem reagir sempre leva advertencia; o vencedor so quando a dupla repete (combinado).
                 boolean repeat = !fraud.canPair(key(m.a), key(m.b), System.currentTimeMillis());
-                if (idle || p != winner || repeat) { flag(p, fed ? "partida entregue contra " + m.other(p).getName() : "duelo parado contra " + m.other(p).getName()); }
+                if (idle || p != winner || repeat) { flag(p, fed ? M.t("partida_entregue_contra", m.other(p).getName()) : M.t("duelo_parado_contra", m.other(p).getName())); }
             }
         }
         if (started && pa != null && pb != null) {

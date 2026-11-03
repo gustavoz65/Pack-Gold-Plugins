@@ -23,7 +23,7 @@ public final class KeyState {
             if (moneyCents > 0) { r.add(String.format(Locale.ROOT, "$%d.%02d", moneyCents / 100, moneyCents % 100)); }
             for (String c : cosmetics) { r.add("cosmetico " + c); }
             if (vipGroup != null) { r.add(vipGroup + (vipDays > 0 ? " por " + vipDays + " dias" : " permanente")); }
-            return r.isEmpty() ? "nada configurado" : String.join(", ", r);
+            return r.isEmpty() ? M.t("nada_configurado") : String.join(", ", r);
         }
     }
 

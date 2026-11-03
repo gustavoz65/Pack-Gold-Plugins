@@ -271,7 +271,7 @@ public final class GoldProtect extends PluginBase implements Listener {
                 if (!member.matches("[a-z0-9_]{3,16}")) { throw new IllegalArgumentException(M.t("jogador_invalido")); }
                 boolean add = args[2].equalsIgnoreCase("adicionar");
                 change(sender, s -> { ProtectState.Area a = require(s, name); if (add) { if (a.members.size() >= 64) { throw new IllegalArgumentException(M.t("limite_de_membros")); } a.members.add(member); } else { a.members.remove(member); } },
-                        () -> PREFIX + member + (add ? " adicionado a " : " removido de ") + name + ".");
+                        () -> PREFIX + member + (add ? " adicionado a " : M.t("removido_de")) + name + ".");
                 return true;
             }
             case "efeito": {

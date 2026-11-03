@@ -289,7 +289,7 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
                 for (String h : zone.help) { sender.sendMessage(M.t("ajuda", h.replace('&', '§'))); }
                 return;
             }
-            case "criar": change(sender, s -> { if (s.zones.containsKey(z)) { throw new IllegalArgumentException(M.t("zona_ja_existe")); } s.zones.put(z, new CmdState.Zone()); }, "Zona " + z + " criada. Adicione mundos: /zona mundo " + z + " <mundo>"); return;
+            case "criar": change(sender, s -> { if (s.zones.containsKey(z)) { throw new IllegalArgumentException(M.t("zona_ja_existe")); } s.zones.put(z, new CmdState.Zone()); }, M.t("zona_criada_adicione_mundos_zona_mundo", z, z)); return;
             case "apagar": change(sender, s -> { if (s.zones.remove(z) == null) { throw new IllegalArgumentException(M.t("zona_inexistente_2")); } }, "Zona " + z + " apagada."); return;
             case "mundo": {
                 String w = a.length > 2 ? a[2] : "";
@@ -305,7 +305,7 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
             }
             case "modo": {
                 boolean wl = a.length > 2 && a[2].toLowerCase(Locale.ROOT).startsWith("lib");
-                change(sender, s -> need(s, z).whitelist = wl, wl ? "Zona " + z + ": so os comandos da lista funcionam (/zona cmd " + z + " <comando>)." : M.t("zona_os_comandos_da_lista_ficam", z));
+                change(sender, s -> need(s, z).whitelist = wl, wl ? M.t("zona_so_os_comandos_da_lista", z, z) : M.t("zona_os_comandos_da_lista_ficam", z));
                 return;
             }
             case "cmd": {
@@ -391,7 +391,7 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
             case "add": {
                 if (a.length < 3) { throw new IllegalArgumentException(M.t("uso_opseguro_add_nick_ip")); }
                 String nick = a[1].toLowerCase(Locale.ROOT), ip = CmdState.ip(a[2]);
-                change(sender, s -> { Set<String> set = s.opIps.computeIfAbsent(nick, k -> new TreeSet<>()); set.add(ip); if (set.size() > 10) { throw new IllegalArgumentException(M.t("ate_10_ips_por_nick")); } }, nick + " pode usar OP pelo IP " + ip + ".");
+                change(sender, s -> { Set<String> set = s.opIps.computeIfAbsent(nick, k -> new TreeSet<>()); set.add(ip); if (set.size() > 10) { throw new IllegalArgumentException(M.t("ate_10_ips_por_nick")); } }, M.t("pode_usar_op_pelo_ip", nick, ip));
                 return;
             }
             case "remover": {

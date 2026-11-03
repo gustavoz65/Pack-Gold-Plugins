@@ -432,7 +432,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
             saveStats(killer);
         }
         BwState.Stats ps = stats(p); ps.deaths++;
-        String msg = customMessage != null ? customMessage : BwState.color(t) + p.getName() + " §7" + (killer != null && killer != p ? (voidDeath ? "foi jogado no vazio por " : "foi morto por ") + BwState.color(g.team.get(killer)) + killer.getName() : (voidDeath ? "caiu no vazio" : "morreu")) + (isFinal ? M.t("abate_final") : "");
+        String msg = customMessage != null ? customMessage : BwState.color(t) + p.getName() + " §7" + (killer != null && killer != p ? (voidDeath ? M.t("foi_jogado_no_vazio_por") : M.t("foi_morto_por")) + BwState.color(g.team.get(killer)) + killer.getName() : (voidDeath ? M.t("caiu_no_vazio") : "morreu")) + (isFinal ? M.t("abate_final") : "");
         broadcast(g, msg);
         Kit k = g.kits.get(p);
         if (k != null) { k.pickaxe = Math.max(k.pickaxe > 0 ? 1 : 0, k.pickaxe - 1); k.axe = Math.max(k.axe > 0 ? 1 : 0, k.axe - 1); }

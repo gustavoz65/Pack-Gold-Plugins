@@ -221,7 +221,7 @@ public final class GoldKeys extends PluginBase {
             String id = arg(args, 2).toLowerCase(Locale.ROOT);
             long price = Math.round(Double.parseDouble(arg(args, 3).replace(',', '.')) * 100);
             String nome = String.join(" ", Arrays.copyOfRange(args, Math.min(4, args.length), args.length));
-            change(sender, s -> { Product p = new Product(); p.name = nome.isEmpty() ? id : nome; p.priceCents = price; s.products.put(id, p); }, "Produto " + id + " criado. Configure o que ele entrega: /key produto " + id + " cash|dinheiro|cosmetico|vip");
+            change(sender, s -> { Product p = new Product(); p.name = nome.isEmpty() ? id : nome; p.priceCents = price; s.products.put(id, p); }, M.t("produto_criado_configure_que_ele_entrega", id, id));
             return;
         }
         String what = arg(args, 2).toLowerCase(Locale.ROOT);

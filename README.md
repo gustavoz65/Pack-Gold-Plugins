@@ -49,6 +49,8 @@ O [roadmap](ROADMAP.md) mostra a origem de cada módulo.
 - **Discord:** `/painel discord <url do webhook>` (ou pelo menu), `/painel discord teste`, `/painel discord off`. Alertas da staff (ex.: anti-fraude) vão para o canal; só URLs oficiais do Discord são aceitas e menções são bloqueadas.
 - Permissões: `goldcore.painel` (editar) e `goldcore.alertas` (receber alertas), ambas OP por padrão.
 
+**Manual de configuração (PDF):** [docs/Manual-Nukkit-Gold-0.4.3.pdf](docs/Manual-Nukkit-Gold-0.4.3.pdf), com o passo a passo de todos os plugins.
+
 ## Mensagens (todas editáveis)
 
 Nenhuma mensagem fica presa no código: cada plugin grava `plugins/<Plugin>/mensagens.yml` na primeira vez que liga, com todas as mensagens dele (chat, popups, avisos, erros de comando, nomes de itens de menu e descrições de kits).

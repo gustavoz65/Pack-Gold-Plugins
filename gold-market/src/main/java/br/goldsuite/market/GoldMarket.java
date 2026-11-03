@@ -167,7 +167,7 @@ public final class GoldMarket extends PluginBase {
             List<String> out = new ArrayList<>();
             for (Map.Entry<Long, MarketState.Listing> e : s.listings.entrySet()) { if (e.getValue().seller.equals(name)) { out.add("§e#" + e.getKey() + " §f" + e.getValue().item.count + "x " + e.getValue().item.toItem().getName() + " §a$" + money(e.getValue().price)); } }
             List<?> back = s.returns.get(name);
-            if (back != null && !back.isEmpty()) { out.add("§d" + back.size() + " item(ns) para coletar: /leilao coletar"); }
+            if (back != null && !back.isEmpty()) { out.add(M.t("item_ns_para_coletar_leilao_coletar", back.size())); }
             return out;
         });
         if (lines.isEmpty()) { p.sendMessage(PREFIX + M.t("voce_nao_tem_anuncios")); return; }

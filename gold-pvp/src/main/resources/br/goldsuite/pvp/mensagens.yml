@@ -2,6 +2,8 @@
 abates_mortes_kdr_melhor_sequencia: "&fAbates {0} | Mortes {1} | KDR {2} | Melhor sequencia {3}"
 # {0} = pr.kills, {1} = (killPos == 0 ? "-" : "#" + killPos)
 abates_posicao: "&aAbates: &f{0}\n&7Posicao: {1}"
+# {0} = victim.getName()
+abates_repetidos_em: "abates repetidos em {0}"
 abates_repetidos_na_mesma_pessoa: " (abates repetidos na mesma pessoa)."
 admin_ranked_arena_nome_remover_ranked: "Admin: /ranked arena <nome> a|b|remover, /ranked kit, /ranked lobby <mundo>"
 # {0} = p.getName(), {1} = tier
@@ -29,6 +31,8 @@ divisoes_1_2_3_100_pr: "&7Divisoes 1, 2 e 3\n&7100 PR por divisao ({0} a {1} pon
 duelo_comeca_em: "&eDuelo comeca em &f{0}"
 # {0} = b.getName(), {1} = rankText(key(b), pb)
 duelo_contra: "&6Duelo contra {0} {1}"
+# {0} = m.other(p).getName()
+duelo_parado_contra: "duelo parado contra {0}"
 # {0} = pr.rankedWins, {1} = pr.rankedLosses, {2} = pr.rankedDraws, {3} = pr.winRate()
 duelos_vitorias: "&dDuelos: &a{0}V &c{1}D &7{2}E\n&fVitorias: {3}"
 durante_duelo_so_ranked_sair_desistir: "&cDurante o duelo so /ranked sair (desistir)."
@@ -60,6 +64,8 @@ kit_do_ranked_salvo_itens: "Kit do ranked salvo ({0} itens)."
 ligado: "&aligado"
 lista_de_elos_como_funciona_imortal: "&6Lista de elos\n&7Como funciona Imortal e Divino"
 mesmo_ip_da_vitima: " (mesmo IP da vitima)."
+# {0} = killer.getName()
+morreu_varias_vezes_para: "morreu varias vezes para {0}"
 # {0} = pr.deaths
 mortes: "&cMortes: &f{0}"
 mostrar: "mostrar"
@@ -76,6 +82,8 @@ novo_cosmetico_desbloqueado_veja_em_cosmeticos: "&dNovo cosmetico desbloqueado: 
 oponente_saiu_antes_do_inicio_duelo: "Oponente saiu antes do inicio. Duelo cancelado."
 # {0} = (fed ? "derrota entregue" : "ninguem lutou")
 partida_anulada_suspeita_de_fraude_nao: "&cPartida anulada: suspeita de fraude ({0}). Nao vale pontos."
+# {0} = m.other(p).getName()
+partida_entregue_contra: "partida entregue contra {0}"
 # {0} = Ranks.IMMORTAL, {1} = Ranks.IMMORTAL_2, {2} = Ranks.IMMORTAL_3
 partir_de_pontos_sem_teto_os: "&7A partir de {0} pontos\n&7Sem teto: os PR acumulam\n&7Imortal 2 com {1} PR, Imortal 3 com {2} PR"
 perfil_ainda_carregando: "Perfil ainda carregando."

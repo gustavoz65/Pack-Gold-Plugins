@@ -339,7 +339,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
             int k = g.kills.merge(killer, 1, Integer::sum);
             SwState.Stats ks = stats(killer); ks.kills++; saveStats(killer);
             reward(killer, killReward);
-            if (msg == null) { msg = "§c" + p.getName() + " §7" + (voidDeath ? "foi jogado no vazio por" : "foi morto por") + " §a" + killer.getName() + (k >= 2 ? " §6(" + k + " abates)" : ""); }
+            if (msg == null) { msg = "§c" + p.getName() + " §7" + (voidDeath ? M.t("foi_jogado_no_vazio_por") : M.t("foi_morto_por")) + " §a" + killer.getName() + (k >= 2 ? " §6(" + k + " abates)" : ""); }
             killer.getLevel().addSound(new ClickSound(killer), killer);
         } else if (msg == null) { msg = "§c" + p.getName() + " §7" + (voidDeath ? M.t("caiu_no_vazio") : "morreu."); }
         broadcast(g, msg);

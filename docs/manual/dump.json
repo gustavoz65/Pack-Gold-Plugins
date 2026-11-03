@@ -1,0 +1,350 @@
+{"settings":[
+{"plugin":"GoldBedWars","key":"contagem","kind":"NUMERO","def":"20","desc":"Segundos de contagem (cai para 10 com a sala cheia)"}
+,{"plugin":"GoldBedWars","key":"minimo_jogadores","kind":"NUMERO","def":"2","desc":"Jogadores para comecar a contagem"}
+,{"plugin":"GoldBedWars","key":"mundo_lobby","kind":"TEXTO","def":"","desc":"Mundo para onde os jogadores voltam (vazio = mundo padrao)"}
+,{"plugin":"GoldBedWars","key":"prefixo","kind":"TEXTO","def":"§c[§fBed§cWars]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldBedWars","key":"premio_abate","kind":"NUMERO","def":"1000","desc":"Dinheiro por abate (centavos)"}
+,{"plugin":"GoldBedWars","key":"premio_abate_final","kind":"NUMERO","def":"2500","desc":"Dinheiro por abate final (centavos)"}
+,{"plugin":"GoldBedWars","key":"premio_cama","kind":"NUMERO","def":"3000","desc":"Dinheiro por cama destruida (centavos)"}
+,{"plugin":"GoldBedWars","key":"premio_vitoria","kind":"NUMERO","def":"15000","desc":"Dinheiro por vitoria (centavos)"}
+,{"plugin":"GoldBreaker","key":"prefixo","kind":"TEXTO","def":"§7[§8Breaker§7]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldBuild","key":"prefixo","kind":"TEXTO","def":"§6[§eWE§6]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldChat","key":"entrada_saida","kind":"NUMERO","def":"1","desc":"1 = mostra quem entrou e saiu; 0 = esconde (como o OcultJoinQuit)"}
+,{"plugin":"GoldChat","key":"prefixo","kind":"TEXTO","def":"§b[§3Chat§b]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldComandos","key":"mensagem_bloqueado","kind":"TEXTO","def":"&cEsse comando nao esta disponivel aqui.","desc":"Mensagem quando o comando nao e liberado no mundo"}
+,{"plugin":"GoldComandos","key":"prefixo","kind":"TEXTO","def":"§6[Comandos]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldCosmetics","key":"msg.recarregar","kind":"TEXTO","def":"{destaque}Recarregue seu cash para comprar. Fale com a staff ou use a loja do servidor.","desc":"Como recarregar o cash (itens pagos em cash)"}
+,{"plugin":"GoldCosmetics","key":"msg.sem_saldo","kind":"TEXTO","def":"{erro}Saldo insuficiente: {item} custa {preco}.","desc":"Aviso de saldo insuficiente ({item}, {preco})"}
+,{"plugin":"GoldCosmetics","key":"preco.abate_coracoes","kind":"NUMERO","def":"120000","desc":"Preco de Chuva de coracoes (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.abate_explosao","kind":"NUMERO","def":"200000","desc":"Preco de Explosao (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.abate_lava","kind":"NUMERO","def":"150000","desc":"Preco de Lava (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.cor_amarelo","kind":"NUMERO","def":"30000","desc":"Preco de Amarelo (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.cor_azul","kind":"NUMERO","def":"30000","desc":"Preco de Azul (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.cor_rosa","kind":"NUMERO","def":"30000","desc":"Preco de Rosa (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.cor_verde","kind":"NUMERO","def":"30000","desc":"Preco de Verde (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.cor_vermelho","kind":"NUMERO","def":"30000","desc":"Preco de Vermelho (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.montaria_nuvem","kind":"NUMERO","def":"500","desc":"Preco de Nuvem Voadora (cash)"}
+,{"plugin":"GoldCosmetics","key":"preco.pingente_caveira","kind":"NUMERO","def":"100000","desc":"Preco de Caveira (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.pingente_coracao","kind":"NUMERO","def":"50000","desc":"Preco de Coracao (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.pingente_coroa","kind":"NUMERO","def":"150000","desc":"Preco de Coroa (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.pingente_estrela","kind":"NUMERO","def":"40000","desc":"Preco de Estrela (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.pingente_musica","kind":"NUMERO","def":"60000","desc":"Preco de Musica (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.pingente_raio","kind":"NUMERO","def":"80000","desc":"Preco de Raio (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.trilha_agua","kind":"NUMERO","def":"80000","desc":"Preco de Respingos (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.trilha_chamas","kind":"NUMERO","def":"150000","desc":"Preco de Chamas (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.trilha_coracoes","kind":"NUMERO","def":"120000","desc":"Preco de Coracoes (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.trilha_encantada","kind":"NUMERO","def":"100000","desc":"Preco de Encantada (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.trilha_fumaca","kind":"NUMERO","def":"60000","desc":"Preco de Fumaca (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.trilha_portal","kind":"NUMERO","def":"110000","desc":"Preco de Portal (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"preco.trilha_redstone","kind":"NUMERO","def":"90000","desc":"Preco de Redstone (centavos: 10000 = $100.00)"}
+,{"plugin":"GoldCosmetics","key":"prefixo","kind":"TEXTO","def":"§5[§dCosmeticos§5]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldCrates","key":"misteriosa.anunciar","kind":"NUMERO","def":"1","desc":"1 = anuncia para todos quando alguem tira um premio raro"}
+,{"plugin":"GoldCrates","key":"misteriosa.mensagem","kind":"TEXTO","def":"&6{jogador} &cganhou um item {raridade} &cna caixa {caixa}!","desc":"Anuncio do premio raro ({jogador}, {raridade}, {caixa}, {premio})"}
+,{"plugin":"GoldCrates","key":"misteriosa.muito_raro","kind":"NUMERO","def":"25","desc":"Chance maxima (em decimos de %) para o premio ser MUITO RARO, com raio (25 = 2,5%)"}
+,{"plugin":"GoldCrates","key":"misteriosa.raro","kind":"NUMERO","def":"50","desc":"Chance maxima (em decimos de %) para o premio ser RARO (50 = 5%)"}
+,{"plugin":"GoldCrates","key":"prefixo","kind":"TEXTO","def":"§d[§5Caixas§d]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldDevice","key":"cps.celular","kind":"NUMERO","def":"12","desc":"Cliques por segundo maximos no celular (Android/iOS)"}
+,{"plugin":"GoldDevice","key":"cps.outros","kind":"NUMERO","def":"12","desc":"Cliques por segundo maximos em plataforma desconhecida"}
+,{"plugin":"GoldDevice","key":"cps.windows","kind":"NUMERO","def":"16","desc":"Cliques por segundo maximos no Windows 10"}
+,{"plugin":"GoldDevice","key":"fps.sugerir_celular","kind":"NUMERO","def":"1","desc":"1 = sugere /fps ao entrar pelo celular, 0 = nao"}
+,{"plugin":"GoldDevice","key":"plataforma.padrao","kind":"TEXTO","def":"android","desc":"Plataforma assumida quando o cliente nao informa (0.15 quase nunca informa): windows ou android"}
+,{"plugin":"GoldDevice","key":"prefixo","kind":"TEXTO","def":"§b[§3Aparelho§b]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldEconomy","key":"banco.valores","kind":"TEXTO","def":"5000,25000,50000,100000,500000","desc":"Valores dos botoes de deposito e saque do /banco (ate 5, separados por virgula)"}
+,{"plugin":"GoldEnchant","key":"prefixo","kind":"TEXTO","def":"§5[§dEncantar§5]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldEssentials","key":"loja.espera","kind":"NUMERO","def":"30","desc":"Segundos entre um /loja e outro"}
+,{"plugin":"GoldEssentials","key":"luz.espera","kind":"NUMERO","def":"0","desc":"Segundos entre um /luz e outro (0 = sem espera)"}
+,{"plugin":"GoldEssentials","key":"mundovip.sem_vip","kind":"TEXTO","def":"&cOpa, este e o mundo VIP. Para acessa-lo adquira um VIP no nosso site.","desc":"Mensagem para quem nao e VIP (| quebra a linha)"}
+,{"plugin":"GoldEssentials","key":"prefixo","kind":"TEXTO","def":"§6[§eGold§6]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldFactions","key":"prefixo","kind":"TEXTO","def":"§4§l»§c» §r§f","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldHG","key":"prefixo","kind":"TEXTO","def":"§7[§fH§cG§7]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldHud","key":"linha1","kind":"TEXTO","def":"&a$ {money} &8| &bCash &f{cash} &8| {tag}","desc":"Linha de cima da barra (placeholders: {money} {cash} {grupo} {tag} {clan} {kdr} {kills} {online} {x} {y} {z} {dir} {mundo} {ping} {armadura}; vazio = sem linha)"}
+,{"plugin":"GoldHud","key":"linha2","kind":"TEXTO","def":"&e{x} {y} {z} &7{dir} &8| &7Clan &f{clan} &8| &7KDR &f{kdr}{armadura}","desc":"Linha de baixo da barra (mesmos placeholders)"}
+,{"plugin":"GoldHud","key":"prefixo","kind":"TEXTO","def":"§9[§bHUD§9]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldKeys","key":"msg.pix","kind":"TEXTO","def":"{destaque}Pague pelo Pix e mande o comprovante no Discord com o numero do pedido.","desc":"Como pagar (chave Pix, link do Discord...)"}
+,{"plugin":"GoldKeys","key":"pedido_horas","kind":"NUMERO","def":"48","desc":"Horas que um pedido espera o pagamento antes de cancelar"}
+,{"plugin":"GoldKeys","key":"pedidos_por_jogador","kind":"NUMERO","def":"3","desc":"Pedidos abertos ao mesmo tempo por jogador"}
+,{"plugin":"GoldKeys","key":"prefixo","kind":"TEXTO","def":"§6[§eKeys§6]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldKeys","key":"validade_horas","kind":"NUMERO","def":"72","desc":"Horas que uma key paga fica valida para resgate"}
+,{"plugin":"GoldKits","key":"prefixo","kind":"TEXTO","def":"§a[§2Kits§a]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldMarket","key":"prefixo","kind":"TEXTO","def":"§6[§eLeilao§6]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldParty","key":"blocos_por_tick","kind":"NUMERO","def":"3000","desc":"Limite de blocos montados por tick somando todas as salas"}
+,{"plugin":"GoldParty","key":"contagem","kind":"NUMERO","def":"30","desc":"Segundos de contagem (cai para 10 com a sala cheia)"}
+,{"plugin":"GoldParty","key":"maximo_jogadores","kind":"NUMERO","def":"8","desc":"Jogadores por sala (ate 8)"}
+,{"plugin":"GoldParty","key":"maximo_salas","kind":"NUMERO","def":"6","desc":"Salas jogando ao mesmo tempo"}
+,{"plugin":"GoldParty","key":"minimo_jogadores","kind":"NUMERO","def":"3","desc":"Jogadores para comecar a contagem"}
+,{"plugin":"GoldParty","key":"mundo_lobby","kind":"TEXTO","def":"","desc":"Mundo para onde os jogadores voltam (vazio = mundo padrao)"}
+,{"plugin":"GoldParty","key":"prefixo","kind":"TEXTO","def":"§d[§fParty§d]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldParty","key":"premio_1","kind":"NUMERO","def":"30000","desc":"Premio do 1o lugar (centavos)"}
+,{"plugin":"GoldParty","key":"premio_2","kind":"NUMERO","def":"15000","desc":"Premio do 2o lugar (centavos)"}
+,{"plugin":"GoldParty","key":"premio_3","kind":"NUMERO","def":"7500","desc":"Premio do 3o lugar (centavos)"}
+,{"plugin":"GoldParty","key":"provas_desligadas","kind":"TEXTO","def":"nenhuma","desc":"Provas fora do sorteio, separadas por virgula (ex.: sumo,water_drop)"}
+,{"plugin":"GoldParty","key":"provas_por_partida","kind":"NUMERO","def":"5","desc":"Quantas provas sao sorteadas por partida"}
+,{"plugin":"GoldProtect","key":"antidupe.avisar_staff","kind":"NUMERO","def":"0","desc":"1 = avisa a staff quando alguem tenta"}
+,{"plugin":"GoldProtect","key":"antidupe.barco","kind":"NUMERO","def":"1","desc":"1 = ninguem sobe em barco"}
+,{"plugin":"GoldProtect","key":"antidupe.carrinho","kind":"NUMERO","def":"1","desc":"1 = ninguem sobe em carrinho (dupe classico)"}
+,{"plugin":"GoldProtect","key":"antidupe.moldura_no_veiculo","kind":"NUMERO","def":"1","desc":"1 = moldura nao pode ser usada de dentro de um veiculo"}
+,{"plugin":"GoldProtect","key":"prefixo","kind":"TEXTO","def":"§2[§aProtecao§2]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldPvP","key":"fraude.advertencia","kind":"TEXTO","def":"{erro}&lAdvertencia {n}/{max}: &r{erro}{motivo}. Repetir expulsa do servidor.","desc":"Aviso ao jogador ({n}, {max}, {motivo})"}
+,{"plugin":"GoldPvP","key":"fraude.advertencias_para_bloquear","kind":"NUMERO","def":"4","desc":"Advertencias em 24 h que bloqueiam o ranked por 24 h"}
+,{"plugin":"GoldPvP","key":"fraude.advertencias_para_expulsar","kind":"NUMERO","def":"3","desc":"Advertencias em 24 h que expulsam"}
+,{"plugin":"GoldPvP","key":"fraude.expulsao","kind":"TEXTO","def":"Fraude no PvP detectada ({motivo}).","desc":"Motivo da expulsao ({motivo})"}
+,{"plugin":"GoldPvP","key":"prefixo","kind":"TEXTO","def":"§4[§cPvP§4]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldShop","key":"prefixo","kind":"TEXTO","def":"§2[§aLoja§2]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldSkills","key":"anuncio.mensagem","kind":"TEXTO","def":"&6&lHABILIDADES: &f{jogador} &eatingiu o nivel &6{nivel} &ena habilidade de &6{habilidade}&e!","desc":"Anuncio de nivel ({jogador}, {nivel}, {habilidade})"}
+,{"plugin":"GoldSkills","key":"anuncio.niveis","kind":"TEXTO","def":"50,100,200,300,400,500,600,700,800,900,1000","desc":"Niveis anunciados para todos (separados por virgula; vazio = nenhum)"}
+,{"plugin":"GoldSkills","key":"booster.multiplicador","kind":"NUMERO","def":"2","desc":"Multiplicador de XP do booster comprado"}
+,{"plugin":"GoldSkills","key":"booster.preco","kind":"NUMERO","def":"10000","desc":"Preco do booster de uma habilidade (moedas)"}
+,{"plugin":"GoldSkills","key":"booster.preco_todas","kind":"NUMERO","def":"50000","desc":"Preco do booster de todas as habilidades (moedas)"}
+,{"plugin":"GoldSkills","key":"booster.segundos","kind":"NUMERO","def":"300","desc":"Duracao do booster comprado (segundos)"}
+,{"plugin":"GoldSkills","key":"poderes","kind":"NUMERO","def":"0","desc":"1 = liga os poderes (agachar com a ferramenta); 0 = desligados como no mcMMO do pack"}
+,{"plugin":"GoldSkills","key":"poderes.recarga","kind":"NUMERO","def":"240","desc":"Segundos de recarga de cada poder"}
+,{"plugin":"GoldSkills","key":"prefixo","kind":"TEXTO","def":"§6[§eHabilidades§6]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldSkills","key":"toptag","kind":"TEXTO","def":"&9[⚒]","desc":"Tag do 1o no ranking de poder (placeholder {mctop} no chat)"}
+,{"plugin":"GoldSkyWars","key":"contagem","kind":"NUMERO","def":"20","desc":"Segundos de contagem nas jaulas (cai para 10 com a sala cheia)"}
+,{"plugin":"GoldSkyWars","key":"duracao","kind":"NUMERO","def":"900","desc":"Duracao maxima da partida em segundos (depois e empate)"}
+,{"plugin":"GoldSkyWars","key":"kit.armeiro","kind":"NUMERO","def":"150000","desc":"Preco do kit Armeiro (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.arqueiro","kind":"NUMERO","def":"200000","desc":"Preco do kit Arqueiro (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.batedor","kind":"NUMERO","def":"200000","desc":"Preco do kit Batedor (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.beisebol","kind":"NUMERO","def":"150000","desc":"Preco do kit Jogador de Beisebol (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.boneco","kind":"NUMERO","def":"100000","desc":"Preco do kit Boneco de Neve (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.canhoneiro","kind":"NUMERO","def":"250000","desc":"Preco do kit Canhoneiro (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.cavaleiro","kind":"NUMERO","def":"250000","desc":"Preco do kit Cavaleiro (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.construtor","kind":"NUMERO","def":"100000","desc":"Preco do kit Construtor (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.curandeiro","kind":"NUMERO","def":"250000","desc":"Preco do kit Curandeiro (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.ecologista","kind":"NUMERO","def":"150000","desc":"Preco do kit Ecologista (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.enderman","kind":"NUMERO","def":"400000","desc":"Preco do kit Enderman (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.espeleologo","kind":"NUMERO","def":"300000","desc":"Preco do kit Espeleologo (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.fazendeiro","kind":"NUMERO","def":"100000","desc":"Preco do kit Fazendeiro (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.granadeiro","kind":"NUMERO","def":"300000","desc":"Preco do kit Granadeiro (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.piromano","kind":"NUMERO","def":"250000","desc":"Preco do kit Piromaniaco (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.princesa","kind":"NUMERO","def":"350000","desc":"Preco do kit Princesa (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.sapo","kind":"NUMERO","def":"100000","desc":"Preco do kit Sapo (centavos)"}
+,{"plugin":"GoldSkyWars","key":"kit.troll","kind":"NUMERO","def":"150000","desc":"Preco do kit Troll (centavos)"}
+,{"plugin":"GoldSkyWars","key":"minimo_jogadores","kind":"NUMERO","def":"2","desc":"Jogadores para comecar a contagem"}
+,{"plugin":"GoldSkyWars","key":"mundo_lobby","kind":"TEXTO","def":"","desc":"Mundo para onde os jogadores voltam (vazio = mundo padrao)"}
+,{"plugin":"GoldSkyWars","key":"prefixo","kind":"TEXTO","def":"§b[§fSky§bWars]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldSkyWars","key":"premio_abate","kind":"NUMERO","def":"2000","desc":"Dinheiro por abate (centavos)"}
+,{"plugin":"GoldSkyWars","key":"premio_vitoria","kind":"NUMERO","def":"10000","desc":"Dinheiro por vitoria (centavos)"}
+,{"plugin":"GoldSkyWars","key":"refil_1","kind":"NUMERO","def":"180","desc":"Segundo da partida do primeiro refil dos baus"}
+,{"plugin":"GoldSkyWars","key":"refil_2","kind":"NUMERO","def":"360","desc":"Segundo da partida do segundo refil dos baus"}
+,{"plugin":"GoldStaff","key":"discord_tickets","kind":"NUMERO","def":"0","desc":"1 = manda o resumo de cada atendimento finalizado para o Discord do painel"}
+,{"plugin":"GoldStaff","key":"groq_chave","kind":"TEXTO","def":"","desc":"Chave da API da Groq (gsk_...) para a triagem do /suporte; vazia = sem IA"}
+,{"plugin":"GoldStaff","key":"groq_modelo","kind":"TEXTO","def":"openai/gpt-oss-20b","desc":"Modelo da Groq usado na triagem"}
+,{"plugin":"GoldStaff","key":"groq_url","kind":"TEXTO","def":"https://api.groq.com/openai/v1/chat/completions","desc":"Endereco da API de chat (so mude se souber o que faz)"}
+,{"plugin":"GoldStaff","key":"prefixo","kind":"TEXTO","def":"§4[§cStaff§4]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldStaff","key":"suporte_espera","kind":"NUMERO","def":"60","desc":"Segundos entre um ticket e outro do mesmo jogador"}
+,{"plugin":"GoldStaff","key":"suporte_prefixo","kind":"TEXTO","def":"&b[Suporte]&f ","desc":"Prefixo das mensagens do /suporte"}
+,{"plugin":"GoldStaff","key":"triagem_perguntas","kind":"NUMERO","def":"2","desc":"Perguntas que a IA pode fazer antes de mandar para a equipe (1 a 6)"}
+,{"plugin":"GoldVault","key":"prefixo","kind":"TEXTO","def":"§5[§dBau§5]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldVip","key":"prefixo","kind":"TEXTO","def":"§6[§eVIP§6]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldWorld","key":"prefixo","kind":"TEXTO","def":"§2[§aMundos§2]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"Servidor","key":"alerta.prefixo","kind":"TEXTO","def":"{erro}[Alerta]","desc":"Prefixo dos alertas para a staff"}
+,{"plugin":"Servidor","key":"cor.destaque","kind":"TEXTO","def":"&b","desc":"Cor destaque da paleta (ex.: &6 ou &6&l)"}
+,{"plugin":"Servidor","key":"cor.erro","kind":"TEXTO","def":"&c","desc":"Cor erro da paleta (ex.: &6 ou &6&l)"}
+,{"plugin":"Servidor","key":"cor.primaria","kind":"TEXTO","def":"&6","desc":"Cor primaria da paleta (ex.: &6 ou &6&l)"}
+,{"plugin":"Servidor","key":"cor.secundaria","kind":"TEXTO","def":"&e","desc":"Cor secundaria da paleta (ex.: &6 ou &6&l)"}
+,{"plugin":"Servidor","key":"cor.sucesso","kind":"TEXTO","def":"&a","desc":"Cor sucesso da paleta (ex.: &6 ou &6&l)"}
+,{"plugin":"Servidor","key":"cor.texto","kind":"TEXTO","def":"&f","desc":"Cor texto da paleta (ex.: &6 ou &6&l)"}
+,{"plugin":"Servidor","key":"discord.nome","kind":"TEXTO","def":"Nukkit Gold","desc":"Nome do bot nos avisos do Discord"}
+],"commands":[
+{"plugin":"GoldCore","name":"painel","desc":"Painel de configuracao do servidor (cores, mensagens, valores, Discord)","usage":"/painel [ver|set|discord|msg|mensagens recarregar]","perm":null,"aliases":"gpainel"}
+,{"plugin":"GoldProtect","name":"area","desc":"Gerencia areas protegidas","usage":"/area","perm":"goldprotect.admin","aliases":"protecao"}
+,{"plugin":"GoldProtect","name":"mundoprotecao","desc":"Protecao de um mundo inteiro","usage":"/mundoprotecao <mundo> <construir|pvp|interagir|dano> <on|off>","perm":"goldprotect.admin","aliases":""}
+,{"plugin":"GoldProtect","name":"antivoid","desc":"Liga ou desliga o anti-void","usage":"/antivoid [mundo]","perm":"goldprotect.admin","aliases":""}
+,{"plugin":"GoldCrates","name":"caixa","desc":"Gerencia caixas e entrega chaves","usage":"/caixa","perm":"goldcrates.admin","aliases":"crate,caixas"}
+,{"plugin":"GoldWorld","name":"mundo","desc":"Gerencia e visita mundos","usage":"/mundo","perm":null,"aliases":"mw,mundos"}
+,{"plugin":"GoldWorld","name":"fundir","desc":"Funde os itens do inventario na hora","usage":"/fundir","perm":"goldworld.fundir","aliases":"smelt"}
+,{"plugin":"GoldDevice","name":"fps","desc":"Liga ou desliga o modo leve (menos efeitos)","usage":"/fps","perm":null,"aliases":"leve"}
+,{"plugin":"GoldDevice","name":"plataforma","desc":"Mostra a plataforma e o limite de CPS","usage":"/plataforma [jogador] | definir <jogador> <windows|android|ios>","perm":null,"aliases":"aparelho"}
+,{"plugin":"GoldBuild","name":"we","desc":"Edicao de mundo","usage":"/we pos1|pos2|set|walls|replace|esfera|undo","perm":"goldbuild.admin","aliases":"worldedit,magicwe"}
+,{"plugin":"GoldAuth","name":"registrar","desc":"Cria sua conta neste servidor","usage":"/registrar <senha> <confirmacao>","perm":"goldauth.use","aliases":"register,reg"}
+,{"plugin":"GoldAuth","name":"login","desc":"Autentica sua conta neste servidor","usage":"/login <senha>","perm":"goldauth.use","aliases":"l"}
+,{"plugin":"GoldAuth","name":"senha","desc":"Altera a senha da sua conta","usage":"/senha <senha_atual> <nova_senha>","perm":"goldauth.use","aliases":"changepassword"}
+,{"plugin":"GoldAuth","name":"2fa","desc":"Verificacao em duas etapas (app autenticador) e aparelhos confiaveis","usage":"/2fa [ativar|confirmar <codigo>|desativar <codigo>|aparelhos [limpar]|<codigo>]","perm":"goldauth.use","aliases":"doisfatores"}
+,{"plugin":"GoldAuth","name":"authreset","desc":"Remove o registro local de uma conta","usage":"/authreset <jogador>","perm":"goldauth.admin","aliases":""}
+,{"plugin":"GoldEssentials","name":"sethome","desc":"Salva uma home","usage":"/sethome [nome]","perm":null,"aliases":""}
+,{"plugin":"GoldEssentials","name":"home","desc":"Vai para uma home","usage":"/home [nome]","perm":null,"aliases":"casa"}
+,{"plugin":"GoldEssentials","name":"delhome","desc":"Apaga uma home","usage":"/delhome <nome>","perm":null,"aliases":""}
+,{"plugin":"GoldEssentials","name":"warp","desc":"Lista ou usa warps","usage":"/warp [nome]","perm":null,"aliases":"warps"}
+,{"plugin":"GoldEssentials","name":"setwarp","desc":"Cria warp","usage":"/setwarp <nome>","perm":"goldessentials.admin","aliases":""}
+,{"plugin":"GoldEssentials","name":"delwarp","desc":"Apaga warp","usage":"/delwarp <nome>","perm":"goldessentials.admin","aliases":""}
+,{"plugin":"GoldEssentials","name":"spawn","desc":"Vai ao spawn","usage":"/spawn","perm":null,"aliases":"lobby"}
+,{"plugin":"GoldEssentials","name":"setspawn","desc":"Define o spawn","usage":"/setspawn","perm":"goldessentials.admin","aliases":""}
+,{"plugin":"GoldEssentials","name":"tpa","desc":"Pede para ir ate um jogador","usage":"/tpa <jogador>","perm":null,"aliases":""}
+,{"plugin":"GoldEssentials","name":"tpahere","desc":"Pede para um jogador vir ate voce","usage":"/tpahere <jogador>","perm":null,"aliases":""}
+,{"plugin":"GoldEssentials","name":"tpaccept","desc":"Aceita pedido de teleporte","usage":"/tpaccept","perm":null,"aliases":"tpaceitar"}
+,{"plugin":"GoldEssentials","name":"tpdeny","desc":"Recusa pedido de teleporte","usage":"/tpdeny","perm":null,"aliases":"tprecusar"}
+,{"plugin":"GoldEssentials","name":"back","desc":"Volta ao ultimo local","usage":"/back","perm":"goldessentials.back","aliases":"voltar"}
+,{"plugin":"GoldEssentials","name":"fly","desc":"Liga ou desliga o voo","usage":"/fly [jogador]","perm":"goldessentials.fly","aliases":"voar"}
+,{"plugin":"GoldEssentials","name":"config","desc":"Preferencias (tell, tpa e recebimento de coins)","usage":"/config","perm":null,"aliases":"preferencias"}
+,{"plugin":"GoldEssentials","name":"luz","desc":"Liga ou desliga a lanterna (visao noturna)","usage":"/luz","perm":"goldessentials.luz","aliases":"lanterna"}
+,{"plugin":"GoldEssentials","name":"setloja","desc":"Marca a sua loja aqui","usage":"/setloja [remover]","perm":"goldessentials.setloja","aliases":""}
+,{"plugin":"GoldEssentials","name":"loja","desc":"Vai ate a loja de um jogador","usage":"/loja <jogador>","perm":null,"aliases":""}
+,{"plugin":"GoldEssentials","name":"mundovip","desc":"Vai ao mundo VIP","usage":"/mundovip | /mundovip definir|remover","perm":null,"aliases":""}
+,{"plugin":"GoldEssentials","name":"tpall","desc":"Traz todos ate voce","usage":"/tpall","perm":"goldessentials.admin","aliases":""}
+,{"plugin":"GoldPerms","name":"grupo","desc":"Administra grupos e permissoes","usage":"/grupo listar|ver <jogador>|criar <grupo>|herdar <grupo> <pai/nenhum>|permissao <grupo> <no> <true/false/remover>|jogador <nome> <grupo>|peso <grupo> <0-1000>|tag <grupo> <tag/nenhuma>|staff <grupo> on/off|descricao <grupo> <texto>|padroes|apagar <grupo>","perm":"goldperms.admin","aliases":""}
+,{"plugin":"GoldPerms","name":"cargo","desc":"Da ou tira cargos de quem esta abaixo de voce","usage":"/cargo <jogador> <cargo> [dias] | /cargo remover <jogador>","perm":"goldperms.cargo","aliases":""}
+,{"plugin":"GoldPerms","name":"cargos","desc":"Mostra a hierarquia e o que cada cargo pode fazer","usage":"/cargos [cargo]","perm":null,"aliases":""}
+,{"plugin":"GoldPerms","name":"equipe","desc":"Mostra a equipe online","usage":"/equipe","perm":null,"aliases":"staff"}
+,{"plugin":"GoldNPC","name":"npc","desc":"Cria e configura NPCs","usage":"/npc","perm":"goldnpc.admin","aliases":"slapper"}
+,{"plugin":"GoldChat","name":"tell","desc":"Mensagem privada","usage":"/tell <jogador> <mensagem>","perm":null,"aliases":"msg,w"}
+,{"plugin":"GoldChat","name":"r","desc":"Responde a ultima mensagem privada","usage":"/r <mensagem>","perm":null,"aliases":"responder"}
+,{"plugin":"GoldChat","name":"tellon","desc":"Liga ou desliga mensagens privadas","usage":"/tellon","perm":null,"aliases":"desativartell"}
+,{"plugin":"GoldChat","name":"chat","desc":"Liga ou desliga o chat e edita formatos, entrada/saida e anuncios","usage":"/chat on|off|formatos|formato|entrada|saida|anuncio","perm":"goldchat.staff","aliases":""}
+,{"plugin":"GoldChat","name":"limparchat","desc":"Limpa o chat","usage":"/limparchat","perm":"goldchat.staff","aliases":"cc"}
+,{"plugin":"GoldChat","name":"mute","desc":"Silencia um jogador","usage":"/mute <jogador> [minutos, 0 = sempre]","perm":"goldchat.staff","aliases":""}
+,{"plugin":"GoldChat","name":"desmute","desc":"Tira o silencio","usage":"/desmute <jogador>","perm":"goldchat.staff","aliases":""}
+,{"plugin":"GoldChat","name":"aviso","desc":"Aviso grande no chat e no meio da tela","usage":"/aviso <texto>","perm":"goldchat.staff","aliases":""}
+,{"plugin":"GoldChat","name":"anuncio","desc":"Anuncio para todos","usage":"/anuncio <texto>","perm":"goldchat.staff","aliases":"bc"}
+,{"plugin":"GoldKits","name":"kit","desc":"Resgata ou cria kits","usage":"/kit <nome> | criar <nome> <minutos> [restrito] | apagar <nome>","perm":null,"aliases":""}
+,{"plugin":"GoldKits","name":"kits","desc":"Menu de kits","usage":"/kits","perm":null,"aliases":""}
+,{"plugin":"GoldVault","name":"ec","desc":"Abre seu bau pessoal","usage":"/ec [jogador]","perm":"goldvault.usar","aliases":"bau,enderchest"}
+,{"plugin":"GoldEconomy","name":"money","desc":"Consulta moedas","usage":"/money [jogador]","perm":null,"aliases":"saldo"}
+,{"plugin":"GoldEconomy","name":"cash","desc":"Consulta cash","usage":"/cash [jogador]","perm":null,"aliases":""}
+,{"plugin":"GoldEconomy","name":"banco","desc":"Banco Central (deposito e saque em conta separada da carteira)","usage":"/banco | /banco depositar <valor> | /banco sacar <valor>","perm":null,"aliases":"bancocentral"}
+,{"plugin":"GoldEconomy","name":"pagar","desc":"Transfere moedas","usage":"/pagar <jogador> <valor>","perm":null,"aliases":""}
+,{"plugin":"GoldEconomy","name":"trocarcash","desc":"Troca cada cash por 100 moedas","usage":"/trocarcash <quantidade>","perm":null,"aliases":""}
+,{"plugin":"GoldEconomy","name":"topmoney","desc":"Mostra os dez maiores saldos","usage":"/topmoney","perm":null,"aliases":""}
+,{"plugin":"GoldEconomy","name":"economia","desc":"Administra moedas e cash","usage":"/economia <adicionar/retirar/definir> <money/cash> <jogador> <valor>","perm":"goldeconomy.admin","aliases":""}
+,{"plugin":"GoldHud","name":"hud","desc":"Liga ou desliga a barra","usage":"/hud | /hud mundo <mundo>","perm":null,"aliases":"cordenadas,coords"}
+,{"plugin":"GoldHud","name":"id","desc":"Mostra o id do item na mao","usage":"/id","perm":null,"aliases":"itemid"}
+,{"plugin":"GoldSkyWars","name":"sw","desc":"SkyWars","usage":"/sw [entrar solo|dupla|sair|kits|stats|top]","perm":null,"aliases":"skywars"}
+,{"plugin":"GoldHG","name":"hg","desc":"Hunger Games","usage":"/hg entrar [arena] | sair | lista","perm":null,"aliases":""}
+,{"plugin":"GoldHG","name":"hgkit","desc":"Escolhe o kit do HG","usage":"/hgkit [nome]","perm":null,"aliases":""}
+,{"plugin":"GoldHG","name":"hgkits","desc":"Abre o menu de kits do HG","usage":"/hgkits","perm":null,"aliases":""}
+,{"plugin":"GoldHG","name":"sopa","desc":"Liga ou desliga tomar sopa ao selecionar o slot","usage":"/sopa","perm":null,"aliases":""}
+,{"plugin":"GoldVip","name":"vip","desc":"Ativa chaves e mostra o tempo de VIP","usage":"/vip ativar <chave> | tempo","perm":null,"aliases":"chave,key"}
+,{"plugin":"GoldBreaker","name":"reparar","desc":"Repara o item da mao ou tudo","usage":"/reparar [tudo]","perm":"goldbreaker.reparar","aliases":"repair,fix"}
+,{"plugin":"GoldBreaker","name":"enviar","desc":"Envia o item da mao a outro jogador","usage":"/enviar <jogador>","perm":"goldbreaker.enviar","aliases":"send"}
+,{"plugin":"GoldBedWars","name":"bw","desc":"BedWars","usage":"/bw [entrar solo|dupla|quarteto|sair|loja|melhorias|stats|top]","perm":null,"aliases":"bedwars"}
+,{"plugin":"GoldMarket","name":"leilao","desc":"Leilao de itens","usage":"/leilao [vender <preco> | meus | cancelar <id> | coletar]","perm":null,"aliases":"olx,ah,mercado"}
+,{"plugin":"GoldStaff","name":"suporte","desc":"Abre um ticket de atendimento com a equipe","usage":"/suporte [mensagem] | /suporte sair | /suporte cancelar","perm":null,"aliases":"ticket,atendimento"}
+,{"plugin":"GoldStaff","name":"atender","desc":"Atende um ticket do suporte","usage":"/atender [numero]","perm":"goldstaff.suporte","aliases":""}
+,{"plugin":"GoldStaff","name":"finalizar","desc":"Finaliza o atendimento atual","usage":"/finalizar [resultado]","perm":null,"aliases":""}
+,{"plugin":"GoldStaff","name":"avaliar","desc":"Avalia o ultimo atendimento","usage":"/avaliar <1 a 5>","perm":null,"aliases":""}
+,{"plugin":"GoldStaff","name":"tickets","desc":"Fila, historico e metricas do suporte","usage":"/tickets [ver <n>|fechar <n> [motivo]|metricas [dias]]","perm":"goldstaff.suporte","aliases":""}
+,{"plugin":"GoldStaff","name":"ajuda","desc":"Mostra a ajuda do servidor","usage":"/ajuda","perm":null,"aliases":"comandos"}
+,{"plugin":"GoldStaff","name":"report","desc":"Denuncia um jogador","usage":"/report <jogador> <motivo>","perm":null,"aliases":"denunciar"}
+,{"plugin":"GoldStaff","name":"reports","desc":"Lista ou fecha denuncias","usage":"/reports [fechar <id>]","perm":"goldstaff.reports","aliases":""}
+,{"plugin":"GoldStaff","name":"giveall","desc":"Da um item a todos","usage":"/giveall <id[:meta]> [quantidade]","perm":"goldstaff.admin","aliases":""}
+,{"plugin":"GoldStaff","name":"bloquearcmd","desc":"Bloqueia ou libera um comando para jogadores","usage":"/bloquearcmd [comando]","perm":"goldstaff.admin","aliases":""}
+,{"plugin":"GoldStaff","name":"clearlag","desc":"Remove itens no chao agora","usage":"/clearlag","perm":"goldstaff.admin","aliases":""}
+,{"plugin":"GoldStaff","name":"agendar","desc":"Comando de console repetido","usage":"/agendar <minutos|remover> <comando>","perm":"goldstaff.admin","aliases":""}
+,{"plugin":"GoldStaff","name":"restart","desc":"Reinicia o servidor com aviso","usage":"/restart [segundos] | /restart auto <horas>","perm":"goldstaff.admin","aliases":""}
+,{"plugin":"GoldShop","name":"vender","desc":"Vende o item da mao ou tudo pela tabela de precos","usage":"/vender [tudo]","perm":null,"aliases":"venderall,sell"}
+,{"plugin":"GoldShop","name":"preco","desc":"Define o preco de venda de um item","usage":"/preco <id[:meta]> <valor|remover>","perm":"goldshop.admin","aliases":""}
+,{"plugin":"GoldFactions","name":"f","desc":"Faccoes","usage":"/f","perm":null,"aliases":"faccao,fac"}
+,{"plugin":"GoldEnchant","name":"encantar","desc":"Abre o encantador para o item da mao","usage":"/encantar | /encantar preco <id> <valor> | /encantar <id> <nivel>","perm":null,"aliases":"mago,enchant"}
+,{"plugin":"GoldComandos","name":"zona","desc":"Configura as zonas (grupos de mundos) e os comandos de cada uma","usage":"/zona lista|ver|criar|apagar|mundo|modo|cmd|boasvindas|ajuda|item|sempre|plugin|recurso|recursos|hud","perm":"goldcomandos.admin","aliases":""}
+,{"plugin":"GoldComandos","name":"opseguro","desc":"IPs de onde o OP pode ser usado (so pelo console)","usage":"/opseguro add <nick> <ip> | remover <nick> [ip] | exigir on|off","perm":null,"aliases":""}
+,{"plugin":"GoldCosmetics","name":"cosmeticos","desc":"Menu de cosmeticos","usage":"/cosmeticos [tirar|lista|dar <jogador> <id>]","perm":null,"aliases":"cosmetico,cos"}
+,{"plugin":"GoldSkills","name":"skills","desc":"Menu das habilidades ou detalhes de uma","usage":"/skills [habilidade]","perm":null,"aliases":"habilidades,mcmmo,habilidade"}
+,{"plugin":"GoldSkills","name":"mcstats","desc":"Niveis de todas as habilidades","usage":"/mcstats [jogador]","perm":null,"aliases":""}
+,{"plugin":"GoldSkills","name":"mctop","desc":"Ranking de habilidades","usage":"/mctop [habilidade] [pagina]","perm":null,"aliases":""}
+,{"plugin":"GoldSkills","name":"mcrank","desc":"Posicoes de um jogador no ranking","usage":"/mcrank [jogador]","perm":null,"aliases":""}
+,{"plugin":"GoldSkills","name":"mcability","desc":"Liga ou desliga a ativacao dos poderes","usage":"/mcability","perm":null,"aliases":""}
+,{"plugin":"GoldSkills","name":"booster","desc":"Compra boosters de XP","usage":"/booster","perm":null,"aliases":"boosters"}
+,{"plugin":"GoldSkills","name":"darbooster","desc":"Da um booster de XP","usage":"/darbooster <jogador> <habilidade|todas> <multiplicador> <minutos>","perm":"goldskills.admin","aliases":""}
+,{"plugin":"GoldSkills","name":"xprate","desc":"Evento de XP para todos","usage":"/xprate <multiplicador> <minutos> | /xprate reset","perm":"goldskills.admin","aliases":""}
+,{"plugin":"GoldSkills","name":"addlevels","desc":"Soma niveis","usage":"/addlevels <jogador> <habilidade|todas> <niveis>","perm":"goldskills.admin","aliases":""}
+,{"plugin":"GoldSkills","name":"addxp","desc":"Soma XP","usage":"/addxp <jogador> <habilidade|todas> <xp>","perm":"goldskills.admin","aliases":""}
+,{"plugin":"GoldSkills","name":"mmoedit","desc":"Define o nivel","usage":"/mmoedit <jogador> <habilidade|todas> <nivel>","perm":"goldskills.admin","aliases":""}
+,{"plugin":"GoldSkills","name":"skillreset","desc":"Zera as habilidades","usage":"/skillreset <jogador> [habilidade]","perm":"goldskills.admin","aliases":""}
+,{"plugin":"GoldKeys","name":"key","desc":"Loja de keys","usage":"/key [produtos|comprar <produto>|resgatar <codigo>]","perm":null,"aliases":"keys"}
+,{"plugin":"GoldParty","name":"party","desc":"Party de minigames","usage":"/party entrar|sair|top|stats [nick]|salas","perm":null,"aliases":""}
+,{"plugin":"GoldPvP","name":"perfil","desc":"Perfil detalhado","usage":"/perfil [jogador]","perm":null,"aliases":"stats"}
+,{"plugin":"GoldPvP","name":"topkills","desc":"Ranking de abates","usage":"/topkills","perm":null,"aliases":"topabates"}
+,{"plugin":"GoldPvP","name":"topranked","desc":"Ranking do ranked","usage":"/topranked","perm":null,"aliases":"toprank"}
+,{"plugin":"GoldPvP","name":"ranked","desc":"Modo ranked 1v1","usage":"/ranked [fila|sair]","perm":null,"aliases":"rank,x1"}
+,{"plugin":"GoldPvP","name":"elos","desc":"Lista de elos do ranked","usage":"/elos","perm":null,"aliases":"ranks"}
+,{"plugin":"GoldPvP","name":"elochat","desc":"Mostra ou esconde o elo no chat","usage":"/elochat","perm":null,"aliases":""}
+],"perms":[
+{"plugin":"GoldCore","name":"goldcore.painel","desc":"Abre e edita o painel de configuracao","def":"op"}
+,{"plugin":"GoldCore","name":"goldcore.alertas","desc":"Recebe os alertas da staff (anti-fraude e outros)","def":"op"}
+,{"plugin":"GoldProtect","name":"goldprotect.admin","desc":"Ignora protecoes e cria areas","def":"op"}
+,{"plugin":"GoldCrates","name":"goldcrates.admin","desc":"Cria caixas e da chaves","def":"op"}
+,{"plugin":"GoldWorld","name":"goldworld.admin","desc":"Cria, carrega e configura mundos","def":"op"}
+,{"plugin":"GoldWorld","name":"goldworld.fundir","desc":"Usa /fundir (dar ao VIP)","def":"op"}
+,{"plugin":"GoldDevice","name":"golddevice.admin","desc":"Corrige a plataforma de um jogador","def":"op"}
+,{"plugin":"GoldBuild","name":"goldbuild.admin","desc":"Usa a edicao de mundo","def":"op"}
+,{"plugin":"GoldAuth","name":"goldauth.use","desc":"Permite registrar e autenticar sua propria conta","def":"true"}
+,{"plugin":"GoldAuth","name":"goldauth.admin","desc":"Permite remover o registro de outras contas","def":"op"}
+,{"plugin":"GoldEssentials","name":"goldessentials.admin","desc":"Warps, spawn e tpall","def":"op"}
+,{"plugin":"GoldEssentials","name":"goldessentials.back","desc":"Usa /back","def":"true"}
+,{"plugin":"GoldEssentials","name":"goldessentials.fly","desc":"Usa /fly (dar ao grupo vip pelo GoldPerms)","def":"op"}
+,{"plugin":"GoldEssentials","name":"goldessentials.fly.outros","desc":"Liga o voo de outro jogador","def":"op"}
+,{"plugin":"GoldEssentials","name":"goldessentials.instantaneo","desc":"Teleporta sem contagem","def":"op"}
+,{"plugin":"GoldEssentials","name":"goldessentials.warp.todas","desc":"Usa todas as warps","def":"true"}
+,{"plugin":"GoldEssentials","name":"goldessentials.homes.vip","desc":"5 homes em vez de 2","def":"false"}
+,{"plugin":"GoldEssentials","name":"goldessentials.luz","desc":"Usa /luz (dar ao VIP pelo GoldPerms)","def":"op"}
+,{"plugin":"GoldEssentials","name":"goldessentials.setloja","desc":"Marca a propria loja com /setloja (dar ao VIP)","def":"op"}
+,{"plugin":"GoldEssentials","name":"goldessentials.mundovip","desc":"Entra no mundo VIP (dar ao VIP)","def":"op"}
+,{"plugin":"GoldPerms","name":"goldperms.admin","desc":"Administra grupos e permissoes","def":"op"}
+,{"plugin":"GoldPerms","name":"goldperms.cargo","desc":"Da cargos abaixo do proprio","def":"op"}
+,{"plugin":"GoldNPC","name":"goldnpc.admin","desc":"Cria, edita e remove NPCs","def":"op"}
+,{"plugin":"GoldChat","name":"goldchat.staff","desc":"Ignora anti-spam e modera o chat","def":"op"}
+,{"plugin":"GoldChat","name":"goldchat.cores","desc":"Usa & para cores no chat","def":"op"}
+,{"plugin":"GoldChat","name":"goldchat.links","desc":"Pode enviar links","def":"op"}
+,{"plugin":"GoldKits","name":"goldkits.admin","desc":"Cria e apaga kits e usa todos","def":"op"}
+,{"plugin":"GoldVault","name":"goldvault.usar","desc":"Usa o bau pessoal","def":"true"}
+,{"plugin":"GoldVault","name":"goldvault.admin","desc":"Abre o bau de outros jogadores","def":"op"}
+,{"plugin":"GoldEconomy","name":"goldeconomy.admin","desc":"Altera os saldos de outras contas","def":"op"}
+,{"plugin":"GoldHud","name":"goldhud.admin","desc":"Esconde a barra em mundos","def":"op"}
+,{"plugin":"GoldSkyWars","name":"goldskywars.admin","desc":"Cria e edita arenas do SkyWars","def":"op"}
+,{"plugin":"GoldHG","name":"goldhg.admin","desc":"Cria arenas e controla partidas","def":"op"}
+,{"plugin":"GoldVip","name":"goldvip.admin","desc":"Gera chaves e da VIP","def":"op"}
+,{"plugin":"GoldBreaker","name":"goldbreaker.reparar","desc":"Usa /reparar pago","def":"true"}
+,{"plugin":"GoldBreaker","name":"goldbreaker.reparar.tudo","desc":"Repara inventario e armadura de uma vez","def":"op"}
+,{"plugin":"GoldBreaker","name":"goldbreaker.reparar.gratis","desc":"Repara sem pagar","def":"op"}
+,{"plugin":"GoldBreaker","name":"goldbreaker.enviar","desc":"Usa /enviar","def":"true"}
+,{"plugin":"GoldBedWars","name":"goldbedwars.admin","desc":"Cria e edita arenas do BedWars","def":"op"}
+,{"plugin":"GoldMarket","name":"goldmarket.admin","desc":"Cancela anuncios de outros","def":"op"}
+,{"plugin":"GoldStaff","name":"goldstaff.admin","desc":"Ferramentas da staff (giveall, clearlag, restart) e usa os comandos bloqueados","def":"op"}
+,{"plugin":"GoldStaff","name":"goldstaff.reports","desc":"Recebe e fecha denuncias","def":"op"}
+,{"plugin":"GoldStaff","name":"goldstaff.suporte","desc":"Recebe os avisos de ticket e atende o /suporte","def":"op"}
+,{"plugin":"GoldStaff","name":"goldstaff.metricas","desc":"Ve as metricas de atendimento da equipe","def":"op"}
+,{"plugin":"GoldShop","name":"goldshop.admin","desc":"Cria placas de compra e venda e gerencia lojas","def":"op"}
+,{"plugin":"GoldFactions","name":"goldfactions.admin","desc":"Ignora territorio e configura mundos, pesos e mini mapa","def":"op"}
+,{"plugin":"GoldEnchant","name":"goldenchant.admin","desc":"Define precos e aplica qualquer nivel","def":"op"}
+,{"plugin":"GoldComandos","name":"goldcomandos.admin","desc":"Configura as zonas de comandos","def":"op"}
+,{"plugin":"GoldComandos","name":"goldcomandos.bypass","desc":"Usa qualquer comando em qualquer zona","def":"op"}
+,{"plugin":"GoldCosmetics","name":"goldcosmetics.admin","desc":"Entrega cosmeticos","def":"op"}
+,{"plugin":"GoldSkills","name":"goldskills.admin","desc":"Edita niveis, da boosters e cria eventos de XP","def":"op"}
+,{"plugin":"GoldKeys","name":"goldkeys.admin","desc":"Confirma pagamentos, gera keys e configura produtos","def":"op"}
+,{"plugin":"GoldParty","name":"goldparty.admin","desc":"Forca o inicio e reconstroi as arenas do Party","def":"op"}
+,{"plugin":"GoldPvP","name":"goldpvp.admin","desc":"Configura o ranked e ignora o combat log","def":"op"}
+],"placeholders":[
+"kills"
+,"ping"
+,"clan_tag"
+,"nivel_arqueiro"
+,"grupo"
+,"dir"
+,"nivel_desarmado"
+,"mctop"
+,"nivel_herbalismo"
+,"nivel_reparacao"
+,"armadura"
+,"tag"
+,"nivel_acrobacia"
+,"cash"
+,"deaths"
+,"nivel_mineracao"
+,"nivel_escavacao"
+,"max"
+,"money_exato"
+,"mundo"
+,"banco"
+,"nome"
+,"poder"
+,"nivel_lenhador"
+,"money"
+,"x"
+,"clan"
+,"kdr"
+,"online"
+,"y"
+,"z"
+,"nivel_machado"
+,"nivel_espadas"
+]}

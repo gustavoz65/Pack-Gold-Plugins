@@ -75,6 +75,8 @@ os_comandos_da_lista_ficam_bloqueados: "os comandos da lista ficam bloqueados"
 para_desligar_um_plugin_inteiro_comandos: "&7Para desligar um plugin inteiro (comandos e recursos): /zona plugin <zona> <Plugin>, ex.: GoldFactions, GoldSkyWars, GoldPvP."
 # {0} = z, {1} = z
 plugins_desligados_na_zona_atualizados_zona: "Plugins desligados na zona {0} atualizados (/zona ver {1})."
+# {0} = nick, {1} = ip
+pode_usar_op_pelo_ip: "{0} pode usar OP pelo IP {1}."
 poderes_das_habilidades: "Poderes das habilidades"
 primeira_vez: " (primeira vez)"
 recurso_no_formato_plugin_recurso_veja: "Recurso no formato plugin.recurso (veja /zona recursos)."
@@ -102,6 +104,8 @@ uso_zona_item_zona_slot_1: "Uso: /zona item <zona> <slot 1-9> <id[:meta]> <nome_
 # {0} = z
 zona: "&6--- Zona {0} ---"
 zona_boasvindas_zona_texto_nenhuma_boasvindas: "/zona boasvindas <zona> <texto|nenhuma> | boasvindas_sempre <zona> on|off | ajuda <zona> <linha|limpar> | item <zona> <slot> <id[:meta]> <nome> <comando> | itemremover <zona> <slot> | sempre <comando>"
+# {0} = z, {1} = z
+zona_criada_adicione_mundos_zona_mundo: "Zona {0} criada. Adicione mundos: /zona mundo {1} <mundo>"
 # {0} = z
 zona_inexistente: "Zona inexistente: {0}"
 zona_inexistente_2: "Zona inexistente."
@@ -112,4 +116,6 @@ zona_lista_ver_zona_criar_zona: "/zona lista | ver <zona> | criar <zona> | apaga
 # {0} = z
 zona_os_comandos_da_lista_ficam: "Zona {0}: os comandos da lista ficam bloqueados."
 zona_plugin_zona_plugin_desliga_plugin: "/zona plugin <zona> <Plugin> (desliga o plugin na zona) | recurso <zona> <recurso> | recursos | hud <zona> <1|2> <texto|padrao|nenhuma>"
+# {0} = z, {1} = z
+zona_so_os_comandos_da_lista: "Zona {0}: so os comandos da lista funcionam (/zona cmd {1} <comando>)."
 zonas: "Zonas:"

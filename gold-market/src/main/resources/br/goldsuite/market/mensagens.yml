@@ -22,6 +22,8 @@ goldcore_precisa_estar_ativo_antes_do: "GoldCore precisa estar ativo antes do Go
 goldeconomy_precisa_estar_instalado: "O GoldEconomy precisa estar instalado."
 # {0} = taken.size()
 item_ns_coletado: "{0} item(ns) coletado(s)."
+# {0} = back.size()
+item_ns_para_coletar_leilao_coletar: "&d{0} item(ns) para coletar: /leilao coletar"
 leilao: "&6[&eLeilao&6]&f "
 # {0} = (current + 1), {1} = pages
 leilao_2: "Leilao ({0}/{1})"

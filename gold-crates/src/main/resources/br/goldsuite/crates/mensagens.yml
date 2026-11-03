@@ -49,6 +49,7 @@ premio_adicionado_com_peso: "Premio adicionado com peso {0}."
 premio_de_comando_adicionado: "Premio de comando adicionado: /{0}"
 premio_invalido: "Premio invalido."
 premios_removidos: "Premios removidos."
+raro: "RARO"
 # {0} = crate
 segure_chave_da_caixa_para_abrir: "&dSegure a chave da caixa {0} para abrir"
 segure_item_do_premio: "Segure o item do premio."
@@ -66,4 +67,3 @@ voce_nao_tem_essa_caixa: "&cVoce nao tem essa caixa."
 voce_recebeu_caixa_misteriosa_selecione_na: "Voce recebeu {0} caixa(s) misteriosa(s) {1}&f! Selecione na hotbar para abrir."
 # {0} = amount, {1} = name
 voce_recebeu_chave_da_caixa: "Voce recebeu {0} chave(s) da caixa {1}!"
-raro: "RARO"

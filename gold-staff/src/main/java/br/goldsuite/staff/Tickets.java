@@ -137,8 +137,8 @@ final class Tickets implements Listener {
         Session s = byPlayer.get(p.getName().toLowerCase(Locale.ROOT));
         if (sub.equals("cancelar")) {
             if (s == null) { TicketState.Ticket t = openOf(p.getName()); if (t == null) { p.sendMessage(prefix + M.t("voce_nao_tem_ticket_aberto")); return; } s = resume(p, t); }
-            if (s.phase == Phase.ATENDIMENTO) { finalizar(p, "cancelado pelo jogador"); return; }
-            cancel(s, "cancelado pelo jogador");
+            if (s.phase == Phase.ATENDIMENTO) { finalizar(p, M.t("cancelado_pelo_jogador")); return; }
+            cancel(s, M.t("cancelado_pelo_jogador"));
             say(p, prefix + M.t("seu_pedido_de_suporte_foi_cancelado"));
             return;
         }
@@ -448,7 +448,7 @@ final class Tickets implements Listener {
                 }
                 case "fechar": {
                     int id = Integer.parseInt(args.length > 1 ? args[1].replace("#", "") : "");
-                    String why = args.length > 2 ? TicketState.clean(String.join(" ", Arrays.copyOfRange(args, 2, args.length)), 120) : "fechado pela equipe";
+                    String why = args.length > 2 ? TicketState.clean(String.join(" ", Arrays.copyOfRange(args, 2, args.length)), 120) : M.t("fechado_pela_equipe");
                     Session s = null;
                     for (Session x : byPlayer.values()) { if (x.id == id) { s = x; } }
                     if (s != null && s.phase == Phase.ATENDIMENTO) { finish(s, sender.getName().toLowerCase(Locale.ROOT), why); sender.sendMessage(prefix + M.t("ticket_fechado", id)); return; }
@@ -482,7 +482,7 @@ final class Tickets implements Listener {
             TicketState.Metric m = e.getValue();
             String tag = "";
             try { tag = perms == null ? "" : perms.getTag(e.getKey()); } catch (RuntimeException ignored) { }
-            String nota = m.ratingCount == 0 ? "sem nota" : String.format(Locale.ROOT, "%.1f/5 (%d)", m.ratingSum / (double) m.ratingCount, m.ratingCount);
+            String nota = m.ratingCount == 0 ? M.t("sem_nota") : String.format(Locale.ROOT, "%.1f/5 (%d)", m.ratingSum / (double) m.ratingCount, m.ratingCount);
             sender.sendMessage(M.t("no_periodo_no_total_espera_duracao", (i++), (tag.isEmpty() ? "" : tag + " "), e.getKey(), m.since(first), m.total, minutes(m.waitSeconds, m.total), minutes(m.durationSeconds, m.total), nota));
             if (i > 20) { break; }
         }
@@ -551,7 +551,7 @@ final class Tickets implements Listener {
             default: {
                 Player staff = s.staff;
                 if (staff != null) { say(staff, prefix + M.t("saiu_do_servidor_atendimento_finalizado", p.getName())); }
-                finish(s, "sistema", "jogador saiu");
+                finish(s, "sistema", M.t("jogador_saiu"));
             }
         }
     }
@@ -589,7 +589,7 @@ final class Tickets implements Listener {
                 if (now - e.getValue() < 900_000) { continue; }
                 offlineSince.remove(e.getKey());
                 TicketState.Ticket t = openOf(e.getKey());
-                if (t != null && t.claimedAt == 0) { closeStored(t.id, "sistema", "jogador saiu", Collections.emptyList(), now); }
+                if (t != null && t.claimedAt == 0) { closeStored(t.id, "sistema", M.t("jogador_saiu"), Collections.emptyList(), now); }
             }
             rating.values().removeIf(r -> r[1] < now);
             cooldown.values().removeIf(c -> c < now);

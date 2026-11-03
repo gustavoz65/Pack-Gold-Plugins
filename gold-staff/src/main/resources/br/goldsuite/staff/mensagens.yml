@@ -24,6 +24,7 @@ atendimento_nao_encontrado: "Atendimento nao encontrado."
 avalie_atendimento_de_avaliar_1_5: "&eAvalie o atendimento de &f{0}&e: &f/avaliar <1 a 5>"
 # {0} = data.read(s -> String.join(", ", s.blocked))
 bloqueados: "Bloqueados: {0}"
+cancelado_pelo_jogador: "cancelado pelo jogador"
 carregando_tente_em_instantes: "&cCarregando, tente em instantes."
 chave_da_groq_recusada_401_confira: "Chave da Groq recusada (401). Confira no /painel."
 # {0} = t.staff
@@ -54,6 +55,7 @@ espere_1_minuto_entre_denuncias: "Espere 1 minuto entre denuncias."
 espere_para_abrir_outro_ticket: "&cEspere {0} s para abrir outro ticket."
 # {0} = t.player
 esta_offline_ticket_fecha_sozinho_se: "&c{0} esta offline; o ticket fecha sozinho se ele nao voltar em 15 min."
+fechado_pela_equipe: "fechado pela equipe"
 # {0} = t.closedBy, {1} = t.result, {2} = (t.rating > 0 ? " §e" + t.rating + "/5" : "")
 fechado_por: "&fFechado por: &7{0} ({1}){2}"
 feche_com_reports_fechar_id: "Feche com /reports fechar <id>."
@@ -79,6 +81,7 @@ jogador_categoria_prioridade: "&fJogador: &b{0}  &7|  &fCategoria: &e{1}  &7|  &
 # {0} = t.player, {1} = t.category, {2} = color, {3} = t.priority
 jogador_categoria_prioridade_2: "&fJogador: &b{0}  &7|  &fCategoria: &e{1}  &7|  &fPrioridade: {2}{3}"
 jogador_invalido: "Jogador invalido."
+jogador_saiu: "jogador saiu"
 linha_de_ajuda_invalida: "Linha de ajuda invalida."
 metrica_invalida: "Metrica invalida."
 # {0} = days
@@ -120,6 +123,7 @@ resumo_da_ia: "&fResumo da IA: &7{0}"
 # {0} = p.getName()
 saiu_do_servidor_atendimento_finalizado: "&e{0} saiu do servidor; atendimento finalizado."
 sem_descricao: "(sem descricao)"
+sem_nota: "sem nota"
 sem_permissao: "&cSem permissao."
 # {0} = (restartIn >= 60 ? restartIn / 60 + " min" : restartIn + " s")
 servidor_reinicia_em: "&cO servidor reinicia em {0}."

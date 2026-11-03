@@ -39,6 +39,7 @@ protecoes_invalidas: "Protecoes invalidas."
 pvp_desativado_aqui: "&cPvP desativado aqui"
 # {0} = p.getName(), {1} = m[1], {2} = m[0]
 ray_suspeito_minerios_raros_para_pedras: "&cX-ray suspeito: &f{0} &7({1} minerios raros para {2} pedras em 10 min)"
+removido_de: " removido de "
 # {0} = p.getName(), {1} = (cart ? "carrinho" : "barco")
 tentou_subir_num: "{0} tentou subir num {1}."
 # {0} = e.getPlayer().getName()
