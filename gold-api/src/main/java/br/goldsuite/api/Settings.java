@@ -38,6 +38,13 @@ public final class Settings {
         if (s != null) { s.register(plugin, key, value); }
     }
 
+    /** O recurso ("plugin.recurso") esta liberado onde o jogador esta? Sem GoldComandos, sempre sim. */
+    public static boolean allowed(cn.nukkit.Player player, String feature) {
+        if (player == null || player.level == null) { return true; }
+        ZoneService z = Server.getInstance().getServiceManager().load(ZoneService.class);
+        return z == null || z.allows(player.level, feature);
+    }
+
     public static void discord(String source, String message) {
         SettingsService s = service();
         if (s != null) { s.discord(source, message); }

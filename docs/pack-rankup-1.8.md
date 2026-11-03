@@ -15,26 +15,26 @@ Análise do pack enviado (31 plugins Bukkit 1.8, sem código-fonte). Cada jar fo
 
 ## Estado
 - **Fase 1 (pronta):** HUD estilo scoreboard com placeholders, Banco Central, caixas misteriosas, preferências, /luz, /aviso, ocultar entrada e saída, /setloja e /loja, mundo VIP, anti-dupe. A economia passou a gravar uma linha por conta (sem o limite de 10 mil contas).
-- **Fase 2 (próxima):** GoldSkills (mcMMO para o 0.15) com boosters, anúncio de nível, top tag e menu de habilidades.
+- **Fase 2 (pronta):** GoldSkills (mcMMO para o 0.15) com boosters, anúncio de nível, top tag `{mctop}` e menu de habilidades. O GoldComandos passou a controlar os outros plugins por zona (`/zona plugin`, `/zona recurso`, `/zona hud`).
 
 ## Comparativo
 | Plugin 1.8 | O que faz | Na Gold | Decisão |
 |---|---|---|---|
-| TintaScore, vScore | Scoreboard: grupo, coins, clã, KDR, online, IP | GoldHud (só dinheiro) | **Trocar**: HUD de 2 linhas configuráveis com money, cash, grupo, clã, KDR, online (0.15 não tem scoreboard lateral) |
-| OBancoCentral | NPC "Bancário": saldo, depósito e saque em conta separada | — | **Implementar** (GoldEconomy: `/banco`) |
-| yCaixasMisteriosas | Caixas-item com prêmios por chance, raridades, anúncio e raio | GoldCrates (caixas com chave) | **Trocar/estender**: caixas misteriosas no GoldCrates |
-| OPreferencias | `/config`: bloquear tell, tpa e recebimento de coins | — | **Implementar** (GoldEssentials) |
-| reLuz | `/luz` visão noturna VIP | — | **Implementar** |
-| BaconAviso (+TitleAPI) | `/aviso` com título na tela | `/anuncio` (só chat) | **Implementar** `/aviso` (popup + chat; 0.15 não tem título) |
-| P227OcultJoinQuit | Esconde entrada/saída | Mensagens fixas | **Implementar** opção no painel |
-| T_SetLoja | `/setloja` e `/loja <jogador>` (VIP) com espera | — | **Implementar** |
-| LRMundoVIPV2 | `/vip` leva ao mundo VIP | — | **Implementar** |
-| TintaDupe | Anti-dupe: bloqueia carrinho, barco, funil, moldura em veículo | — | **Implementar** |
-| mcMMO PT-BR | Habilidades (mineração, lenhador, escavação, herbalismo, espadas, machado, arqueiro, desarmado, acrobacia, reparação, domesticação...), níveis, poderes, ranking | — | **Implementar** (GoldSkills, fase 2) |
-| vBoosterMcMMO, MCBooster | Boosters de XP | — | Fase 2 (GoldSkills) |
-| DarkmcMMOUP, reStatsUP | Anúncio ao subir de nível | — | Fase 2 |
-| MCTopTag | Tag no chat do 1º do ranking de habilidades | — | Fase 2 |
-| fyStats | Menu de habilidades | — | Fase 2 |
+| TintaScore, vScore | Scoreboard: grupo, coins, clã, KDR, online, IP | GoldHud (só dinheiro) | **Feito**: HUD de 2 linhas configuráveis com money, cash, grupo, clã, KDR, online (0.15 não tem scoreboard lateral) |
+| OBancoCentral | NPC "Bancário": saldo, depósito e saque em conta separada | — | **Feito** (GoldEconomy: `/banco`) |
+| yCaixasMisteriosas | Caixas-item com prêmios por chance, raridades, anúncio e raio | GoldCrates (caixas com chave) | **Feito**: caixas misteriosas no GoldCrates |
+| OPreferencias | `/config`: bloquear tell, tpa e recebimento de coins | — | **Feito** (GoldEssentials `/config`) |
+| reLuz | `/luz` visão noturna VIP | — | **Feito** (GoldEssentials) |
+| BaconAviso (+TitleAPI) | `/aviso` com título na tela | `/anuncio` (só chat) | **Feito** `/aviso` no GoldChat (popup + chat; 0.15 não tem título) |
+| P227OcultJoinQuit | Esconde entrada/saída | Mensagens fixas | **Feito** (GoldChat, painel `entrada_saida`) |
+| T_SetLoja | `/setloja` e `/loja <jogador>` (VIP) com espera | — | **Feito** (GoldEssentials) |
+| LRMundoVIPV2 | `/vip` leva ao mundo VIP | — | **Feito** (GoldEssentials `/mundovip`) |
+| TintaDupe | Anti-dupe: bloqueia carrinho, barco, funil, moldura em veículo | — | **Feito** (GoldProtect; 0.15 não tem funil) |
+| mcMMO PT-BR | Habilidades (mineração, lenhador, escavação, herbalismo, espadas, machado, arqueiro, desarmado, acrobacia, reparação, domesticação...), níveis, poderes, ranking | — | **Feito** (GoldSkills) |
+| vBoosterMcMMO, MCBooster | Boosters de XP | — | **Feito** (GoldSkills) |
+| DarkmcMMOUP, reStatsUP | Anúncio ao subir de nível | — | **Feito** (GoldSkills) |
+| MCTopTag | Tag no chat do 1º do ranking de habilidades | — | **Feito** (GoldSkills) |
+| fyStats | Menu de habilidades | — | **Feito** (GoldSkills) |
 | fyStatsView | Info do jogador ao passar o mouse no chat (1.8) | — | Não existe no 0.15 (sem hover) |
 | BauVirtual | Baú virtual | GoldVault | Já coberto |
 | ChestShop | Lojas de baú com placa | GoldShop | Já coberto |

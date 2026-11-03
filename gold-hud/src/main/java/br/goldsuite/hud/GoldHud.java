@@ -29,6 +29,8 @@ public final class GoldHud extends PluginBase implements Listener {
     private PersistentState<HudState> data;
     private PlaceholderService.Template line1, line2;
     private String raw1 = "", raw2 = "";
+    /** Modelos das barras por zona, compilados uma vez (poucas zonas: mapa pequeno). */
+    private final Map<String, PlaceholderService.Template> zoneTemplates = new HashMap<>();
 
     public static final class HudState {
         public Set<String> off = new TreeSet<>();
@@ -61,13 +63,26 @@ public final class GoldHud extends PluginBase implements Listener {
         if (line1 == null) { line1 = raw1.trim().isEmpty() || raw1.equalsIgnoreCase("nenhuma") ? null : ph.compile(raw1); }
         if (line2 == null) { line2 = raw2.trim().isEmpty() || raw2.equalsIgnoreCase("nenhuma") ? null : ph.compile(raw2); }
         AuthService auth = getServer().getServiceManager().load(AuthService.class);
+        ZoneService zones = getServer().getServiceManager().load(ZoneService.class);
         Set<String> off = data.read(s -> s.off), hidden = data.read(s -> s.hiddenWorlds);
         for (Player p : getServer().getOnlinePlayers().values()) {
             if (!p.spawned || hidden.contains(p.level.getFolderName()) || off.contains(p.getName().toLowerCase(Locale.ROOT))) { continue; }
             if (auth != null && !auth.isAuthenticated(p)) { continue; }
-            String a = line1 == null ? "" : line1.render(p), b = line2 == null ? "" : line2.render(p);
+            if (zones != null && !zones.allows(p.level, "goldhud.barra")) { continue; }
+            PlaceholderService.Template t1 = line1, t2 = line2;
+            String[] custom = zones == null ? null : zones.hud(p.level);
+            if (custom != null) { t1 = zoneTemplate(ph, custom[0], line1); t2 = zoneTemplate(ph, custom[1], line2); }
+            String a = t1 == null ? "" : t1.render(p), b = t2 == null ? "" : t2.render(p);
             p.sendPopup(a.isEmpty() ? b : b.isEmpty() ? a : a + "\n" + b);
         }
+    }
+
+    /** Linha da zona: vazia = a do painel; "nenhuma" = sem linha. */
+    private PlaceholderService.Template zoneTemplate(PlaceholderService ph, String raw, PlaceholderService.Template fallback) {
+        if (raw == null || raw.isEmpty()) { return fallback; }
+        if (raw.equalsIgnoreCase("nenhuma")) { return null; }
+        if (zoneTemplates.size() > 64) { zoneTemplates.clear(); }
+        return zoneTemplates.computeIfAbsent(raw, r -> ph.compile(r.replace('&', '\u00a7')));
     }
 
     static String direction(double yaw) {

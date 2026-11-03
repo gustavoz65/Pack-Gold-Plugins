@@ -32,6 +32,14 @@ public final class ComandosTest {
         back.zones.get("jogos").worlds.remove("pvp");
         back.zones.get("jogos").items.put(9, new CmdState.HubItem(1, 0, "x", "y"));
         rejects(() -> CmdState.validate(back));
+        CmdState.Zone rankup = new CmdState.Zone();
+        rankup.plugins.add("goldfactions"); rankup.features.add("goldpvp.perfil");
+        check(!CmdState.allows(rankup, "goldfactions.territorio") && !CmdState.allows(rankup, "goldpvp.perfil") && CmdState.allows(rankup, "goldskills.xp") && CmdState.allows(null, "goldpvp.perfil"), "Recursos por zona errados.");
+        check(CmdState.feature("GoldPvP.Perfil").equals("goldpvp.perfil") && CmdState.plugin("GoldFactions").equals("goldfactions"), "Nomes de recurso/plugin.");
+        rejects(() -> CmdState.feature("semponto"));
+        CmdState old = new Gson().fromJson("{\"zones\":{\"x\":{\"worlds\":[\"a\"],\"commands\":[],\"welcome\":\"\",\"help\":[],\"items\":{}}}}", CmdState.class);
+        CmdState.validate(old);
+        check(old.zones.get("x").plugins != null && old.zones.get("x").hud1.isEmpty(), "Zonas antigas sem os campos novos nao carregam.");
         System.out.println("GoldComandos: zonas, liberar/bloquear, alias, sempre liberados, OP por IP, boas-vindas e validacao aprovados.");
     }
     private static void check(boolean c, String m) { if (!c) { throw new AssertionError(m); } }

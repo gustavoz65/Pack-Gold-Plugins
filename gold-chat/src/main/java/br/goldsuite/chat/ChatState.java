@@ -24,8 +24,8 @@ public final class ChatState {
 
     static Map<String, String> defaults() {
         Map<String, String> f = new TreeMap<>();
-        f.put("padrao", "&7{nome}&8: &f{mensagem}");
-        f.put("vip", "&6[VIP] &e{nome}&8: &f{mensagem}");
+        f.put("padrao", "{mctop}&7{nome}&8: &f{mensagem}");
+        f.put("vip", "{mctop}&6[VIP] &e{nome}&8: &f{mensagem}");
         return f;
     }
 
@@ -38,7 +38,7 @@ public final class ChatState {
     }
 
     /** Formato de quem tem tag de cargo e nenhum formato proprio. */
-    static final String TAGGED = "{tag} &f{nome}&8: &f{mensagem}";
+    static final String TAGGED = "{mctop}{tag} &f{nome}&8: &f{mensagem}";
 
     static String color(String text) { return text.replace('&', '§'); }
 

@@ -172,7 +172,7 @@ public final class GoldFactions extends PluginBase implements Listener {
         if (!data.isLoaded()) { return; }
         Set<String> worlds = data.read(s -> s.worlds);
         for (Player p : getServer().getOnlinePlayers().values()) {
-            if (!p.spawned || (!worlds.isEmpty() && !worlds.contains(p.level.getFolderName()))) { continue; }
+            if (!p.spawned || (!worlds.isEmpty() && !worlds.contains(p.level.getFolderName())) || !Settings.allowed(p, "goldfactions.territorio")) { continue; }
             String key = FactionState.chunk(p.level.getFolderName(), p.getFloorX(), p.getFloorZ());
             String owner = data.read(s -> s.claims.get(key));
             String before = lastChunk.put(p, owner == null ? "" : owner);

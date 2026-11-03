@@ -309,7 +309,12 @@ public final class GoldPvP extends PluginBase implements Listener {
     }
 
     private void giveMenuItem(Player p) {
-        if (!p.isOnline() || matches.containsKey(p) || !inLobby(p)) { return; }
+        if (!p.isOnline() || matches.containsKey(p)) { return; }
+        // Zona sem o perfil (ex.: lobby do Rankup): tira o livro que veio de outro lobby.
+        if (!inLobby(p) || !Settings.allowed(p, "goldpvp.perfil")) {
+            for (Map.Entry<Integer, Item> e : new HashMap<>(p.getInventory().getContents()).entrySet()) { if (isMenuItem(e.getValue())) { p.getInventory().clear(e.getKey()); } }
+            return;
+        }
         for (Item it : p.getInventory().getContents().values()) { if (isMenuItem(it)) { return; } }
         if (p.getInventory().getItem(MENU_SLOT).getId() != 0) { return; }
         Item book = Item.get(MENU_ITEM, 0, 1);

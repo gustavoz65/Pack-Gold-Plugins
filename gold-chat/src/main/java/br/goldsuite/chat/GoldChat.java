@@ -79,7 +79,25 @@ public final class GoldChat extends PluginBase implements Listener {
         // Cargo sem formato proprio usa a tag dele na frente do nome.
         String format = data.read(s -> s.formats.containsKey(group) ? s.formats.get(group) : !tag.isEmpty() ? ChatState.TAGGED : s.formats.get("padrao"));
         event.setMessage(message);
-        event.setFormat(ChatState.nukkitFormat(format, group, tag));
+        String nf = ChatState.nukkitFormat(format, group, tag);
+        // Placeholders de outros plugins no formato ({mctop}, {clan_tag}, {poder}...): valores sem chaves nem %, que o formato usa.
+        if (nf.indexOf('{') >= 0) {
+            PlaceholderService ph = getServer().getServiceManager().load(PlaceholderService.class);
+            if (ph != null) {
+                StringBuilder out = new StringBuilder(nf.length() + 16);
+                int i = 0;
+                while (i < nf.length()) {
+                    int open = nf.indexOf('{', i), close = open < 0 ? -1 : nf.indexOf('}', open);
+                    if (open < 0 || close < 0) { out.append(nf, i, nf.length()); break; }
+                    String k = nf.substring(open + 1, close);
+                    out.append(nf, i, open);
+                    if (k.matches("[a-z0-9_]{1,32}")) { out.append(ph.apply(p, "{" + k + "}").replaceAll("[{}%]", "")); } else { out.append(nf, open, close + 1); }
+                    i = close + 1;
+                }
+                nf = out.toString();
+            }
+        }
+        event.setFormat(nf);
     }
 
     /** Motivo de bloqueio ou null. */

@@ -1,0 +1,23 @@
+name: GoldSkills
+main: br.goldsuite.skills.GoldSkills
+version: "0.4.3"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldEconomy, GoldComandos]
+author: gustavoz65
+description: Habilidades estilo mcMMO (mineracao, lenhador, escavacao, herbalismo, espadas, machado, arqueiro, desarmado, acrobacia, reparacao), boosters, anuncio de nivel e ranking
+commands:
+ skills: {description: Menu das habilidades ou detalhes de uma, usage: "/skills [habilidade]", aliases: [habilidades, mcmmo, habilidade]}
+ mcstats: {description: Niveis de todas as habilidades, usage: "/mcstats [jogador]"}
+ mctop: {description: Ranking de habilidades, usage: "/mctop [habilidade] [pagina]"}
+ mcrank: {description: Posicoes de um jogador no ranking, usage: "/mcrank [jogador]"}
+ mcability: {description: Liga ou desliga a ativacao dos poderes, usage: "/mcability"}
+ booster: {description: Compra boosters de XP, usage: "/booster", aliases: [boosters]}
+ darbooster: {description: Da um booster de XP, usage: "/darbooster <jogador> <habilidade|todas> <multiplicador> <minutos>", permission: goldskills.admin}
+ xprate: {description: Evento de XP para todos, usage: "/xprate <multiplicador> <minutos> | /xprate reset", permission: goldskills.admin}
+ addlevels: {description: Soma niveis, usage: "/addlevels <jogador> <habilidade|todas> <niveis>", permission: goldskills.admin}
+ addxp: {description: Soma XP, usage: "/addxp <jogador> <habilidade|todas> <xp>", permission: goldskills.admin}
+ mmoedit: {description: Define o nivel, usage: "/mmoedit <jogador> <habilidade|todas> <nivel>", permission: goldskills.admin}
+ skillreset: {description: Zera as habilidades, usage: "/skillreset <jogador> [habilidade]", permission: goldskills.admin}
+permissions:
+ goldskills.admin: {default: op, description: Edita niveis, da boosters e cria eventos de XP}

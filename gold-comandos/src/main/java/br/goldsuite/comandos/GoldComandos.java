@@ -20,7 +20,7 @@ import java.util.*;
  * usar ali, boas-vindas na primeira visita, itens da hotbar que executam comandos e OP so pelo console ou de um IP
  * autorizado. Cada comando digitado custa so duas consultas em mapas.
  */
-public final class GoldComandos extends PluginBase implements Listener {
+public final class GoldComandos extends PluginBase implements Listener, ZoneService {
     static String PREFIX = "§6[Comandos]§f ";
     private String blockedMessage = "§cEsse comando nao esta disponivel aqui.";
     private PersistentState<CmdState> data;
@@ -36,12 +36,32 @@ public final class GoldComandos extends PluginBase implements Listener {
         if (core == null) { throw new IllegalStateException("GoldCore precisa estar ativo antes do GoldComandos."); }
         data = new PersistentState<>(core.getStore(), "goldcomandos", CmdState.class, CmdState::new, CmdState::validate);
         data.ready().thenRun(this::reindex);
+        getServer().getServiceManager().register(ZoneService.class, this, this);
         getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override public void onDisable() { if (data != null) { data.close(); } lastHeld.clear(); zoneOf.clear(); }
 
     private void reindex() { if (data.isLoaded()) { index = data.read(CmdState::worldIndex); } }
+
+    // ---------- servico de zonas (os outros plugins perguntam o que pode em cada mapa) ----------
+
+    @Override public boolean allows(Level level, String feature) {
+        if (!data.isLoaded() || level == null) { return true; }
+        CmdState.Zone z = zone(level);
+        return CmdState.allows(z, feature);
+    }
+
+    @Override public String[] hud(Level level) {
+        if (!data.isLoaded() || level == null) { return null; }
+        CmdState.Zone z = zone(level);
+        return z == null || (z.hud1.isEmpty() && z.hud2.isEmpty()) ? null : new String[] {z.hud1, z.hud2};
+    }
+
+    /** Plugin dono do comando (comandos dos plugins Gold e de qualquer outro). */
+    private static String owner(Command cmd) {
+        return cmd instanceof cn.nukkit.command.PluginIdentifiableCommand ? ((cn.nukkit.command.PluginIdentifiableCommand) cmd).getPlugin().getName().toLowerCase(Locale.ROOT) : "";
+    }
 
     private String zoneName(Level level) { return level == null ? null : index.get(level.getFolderName().toLowerCase(Locale.ROOT)); }
     private CmdState.Zone zone(Level level) { String n = zoneName(level); return n == null ? null : data.read(s -> s.zones.get(n)); }
@@ -75,7 +95,7 @@ public final class GoldComandos extends PluginBase implements Listener {
         }
         if (p.hasPermission("goldcomandos.bypass") || p.hasPermission("goldcomandos.cmd." + real)) { return; }
         CmdState.Zone z = zone(p.level);
-        if (z != null && !data.read(s -> s.allowed(z, typed, real))) { e.setCancelled(); p.sendMessage(blockedMessage); }
+        if (z != null && (!data.read(s -> s.allowed(z, typed, real)) || (cmd != null && z.plugins.contains(owner(cmd)) && !data.read(s -> s.always.contains(real))))) { e.setCancelled(); p.sendMessage(blockedMessage); }
     }
 
     /** /help so com os comandos que o jogador tem permissao e que a zona dele libera. */
@@ -87,7 +107,7 @@ public final class GoldComandos extends PluginBase implements Listener {
             String name = c.getName().toLowerCase(Locale.ROOT);
             if (name.contains(":") || list.containsKey(name) || !c.testPermissionSilent(p)) { continue; }
             if (name.equals("op") || name.equals("deop")) { if (!data.read(s -> s.opAllowed(p.getName(), p.getAddress()))) { continue; } }
-            if (!bypass && !p.hasPermission("goldcomandos.cmd." + name) && z != null && !data.read(s -> s.allowed(z, name, name))) { continue; }
+            if (!bypass && !p.hasPermission("goldcomandos.cmd." + name) && z != null && (!data.read(s -> s.allowed(z, name, name)) || (z.plugins.contains(owner(c)) && !data.read(s -> s.always.contains(name))))) { continue; }
             String d = c.getDescription() == null ? "" : getServer().getLanguage().translateString(c.getDescription());
             list.put(name, d.length() > 50 ? d.substring(0, 47) + "..." : d);
         }
@@ -294,6 +314,29 @@ public final class GoldComandos extends PluginBase implements Listener {
                 change(sender, s -> { Set<String> set = need(s, z).commands; for (String c : cmds) { if (!set.remove(c)) { set.add(c); } } if (set.size() > CmdState.MAX_COMMANDS) { throw new IllegalArgumentException("Comandos demais."); } }, "Lista da zona " + z + " atualizada (/zona ver " + z + ").");
                 return;
             }
+            case "plugin": {
+                String pl = CmdState.plugin(a.length > 2 ? a[2] : "");
+                change(sender, s -> { Set<String> set = need(s, z).plugins; if (!set.remove(pl)) { set.add(pl); } }, "Plugins desligados na zona " + z + " atualizados (/zona ver " + z + ").");
+                return;
+            }
+            case "recurso": {
+                String f = CmdState.feature(a.length > 2 ? a[2] : "");
+                change(sender, s -> { Set<String> set = need(s, z).features; if (!set.remove(f)) { set.add(f); } }, "Recursos desligados na zona " + z + " atualizados.");
+                return;
+            }
+            case "recursos": {
+                sender.sendMessage(PREFIX + "Recursos que da para desligar por zona (/zona recurso <zona> <recurso>):");
+                for (String[] f : CmdState.FEATURES) { sender.sendMessage("\u00a7e" + f[0] + " \u00a77" + f[1]); }
+                sender.sendMessage("\u00a77Para desligar um plugin inteiro (comandos e recursos): /zona plugin <zona> <Plugin>, ex.: GoldFactions, GoldSkyWars, GoldPvP.");
+                return;
+            }
+            case "hud": {
+                int line = Integer.parseInt(a.length > 2 ? a[2] : "0");
+                String text = rest(a, 3);
+                if ((line != 1 && line != 2) || text.length() > 200) { throw new IllegalArgumentException("Uso: /zona hud <zona> <1|2> <texto|padrao|nenhuma>"); }
+                change(sender, s -> { CmdState.Zone zone = need(s, z); String v = text.equalsIgnoreCase("padrao") ? "" : text; if (line == 1) { zone.hud1 = v; } else { zone.hud2 = v; } }, "Barra da zona " + z + " atualizada.");
+                return;
+            }
             case "sempre": {
                 String c = CmdState.command(a.length > 1 ? a[1] : "");
                 change(sender, s -> { if (!s.always.remove(c)) { s.always.add(c); } }, "Comandos sempre liberados atualizados.");
@@ -330,6 +373,7 @@ public final class GoldComandos extends PluginBase implements Listener {
             }
             default:
                 sender.sendMessage(PREFIX + "/zona lista | ver <zona> | criar <zona> | apagar <zona> | mundo <zona> <mundo> | modo <zona> liberar|bloquear | cmd <zona> <comandos...>");
+                sender.sendMessage(PREFIX + "/zona plugin <zona> <Plugin> (desliga o plugin na zona) | recurso <zona> <recurso> | recursos | hud <zona> <1|2> <texto|padrao|nenhuma>");
                 sender.sendMessage(PREFIX + "/zona boasvindas <zona> <texto|nenhuma> | boasvindas_sempre <zona> on|off | ajuda <zona> <linha|limpar> | item <zona> <slot> <id[:meta]> <nome> <comando> | itemremover <zona> <slot> | sempre <comando>");
         }
     }
