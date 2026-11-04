@@ -1,5 +1,6 @@
 {"settings":[
-{"plugin":"GoldBedWars","key":"contagem","kind":"NUMERO","def":"20","desc":"Segundos de contagem (cai para 10 com a sala cheia)"}
+{"plugin":"GoldAuth","key":"andar_sem_login","kind":"NUMERO","def":"1","desc":"1 = antes do login o jogador anda livre pelo lobby (mundo principal); 0 = fica parado"}
+,{"plugin":"GoldBedWars","key":"contagem","kind":"NUMERO","def":"20","desc":"Segundos de contagem (cai para 10 com a sala cheia)"}
 ,{"plugin":"GoldBedWars","key":"minimo_jogadores","kind":"NUMERO","def":"2","desc":"Jogadores para comecar a contagem"}
 ,{"plugin":"GoldBedWars","key":"mundo_lobby","kind":"TEXTO","def":"","desc":"Mundo para onde os jogadores voltam (vazio = mundo padrao)"}
 ,{"plugin":"GoldBedWars","key":"prefixo","kind":"TEXTO","def":"§c[§fBed§cWars]§f ","desc":"Prefixo das mensagens"}
@@ -9,6 +10,7 @@
 ,{"plugin":"GoldBedWars","key":"premio_vitoria","kind":"NUMERO","def":"15000","desc":"Dinheiro por vitoria (centavos)"}
 ,{"plugin":"GoldBreaker","key":"prefixo","kind":"TEXTO","def":"§7[§8Breaker§7]§f ","desc":"Prefixo das mensagens"}
 ,{"plugin":"GoldBuild","key":"prefixo","kind":"TEXTO","def":"§6[§eWE§6]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldChat","key":"enquetes.intervalo","kind":"NUMERO","def":"180","desc":"Segundos entre anuncios de enquetes (0 desliga)"}
 ,{"plugin":"GoldChat","key":"entrada_saida","kind":"NUMERO","def":"1","desc":"1 = mostra quem entrou e saiu; 0 = esconde (como o OcultJoinQuit)"}
 ,{"plugin":"GoldChat","key":"filtro","kind":"NUMERO","def":"1","desc":"1 = troca palavroes e ofensas por asteriscos no chat e no tell; 0 = desliga"}
 ,{"plugin":"GoldChat","key":"filtro.caractere","kind":"TEXTO","def":"*","desc":"Caractere usado para esconder a palavra"}
@@ -102,6 +104,8 @@
 ,{"plugin":"GoldSkills","key":"poderes.recarga","kind":"NUMERO","def":"240","desc":"Segundos de recarga de cada poder"}
 ,{"plugin":"GoldSkills","key":"prefixo","kind":"TEXTO","def":"§6[§eHabilidades§6]§f ","desc":"Prefixo das mensagens"}
 ,{"plugin":"GoldSkills","key":"toptag","kind":"TEXTO","def":"&9[⚒]","desc":"Tag do 1o no ranking de poder (placeholder {mctop} no chat)"}
+,{"plugin":"GoldSkyWars","key":"almas.custo","kind":"NUMERO","def":"10","desc":"Almas por rodada do poco"}
+,{"plugin":"GoldSkyWars","key":"almas.repetido","kind":"NUMERO","def":"100","desc":"Moedas SkyWars por premio repetido"}
 ,{"plugin":"GoldSkyWars","key":"contagem","kind":"NUMERO","def":"20","desc":"Segundos de contagem nas jaulas (cai para 10 com a sala cheia)"}
 ,{"plugin":"GoldSkyWars","key":"duracao","kind":"NUMERO","def":"900","desc":"Duracao maxima da partida em segundos (depois e empate)"}
 ,{"plugin":"GoldSkyWars","key":"kit.armeiro","kind":"NUMERO","def":"150000","desc":"Preco do kit Armeiro (centavos)"}
@@ -123,17 +127,25 @@
 ,{"plugin":"GoldSkyWars","key":"kit.sapo","kind":"NUMERO","def":"100000","desc":"Preco do kit Sapo (centavos)"}
 ,{"plugin":"GoldSkyWars","key":"kit.troll","kind":"NUMERO","def":"150000","desc":"Preco do kit Troll (centavos)"}
 ,{"plugin":"GoldSkyWars","key":"minimo_jogadores","kind":"NUMERO","def":"2","desc":"Jogadores para comecar a contagem"}
+,{"plugin":"GoldSkyWars","key":"moedas.abate","kind":"NUMERO","def":"20","desc":"Moedas SkyWars por abate"}
+,{"plugin":"GoldSkyWars","key":"moedas.vitoria","kind":"NUMERO","def":"100","desc":"Moedas SkyWars por vitoria"}
 ,{"plugin":"GoldSkyWars","key":"mundo_lobby","kind":"TEXTO","def":"","desc":"Mundo para onde os jogadores voltam (vazio = mundo padrao)"}
 ,{"plugin":"GoldSkyWars","key":"prefixo","kind":"TEXTO","def":"§b[§fSky§bWars]§f ","desc":"Prefixo das mensagens"}
 ,{"plugin":"GoldSkyWars","key":"premio_abate","kind":"NUMERO","def":"2000","desc":"Dinheiro por abate (centavos)"}
 ,{"plugin":"GoldSkyWars","key":"premio_vitoria","kind":"NUMERO","def":"10000","desc":"Dinheiro por vitoria (centavos)"}
 ,{"plugin":"GoldSkyWars","key":"refil_1","kind":"NUMERO","def":"180","desc":"Segundo da partida do primeiro refil dos baus"}
 ,{"plugin":"GoldSkyWars","key":"refil_2","kind":"NUMERO","def":"360","desc":"Segundo da partida do segundo refil dos baus"}
+,{"plugin":"GoldSkyWars","key":"xp.abate","kind":"NUMERO","def":"10","desc":"XP SkyWars por abate"}
+,{"plugin":"GoldSkyWars","key":"xp.vitoria","kind":"NUMERO","def":"100","desc":"XP SkyWars por vitoria"}
 ,{"plugin":"GoldStaff","key":"discord_tickets","kind":"NUMERO","def":"0","desc":"1 = manda o resumo de cada atendimento finalizado para o Discord do painel"}
 ,{"plugin":"GoldStaff","key":"groq_chave","kind":"TEXTO","def":"","desc":"Chave da API da Groq (gsk_...) para a triagem do /suporte; vazia = sem IA"}
 ,{"plugin":"GoldStaff","key":"groq_modelo","kind":"TEXTO","def":"openai/gpt-oss-20b","desc":"Modelo da Groq usado na triagem"}
 ,{"plugin":"GoldStaff","key":"groq_url","kind":"TEXTO","def":"https://api.groq.com/openai/v1/chat/completions","desc":"Endereco da API de chat (so mude se souber o que faz)"}
 ,{"plugin":"GoldStaff","key":"prefixo","kind":"TEXTO","def":"§4[§cStaff§4]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldStaff","key":"punicoes.adv_permanente","kind":"NUMERO","def":"4","desc":"Advertencias para ban permanente (sempre acima do temporario)"}
+,{"plugin":"GoldStaff","key":"punicoes.adv_temporario","kind":"NUMERO","def":"3","desc":"Advertencias para ban temporario"}
+,{"plugin":"GoldStaff","key":"punicoes.dias","kind":"NUMERO","def":"3","desc":"Dias do ban por advertencias"}
+,{"plugin":"GoldStaff","key":"punicoes.discord","kind":"TEXTO","def":"Configure o Discord no /painel.","desc":"Link do Discord para contestar punicoes"}
 ,{"plugin":"GoldStaff","key":"suporte_espera","kind":"NUMERO","def":"60","desc":"Segundos entre um ticket e outro do mesmo jogador"}
 ,{"plugin":"GoldStaff","key":"suporte_prefixo","kind":"TEXTO","def":"&b[Suporte]&f ","desc":"Prefixo das mensagens do /suporte"}
 ,{"plugin":"GoldStaff","key":"triagem_perguntas","kind":"NUMERO","def":"2","desc":"Perguntas que a IA pode fazer antes de mandar para a equipe (1 a 6)"}
@@ -191,6 +203,8 @@
 ,{"plugin":"GoldPerms","name":"cargos","desc":"Mostra a hierarquia e o que cada cargo pode fazer","usage":"/cargos [cargo]","perm":null,"aliases":""}
 ,{"plugin":"GoldPerms","name":"equipe","desc":"Mostra a equipe online","usage":"/equipe","perm":null,"aliases":"staff"}
 ,{"plugin":"GoldNPC","name":"npc","desc":"Cria e configura NPCs","usage":"/npc","perm":"goldnpc.admin","aliases":"slapper"}
+,{"plugin":"GoldChat","name":"enquete","desc":"Enquetes e resultados","usage":"/enquete lista|criar|encerrar|resultado|anunciar|apagar","perm":null,"aliases":""}
+,{"plugin":"GoldChat","name":"entrar","desc":"Vota em uma enquete","usage":"/entrar <enquete> [opcao]","perm":null,"aliases":""}
 ,{"plugin":"GoldChat","name":"tell","desc":"Mensagem privada","usage":"/tell <jogador> <mensagem>","perm":null,"aliases":"msg,w"}
 ,{"plugin":"GoldChat","name":"r","desc":"Responde a ultima mensagem privada","usage":"/r <mensagem>","perm":null,"aliases":"responder"}
 ,{"plugin":"GoldChat","name":"tellon","desc":"Liga ou desliga mensagens privadas","usage":"/tellon","perm":null,"aliases":"desativartell"}
@@ -213,7 +227,9 @@
 ,{"plugin":"GoldEconomy","name":"economia","desc":"Administra moedas e cash","usage":"/economia <adicionar/retirar/definir> <money/cash> <jogador> <valor>","perm":"goldeconomy.admin","aliases":""}
 ,{"plugin":"GoldHud","name":"hud","desc":"Liga ou desliga a barra","usage":"/hud | /hud mundo <mundo>","perm":null,"aliases":"cordenadas,coords"}
 ,{"plugin":"GoldHud","name":"id","desc":"Mostra o id do item na mao","usage":"/id","perm":null,"aliases":"itemid"}
-,{"plugin":"GoldSkyWars","name":"sw","desc":"SkyWars","usage":"/sw [entrar solo|dupla|sair|kits|stats|top]","perm":null,"aliases":"skywars"}
+,{"plugin":"GoldSkyWars","name":"sw","desc":"SkyWars","usage":"/sw [entrar solo|dupla|sair|kits|almas|vantagens|jaulas|prestigio|votar|stats|top]","perm":null,"aliases":"skywars"}
+,{"plugin":"GoldSkyWars","name":"swmap","desc":"Editar o mapa do SkyWars (jaulas, espectador, baus, time)","usage":"/swmap [info|jaula|espectador|bau|time|minimo|nome|autor|ativar|desativar|salvar]","perm":"goldskywars.admin","aliases":""}
+,{"plugin":"GoldSkyWars","name":"gerar","desc":"Gerar minerios nas ilhas marcadas com o graveto","usage":"/gerar minerios","perm":"goldskywars.admin","aliases":""}
 ,{"plugin":"GoldHG","name":"hg","desc":"Hunger Games","usage":"/hg entrar [arena] | sair | lista","perm":null,"aliases":""}
 ,{"plugin":"GoldHG","name":"hgkit","desc":"Escolhe o kit do HG","usage":"/hgkit [nome]","perm":null,"aliases":""}
 ,{"plugin":"GoldHG","name":"hgkits","desc":"Abre o menu de kits do HG","usage":"/hgkits","perm":null,"aliases":""}
@@ -223,7 +239,13 @@
 ,{"plugin":"GoldBreaker","name":"enviar","desc":"Envia o item da mao a outro jogador","usage":"/enviar <jogador>","perm":"goldbreaker.enviar","aliases":"send"}
 ,{"plugin":"GoldBedWars","name":"bw","desc":"BedWars","usage":"/bw [entrar solo|dupla|quarteto|sair|loja|melhorias|stats|top]","perm":null,"aliases":"bedwars"}
 ,{"plugin":"GoldMarket","name":"leilao","desc":"Leilao de itens","usage":"/leilao [vender <preco> | meus | cancelar <id> | coletar]","perm":null,"aliases":"olx,ah,mercado"}
-,{"plugin":"GoldStaff","name":"suporte","desc":"Abre um ticket de atendimento com a equipe","usage":"/suporte [mensagem] | /suporte sair | /suporte cancelar","perm":null,"aliases":"ticket,atendimento"}
+,{"plugin":"GoldStaff","name":"welcomebook","desc":"Boas-vindas, regras e suporte","usage":"/welcomebook [reload]","perm":null,"aliases":"boasvindas"}
+,{"plugin":"GoldStaff","name":"advertir","desc":"Registra advertencia e aplica a escala de bans","usage":"/advertir <jogador> <motivo>","perm":"goldstaff.punir","aliases":"adv"}
+,{"plugin":"GoldStaff","name":"advertencias","desc":"Consulta historico de punicoes","usage":"/advertencias <jogador>","perm":"goldstaff.punir","aliases":""}
+,{"plugin":"GoldStaff","name":"banir","desc":"Ban permanente por conta, aparelho e IP","usage":"/banir <jogador> <motivo>","perm":"goldstaff.punir","aliases":""}
+,{"plugin":"GoldStaff","name":"tempban","desc":"Ban temporario em dias (conta e aparelho)","usage":"/tempban <jogador> <dias> <motivo>","perm":"goldstaff.punir","aliases":""}
+,{"plugin":"GoldStaff","name":"desbanir","desc":"Anula a punicao apos a contestacao (tira o ban e zera as advertencias)","usage":"/desbanir <jogador> <motivo da revisao>","perm":"goldstaff.desbanir","aliases":""}
+,{"plugin":"GoldStaff","name":"suporte","desc":"Abre um ticket de atendimento com a equipe","usage":"/suporte [mensagem] | /suporte sair | /suporte cancelar","perm":null,"aliases":"ticket,atendimento,suport"}
 ,{"plugin":"GoldStaff","name":"atender","desc":"Atende um ticket do suporte","usage":"/atender [numero]","perm":"goldstaff.suporte","aliases":""}
 ,{"plugin":"GoldStaff","name":"finalizar","desc":"Finaliza o atendimento atual","usage":"/finalizar [resultado]","perm":null,"aliases":""}
 ,{"plugin":"GoldStaff","name":"avaliar","desc":"Avalia o ultimo atendimento","usage":"/avaliar <1 a 5>","perm":null,"aliases":""}
@@ -291,6 +313,7 @@
 ,{"plugin":"GoldChat","name":"goldchat.cores","desc":"Usa & para cores no chat","def":"op"}
 ,{"plugin":"GoldChat","name":"goldchat.links","desc":"Pode enviar links","def":"op"}
 ,{"plugin":"GoldChat","name":"goldchat.semfiltro","desc":"Fala sem passar pelo filtro de palavroes","def":"false"}
+,{"plugin":"GoldChat","name":"goldchat.enquetes","desc":"Cria e administra enquetes","def":"op"}
 ,{"plugin":"GoldTags","name":"goldtags.admin","desc":"Cria tags de evento e da ou tira tags dos jogadores","def":"op"}
 ,{"plugin":"GoldKits","name":"goldkits.admin","desc":"Cria e apaga kits e usa todos","def":"op"}
 ,{"plugin":"GoldVault","name":"goldvault.usar","desc":"Usa o bau pessoal","def":"true"}
@@ -310,6 +333,9 @@
 ,{"plugin":"GoldStaff","name":"goldstaff.reports","desc":"Recebe e fecha denuncias","def":"op"}
 ,{"plugin":"GoldStaff","name":"goldstaff.suporte","desc":"Recebe os avisos de ticket e atende o /suporte","def":"op"}
 ,{"plugin":"GoldStaff","name":"goldstaff.metricas","desc":"Ve as metricas de atendimento da equipe","def":"op"}
+,{"plugin":"GoldStaff","name":"goldstaff.punir","desc":"Aplica advertencias e bans respeitando hierarquia","def":"op"}
+,{"plugin":"GoldStaff","name":"goldstaff.desbanir","desc":"Revoga bans apos contestacao no Discord","def":"op"}
+,{"plugin":"GoldStaff","name":"welcomebook.admin","desc":"Recarrega o menu de boas-vindas","def":"op"}
 ,{"plugin":"GoldShop","name":"goldshop.admin","desc":"Cria placas de compra e venda e gerencia lojas","def":"op"}
 ,{"plugin":"GoldFactions","name":"goldfactions.admin","desc":"Ignora territorio e configura mundos, pesos e mini mapa","def":"op"}
 ,{"plugin":"GoldEnchant","name":"goldenchant.admin","desc":"Define precos e aplica qualquer nivel","def":"op"}
@@ -326,10 +352,12 @@
 ,"clan_tag"
 ,"nivel_arqueiro"
 ,"grupo"
+,"sw_moedas"
 ,"dir"
 ,"nivel_desarmado"
 ,"mctop"
 ,"nivel_herbalismo"
+,"sw_prestigio"
 ,"nivel_reparacao"
 ,"armadura"
 ,"tag"
@@ -343,8 +371,10 @@
 ,"mundo"
 ,"banco"
 ,"nome"
+,"sw_almas"
 ,"poder"
 ,"nivel_lenhador"
+,"sw_nivel"
 ,"money"
 ,"x"
 ,"clan"

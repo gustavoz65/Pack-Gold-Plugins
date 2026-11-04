@@ -65,6 +65,14 @@ public final class RecordStore<T> {
     public boolean isLoaded() { return !closed && ready.isDone() && !ready.isCompletedExceptionally(); }
     public Set<String> keys() { check(); return new HashSet<>(records.keySet()); }
     public T snapshot(String key) { check(); if (!eager && !records.containsKey(key)) { throw new IllegalStateException("Perfil carregando."); } return copy(records.getOrDefault(key, defaults.get())); }
+    /** Leitura sem copia, para eventos frequentes. Nao altere o objeto: use change(). */
+    public T peek(String key) {
+        check();
+        T value = records.get(key);
+        if (value != null) { return value; }
+        if (!eager) { throw new IllegalStateException("Perfil carregando."); }
+        return defaults.get();
+    }
     private T copy(T value) { return gson.fromJson(gson.toJson(value), type); }
     public CompletableFuture<T> change(String key, Consumer<T> mutation) {
         checkThread();

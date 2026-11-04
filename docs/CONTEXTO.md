@@ -30,6 +30,15 @@ Leia este arquivo inteiro antes de mexer em qualquer coisa. Ele resume o que exi
   - tocar no ar com item comum não chega ao servidor (use o truque de selecionar o item na hotbar);
   - abrir um menu logo depois de outro fechar exige espera (o `MenuEngine` já trata isso).
 
+## Estado recente (04/11/2026)
+- SkyWars estilo MythicSkyWars (progressão, Poço das Almas, vantagens, jaulas, prestígio, votação, `/swmap`, minérios por ilha com `/gerar minerios`).
+- GoldStaff: punições por advertências (conta + aparelho; o permanente também bloqueia IP) e boas-vindas antes do login.
+- GoldChat: enquetes (`/enquete`, `/entrar`).
+- GoldAuth: anda no lobby antes do login e qualquer ação pede login; só o menu de boas-vindas abre antes (`AuthService.allowGuestMenu`).
+- `RecordStore` (gold-api): registros por chave com `peek` (leitura sem cópia) e `change` enfileirado. `WorldCopies`: cópia de mapa com troca atômica.
+- Testes de servidor novos em `teste-cos`: `sm/TesteSkyMythic`, `pu/TestePunicoes` e `al/TesteLoginLobby` (este roda com `KEEP_AUTH=1`). O mapa `sw_ilhas` original fica no zip do pack (`worlds/sw_ilhas`).
+- Impressão de aparelho (`Player.getDeviceFingerprint`) sem UUID ou com clientId 0/nulo é ignorada no ban e no 2FA, senão vira igual para todos.
+
 ## Hospedagem do dono
 - VPS Contabo (EUA) com **Pterodactyl** (painel em http://IP, Wings no mesmo host, firewall da Contabo; sem UFW).
 - Servidor "Rush MC" na porta 19132. Egg em `hospedagem/egg-nukkit-gold.json`.

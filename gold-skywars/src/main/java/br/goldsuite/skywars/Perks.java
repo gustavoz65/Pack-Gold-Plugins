@@ -60,10 +60,12 @@ final class Perks implements Listener {
             if (active(p) && random.nextInt(100) < level(p, "blazingarrows") * 3) { projectile.setOnFire(10); }
         }
     }
+    static boolean ore(int id) { return id == 56 || id == 15 || id == 16 || id == 14 || id == 21 || id == 73 || id == 74; }
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void place(BlockPlaceEvent e) {
         GoldSkyWars.Game g = plugin.inGame.get(e.getPlayer());
-        if (g != null) { g.placedOres.add(IslandScan.pack(e.getBlock().getFloorX(), e.getBlock().getFloorY(), e.getBlock().getFloorZ())); }
+        // So minerio colocado conta (o resto nao interessa e so ocuparia memoria).
+        if (g != null && ore(e.getBlock().getId())) { g.placedOres.add(IslandScan.pack(e.getBlock().getFloorX(), e.getBlock().getFloorY(), e.getBlock().getFloorZ())); }
     }
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void mine(BlockBreakEvent e) {
@@ -71,7 +73,7 @@ final class Perks implements Listener {
         if (!active(p) || g == null) { return; }
         int id = e.getBlock().getId();
         long pos = IslandScan.pack(e.getBlock().getFloorX(), e.getBlock().getFloorY(), e.getBlock().getFloorZ());
-        if (g.placedOres.contains(pos) || !(id == 56 || id == 15 || id == 16 || id == 14 || id == 21 || id == 73 || id == 74)) { return; }
+        if (!ore(id) || g.placedOres.contains(pos)) { return; }
         if (random.nextInt(100) < level(p, "miningexpertise") * 12) {
             Item[] original = e.getDrops(), doubled = new Item[original.length * 2];
             for (int i = 0; i < original.length; i++) { doubled[i] = original[i]; doubled[i + original.length] = original[i].clone(); }

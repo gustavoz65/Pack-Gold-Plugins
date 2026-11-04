@@ -41,6 +41,7 @@ public final class SwState {
         if (!Kits.ALL.containsKey(s.kit)) { s.kit = Kits.DEFAULT; }
         if (s.cages == null) { s.cages = new TreeSet<>(); }
         if (s.cage == null) { s.cage = "glass"; }
+        if (s.prestige < 0 || s.prestige >= Progression.PRESTIGE_LEVELS.length) { s.prestige = 0; }
         if (s.perks == null) { s.perks = new HashMap<>(); }
         if (s.disabledPerks == null) { s.disabledPerks = new TreeSet<>(); }
         if (s.kits.size() > 128 || s.cages.size() > 32 || s.perks.size() > 32) { throw new IllegalArgumentException(M.t("perfil_invalido")); }
@@ -68,6 +69,9 @@ public final class SwState {
             if (!worlds.add(a.world.toLowerCase(Locale.ROOT))) { throw new IllegalArgumentException(M.t("mundo_duplicado")); }
             if (a.chests == null) { a.chests = new HashMap<>(); }
             if (a.spectator == null) { a.spectator = new double[0]; }
+            if (a.display == null) { a.display = ""; }
+            if (a.author == null) { a.author = ""; }
+            if (a.display.length() > 32 || a.author.length() > 32) { throw new IllegalArgumentException(M.t("arena_invalida", e.getKey())); }
             if (a.chests.size() > 256 || a.minimum < 2 || a.minimum > 96) { throw new IllegalArgumentException(M.t("arena_invalida", e.getKey())); }
             for (double[] point : Arrays.asList(a.center, a.spectator)) { if (point.length != 0 && point.length != 3) { throw new IllegalArgumentException(M.t("jaula_invalida")); } for (double v : point) { if (!Double.isFinite(v) || Math.abs(v) > 3e7) { throw new IllegalArgumentException(M.t("jaula_invalida")); } } }
             for (double[] p : a.spawns) { if (p == null || p.length != 4) { throw new IllegalArgumentException(M.t("jaula_invalida")); } for (double v : p) { if (Double.isNaN(v) || Double.isInfinite(v) || Math.abs(v) > 3e7) { throw new IllegalArgumentException(M.t("jaula_invalida")); } } }

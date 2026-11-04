@@ -2,23 +2,21 @@ package br.goldsuite.chat;
 
 import java.util.*;
 
+/**
+ * So perguntas e totais (poucos KB). Cada voto e uma linha propria em {@link Polls#VOTES}, entao votar nao regrava
+ * todas as enquetes e o numero de votos nao tem limite.
+ */
 final class PollState {
     Map<String, Poll> polls = new LinkedHashMap<>();
+    long serial;
     static final class Poll {
         String question = "";
         List<String> options = new ArrayList<>();
-        Map<String, Integer> votes = new HashMap<>();
-        long closes;
-        boolean closed;
+        int[] counts = new int[0];
+        long id, closes;
+        boolean closed, announced;
         boolean open(long now) { return !closed && now < closes; }
-        void vote(String account, int option, long now) {
-            if (!open(now)) { throw new IllegalArgumentException(M.t("enquete_fechada")); }
-            if (option < 0 || option >= options.size()) { throw new IllegalArgumentException(M.t("enquete_opcao_invalida")); }
-            if (votes.containsKey(account)) { throw new IllegalArgumentException(M.t("enquete_ja_votou")); }
-            if (votes.size() >= 10000) { throw new IllegalArgumentException(M.t("enquete_limite")); }
-            votes.put(account, option);
-        }
-        int[] totals() { int[] out = new int[options.size()]; for (int v : votes.values()) { out[v]++; } return out; }
+        int total() { int n = 0; for (int c : counts) { n += c; } return n; }
     }
     static String id(String input) {
         String id = input.toLowerCase(Locale.ROOT);
@@ -26,17 +24,17 @@ final class PollState {
         return id;
     }
     static void validate(PollState s) {
-        if (s == null || s.polls == null || s.polls.size() > 32) { throw new IllegalArgumentException(M.t("enquete_limite")); }
+        if (s == null || s.polls == null || s.polls.size() > 32 || s.serial < 0) { throw new IllegalArgumentException(M.t("enquete_limite")); }
         for (Map.Entry<String, Poll> e : s.polls.entrySet()) {
             id(e.getKey()); Poll p = e.getValue();
             if (p == null || p.question == null || p.question.length() < 1 || p.question.length() > 200 ||
-                    p.options == null || p.options.size() < 2 || p.options.size() > 8 || p.votes == null || p.votes.size() > 10000 || p.closes <= 0) {
+                    p.options == null || p.options.size() < 2 || p.options.size() > 8 || p.closes <= 0) {
                 throw new IllegalArgumentException(M.t("enquete_uso"));
             }
+            if (p.counts == null || p.counts.length != p.options.size()) { p.counts = Arrays.copyOf(p.counts == null ? new int[0] : p.counts, p.options.size()); }
+            for (int c : p.counts) { if (c < 0) { throw new IllegalArgumentException(M.t("enquete_opcao_invalida")); } }
             Set<String> unique = new HashSet<>();
             for (String option : p.options) { if (option == null || option.trim().isEmpty() || option.length() > 80 || !unique.add(option.toLowerCase(Locale.ROOT))) { throw new IllegalArgumentException(M.t("enquete_opcao_invalida")); } }
-            for (Map.Entry<String, Integer> v : p.votes.entrySet()) { if (!v.getKey().matches("[a-z0-9_]{3,16}") || v.getValue() == null || v.getValue() < 0 || v.getValue() >= p.options.size()) { throw new IllegalArgumentException(M.t("enquete_opcao_invalida")); } }
         }
     }
 }
-

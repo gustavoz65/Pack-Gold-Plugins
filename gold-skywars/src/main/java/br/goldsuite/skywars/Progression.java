@@ -27,9 +27,10 @@ final class Progression {
         Settings.number(plugin, "xp.vitoria", 100, "XP SkyWars por vitoria", v -> winXp = Math.max(0, Math.min(10000, v)));
         Settings.number(plugin, "moedas.abate", 20, "Moedas SkyWars por abate", v -> killCoins = Math.max(0, Math.min(10000, v)));
         Settings.number(plugin, "moedas.vitoria", 100, "Moedas SkyWars por vitoria", v -> winCoins = Math.max(0, Math.min(10000, v)));
-        Settings.placeholder(plugin, "sw_almas", p -> loaded(p) ? String.valueOf(get(p).souls) : "0");
-        Settings.placeholder(plugin, "sw_nivel", p -> loaded(p) ? String.valueOf(level(get(p).xp)) : "1");
-        Settings.placeholder(plugin, "sw_moedas", p -> loaded(p) ? String.valueOf(get(p).coins) : "0");
+        Settings.placeholder(plugin, "sw_almas", p -> loaded(p) ? String.valueOf(view(p).souls) : "0");
+        Settings.placeholder(plugin, "sw_nivel", p -> loaded(p) ? String.valueOf(level(view(p).xp)) : "1");
+        Settings.placeholder(plugin, "sw_prestigio", p -> loaded(p) ? prestigeName(view(p).prestige) : prestigeName(0));
+        Settings.placeholder(plugin, "sw_moedas", p -> loaded(p) ? String.valueOf(view(p).coins) : "0");
     }
     private final Set<Player> ready = Collections.newSetFromMap(new IdentityHashMap<>());
     void load(Player p) {
@@ -41,7 +42,10 @@ final class Progression {
     }
     void release(Player p) { ready.remove(p); if (sessions.remove(p)) { records.release(GoldSkyWars.key(p)); } }
     boolean loaded(Player p) { return ready.contains(p); }
+    /** Copia (para menus). */
     SwState.Stats get(Player p) { if (!loaded(p)) { throw new IllegalStateException(M.t("carregando")); } return records.snapshot(GoldSkyWars.key(p)); }
+    /** Leitura sem copia (eventos de dano, contagem, placeholders): nao altere o objeto. */
+    SwState.Stats view(Player p) { if (!loaded(p)) { throw new IllegalStateException(M.t("carregando")); } return records.peek(GoldSkyWars.key(p)); }
     CompletableFuture<SwState.Stats> change(Player p, Consumer<SwState.Stats> op) {
         if (!loaded(p)) { return PersistentState.failed(new IllegalStateException(M.t("carregando"))); }
         return records.change(GoldSkyWars.key(p), op);
@@ -62,8 +66,8 @@ final class Progression {
         if (level <= 10) { return 5000; }
         return Math.min(15000, 5000 + ((level - 1) / 10) * 1000L);
     }
-    int perk(Player p, String id) { SwState.Stats s = get(p); return s.disabledPerks.contains(id) ? 0 : s.perks.getOrDefault(id, 0); }
-    int cage(Player p) { int n = Arrays.asList(CAGES).indexOf(get(p).cage); return n < 0 ? 20 : CAGE_BLOCKS[n]; }
+    int perk(Player p, String id) { SwState.Stats s = view(p); return s.disabledPerks.contains(id) ? 0 : s.perks.getOrDefault(id, 0); }
+    int cage(Player p) { int n = Arrays.asList(CAGES).indexOf(view(p).cage); return n < 0 ? 20 : CAGE_BLOCKS[n]; }
     private void transaction(Player p, Consumer<SwState.Stats> mutation, Consumer<SwState.Stats> done) {
         if (!loaded(p) || !busy.add(GoldSkyWars.key(p))) { p.sendMessage(M.t("perfil_ocupado")); return; }
         change(p, mutation).whenComplete((s, e) -> {
@@ -129,42 +133,90 @@ final class Progression {
             String id = kits.get(random.nextInt(kits.size())); fresh = s.kits.add(id); prize = Kits.ALL.get(id).name;
         } else if (pick < 95) {
             String id = PERKS[random.nextInt(PERKS.length)]; fresh = !s.perks.containsKey(id);
-            if (fresh) { s.perks.put(id, 1); } prize = id;
+            if (fresh) { s.perks.put(id, 1); } prize = perkName(id);
         } else {
-            String id = CAGES[1 + random.nextInt(CAGES.length - 1)]; fresh = s.cages.add(id); prize = id;
+            String id = CAGES[1 + random.nextInt(CAGES.length - 1)]; fresh = s.cages.add(id); prize = cageName(id);
         }
         if (!fresh) { s.coins += duplicate; return M.t("almas_repetido", prize, duplicate); }
         return M.t(pick >= 95 ? "almas_lendario" : "almas_raro", prize);
     }
+    static String perkName(String id) {
+        switch (id) {
+            case "fallreduction": return M.t("vantagem_queda");
+            case "firedamagereduction": return M.t("vantagem_fogo");
+            case "shotdamagereduction": return M.t("vantagem_flecha");
+            case "arrowrecovery": return M.t("vantagem_recuperar_flecha");
+            case "blazingarrows": return M.t("vantagem_flecha_fogo");
+            case "bulldozer": return M.t("vantagem_trator");
+            case "endermastery": return M.t("vantagem_perola");
+            case "juggernaut": return M.t("vantagem_colosso");
+            case "knowledge": return M.t("vantagem_conhecimento");
+            case "miningexpertise": return M.t("vantagem_mineracao");
+            case "speedboost": return M.t("vantagem_velocidade");
+            case "resistanceboost": return M.t("vantagem_resistencia");
+            case "nourishment": return M.t("vantagem_nutricao");
+            default: return M.t("vantagem_salvador");
+        }
+    }
+    static String cageName(String id) {
+        switch (id) {
+            case "iron": return M.t("jaula_ferro");
+            case "leaves": return M.t("jaula_folhas");
+            case "ice": return M.t("jaula_gelo");
+            case "gold": return M.t("jaula_ouro");
+            default: return M.t("jaula_vidro");
+        }
+    }
+    /** Tocar compra o proximo nivel; no nivel maximo, tocar liga e desliga a vantagem. */
     void perks(Player p) {
         SwState.Stats s = get(p);
         Map<Integer, Item> items = new HashMap<>();
-        for (int i = 0; i < PERKS.length; i++) { String id = PERKS[i]; int level = s.perks.getOrDefault(id, 0); items.put(i, icon(278, M.t("vantagem_item", id, level, (level + 1) * 500))); }
+        for (int i = 0; i < PERKS.length; i++) {
+            String id = PERKS[i]; int level = s.perks.getOrDefault(id, 0);
+            String state = level >= 4 ? (s.disabledPerks.contains(id) ? M.t("vantagem_desligada") : M.t("vantagem_ligada")) : M.t("vantagem_preco", (level + 1) * 500);
+            items.put(i, icon(level >= 4 ? 399 : 278, M.t("vantagem_item", perkName(id), level, state)));
+        }
         plugin.menus().open(p, M.t("vantagens_menu"), items, (who, slot) -> {
             if (slot >= 0 && slot < PERKS.length) {
                 String id = PERKS[slot];
-                transaction(who, next -> { int n = next.perks.getOrDefault(id, 0); if (n >= 4) { throw new IllegalArgumentException(M.t("vantagem_maximo")); } spend(next, (n + 1) * 500L); next.perks.put(id, n + 1); }, next -> perks(who));
+                transaction(who, next -> {
+                    int n = next.perks.getOrDefault(id, 0);
+                    if (n >= 4) { if (!next.disabledPerks.remove(id)) { next.disabledPerks.add(id); } return; }
+                    spend(next, (n + 1) * 500L); next.perks.put(id, n + 1);
+                }, next -> { who.sendMessage(M.t("vantagem_atualizada", perkName(id), next.perks.getOrDefault(id, 0), next.coins)); perks(who); });
             }
         });
     }
     void cages(Player p) {
         SwState.Stats s = get(p); Map<Integer, Item> items = new HashMap<>();
-        for (int i = 0; i < CAGES.length; i++) { items.put(10 + i, icon(CAGE_BLOCKS[i], M.t("jaula_item", CAGES[i], i == 0 || s.cages.contains(CAGES[i]) ? M.t("jaula_possui") : M.t("jaula_bloqueada")))); }
+        for (int i = 0; i < CAGES.length; i++) { items.put(10 + i, icon(CAGE_BLOCKS[i], M.t("jaula_item", cageName(CAGES[i]), i == 0 || s.cages.contains(CAGES[i]) ? M.t("jaula_possui") : M.t("jaula_bloqueada")))); }
         plugin.menus().open(p, M.t("jaulas_menu"), items, (who, slot) -> {
             int n = slot - 10; if (n < 0 || n >= CAGES.length) { return; }
             transaction(who, next -> {
                 if (n != 0 && !next.cages.contains(CAGES[n])) { throw new IllegalArgumentException(M.t("jaula_bloqueada")); }
                 next.cage = CAGES[n];
-            }, next -> who.sendMessage(M.t("jaula_escolhida", next.cage)));
+            }, next -> who.sendMessage(M.t("jaula_escolhida", cageName(next.cage))));
         });
     }
+    static final int[] PRESTIGE_LEVELS = {1,10,25,50,75,100,150};
+    static String prestigeName(int index) {
+        switch (index) {
+            case 1: return M.t("prestigio_ferro");
+            case 2: return M.t("prestigio_ouro");
+            case 3: return M.t("prestigio_diamante");
+            case 4: return M.t("prestigio_esmeralda");
+            case 5: return M.t("prestigio_rubi");
+            case 6: return M.t("prestigio_lendario");
+            default: return M.t("prestigio_pedra");
+        }
+    }
     void prestige(Player p) {
-        SwState.Stats s = get(p); int[] levels = {1,10,25,50,75,100,150};
+        SwState.Stats s = get(p); int[] levels = PRESTIGE_LEVELS; int current = level(s.xp);
         Map<Integer, Item> items = new HashMap<>();
-        for (int i = 0; i < levels.length; i++) { items.put(i + 10, icon(399, M.t("prestigio_item", i, levels[i]))); }
+        for (int i = 0; i < levels.length; i++) { items.put(i + 10, icon(current >= levels[i] ? 399 : 351, M.t("prestigio_item", prestigeName(i), levels[i], i == s.prestige ? M.t("prestigio_atual") : current >= levels[i] ? M.t("prestigio_liberado") : M.t("prestigio_bloqueado")))); }
         plugin.menus().open(p, M.t("prestigio_titulo"), items, (who, slot) -> {
             int index = slot - 10; if (index < 0 || index >= levels.length) { return; }
-            transaction(who, next -> { if (level(next.xp) < levels[index]) { throw new IllegalArgumentException(M.t("prestigio_nivel")); } next.prestige = index; }, next -> who.sendMessage(M.t("prestigio_escolhido", index)));
+            transaction(who, next -> { if (level(next.xp) < levels[index]) { throw new IllegalArgumentException(M.t("prestigio_nivel")); } next.prestige = index; }, next -> who.sendMessage(M.t("prestigio_escolhido", prestigeName(index))));
         });
     }
     void close() { for (Player p : new ArrayList<>(sessions)) { release(p); } records.close(); busy.clear(); }

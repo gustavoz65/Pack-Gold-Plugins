@@ -36,7 +36,8 @@ GUIAS = {
     resumo="Registro e login obrigatórios (inclusive para OP), com senha forte (PBKDF2), limite de tentativas por IP e verificação em duas etapas (2FA) com aparelhos confiáveis.",
     passos=[
         "Não há nada para configurar: ao instalar, todo jogador precisa usar /registrar <senha> <confirmacao> na primeira vez e /login <senha> nas próximas.",
-        "Antes do login o jogador não anda, não fala, não usa comandos e não mexe em itens. Ele tem 120 s para entrar; 5 senhas erradas derrubam a conexão.",
+        "Antes do login o jogador anda livre pelo lobby (mundo principal), mas não fala, não usa comandos, não quebra, não coloca e não mexe em itens, NPCs ou menus: qualquer toque mostra 'Entre na sua conta' (ou 'Crie sua conta') com o comando certo. Em outros mundos ele fica parado e, se cair no vazio, volta ao spawn. Ele tem 120 s para entrar; 5 senhas erradas derrubam a conexão.",
+        "Para deixar o jogador parado até o login (como antes): painel GoldAuth > andar_sem_login = 0.",
         "Recomende o 2FA para a equipe: /2fa ativar, cadastre a chave no Google Authenticator, Authy ou Microsoft Authenticator e confirme com /2fa confirmar <codigo>.",
         "Se alguém perder o celular: /2fa reset <jogador> (staff). Se esquecer a senha: /authreset <jogador> apaga o registro para ele se registrar de novo.",
     ],
@@ -44,7 +45,7 @@ GUIAS = {
         "- No aparelho confiável basta o /login. Num aparelho novo, depois da senha o servidor pede o código de 6 números (/2fa <codigo> ou digitado no chat).",
         "- /2fa aparelhos mostra os aparelhos; /2fa aparelhos limpar deixa só o atual; /2fa desativar <codigo> desliga.",
     ])],
-    dicas=["2FA dando código incorreto: não precisa de nada no Google. Confira a chave (só letras A-Z e números 2-7), o tipo 'baseada em tempo' no app e a hora automática do celular. Repetir /2fa ativar mostra a mesma chave.", "As senhas nunca aparecem no console nem nos logs.", "Coloque login, registrar e 2fa nos comandos sempre liberados do GoldComandos (já vêm assim)."],
+    dicas=["O único menu que abre antes do login é o de boas-vindas do GoldStaff (os botões dele que precisam de conta pedem o login).", "Cliente sem o código da instalação (cliente modificado ou bot) nunca vira aparelho confiável do 2FA.", "2FA dando código incorreto: não precisa de nada no Google. Confira a chave (só letras A-Z e números 2-7), o tipo 'baseada em tempo' no app e a hora automática do celular. Repetir /2fa ativar mostra a mesma chave.", "As senhas nunca aparecem no console nem nos logs.", "Coloque login, registrar e 2fa nos comandos sempre liberados do GoldComandos (já vêm assim)."],
 ),
 "GoldPerms": dict(
     resumo="Grupos com herança, permissões, cargos hierárquicos da equipe (peso e tag) e VIP com prazo.",
@@ -147,7 +148,7 @@ GUIAS = {
     dicas=["goldessentials.instantaneo teleporta sem contagem (staff).", "/tpall traz todos até você (admin)."],
 ),
 "GoldChat": dict(
-    resumo="Formato do chat por grupo, tell, anti-spam, anti-link, mute, avisos e anúncios automáticos.",
+    resumo="Formato do chat por grupo, tell, anti-spam, anti-link, filtro de palavrões, mute, avisos, anúncios automáticos e enquetes.",
     passos=[
         "Veja os formatos com /chat formatos e troque com /chat formato <grupo> <formato>. O formato precisa de {mensagem} e aceita {nome}, {tag}, {grupo}, {mctop} e os placeholders.",
         "Mensagens de entrada e saída: /chat entrada <texto> e /chat saida <texto> ({nome} vira o nick). Para esconder: painel GoldChat > entrada_saida = 0.",
@@ -161,8 +162,14 @@ GUIAS = {
         "$ /chat entrada &a+ &f{nome} &7entrou",
         "$ /chat anuncio adicionar &eUse &f/kits &epara ver os kits!",
         "- Moderação: /mute <jogador> [minutos], /desmute, /chat off, /limparchat, /aviso <texto> (no chat e no meio da tela), /anuncio <texto>.",
+    ]), ("Enquetes", [
+        "$ /enquete criar mapa 60 Qual mapa no sábado? | Ilhas | Deserto | Gelo",
+        "- O id (mapa) tem até 24 letras; depois vêm os minutos (1 a 10080), a pergunta e de 2 a 8 opções separadas por |.",
+        "- A enquete é anunciada no chat a cada enquetes.intervalo segundos (painel; 0 desliga). O jogador vota com /entrar mapa (abre um menu com as opções) ou /entrar mapa 2.",
+        "- Um voto por conta. /enquete resultado mapa mostra a parcial; /enquete encerrar mapa fecha e anuncia o vencedor; /enquete apagar mapa remove depois de encerrada; /enquete anunciar mapa repete o anúncio.",
+        "- Permissão goldchat.enquetes para criar e administrar (OP por padrão).",
     ])],
-    dicas=["Cargos sem formato próprio usam 'tag nome: mensagem' com a tag do GoldPerms.", "Mais de 70% de maiúsculas viram minúsculas e links são bloqueados para quem não tem goldchat.links."],
+    dicas=["Enquetes: o resultado sai no chat quando o tempo acaba ou com /enquete encerrar. Cada voto é gravado à parte, então não há limite de votos e votar não pesa no servidor.", "Cargos sem formato próprio usam 'tag nome: mensagem' com a tag do GoldPerms.", "Mais de 70% de maiúsculas viram minúsculas e links são bloqueados para quem não tem goldchat.links."],
 ),
 "GoldHud": dict(
     resumo="Barra acima da hotbar no estilo scoreboard (o 0.15 não tem placar lateral), com duas linhas e placeholders.",
@@ -245,7 +252,7 @@ GUIAS = {
     dicas=["Os modelos 3D aparecem só no lobby (mundo padrão), só para quem está perto e somem com TPS baixo."],
 ),
 "GoldStaff": dict(
-    resumo="Suporte com triagem por IA (Groq), atendimento isolado entre jogador e staff, métricas da equipe, denúncias, ajuda, bloqueio de comandos, restart, clearlag e comandos agendados.",
+    resumo="Suporte com triagem por IA (Groq), atendimento isolado entre jogador e staff, métricas da equipe, punições com escala de advertências, boas-vindas, denúncias, ajuda, bloqueio de comandos, restart, clearlag e comandos agendados.",
     passos=[
         "Crie uma chave em console.groq.com e cole no painel: GoldStaff > groq_chave (fica mascarada).",
         "Ajuste: groq_modelo (padrão openai/gpt-oss-20b, barato), triagem_perguntas (1 a 6), suporte_espera e suporte_prefixo.",
@@ -259,6 +266,17 @@ GUIAS = {
         "- /finalizar [resultado] encerra; o jogador avalia com /avaliar 1 a 5.",
         "- Fila e histórico: /tickets, /tickets ver <n>, /tickets fechar <n> [motivo]. Métricas: /tickets metricas [dias].",
         "- Sem chave da Groq, o pedido vai direto para a equipe.",
+    ]), ("Punições (advertências e bans)", [
+        "- /advertir <jogador> <motivo> soma uma advertência. Com 3 (punicoes.adv_temporario) o jogador leva ban de 3 dias (punicoes.dias); com 4 (punicoes.adv_permanente), ban permanente.",
+        "- /tempban <jogador> <dias> <motivo>, /banir <jogador> <motivo> e /advertencias <jogador> (histórico com data e hora de Brasília).",
+        "- O 0.15 não envia MAC. O ban usa a conta, o aparelho (código da instalação do jogo) e o IP: o temporário bloqueia conta e aparelho; o permanente bloqueia também o IP. Assim uma conta nova no mesmo celular não entra.",
+        "- Ban de quem está offline também pega o aparelho e o IP dos últimos logins da conta.",
+        "- Desban só depois da contestação no Discord (link em punicoes.discord, aparece na tela de bloqueio): /desbanir <jogador> <motivo>. Isso tira o ban e zera as advertências; o histórico fica.",
+        "- Permissões: goldstaff.punir (advertir e banir) e goldstaff.desbanir. Ninguém pune cargo igual ou superior.",
+    ]), ("Boas-vindas", [
+        "- Ao entrar, antes do login, o jogador vê um menu de páginas: IP do servidor, regras (hack, racismo e ofensas dão ban) e suporte, com botão para o /suporte.",
+        "- Edite em plugins/GoldStaff/config.yml (boasvindas: ativo, ip, suporte, paginas, so_primeira_vez, ocultar_entrada) e aplique com /welcomebook reload (permissão welcomebook.admin).",
+        "- Sem páginas no config, o texto vem de boasvindas_p1, p2 e p3 do mensagens.yml. /welcomebook (ou /boasvindas) abre de novo a qualquer hora.",
     ]), ("Outras ferramentas", [
         "$ /restart auto 12",
         "$ /agendar 30 say Visite nossa loja!",
@@ -424,17 +442,26 @@ GUIAS = {
     dicas=["Durante a partida só funcionam /hg, /kit, /sopa, /tell e o login."],
 ),
 "GoldSkyWars": dict(
-    resumo="SkyWars estilo Hypixel: jaulas, kits, baús de ilha e do meio com refil, espectadores e mapa restaurado.",
+    resumo="SkyWars no estilo MythicSkyWars: jaulas personalizadas, 19 kits, baús de ilha e do meio com refil, votação da partida, Poço das Almas, vantagens, prestígio, nível e moedas próprias, minérios gerados por ilha e mapa restaurado.",
     passos=[
         "Vá ao mundo do mapa e crie: /sw criar <nome> [solo|dupla].",
-        "Em cada ponto de jaula (1 a 3 blocos acima da ilha): /sw jaula.",
-        "No centro: /sw meio. Para o modo insano: /sw insano.",
-        "Salve a cópia do mapa: /sw salvar.",
-        "No painel: minimo_jogadores, contagem, duracao, refil_1, refil_2, premio_abate, premio_vitoria, mundo_lobby e os preços kit.<id>.",
+        "Em cada ponto de jaula (1 a 3 blocos acima da ilha): /swmap jaula. No centro: /swmap meio. Ponto dos espectadores: /swmap espectador.",
+        "Ajustes do mapa: /swmap time <1-4> (jogadores por jaula), /swmap minimo <2-96>, /swmap nome <texto>, /swmap autor <texto>, /swmap ativar|desativar. /swmap mostra tudo.",
+        "Tipo de baú: /swmap bau meio (ou ilha, ou auto) e toque nos baús; /swmap bau pronto termina. Sem marcação, baús a até 12 blocos do centro são do meio.",
+        "Minérios: /sw ilhas entrega o graveto. Toque em um bloco de cada ilha (8, 12...) e use /gerar minerios: cada ilha fica com 4 diamantes, 5 ferros e 6 carvões escondidos na pedra e na terra, e o mapa é salvo sozinho.",
+        "Salve a cópia do mapa: /swmap salvar (ou /sw salvar). O mapa volta assim depois de cada partida.",
+        "No painel: minimo_jogadores, contagem, duracao, refil_1, refil_2, premio_abate, premio_vitoria, mundo_lobby, os preços kit.<id>, almas.custo, almas.repetido, xp.abate, xp.vitoria, moedas.abate e moedas.vitoria.",
         "NPC: /npc comando sw entrar solo.",
     ],
-    secoes=[("ArenaBuilder", ["- jaula e meio aceitam x y z no fim: cole os comandos do pontos.txt do mapa pronto sw_ilhas."])],
-    dicas=["/sw lista, /sw iniciar <arena>, /sw remover <arena>. Ranking skywars para NPC."],
+    secoes=[("Para o jogador", [
+        "- /sw abre o menu: Poço das Almas, Vantagens, Jaulas e Prestígio. Cada abate dá 1 alma, XP e moedas do SkyWars; a vitória dá mais XP e moedas.",
+        "- Poço das Almas (/sw almas): gasta almas e sorteia moedas, XP, kits, vantagens ou jaulas. Prêmio repetido vira moedas.",
+        "- Vantagens (/sw vantagens): 14 vantagens com 4 níveis (queda leve, velocidade, resistência, mineração dupla, recuperar flechas...). No nível máximo, tocar liga e desliga.",
+        "- Jaulas (/sw jaulas): vidro, grade de ferro, folhas, gelo e ouro. Prestígio (/sw prestigio) libera pelo nível.",
+        "- Na sala de espera o papel 'Votar' da hotbar abre a votação: baús (básico, normal, insano), hora, clima, vida dupla e modificador (velocidade ou pulo). Empate fica no padrão.",
+        "- Kits são comprados com moedas do SkyWars. Placeholders para o HUD: {sw_nivel}, {sw_moedas}, {sw_almas} e {sw_prestigio}.",
+    ]), ("ArenaBuilder", ["- jaula, meio e espectador aceitam x y z no fim: cole os comandos do pontos.txt do mapa pronto sw_ilhas."])],
+    dicas=["/sw lista, /sw iniciar <arena>, /sw remover <arena>. Ranking skywars para NPC.", "Efeitos do Poço das Almas e da vitória não aparecem para quem usa /fps.", "Para editar uma arena ela precisa estar vazia; durante a geração de minérios ninguém entra."],
 ),
 "GoldBedWars": dict(
     resumo="BedWars com até 8 times, forja, diamante e esmeralda, loja por categorias, melhorias do time e eventos.",

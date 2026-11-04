@@ -9,4 +9,9 @@ public interface AuthService {
     CompletableFuture<Boolean> register(Player player, char[] password);
     CompletableFuture<Boolean> login(Player player, char[] password);
     CompletableFuture<Boolean> changePassword(Player player, char[] current, char[] replacement);
+    /**
+     * Antes do login nenhum menu abre. Isto libera so o menu com este titulo (ex.: boas-vindas) para este jogador;
+     * comandos e acoes disparados pelos botoes continuam exigindo login.
+     */
+    default void allowGuestMenu(Player player, String title) {}
 }

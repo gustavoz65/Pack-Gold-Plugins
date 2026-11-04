@@ -11,14 +11,16 @@ final class Security {
 
     boolean enabled() { return secret != null && !secret.isEmpty(); }
 
+    /** Aparelho vazio (cliente sem id da instalacao) nunca vira confiavel: a impressao seria publica e igual para muitos. */
     void trust(String device) {
+        if (device == null || device.isEmpty()) { return; }
         if (trusted == null) { trusted = new ArrayList<>(); }
         trusted.remove(device);
         trusted.add(device);
         while (trusted.size() > MAX_DEVICES) { trusted.remove(0); }
     }
 
-    boolean trusts(String device) { return trusted != null && trusted.contains(device); }
+    boolean trusts(String device) { return device != null && !device.isEmpty() && trusted != null && trusted.contains(device); }
 
     void validate() {
         if (trusted == null) { trusted = new ArrayList<>(); }

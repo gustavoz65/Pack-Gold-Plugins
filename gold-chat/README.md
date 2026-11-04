@@ -17,6 +17,9 @@ Chat com formato por grupo, mensagens privadas, anti-spam, anti-link, mute e an�
 - `/chat on|off`, `/limparchat`, `/mute <jogador> [minutos]`, `/desmute`, `/anuncio <texto>`.
 
 
+## Enquetes (`goldchat.enquetes`)
+`/enquete criar <id> <minutos> Pergunta | Opção 1 | Opção 2` (2 a 8 opções), `/enquete lista|resultado|anunciar|encerrar|apagar <id>`. Os jogadores votam com `/entrar <id>` (menu de lã) ou `/entrar <id> <número>`, um voto por conta. Anúncio a cada `enquetes.intervalo` s (0 desliga) e resultado no chat quando a enquete fecha. Cada voto é uma linha própria no banco: sem limite de votos e sem regravar as enquetes a cada voto.
+
 ## Do pack de rankup
 - `/aviso <texto>`: aviso grande no chat e no meio da tela por alguns segundos (BaconAviso; o 0.15 não tem título).
 - Painel GoldChat > `entrada_saida` = 0 esconde as mensagens de entrada e saída (OcultJoinQuit).

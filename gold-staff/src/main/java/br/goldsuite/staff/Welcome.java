@@ -1,7 +1,6 @@
 package br.goldsuite.staff;
 
 import br.goldsuite.api.*;
-import br.goldsuite.api.event.PlayerAuthEvent;
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.event.*;
@@ -15,7 +14,7 @@ final class Welcome implements Listener {
     private final GoldStaff plugin;
     private final Set<Player> shown = Collections.newSetFromMap(new IdentityHashMap<>());
     private Config config;
-    private boolean enabled, hideJoin;
+    private boolean enabled, hideJoin, firstOnly;
     private String ip, support;
     private List<String> pages;
     Welcome(GoldStaff plugin) { this.plugin = plugin; plugin.saveResource("config.yml", false); reload(); }
@@ -28,26 +27,42 @@ final class Welcome implements Listener {
         if (!cmd.matches("[a-zA-Z0-9_:-]+( [^\\r\\n]{1,100})?")) { throw new IllegalArgumentException(M.t("boasvindas_config_invalida")); }
         config = next; pages = nextPages; support = cmd;
         enabled = next.getBoolean("boasvindas.ativo", true);
-        hideJoin = next.getBoolean("boasvindas.ocultar_entrada", true);
+        hideJoin = next.getBoolean("boasvindas.ocultar_entrada", false);
+        firstOnly = next.getBoolean("boasvindas.so_primeira_vez", false);
         ip = next.getString("boasvindas.ip", "seuservidor.com");
     }
     @EventHandler(priority = EventPriority.HIGHEST)
     public void join(PlayerJoinEvent e) {
         if (hideJoin) { e.setJoinMessage(""); }
-        if (plugin.getServer().getServiceManager().load(AuthService.class) == null) { schedule(e.getPlayer(), 0); }
+        // Aparece ao entrar, enquanto o jogador ainda nao fez login (com GoldAuth); sem GoldAuth, aparece ao entrar.
+        schedule(e.getPlayer(), 0);
     }
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void auth(PlayerAuthEvent e) { schedule(e.getPlayer(), 0); }
     @EventHandler public void quit(PlayerQuitEvent e) { shown.remove(e.getPlayer()); }
+    static final String SEEN = "goldstaff-boasvindas";
+    /** Com so_primeira_vez, consulta (e marca) no banco antes de mostrar; sem a opcao, nenhum acesso ao banco. */
     private void schedule(Player p, int attempt) {
+        if (!enabled || shown.contains(p)) { return; }
+        if (!firstOnly || attempt > 0) { delay(p, attempt); return; }
+        CoreService core = plugin.getServer().getServiceManager().load(CoreService.class);
+        if (core == null) { return; }
+        String key = p.getName().toLowerCase(Locale.ROOT);
+        shown.add(p);
+        core.getStore().get(SEEN, key).whenComplete((seen, error) -> {
+            if (!plugin.isEnabled() || !p.isOnline()) { return; }
+            if (error != null || seen.isPresent()) { return; }
+            core.getStore().put(SEEN, key, "1");
+            shown.remove(p); delay(p, 1);
+        });
+    }
+    private void delay(Player p, int attempt) {
         if (!enabled || shown.contains(p) || attempt > 10) { return; }
         plugin.getServer().getScheduler().scheduleDelayedTask(new cn.nukkit.scheduler.PluginTask<GoldStaff>(plugin) {
             @Override public void onRun(int tick) {
                 if (!p.isOnline() || !plugin.isEnabled() || shown.contains(p)) { return; }
                 AuthService auth = plugin.getServer().getServiceManager().load(AuthService.class);
-                if (auth != null && !auth.isAuthenticated(p)) { return; }
+                if (auth != null && auth.isAuthenticated(p)) { return; }
                 MenuService menus = plugin.getServer().getServiceManager().load(MenuService.class);
-                if (!p.spawned || menus == null || menus.isOpen(p)) { schedule(p, attempt + 1); return; }
+                if (!p.spawned || menus == null || menus.isOpen(p)) { delay(p, attempt + 1); return; }
                 shown.add(p); open(p, 0);
             }
         }, 20);
@@ -58,7 +73,8 @@ final class Welcome implements Listener {
     }
     void open(Player p, int index) {
         AuthService auth = plugin.getServer().getServiceManager().load(AuthService.class);
-        if (auth != null && !auth.isAuthenticated(p)) { return; }
+        // Antes do login o GoldAuth so deixa abrir este menu; o botao de suporte continua pedindo login.
+        if (auth != null && !auth.isAuthenticated(p)) { auth.allowGuestMenu(p, M.t("boasvindas_titulo")); }
         int count = pages.isEmpty() ? 3 : pages.size();
         int selected = Math.max(0, Math.min(count - 1, index));
         String text = page(p, selected);

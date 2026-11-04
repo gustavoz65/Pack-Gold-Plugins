@@ -125,7 +125,11 @@ final class MenuEngine implements MenuService {
     }
 
     private static void restore(Player player, Menu menu) {
-        if (player.isOnline() && player.level != null) { player.level.sendBlocks(new Player[] {player}, new Vector3[] {menu.holder}); }
+        // Teleporte para outro mundo fecha o menu ja no mundo novo, onde o chunk do bau falso pode nem existir:
+        // nesse caso o cliente ja descartou o bloco e nao ha o que restaurar.
+        if (player.isOnline() && player.level != null && player.level.isChunkLoaded(menu.holder.getFloorX() >> 4, menu.holder.getFloorZ() >> 4)) {
+            player.level.sendBlocks(new Player[] {player}, new Vector3[] {menu.holder});
+        }
     }
 
     private static final class Holder extends Vector3 implements InventoryHolder {

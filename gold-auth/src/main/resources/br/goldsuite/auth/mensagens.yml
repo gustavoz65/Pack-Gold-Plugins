@@ -73,3 +73,7 @@ voce_ja_esta_autenticado: "Voce ja esta autenticado."
 # {0} = chave em blocos de 4
 chave_2fa: "&a{0}"
 chave_2fa_dica: "&7So existem letras A-Z e numeros 2-7 (nao tem 0, 1, 8 nem 9). Tipo: baseada em tempo. Se repetir /2fa ativar, a chave e a mesma."
+faca_login_para_isso: "&eEntre na sua conta para fazer isso: &f/login <senha>"
+registre_se_para_isso: "&eCrie sua conta para fazer isso: &f/registrar <senha> <senha>"
+faca_login_dica: "&e/login <senha>"
+registre_se_dica: "&e/registrar <senha> <senha>"

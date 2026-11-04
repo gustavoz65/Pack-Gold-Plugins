@@ -65,5 +65,5 @@ Outros plugins consultam a zona pelo serviço `ZoneService` do gold-api (`allows
 ## OP protegido
 - `/op` e `/deop` **pelo jogo** só funcionam para quem está na lista, e só do IP cadastrado. Pelo console funcionam sempre.
 - A lista só é mexida **pelo console**: `opseguro add <nick> <ip>`, `opseguro remover <nick> [ip]`, `opseguro lista`.
-- Com a lista preenchida, um OP que entra de um IP fora dela **perde o OP na hora** (aviso para a staff e no Discord). O OP volta sozinho quando ele entra do IP certo. `opseguro exigir off` desliga essa parte.
+- Com a lista preenchida, um OP que entra de um IP fora dela **perde o OP na hora** (aviso para a staff e no Discord). O OP volta sozinho quando ele entra do IP certo **e faz login** (com o GoldAuth; sem ele, devolva com `op <nick>` pelo console). `opseguro exigir off` desliga essa parte.
 - Tentativa de `/op` sem permissão também gera alerta.

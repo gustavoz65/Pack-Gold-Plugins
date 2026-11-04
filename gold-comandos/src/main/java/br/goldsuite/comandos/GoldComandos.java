@@ -143,6 +143,23 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
         enter(p, p.level, true, true);
     }
 
+    /**
+     * OP suspenso volta so depois do login (GoldAuth) e de um IP autorizado. Nunca no join: antes do login qualquer
+     * um pode usar o nick. Sem GoldAuth nao ha volta automatica (use op pelo console).
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void authenticated(br.goldsuite.api.event.PlayerAuthEvent e) {
+        Player p = e.getPlayer();
+        if (!data.isLoaded() || !p.isOnline()) { return; }
+        String name = p.getName().toLowerCase(Locale.ROOT);
+        if (!data.read(s -> s.suspended.contains(name) && s.opAllowed(name, p.getAddress()))) { return; }
+        data.change(s -> s.suspended.remove(name)).whenComplete((v, error) -> {
+            if (error != null || !p.isOnline()) { return; }
+            p.setOp(true);
+            p.sendMessage(PREFIX + M.t("seu_op_voltou_ip_autorizado"));
+        });
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void quit(PlayerQuitEvent e) { lastHeld.remove(e.getPlayer()); zoneOf.remove(e.getPlayer()); }
 

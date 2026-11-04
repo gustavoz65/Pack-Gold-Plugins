@@ -1,7 +1,11 @@
 # Protocolo 84: menu paginado + chat, sem livro Java nem links clicaveis.
 boasvindas:
+  # Aparece ao entrar, antes do login (com GoldAuth). /welcomebook abre de novo depois.
   ativo: true
-  ocultar_entrada: true
+  # true esconde "fulano entrou" (deixe false se o GoldChat ja cuida da entrada).
+  ocultar_entrada: false
+  # true mostra so no primeiro login de cada conta; false mostra em todo login.
+  so_primeira_vez: false
   ip: "seuservidor.com"
   suporte: "suporte"
   # Vazio usa boasvindas_p1/p2/p3 do mensagens.yml.

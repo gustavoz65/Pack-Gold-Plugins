@@ -6,6 +6,42 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 
 ---
 
+## 0.4.3 — segunda atualização de 04/11/2026
+
+### Novo
+- **GoldSkyWars** no estilo MythicSkyWars:
+  - nível, XP e moedas próprias do SkyWars (abate e vitória), com placeholders `{sw_nivel}`, `{sw_moedas}`, `{sw_almas}` e `{sw_prestigio}`;
+  - **Poço das Almas** (`/sw almas`): cada abate dá 1 alma; o giro sorteia moedas, XP, kits, vantagens ou jaulas, e prêmio repetido vira moedas;
+  - **14 vantagens** com 4 níveis (`/sw vantagens`); no nível máximo, tocar liga e desliga;
+  - **jaulas** de vidro, ferro, folhas, gelo e ouro (`/sw jaulas`) e **prestígio** por nível (`/sw prestigio`);
+  - **votação da partida** pelo papel "Votar" da hotbar: baús, hora, clima, vida dupla e modificador;
+  - **edição de mapa** com `/swmap`: jaula, espectador, tipo de baú (tocando no baú), jogadores por jaula, mínimo, nome, autor, ativar e salvar;
+  - **minérios por ilha**: `/sw ilhas` entrega o graveto, um toque marca cada ilha e `/gerar minerios` coloca 4 diamantes, 5 ferros e 6 carvões escondidos em cada uma, e salva o mapa. A leitura das ilhas é feita aos poucos, sem travar o servidor.
+- **GoldStaff**: punições com escala.
+  - 3 advertências dão ban de 3 dias e a 4ª dá ban permanente (tudo ajustável no painel).
+  - O ban usa conta + aparelho; o permanente também bloqueia o IP (o 0.15 não envia MAC).
+  - Ban de quem está offline pega o aparelho e o IP dos últimos logins.
+  - O desban só acontece com `/desbanir` depois da contestação no Discord, cujo link aparece na tela de bloqueio.
+- **GoldStaff**: boas-vindas ao entrar, antes do login, com páginas (IP, regras e suporte) e botão de suporte. Editável no `config.yml`, recarrega com `/welcomebook reload`.
+- **GoldChat**: enquetes com anúncio automático. `/enquete criar`, voto com `/entrar <enquete>` (menu ou número) e o resultado anunciado quando a enquete fecha.
+- **GoldAuth**: antes do login o jogador anda livre pelo lobby. Qualquer toque, quebra, comando, NPC, item ou menu mostra "Entre na sua conta" (ou "Crie sua conta") com o comando certo. Fora do lobby ele fica parado, e quem cai no vazio volta ao spawn. O painel tem `andar_sem_login = 0` para o comportamento antigo.
+
+### Melhorado
+- **GoldSkyWars**: o perfil é lido sem cópia nos eventos de dano, na contagem e no HUD; só minérios colocados são guardados durante a partida.
+- **GoldChat**: cada voto de enquete é uma linha própria. Votar não regrava todas as enquetes e não há limite de votos.
+- **GoldStaff**: só quem foi punido fica na memória; os IPs e aparelhos de cada conta (em hash) são lidos do banco só na hora de punir.
+
+### Corrigido
+- **GoldCore (menus)**: um menu que teleportava para outro mundo, como entrar no SkyWars pelo menu, gerava erro ao fechar.
+- **GoldSkyWars**:
+  - depois do `/sw salvar` o mapa voltava sem os chunks das jaulas, e entrar na sala falhava no meio, deixando o jogador sem itens; agora a entrada é desfeita se algo falhar;
+  - `/sw iniciar` dizia "começa em 5 s" mas mantinha a contagem que já estava rodando.
+- **GoldStaff e GoldAuth**: com cliente sem o código da instalação (cliente modificado ou bot), a impressão do aparelho ficava igual para todos, e banir um expulsava todo mundo. Esse aparelho agora é ignorado no ban e nunca vira aparelho confiável do 2FA.
+- **GoldComandos**: o OP suspenso voltava no join só pelo IP, antes do login. Agora volta só depois do login, de IP autorizado.
+- **GoldStaff**: `/agendar` só pelo console ou por OP, porque um comando agendado roda como console. A checagem de hierarquia nega a ação quando dá erro.
+
+---
+
 ## 0.4.3 — atualização de 04/11/2026
 
 ### Novo

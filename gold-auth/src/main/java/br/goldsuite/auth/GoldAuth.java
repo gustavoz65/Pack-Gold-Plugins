@@ -3,6 +3,7 @@ package br.goldsuite.auth;
 import br.goldsuite.api.AuthService;
 import br.goldsuite.api.CoreService;
 import br.goldsuite.api.EffectService;
+import br.goldsuite.api.Settings;
 import br.goldsuite.api.event.PlayerAuthEvent;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
@@ -42,6 +43,11 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
     private static final com.google.gson.Gson GSON = new com.google.gson.Gson();
     private final Map<Player, Session> sessions = new IdentityHashMap<>();
     private final Map<String, AttemptWindow> attempts = new HashMap<>();
+    /** Titulo do unico menu liberado antes do login (boas-vindas). */
+    private final Map<Player, String> guestMenus = new IdentityHashMap<>();
+    /** Ultimo aviso de "faca login" por jogador: no maximo um a cada 2 s, mesmo segurando o dedo na tela. */
+    private final Map<Player, Long> reminded = new IdentityHashMap<>();
+    private boolean walkBeforeLogin = true;
     /** Hashes em paralelo; o resto espera numa fila curta em vez de falhar no pico de logins. */
     private static final int MAX_PARALLEL_HASHES = Math.max(2, Runtime.getRuntime().availableProcessors() / 2);
     private static final int MAX_QUEUED_HASHES = 64;
@@ -57,6 +63,7 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         this.core = getServer().getServiceManager().load(CoreService.class);
         if (this.core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         getServer().getServiceManager().register(AuthService.class, this, this);
+        Settings.number(this, "andar_sem_login", 1, "1 = antes do login o jogador anda livre pelo lobby (mundo principal); 0 = fica parado", v -> walkBeforeLogin = v != 0);
         getServer().getPluginManager().registerEvents(this, this);
         for (Player player : getServer().getOnlinePlayers().values()) { session(player); }
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldAuth>(this) {
@@ -293,11 +300,31 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
 
     @EventHandler public void join(PlayerJoinEvent event) { session(event.getPlayer()); }
     @EventHandler public void quit(PlayerQuitEvent event) {
+        guestMenus.remove(event.getPlayer()); reminded.remove(event.getPlayer());
         Session session = this.sessions.remove(event.getPlayer());
         if (session != null) { session.loaded.completeExceptionally(new IllegalStateException(M.t("jogador_desconectado"))); }
     }
+    @Override public void allowGuestMenu(Player player, String title) {
+        if (player != null && title != null && !isAuthenticated(player)) { guestMenus.put(player, title); }
+    }
+    /** Pede login (ou registro) ao tentar fazer algo antes de entrar na conta. */
+    private void remind(Player player) {
+        long now = System.currentTimeMillis();
+        Long last = reminded.get(player);
+        if (last != null && now - last < 2000) { return; }
+        reminded.put(player, now);
+        Session session = this.sessions.get(player);
+        boolean registered = session != null && session.loaded.isDone() && session.passwordHash != null;
+        player.sendMessage(registered ? M.t("faca_login_para_isso") : M.t("registre_se_para_isso"));
+        player.sendTip(registered ? M.t("faca_login_dica") : M.t("registre_se_dica"));
+    }
+    /** Antes do login: anda livre so no lobby (mundo principal); em outros mundos fica parado. Cair no vazio volta ao spawn. */
     @EventHandler(priority = EventPriority.HIGHEST) public void move(PlayerMoveEvent event) {
-        if (!isAuthenticated(event.getPlayer()) && event.getFrom().distanceSquared(event.getTo()) > 0.0001) { event.setCancelled(); }
+        Player player = event.getPlayer();
+        if (isAuthenticated(player) || event.getFrom().distanceSquared(event.getTo()) <= 0.0001) { return; }
+        cn.nukkit.level.Level lobby = getServer().getDefaultLevel();
+        if (!walkBeforeLogin || player.level != lobby) { event.setCancelled(); return; }
+        if (event.getTo().y < 1) { event.setCancelled(); player.teleport(lobby.getSafeSpawn()); }
     }
     @EventHandler(priority = EventPriority.HIGHEST) public void commands(PlayerCommandPreprocessEvent event) {
         if (isAuthenticated(event.getPlayer())) { return; }
@@ -307,7 +334,8 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         if (command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) command).getPlugin() == this
                 && (command.getName().equals("login") || command.getName().equals("registrar") || command.getName().equals("2fa"))) { return; }
         event.setCancelled();
-        event.getPlayer().sendMessage(M.t("autentique_se_antes_de_usar_comandos"));
+        reminded.remove(event.getPlayer());
+        remind(event.getPlayer());
     }
     @EventHandler(priority = EventPriority.LOWEST) public void chat(PlayerChatEvent event) {
         if (isAuthenticated(event.getPlayer())) { return; }
@@ -321,14 +349,17 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
             login(event.getPlayer(), password.toCharArray()).exceptionally(error -> false);
         } else { event.getPlayer().sendMessage(M.t("use_registrar_senha_confirmacao_ou_aguarde")); }
     }
-    private void block(Event event, Player player) { if (player != null && !isAuthenticated(player)) { event.setCancelled(); } }
+    private void block(Event event, Player player) { if (player != null && !isAuthenticated(player)) { event.setCancelled(); remind(player); } }
     @EventHandler(priority = EventPriority.HIGHEST) public void interact(PlayerInteractEvent event) { block(event, event.getPlayer()); }
     @EventHandler(priority = EventPriority.HIGHEST) public void breaking(BlockBreakEvent event) { block(event, event.getPlayer()); }
     @EventHandler(priority = EventPriority.HIGHEST) public void placing(BlockPlaceEvent event) { block(event, event.getPlayer()); }
     @EventHandler(priority = EventPriority.HIGHEST) public void dropping(PlayerDropItemEvent event) { block(event, event.getPlayer()); }
     @EventHandler(priority = EventPriority.HIGHEST) public void opening(InventoryOpenEvent event) {
         // A janela do inventario proprio faz parte da inicializacao do Player.
-        if (event.getInventory() != event.getPlayer().getInventory()) { block(event, event.getPlayer()); }
+        if (event.getInventory() == event.getPlayer().getInventory() || isAuthenticated(event.getPlayer())) { return; }
+        String guest = guestMenus.get(event.getPlayer());
+        if (guest != null && guest.equals(event.getInventory().getTitle())) { return; }
+        block(event, event.getPlayer());
     }
     @EventHandler(priority = EventPriority.HIGHEST) public void transacting(InventoryTransactionEvent event) {
         if (event.getTransaction() instanceof cn.nukkit.inventory.SimpleTransactionGroup) {
@@ -341,18 +372,25 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         // Algumas acoes antigas nao passam por PlayerInteractEvent, como item frames.
         switch (event.getPacket().pid()) {
             case cn.nukkit.network.protocol.ProtocolInfo.PLAYER_ACTION_PACKET:
-                if (((cn.nukkit.network.protocol.PlayerActionPacket) event.getPacket()).action == cn.nukkit.network.protocol.PlayerActionPacket.ACTION_RESPAWN) { return; }
-                event.setCancelled(); return;
+                int action = ((cn.nukkit.network.protocol.PlayerActionPacket) event.getPacket()).action;
+                if (action == cn.nukkit.network.protocol.PlayerActionPacket.ACTION_RESPAWN) { return; }
+                event.setCancelled();
+                if (action == cn.nukkit.network.protocol.PlayerActionPacket.ACTION_START_BREAK) { remind(event.getPlayer()); }
+                return;
+            case cn.nukkit.network.protocol.ProtocolInfo.MOB_EQUIPMENT_PACKET:
+                // No 0.15 os itens do lobby funcionam ao selecionar na hotbar.
+                event.setCancelled(); remind(event.getPlayer()); return;
             case cn.nukkit.network.protocol.ProtocolInfo.USE_ITEM_PACKET:
             case cn.nukkit.network.protocol.ProtocolInfo.REMOVE_BLOCK_PACKET:
             case cn.nukkit.network.protocol.ProtocolInfo.INTERACT_PACKET:
             case cn.nukkit.network.protocol.ProtocolInfo.DROP_ITEM_PACKET:
+                // Tocar em bloco, NPC ou item, quebrar ou soltar: avisa que precisa entrar na conta.
+                event.setCancelled(); remind(event.getPlayer()); return;
             case cn.nukkit.network.protocol.ProtocolInfo.CONTAINER_SET_SLOT_PACKET:
             case cn.nukkit.network.protocol.ProtocolInfo.CONTAINER_SET_CONTENT_PACKET:
             case cn.nukkit.network.protocol.ProtocolInfo.CRAFTING_EVENT_PACKET:
             case cn.nukkit.network.protocol.ProtocolInfo.BLOCK_ENTITY_DATA_PACKET:
             case cn.nukkit.network.protocol.ProtocolInfo.ITEM_FRAME_DROP_ITEM_PACKET:
-            case cn.nukkit.network.protocol.ProtocolInfo.MOB_EQUIPMENT_PACKET:
             case cn.nukkit.network.protocol.ProtocolInfo.MOB_ARMOR_EQUIPMENT_PACKET:
             case cn.nukkit.network.protocol.ProtocolInfo.REPLACE_SELECTED_ITEM_PACKET:
                 event.setCancelled(); return;
@@ -474,7 +512,7 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         private boolean pending2fa;
         private String pendingSecret;
         private final String device;
-        private Session(Player player) { this.player = player; this.name = player.getName().toLowerCase(Locale.ROOT); this.device = Totp.device(player.getDeviceFingerprint()); }
+        private Session(Player player) { this.player = player; this.name = player.getName().toLowerCase(Locale.ROOT); Long client = player.getClientId(); this.device = player.getUniqueId() == null || client == null || client == 0L ? "" : Totp.device(player.getDeviceFingerprint()); }
     }
     private static final class HashAnswer {
         private final boolean matches;

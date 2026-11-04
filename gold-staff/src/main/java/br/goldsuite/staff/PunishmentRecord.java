@@ -22,12 +22,7 @@ final class PunishmentRecord {
         history.add(now + " | " + actor + " | " + action);
         while (history.size() > 50) { history.remove(0); }
     }
-    void identify(String ip, String device) { add(ips, ip); add(devices, device); }
-    private static void add(Set<String> values, String value) {
-        if (value == null || value.isEmpty()) { return; }
-        values.add(value);
-        while (values.size() > 8) { values.remove(values.iterator().next()); }
-    }
+    void identify(String ip, String device) { Punishments.add(ips, ip); Punishments.add(devices, device); }
     static void validate(PunishmentRecord r) {
         if (r == null || r.warnings < 0 || r.until < 0 || r.ips == null || r.devices == null ||
                 r.history == null || r.history.size() > 50 || r.ips.size() > 8 || r.devices.size() > 8 ||

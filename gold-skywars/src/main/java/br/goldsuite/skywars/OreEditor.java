@@ -14,6 +14,8 @@ import java.util.*;
 final class OreEditor implements Listener {
     private final GoldSkyWars plugin;
     private final Map<Player, Selection> selections = new IdentityHashMap<>();
+    /** Um toque gera interacao + inicio de quebra no 0.15: ignora o segundo evento em 400 ms. */
+    private final Map<Player, Long> lastClick = new IdentityHashMap<>();
     private Job job;
     private TaskHandler task;
     private static final class Selection {
@@ -39,11 +41,15 @@ final class OreEditor implements Listener {
         p.getInventory().addItem(stick); p.sendMessage(M.t("minerios_instrucoes"));
     }
     private boolean isTool(Item i) { return i != null && i.getId() == 280 && i.hasCompoundTag() && "1".equals(i.getNamedTag().getString("GoldOreTool")); }
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    /** Sem ignoreCancelled: protecao de mundo nao pode travar a ferramenta do admin (o evento e cancelado aqui de qualquer jeito). */
+    @EventHandler(priority = EventPriority.LOW)
     public void click(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         if (!isTool(e.getItem()) || !p.hasPermission("goldskywars.admin")) { return; }
         e.setCancelled();
+        long now = System.currentTimeMillis();
+        Long last = lastClick.put(p, now);
+        if (last != null && now - last < 400) { return; }
         try {
             GoldSkyWars.Game g = editable(p);
             if (job != null) { throw new IllegalArgumentException(M.t("minerios_ocupado")); }
@@ -127,8 +133,11 @@ final class OreEditor implements Listener {
         job = null;
         if (task != null) { task.cancel(); task = null; }
     }
-    @EventHandler public void quit(PlayerQuitEvent e) { selections.remove(e.getPlayer()); if (job != null && job.player == e.getPlayer()) { stop(); } }
+    /** No criativo o graveto quebraria o bloco da ilha na hora. */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void breakWithTool(cn.nukkit.event.block.BlockBreakEvent e) { if (isTool(e.getItem()) && e.getPlayer().hasPermission("goldskywars.admin")) { e.setCancelled(); } }
+    @EventHandler public void quit(PlayerQuitEvent e) { lastClick.remove(e.getPlayer()); selections.remove(e.getPlayer()); if (job != null && job.player == e.getPlayer()) { stop(); } }
     @EventHandler public void world(cn.nukkit.event.entity.EntityLevelChangeEvent e) { if (e.getEntity() instanceof Player) { selections.remove((Player)e.getEntity()); } }
-    void close() { stop(); selections.clear(); }
+    void close() { stop(); selections.clear(); lastClick.clear(); }
 }
 

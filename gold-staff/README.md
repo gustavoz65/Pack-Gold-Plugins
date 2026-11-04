@@ -34,6 +34,16 @@ Sem chave da Groq, ou com a IA fora do ar, o pedido vai direto para a equipe com
 
 A IA roda fora da thread principal, com fila limitada e tempo máximo de resposta: o servidor nunca trava esperando a Groq.
 
+## Punições (`goldstaff.punir`, `goldstaff.desbanir`)
+- `/advertir <jogador> <motivo>`: com 3 advertências, ban de 3 dias; com 4, ban permanente (painel: `punicoes.adv_temporario`, `punicoes.adv_permanente`, `punicoes.dias`).
+- `/tempban <jogador> <dias> <motivo>`, `/banir <jogador> <motivo>`, `/advertencias <jogador>` (histórico em horário de Brasília).
+- O 0.15 não envia MAC: o ban usa **conta + aparelho** (UUID + código da instalação do jogo, em hash SHA-256) e o permanente também o **IP**. Cliente sem código da instalação não tem aparelho (senão todos teriam o mesmo).
+- Os IPs e aparelhos de cada conta são gravados depois do login (nunca de quem só digitou o nick), num espaço separado lido só ao punir; assim, ban offline também pega aparelho e IP. Só os punidos ficam na memória.
+- `/desbanir <jogador> <motivo>` (depois da contestação no Discord de `punicoes.discord`): tira o ban e zera as advertências; o histórico fica.
+
+## Boas-vindas (`/welcomebook`, alias `/boasvindas`)
+Menu de páginas ao entrar, antes do login: IP, regras e suporte (botão que roda o comando de `boasvindas.suporte`). Configure em `plugins/GoldStaff/config.yml` (`ativo`, `ocultar_entrada`, `so_primeira_vez`, `ip`, `suporte`, `paginas`) e recarregue com `/welcomebook reload` (`welcomebook.admin`). O protocolo 84 não tem livro nem texto clicável, por isso é um menu.
+
 ## Outras ferramentas
 - `/report <jogador> <motivo>` e `/reports [fechar <id>]` (`goldstaff.reports`).
 - `/ajuda` (texto editável), `/giveall`, `/clearlag`, `/agendar`, `/restart [segundos]`, `/restart auto <horas>`.

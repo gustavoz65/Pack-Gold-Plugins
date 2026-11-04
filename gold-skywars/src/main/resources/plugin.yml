@@ -5,8 +5,10 @@ api: ["1.0.0"]
 depend: [GoldCore]
 softdepend: [GoldEconomy, GoldNPC]
 author: gustavoz65
-description: SkyWars estilo Hypixel - jaulas, 19 kits, baus de ilha/meio/insano, refil, espectador, ranking
+description: SkyWars estilo MythicSkyWars - jaulas, 19 kits, almas, vantagens, prestigio, votacao, minerios por ilha
 commands:
- sw: {description: "SkyWars", usage: "/sw [entrar solo|dupla|sair|kits|stats|top]", aliases: [skywars]}
+ sw: {description: "SkyWars", usage: "/sw [entrar solo|dupla|sair|kits|almas|vantagens|jaulas|prestigio|votar|stats|top]", aliases: [skywars]}
+ swmap: {description: "Editar o mapa do SkyWars (jaulas, espectador, baus, time)", usage: "/swmap [info|jaula|espectador|bau|time|minimo|nome|autor|ativar|desativar|salvar]", permission: goldskywars.admin}
+ gerar: {description: "Gerar minerios nas ilhas marcadas com o graveto", usage: "/gerar minerios", permission: goldskywars.admin}
 permissions:
  goldskywars.admin: {default: op, description: "Cria e edita arenas do SkyWars"}

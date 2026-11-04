@@ -7,17 +7,25 @@ import cn.nukkit.item.Item;
 import java.util.*;
 
 final class Polls {
+    /** Um voto por linha: chave "<numero da enquete>:<conta>", valor = opcao. */
+    static final String VOTES = "goldchat-enquete-votos";
     private final GoldChat plugin;
+    private final AsyncStore store;
     final PersistentState<PollState> state;
+    /** Votos a caminho do banco: dois toques seguidos nao viram dois votos. */
+    private final Set<String> voting = new HashSet<>();
     private long interval = 180, elapsed;
     private int cursor;
     Polls(GoldChat plugin, CoreService core) {
         this.plugin = plugin;
+        store = core.getStore();
         state = new PersistentState<>(core.getStore(), "goldchat-enquetes", PollState.class, PollState::new, PollState::validate);
         Settings.number(plugin, "enquetes.intervalo", 180, "Segundos entre anuncios de enquetes (0 desliga)", v -> interval = v <= 0 ? 0 : Math.max(30, Math.min(3600, v)));
     }
     void tick() {
-        if (!state.isLoaded() || interval == 0 || (elapsed += 10) < interval) { return; }
+        if (!state.isLoaded()) { return; }
+        results();
+        if (interval == 0 || (elapsed += 10) < interval) { return; }
         elapsed = 0;
         List<String> open = state.read(s -> {
             List<String> out = new ArrayList<>();
@@ -25,6 +33,25 @@ final class Polls {
             return out;
         });
         if (!open.isEmpty()) { announce(open.get(Math.floorMod(cursor++, open.size()))); }
+    }
+    /** Enquete que acabou (pelo tempo ou /enquete encerrar) anuncia o resultado uma vez. */
+    private void results() {
+        long now = System.currentTimeMillis();
+        List<String> ended = state.read(s -> {
+            List<String> out = new ArrayList<>();
+            for (Map.Entry<String, PollState.Poll> e : s.polls.entrySet()) { if (!e.getValue().open(now) && !e.getValue().announced) { out.add(e.getKey()); } }
+            return out;
+        });
+        if (ended.isEmpty()) { return; }
+        state.change(s -> { for (String id : ended) { PollState.Poll p = s.polls.get(id); if (p != null) { p.announced = true; } } }).whenComplete((v, e) -> {
+            if (e != null || !plugin.isEnabled()) { return; }
+            for (String id : ended) {
+                PollState.Poll p = state.read(s -> s.polls.get(id));
+                if (p == null) { continue; }
+                int best = 0; for (int i = 1; i < p.counts.length; i++) { if (p.counts[i] > p.counts[best]) { best = i; } }
+                plugin.getServer().broadcastMessage(M.t("enquete_encerrada_anuncio", p.question, p.options.get(best), p.counts[best], p.total()));
+            }
+        });
     }
     private void announce(String id) {
         PollState.Poll p = state.read(s -> s.polls.get(id));
@@ -47,8 +74,8 @@ final class Polls {
             String id = PollState.id(args.length > 1 ? args[1] : "");
             if (action.equals("resultado")) {
                 PollState.Poll p = poll(id);
-                int[] totals = p.totals();
-                sender.sendMessage(M.t("enquete_resultado", p.question, p.votes.size()));
+                int[] totals = p.counts;
+                sender.sendMessage(M.t("enquete_resultado", p.question, p.total()));
                 for (int i = 0; i < totals.length; i++) { sender.sendMessage(M.t("enquete_total", p.options.get(i), totals[i])); }
                 return true;
             }
@@ -62,7 +89,8 @@ final class Polls {
                 PollState.Poll p = new PollState.Poll();
                 p.question = parts[0].trim(); p.closes = System.currentTimeMillis() + minutes * 60_000L;
                 for (int i = 1; i < parts.length; i++) { p.options.add(parts[i].trim()); }
-                state.change(s -> { if (s.polls.containsKey(id)) { throw new IllegalArgumentException(M.t("enquete_existe")); } s.polls.put(id, p); })
+                p.counts = new int[p.options.size()];
+                state.change(s -> { if (s.polls.containsKey(id)) { throw new IllegalArgumentException(M.t("enquete_existe")); } p.id = ++s.serial; s.polls.put(id, p); })
                     .whenComplete((v, e) -> complete(sender, e, () -> { announce(id); }));
             } else if (action.equals("encerrar") || action.equals("apagar")) {
                 state.change(s -> {
@@ -86,12 +114,20 @@ final class Polls {
     private void vote(Player player, String id, int option) {
         authenticated(player);
         String account = player.getName().toLowerCase(Locale.ROOT);
-        // Revalida dentro da fila: dois cliques antes do SQLite terminar nao geram dois votos.
-        state.change(s -> {
-            PollState.Poll poll = s.polls.get(id);
-            if (poll == null) { throw new IllegalArgumentException(M.t("enquete_inexistente")); }
-            poll.vote(account, option, System.currentTimeMillis());
-        }).whenComplete((v, e) -> complete(player, e, () -> {}));
+        PollState.Poll poll = poll(id);
+        if (!poll.open(System.currentTimeMillis())) { throw new IllegalArgumentException(M.t("enquete_fechada")); }
+        if (option < 0 || option >= poll.options.size()) { throw new IllegalArgumentException(M.t("enquete_opcao_invalida")); }
+        long number = poll.id;
+        String key = number + ":" + account;
+        if (!voting.add(key)) { throw new IllegalArgumentException(M.t("enquete_ja_votou")); }
+        store.get(VOTES, key).thenCompose(previous -> {
+            if (previous.isPresent()) { throw new IllegalArgumentException(M.t("enquete_ja_votou")); }
+            return store.put(VOTES, key, String.valueOf(option));
+        }).thenCompose(v -> state.change(s -> {
+            PollState.Poll p = s.polls.get(id);
+            // A enquete pode ter sido apagada e recriada com o mesmo nome enquanto o voto ia para o banco.
+            if (p != null && p.id == number) { p.counts[option]++; }
+        })).whenComplete((v, e) -> { voting.remove(key); complete(player, e, () -> {}); });
     }
     private void complete(CommandSender sender, Throwable error, Runnable after) {
         if (!plugin.isEnabled()) { return; }
@@ -112,6 +148,6 @@ final class Polls {
             if (icons.containsKey(slot)) { try { vote(who, id, slot - 9); } catch (RuntimeException e) { who.sendMessage(e.getMessage()); } }
         }); }
     }
-    void close() { state.close(); }
+    void close() { state.close(); voting.clear(); }
 }
 
