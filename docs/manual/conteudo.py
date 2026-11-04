@@ -6,7 +6,7 @@ ORDEM = [
     ("Base", ["GoldCore", "GoldAuth", "GoldPerms", "GoldEconomy", "GoldComandos"]),
     ("Lobby e jogadores", ["GoldEssentials", "GoldChat", "GoldHud", "GoldNPC", "GoldProtect", "GoldWorld", "GoldDevice", "GoldCosmetics"]),
     ("Equipe e suporte", ["GoldStaff"]),
-    ("Economia, loja e VIP", ["GoldShop", "GoldMarket", "GoldKits", "GoldVault", "GoldVip", "GoldKeys", "GoldCrates", "GoldEnchant", "GoldBreaker"]),
+    ("Economia, loja e VIP", ["GoldTags", "GoldShop", "GoldMarket", "GoldKits", "GoldVault", "GoldVip", "GoldKeys", "GoldCrates", "GoldEnchant", "GoldBreaker"]),
     ("Modos de jogo", ["GoldPvP", "GoldFactions", "GoldSkills", "GoldHG", "GoldSkyWars", "GoldBedWars", "GoldParty"]),
     ("Ferramentas", ["GoldBuild"]),
 ]
@@ -153,6 +153,7 @@ GUIAS = {
         "Mensagens de entrada e saída: /chat entrada <texto> e /chat saida <texto> ({nome} vira o nick). Para esconder: painel GoldChat > entrada_saida = 0.",
         "Anúncios automáticos: /chat anuncio adicionar <texto>, /chat anuncio lista, /chat anuncio remover <n> e /chat anuncio intervalo <segundos>.",
         "Dê goldchat.cores e goldchat.links a quem pode usar cores e links no chat.",
+        "Filtro de palavrões: já vem ligado (painel GoldChat > filtro). Teste com /chat palavra testar <frase>, acrescente termos com /chat palavra adicionar <termo> e libere com /chat palavra remover <termo>.",
     ],
     secoes=[("Exemplos", [
         "$ /chat formato padrao {mctop}&7{nome}&8: &f{mensagem}",
@@ -213,7 +214,7 @@ GUIAS = {
 "GoldWorld": dict(
     resumo="Gerenciador de mundos (criar, carregar, teleportar), hora real, auto-inventário, mobs empilhados e /fundir.",
     passos=[
-        "/mundo lista mostra os mundos; /mundo tp <mundo> leva até ele.",
+        "/mundo lista mostra os mundos carregados e também os mapas da pasta worlds/ que ninguém abriu ainda; /mundo tp <mundo> leva até ele e carrega o mapa.",
         "/mundo criar <mundo> [normal|plano] cria um mundo; /mundo carregar e /mundo descarregar.",
         "/mundo horareal <mundo> segue a hora do Brasil; /mundo autoinv <mundo> manda os drops direto para o inventário; /mundo empilhar junta mobs iguais.",
         "Dê goldworld.fundir ao VIP para usar /fundir (funde os minérios do inventário).",
@@ -265,6 +266,18 @@ GUIAS = {
         "- /report e /reports, /giveall <id> [qtd], /clearlag.",
     ])],
     dicas=["Para liberar um comando bloqueado a um cargo: /grupo permissao <cargo> goldstaff.cmd.<comando> true."],
+),
+"GoldTags": dict(
+    resumo="Selecionar sua tag: cada jogador guarda as tags que já tem (Jogador, a do cargo e as de eventos) e escolhe qual aparece no chat e na barra. Trocar de tag não muda cargo nem permissão.",
+    passos=[
+        "Funciona ao instalar: todo jogador começa com a tag Jogador (texto em /painel > GoldTags > tag_padrao).",
+        "A tag do cargo vem do GoldPerms (/grupo tag vip &6[VIP]) e só vale enquanto o jogador tem o cargo.",
+        "Tags de evento: /tag criar <id> <texto> e /tag dar <jogador> <id> [dias].",
+        "Confira se os formatos do chat usam {tag} (/chat formatos). Os padrões novos já usam.",
+    ],
+    secoes=[("Jogadores", ["- /tag: lista as tags e abre o menu (toque para usar).", "- /tag Jogador, /tag VIP: troca. /tag automatica: volta para a tag do cargo."]),
+            ("Exemplo de evento", ["$ /tag criar campeao &d[Campeao]", "$ /tag dar Gustavo campeao 30", "- /tag tirar, /tag lista, /tag ver <jogador>, /tag apagar <id>."])],
+    dicas=["Clã, elo do ranked e {mctop} continuam aparecendo: a tag escolhida só ocupa o lugar da tag de cargo.", "Se o VIP vencer e ele estava usando a tag VIP, volta sozinho para a automática."],
 ),
 "GoldShop": dict(
     resumo="Lojas por placa (comprar e vender do servidor), lojas de jogadores com baú e /vender pela tabela de preços.",

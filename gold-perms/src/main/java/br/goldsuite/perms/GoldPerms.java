@@ -48,7 +48,14 @@ public final class GoldPerms extends PluginBase implements Listener, PermissionS
     @Override public long getExpiry(String player) { long now = System.currentTimeMillis(); return data.read(s -> s.expiry(player, now)); }
     @Override public Map<String, Boolean> getPermissions(String player) { long now = System.currentTimeMillis(); return data.read(s -> s.permissions(player, now)); }
     @Override public int getWeight(String player) { long now = System.currentTimeMillis(); return data.read(s -> { PermissionState.Group g = s.info(player, now); return g == null ? 0 : g.weight; }); }
-    @Override public String getTag(String player) { long now = System.currentTimeMillis(); return data.read(s -> { PermissionState.Group g = s.info(player, now); return g == null ? "" : g.tag.replace('&', '\u00a7'); }); }
+    @Override public String getGroupTag(String player) { long now = System.currentTimeMillis(); return data.read(s -> { PermissionState.Group g = s.info(player, now); return g == null ? "" : g.tag.replace('&', '\u00a7'); }); }
+    /** A tag escolhida no GoldTags vale mais que a do cargo; quem nao tem tag de cargo recebe a padrao do GoldTags ([Jogador]). */
+    @Override public String getTag(String player) {
+        TagService tags = getServer().getServiceManager().load(TagService.class);
+        if (tags != null) { String chosen = tags.chosen(player); if (chosen != null) { return chosen; } }
+        String own = getGroupTag(player);
+        return own.isEmpty() && tags != null ? tags.fallback() : own;
+    }
     @Override public boolean isStaff(String player) { long now = System.currentTimeMillis(); return data.read(s -> { PermissionState.Group g = s.info(player, now); return g != null && g.staff; }); }
     @Override public CompletableFuture<Void> setGroup(String player, String group, long expiresAt) {
         return change(state -> state.assign(player, group, expiresAt)).thenRun(this::refresh);

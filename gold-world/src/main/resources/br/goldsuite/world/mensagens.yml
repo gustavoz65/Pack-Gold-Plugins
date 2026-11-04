@@ -1,7 +1,8 @@
 # {0} = name
 carregado: "{0} carregado."
 # {0} = b.toString().trim()
-carregados: "Carregados: {0}"
+# {0} = mundos carregados
+carregados: "&aCarregados: {0}"
 configuracao_de_mundos_invalida: "Configuracao de mundos invalida."
 descarregado: "Descarregado."
 desligado: "desligado."
@@ -31,3 +32,11 @@ sem_permissao: "Sem permissao."
 sem_permissao_para_este_mundo: "Sem permissao para este mundo."
 # {0} = type
 spawner: "&r&eSpawner ({0})"
+# {0} = mundo, {1} = jogadores nele
+mundo_carregado: "&f{0} &7({1})"
+# {0} = mundos que estao na pasta worlds/ e ainda nao foram abertos
+nao_carregados: "&eNao carregados: {0}"
+# {0} = mundo
+mundo_nao_carregado: "&7{0}"
+nenhum_mundo: "&7nenhum"
+dica_mundo_tp: "&7Use /mundo tp <nome> para ir (carrega o mapa na hora)."

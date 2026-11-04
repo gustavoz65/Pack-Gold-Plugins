@@ -160,8 +160,21 @@ public final class GoldWorld extends PluginBase implements Listener {
             switch (sub) {
                 case "lista": {
                     StringBuilder b = new StringBuilder();
-                    for (Level l : getServer().getLevels().values()) { b.append(l.getFolderName()).append(" (").append(l.getPlayers().size()).append(") "); }
-                    sender.sendMessage(PREFIX + M.t("carregados", b.toString().trim()));
+                    Set<String> loaded = new HashSet<>();
+                    for (Level l : getServer().getLevels().values()) { loaded.add(l.getFolderName().toLowerCase(Locale.ROOT)); b.append(b.length() == 0 ? "" : "\u00a77, ").append(M.t("mundo_carregado", l.getFolderName(), l.getPlayers().size())); }
+                    sender.sendMessage(PREFIX + M.t("carregados", b.toString()));
+                    // Mapas que estao na pasta worlds/ mas ninguem abriu ainda: aparecem para nao precisar saber o nome.
+                    StringBuilder off = new StringBuilder();
+                    java.io.File[] dirs = new java.io.File(getServer().getDataPath(), "worlds").listFiles(java.io.File::isDirectory);
+                    if (dirs != null) {
+                        Arrays.sort(dirs, Comparator.comparing(java.io.File::getName, String.CASE_INSENSITIVE_ORDER));
+                        for (java.io.File d : dirs) {
+                            if (loaded.contains(d.getName().toLowerCase(Locale.ROOT)) || !new java.io.File(d, "level.dat").isFile()) { continue; }
+                            off.append(off.length() == 0 ? "" : "\u00a77, ").append(M.t("mundo_nao_carregado", d.getName()));
+                        }
+                    }
+                    sender.sendMessage(PREFIX + M.t("nao_carregados", off.length() == 0 ? M.t("nenhum_mundo") : off.toString()));
+                    sender.sendMessage(PREFIX + M.t("dica_mundo_tp"));
                     return true;
                 }
                 case "tp": {

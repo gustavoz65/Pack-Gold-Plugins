@@ -9,6 +9,11 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 ## 0.4.3 — atualização de 04/11/2026
 
 ### Novo
+- **GoldTags** (novo plugin, 32 no total): selecionar sua tag. Todo jogador tem a tag **Jogador** (padrão de quem entra), a do cargo enquanto tiver o cargo e as tags de evento que ganhou. `/tag` lista e abre um menu; `/tag <nome>` troca; `/tag automatica` volta para a do cargo. A staff cria e entrega tags de evento com prazo (`/tag criar`, `/tag dar`). Trocar de tag não mexe no cargo nem nas permissões.
+- **GoldPerms**: o `{tag}` passa a mostrar a tag escolhida no GoldTags, e quem não tem tag de cargo aparece com `[Jogador]`.
+- **GoldChat**: os formatos padrão usam `{tag}` (`{mctop}{tag} &7{nome}&8: &f{mensagem}`); sem tag, o espaço some.
+- **GoldChat**: filtro de palavrões. Troca a palavra inteira por `*****` no chat e no `/tell`. Pega abreviações (fdp, pqp, vsf, tnc, vtnc, krl, pnc, mcc...), frases ("pau no cu", "vai tomar no cu"), acento, letra repetida, número no lugar de letra, letras separadas ("f d p") e frase colada. Palavras normais como "computador" e "cuidado" passam. `/chat palavra adicionar|remover|lista|testar`; liga e desliga no painel; permissão `goldchat.semfiltro` para quem pode falar sem filtro.
+- **GoldWorld**: `/mundo lista` mostra os mundos carregados (com quantos jogadores) e os mapas da pasta `worlds/` que ainda não foram abertos, para entrar com `/mundo tp <nome>` sem precisar saber o nome.
 - **GoldBuild**: varinha de machado de madeira. Quebrar um bloco (segurar, no celular) marca o ponto 1 e tocar marca o ponto 2; o bloco não quebra. Só vale para quem tem `goldbuild.admin`; o machado dos outros jogadores continua normal.
 - **GoldBuild**: menu de ferramentas na hotbar (vara de blaze "Menu do WE"): preencher, paredes, trocar um bloco por outro, esfera com raio escolhido, limpar a área, desfazer e marcar os pontos onde você está. O bloco é escolhido **pelos blocos do seu inventário**, sem digitar id. `/we varinha` entrega a varinha e o menu.
 - **GoldCore**: `/painel discord teste` e o botão de teste do menu agora dizem se o Discord **recebeu** a mensagem (com o tempo em ms) ou o motivo: webhook apagado (404), token inválido, limite do Discord, VPS sem internet de saída ou sem DNS.

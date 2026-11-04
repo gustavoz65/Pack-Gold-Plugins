@@ -12,8 +12,10 @@ public interface PermissionService {
     CompletableFuture<Void> setGroup(String player, String group, long expiresAt);
     /** Peso do cargo na hierarquia (0 = jogador comum). Quem tem peso maior manda em quem tem peso menor. */
     default int getWeight(String player) { return 0; }
-    /** Tag do cargo com cores (§), vazia para quem nao tem. */
+    /** Tag mostrada para o jogador com cores (§): a escolhida no GoldTags ou a do cargo; vazia para quem nao tem. */
     default String getTag(String player) { return ""; }
+    /** Tag do cargo atual, sem considerar a escolha do GoldTags. */
+    default String getGroupTag(String player) { return getTag(player); }
     /** Cargo da equipe (ajudante, moderador, admin...). */
     default boolean isStaff(String player) { return false; }
 }

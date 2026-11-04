@@ -14,7 +14,7 @@ chat_anuncios_salvos: "&aAnuncios atualizados."
 # {0} = quantidade, {1} = segundos
 chat_anuncios_titulo: "&6--- Anuncios automaticos ({0}, a cada {1} s) ---"
 chat_ativado: "&aChat ativado."
-chat_config_uso: "/chat on|off, formatos, formato <grupo> <formato|remover>, entrada <texto|padrao>, saida <texto|padrao>, anuncio lista|adicionar|remover|intervalo"
+chat_config_uso: "/chat on|off, formatos, formato <grupo> <formato|remover>, entrada <texto|padrao>, saida <texto|padrao>, anuncio lista|adicionar|remover|intervalo, palavra lista|adicionar|remover|testar"
 chat_desativado_pela_staff: "&cChat desativado pela staff."
 chat_entrada_salva: "&aMensagem salva."
 chat_entrada_uso: "Uso: /chat entrada <texto|padrao> e /chat saida <texto|padrao> ({nome} vira o nick)"
@@ -65,3 +65,15 @@ voce_esta_silenciado: "Voce esta silenciado."
 # {0} = ((until - System.currentTimeMillis()) / 60000 + 1)
 voce_esta_silenciado_por_mais_min: "Voce esta silenciado por mais {0} min."
 voce_nao_pode_mandar_mensagem_para: "Voce nao pode mandar mensagem para si mesmo."
+filtro_descricao: "1 = troca palavroes e ofensas por asteriscos no chat e no tell; 0 = desliga"
+filtro_caractere_descricao: "Caractere usado para esconder a palavra"
+filtro_lista_grande: "Lista do filtro grande demais (maximo 500)."
+# {0} = termos da lista padrao, {1} = acrescentados, {2} = liberados
+filtro_lista: "&6Filtro: &f{0} &7termos padrao. &fAcrescentados: &e{1}&f. Liberados: &a{2}"
+filtro_uso: "Uso: /chat palavra lista | adicionar <termo> | remover <termo> | testar <frase>. Termo: palavra exata (fdp), prefixo com * (caralh*) ou frase (pau no cu)."
+# {0} = frase filtrada
+filtro_teste: "&7Fica assim: &f{0}"
+# {0} = termo
+filtro_adicionado: "&aAgora o filtro esconde: {0}"
+# {0} = termo
+filtro_removido: "&aO filtro nao esconde mais: {0}"

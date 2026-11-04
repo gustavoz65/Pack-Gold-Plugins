@@ -21,11 +21,14 @@ public final class ChatState {
     public String quit = "&c- &f{nome}";
     public Map<String, Long> mutes = new TreeMap<>();
     public Set<String> tellOff = new TreeSet<>();
+    /** Filtro de palavroes: termos acrescentados pela staff e termos da lista padrao que foram liberados. */
+    public Set<String> extraWords = new TreeSet<>();
+    public Set<String> allowedWords = new TreeSet<>();
 
     static Map<String, String> defaults() {
         Map<String, String> f = new TreeMap<>();
-        f.put("padrao", "{mctop}&7{nome}&8: &f{mensagem}");
-        f.put("vip", "{mctop}&6[VIP] &e{nome}&8: &f{mensagem}");
+        f.put("padrao", "{mctop}{tag} &7{nome}&8: &f{mensagem}");
+        f.put("vip", "{mctop}{tag} &e{nome}&8: &f{mensagem}");
         return f;
     }
 
@@ -34,7 +37,9 @@ public final class ChatState {
     /** Converte o formato do admin no formato do Nukkit; a mensagem do jogador nunca e interpretada. */
     static String nukkitFormat(String format, String group, String tag) {
         String safeTag = tag.replaceAll("[{}%]", "");
-        return color(format.replace("{grupo}", group).replace("{tag}", safeTag)).replace("{nome}", "{%0}").replace("{mensagem}", "{%1}");
+        // Sem tag, "{tag} " some inteiro (nao sobra espaco antes do nome).
+        String f = safeTag.isEmpty() ? format.replace("{tag} ", "") : format;
+        return color(f.replace("{grupo}", group).replace("{tag}", safeTag)).replace("{nome}", "{%0}").replace("{mensagem}", "{%1}");
     }
 
     /** Formato de quem tem tag de cargo e nenhum formato proprio. */
@@ -55,6 +60,10 @@ public final class ChatState {
     }
 
     public static void validate(ChatState s) {
+        // Configuracoes antigas nao tinham o filtro: comecam com a lista padrao.
+        if (s != null && s.extraWords == null) { s.extraWords = new TreeSet<>(); }
+        if (s != null && s.allowedWords == null) { s.allowedWords = new TreeSet<>(); }
+        if (s != null && (s.extraWords.size() > 500 || s.allowedWords.size() > 500)) { throw new IllegalArgumentException(M.t("filtro_lista_grande")); }
         if (s == null || s.formats == null || s.announcements == null || s.mutes == null || s.tellOff == null || s.join == null || s.quit == null
                 || s.formats.size() > 128 || s.announcements.size() > 50 || s.mutes.size() > 10000 || s.tellOff.size() > 10000
                 || s.announceSeconds < 30 || s.announceSeconds > 3600 || !s.formats.containsKey("padrao")) { throw new IllegalArgumentException(M.t("configuracao_de_chat_invalida")); }

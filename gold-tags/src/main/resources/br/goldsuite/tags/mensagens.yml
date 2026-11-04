@@ -1,0 +1,44 @@
+tags: "&e[&6Tags&e]&f "
+id_invalido: "Id invalido: use letras minusculas, numeros e _ (ate 24)."
+use_dentro_do_jogo: "Use dentro do jogo."
+carregando: "&7Suas tags ainda estao carregando, tente em instantes."
+# {0} = lista de tags, {1} = tag em uso
+suas_tags: "Suas tags: {0} &7(usando: {1}&7)"
+dica: "&7Use /tag <nome> para trocar ou /tag automatica para a tag do seu cargo."
+automatica: "automatica"
+# {0} = tag
+voce_usa: "&aAgora voce usa a tag {0}&a."
+voltou_automatica: "&aVoce voltou para a tag automatica (a do seu cargo)."
+# {0} = nome digitado
+nao_tem: "&cVoce nao tem a tag {0}. Use /tag para ver as suas."
+reservado: "Esse nome e reservado para os comandos do /tag."
+# {0} = id, {1} = tag
+criada: "&aTag {0} criada: {1}&a. De para um jogador com /tag dar <jogador> {0} [dias]."
+# {0} = id
+apagada: "&aTag {0} apagada."
+inexistente: "&cTag inexistente (veja /tag lista)."
+# {0} = jogador, {1} = tag, {2} = prazo
+deu: "&a{0} ganhou a tag {1}&a {2}."
+para_sempre: "para sempre"
+# {0} = dias
+por_dias: "por {0} dia(s)"
+# {0} = tag, {1} = prazo
+ganhou: "&6Voce ganhou a tag {0}&6 {1}! Use /tag para escolher."
+# {0} = jogador, {1} = tag
+tirou: "&a{0} perdeu a tag {1}&a."
+falha: "&cNao foi possivel salvar. Tente de novo."
+catalogo_titulo: "&6--- Tags de evento ---"
+catalogo_vazio: "&7Nenhuma tag de evento. Crie com /tag criar <id> <texto>."
+# {0} = id, {1} = tag
+catalogo_linha: "&e{0}&7: &r{1}"
+# {0} = jogador, {1} = tags, {2} = escolhida
+ver: "&e{0}&7: {1} &7(escolhida: {2}&7)"
+uso_admin: "/tag criar <id> <texto>, apagar <id>, dar <jogador> <id> [dias], tirar <jogador> <id>, lista, ver <jogador>"
+jogador_invalido: "Jogador invalido."
+menu_titulo: "Suas tags"
+# {0} = tag
+menu_usando: "{0}\n&a> Usando agora"
+# {0} = tag
+menu_tocar: "{0}\n&7Toque para usar"
+menu_automatica: "&fAutomatica\n&7Mostra a tag do seu cargo"
+padrao_descricao: "Tag de quem nao tem cargo com tag (todo jogador tem e pode voltar para ela)"

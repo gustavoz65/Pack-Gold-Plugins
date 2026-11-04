@@ -33,10 +33,11 @@ Plugins Java da GoldSuite para o [Nukkit Gold](https://github.com/gustavoz65/Nuk
 | GoldSkyWars | SkyWars estilo Hypixel: jaulas, 19 kits, baús com refil, modo insano | `/sw` |
 | GoldParty | Party com 5 provas sorteadas entre 10 (corridas, sobrevivência e pontos), salas simultâneas e ranking final | `/party` |
 | GoldComandos | Comandos por mundo (liberar/bloquear), `/help` filtrado, boas-vindas e itens por lobby, liga/desliga outros plugins e recursos por zona, HUD por zona, OP só pelo console ou IP autorizado | `/zona`, `opseguro` |
+| GoldTags | Selecionar sua tag: Jogador, a do cargo e as de eventos; troca sem mexer nas permissões | `/tag` |
 | GoldSkills | Habilidades estilo mcMMO (10 habilidades), poderes, boosters, anúncio de nível, ranking e tag do top 1 | `/skills`, `/mctop`, `/booster` |
 | GoldBedWars | BedWars com até 8 times, forja, geradores, loja, melhorias e camas | `/bw` |
 
-Guias detalhados: [GoldPvP](gold-pvp/README.md), [GoldCosmetics](gold-cosmetics/README.md), [GoldFactions](gold-factions/README.md), [GoldNPC](gold-npc/README.md), [GoldHG](gold-hg/README.md), [GoldSkyWars](gold-skywars/README.md), [GoldBedWars](gold-bedwars/README.md), [GoldComandos](gold-comandos/README.md), [GoldParty](gold-party/README.md), [GoldSkills](gold-skills/README.md), [GoldAuth](gold-auth/README.md), [GoldPerms](gold-perms/README.md), [GoldStaff](gold-staff/README.md), [GoldEconomy](gold-economy/README.md).
+Guias detalhados: [GoldPvP](gold-pvp/README.md), [GoldCosmetics](gold-cosmetics/README.md), [GoldFactions](gold-factions/README.md), [GoldNPC](gold-npc/README.md), [GoldHG](gold-hg/README.md), [GoldSkyWars](gold-skywars/README.md), [GoldBedWars](gold-bedwars/README.md), [GoldComandos](gold-comandos/README.md), [GoldParty](gold-party/README.md), [GoldSkills](gold-skills/README.md), [GoldTags](gold-tags/README.md), [GoldAuth](gold-auth/README.md), [GoldPerms](gold-perms/README.md), [GoldStaff](gold-staff/README.md), [GoldEconomy](gold-economy/README.md).
 
 O [roadmap](ROADMAP.md) mostra a origem de cada módulo.
 

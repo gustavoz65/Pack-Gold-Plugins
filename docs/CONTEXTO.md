@@ -4,7 +4,7 @@ Leia este arquivo inteiro antes de mexer em qualquer coisa. Ele resume o que exi
 
 ## O projeto
 - **Nukkit-Gold-Edition** (github.com/gustavoz65/Nukkit-Gold-Edition): o core do servidor (Nukkit para **MCPE 0.15.10, protocolo 84**). Notas de versão em `builds/VERSAO.md`, o jar em `builds/nukkit-gold-0.15.10.jar`, instaladores em `scripts/` e hospedagem (nftables e egg do Pterodactyl) em `hospedagem/`.
-- **Pack-Gold-Plugins** (github.com/gustavoz65/Pack-Gold-Plugins): os **31 plugins Gold** (Gradle multi-módulo, Java 8). `gold-api` vai embutido no `GoldCore`; os outros só compilam contra ele.
+- **Pack-Gold-Plugins** (github.com/gustavoz65/Pack-Gold-Plugins): os **32 plugins Gold** (Gradle multi-módulo, Java 8). `gold-api` vai embutido no `GoldCore`; os outros só compilam contra ele.
 - Versão atual: **0.4.3** (o dono quer manter 0.4.3 até dizer o contrário). Histórico em `CHANGELOG.md`. Manual em `docs/Manual-Nukkit-Gold-0.4.3.pdf`, gerado por `docs/manual/gerar.py`.
 
 ## Regras do dono (sempre)

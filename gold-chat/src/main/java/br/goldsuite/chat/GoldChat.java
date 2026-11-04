@@ -32,9 +32,33 @@ public final class GoldChat extends PluginBase implements Listener {
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new PersistentState<>(core.getStore(), "goldchat", ChatState.class, ChatState::new, ChatState::validate);
+        Settings.number(this, "filtro", 1, M.t("filtro_descricao"), v -> filterOn = v != 0);
+        Settings.text(this, "filtro.caractere", "*", M.t("filtro_caractere_descricao"), v -> { String c = v.replaceAll("\u00a7.", ""); filterMask = c.isEmpty() ? '*' : c.charAt(0); });
         Settings.number(this, "entrada_saida", 1, "1 = mostra quem entrou e saiu; 0 = esconde (como o OcultJoinQuit)", v -> showJoinQuit = v != 0);
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldChat>(this) { @Override public void onRun(int tick) { announce(); } }, 20 * 10);
+    }
+
+    private volatile boolean filterOn = true;
+    private volatile char filterMask = '*';
+    /** Refeito quando a lista muda (null = refazer na proxima mensagem). */
+    private volatile WordFilter wordFilter;
+
+    private WordFilter wordFilter() {
+        WordFilter f = wordFilter;
+        if (f == null) {
+            Set<String> terms = new LinkedHashSet<>(WordFilter.DEFAULTS);
+            data.read(st -> { terms.removeAll(st.allowedWords); terms.addAll(st.extraWords); return null; });
+            f = new WordFilter(terms);
+            wordFilter = f;
+        }
+        return f;
+    }
+
+    /** Troca os palavroes por asteriscos, a nao ser que o jogador tenha goldchat.semfiltro. */
+    String censor(CommandSender who, String message) {
+        if (!filterOn || who.hasPermission("goldchat.semfiltro") || !data.isLoaded()) { return message; }
+        return wordFilter().filter(message, filterMask);
     }
 
     @Override public void onDisable() { lastAt.clear(); lastText.clear(); lastTell.clear(); if (data != null) { data.close(); } }
@@ -75,10 +99,18 @@ public final class GoldChat extends PluginBase implements Listener {
         } else if (p.hasPermission("goldchat.cores")) {
             message = ChatState.color(event.getMessage().trim());
         }
+        message = censor(p, message);
         String group = group(p);
         String tag = tag(p);
         // Cargo sem formato proprio usa a tag dele na frente do nome.
-        String format = data.read(s -> s.formats.containsKey(group) ? s.formats.get(group) : !tag.isEmpty() ? ChatState.TAGGED : s.formats.get("padrao"));
+        // Quem escolheu uma tag no GoldTags a ve mesmo num formato de grupo sem {tag} (ex.: "&6[VIP] {nome}").
+        TagService tags = getServer().getServiceManager().load(TagService.class);
+        boolean chosen = tags != null && tags.chosen(p.getName()) != null;
+        String format = data.read(s -> {
+            String own = s.formats.get(group);
+            if (own != null && (!chosen || own.contains("{tag}"))) { return own; }
+            return !tag.isEmpty() ? ChatState.TAGGED : s.formats.get("padrao");
+        });
         event.setMessage(message);
         String nf = ChatState.nukkitFormat(format, group, tag);
         // Placeholders de outros plugins no formato ({mctop}, {clan_tag}, {poder}...): valores sem chaves nem %, que o formato usa.
@@ -264,6 +296,27 @@ public final class GoldChat extends PluginBase implements Listener {
                 data.change(change).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "\u00a7c" + root(e) : M.t("chat_anuncios_salvos"))));
                 return;
             }
+            case "palavra": case "palavras": case "filtro": {
+                String op = args.length > 1 ? args[1].toLowerCase(Locale.ROOT) : "lista";
+                String term = args.length > 2 ? String.join(" ", java.util.Arrays.copyOfRange(args, 2, args.length)).toLowerCase(Locale.ROOT).trim() : "";
+                if (op.equals("lista")) {
+                    Set<String> extra = data.read(st -> new TreeSet<>(st.extraWords)), allowed = data.read(st -> new TreeSet<>(st.allowedWords));
+                    sender.sendMessage(M.t("filtro_lista", WordFilter.DEFAULTS.size(), extra.isEmpty() ? "-" : String.join(", ", extra), allowed.isEmpty() ? "-" : String.join(", ", allowed)));
+                    return;
+                }
+                if (op.equals("testar") && !term.isEmpty()) { sender.sendMessage(M.t("filtro_teste", wordFilter().filter(term, filterMask))); return; }
+                if (term.isEmpty() || term.length() > 40 || !(op.equals("adicionar") || op.equals("remover"))) { sender.sendMessage(M.t("filtro_uso")); return; }
+                boolean add = op.equals("adicionar");
+                boolean isDefault = WordFilter.DEFAULTS.contains(term);
+                data.change(st -> {
+                    if (add) { st.allowedWords.remove(term); if (!isDefault) { st.extraWords.add(term); } }
+                    else { st.extraWords.remove(term); if (isDefault) { st.allowedWords.add(term); } }
+                }).whenComplete((v, e) -> {
+                    wordFilter = null;
+                    sender.sendMessage(PREFIX + (e != null ? "\u00a7c" + root(e) : add ? M.t("filtro_adicionado", term) : M.t("filtro_removido", term)));
+                });
+                return;
+            }
             default: sender.sendMessage(M.t("chat_config_uso"));
         }
     }
@@ -280,7 +333,7 @@ public final class GoldChat extends PluginBase implements Listener {
             last[0] = now;
         }
         if (!from.hasPermission("goldchat.staff") && data.read(s -> s.tellOff.contains(toName))) { throw new IllegalArgumentException(M.t("desativou_mensagens_privadas", to.getName())); }
-        String message = ChatState.clean(text);
+        String message = censor(from, ChatState.clean(text));
         to.sendMessage(M.t("voce", from.getName(), message));
         from.sendMessage(M.t("voce_2", to.getName(), message));
         if (from instanceof Player) { lastTell.put(to, (Player) from); lastTell.put((Player) from, to); }

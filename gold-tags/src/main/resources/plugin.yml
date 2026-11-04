@@ -1,0 +1,11 @@
+name: GoldTags
+main: br.goldsuite.tags.GoldTags
+version: "0.4.3"
+api: ["1.0.0"]
+depend: [GoldCore, GoldPerms]
+author: gustavoz65
+description: "Selecionar sua tag: o jogador guarda todas as tags que ja ganhou (Jogador, a do cargo, as de eventos) e escolhe qual mostrar"
+commands:
+ tag: {description: "Escolhe qual das suas tags aparece no chat", usage: "/tag [nome|automatica] | criar | apagar | dar | tirar | lista | ver", aliases: [tags, minhastags]}
+permissions:
+ goldtags.admin: {default: op, description: "Cria tags de evento e da ou tira tags dos jogadores"}

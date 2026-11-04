@@ -10,6 +10,8 @@
 ,{"plugin":"GoldBreaker","key":"prefixo","kind":"TEXTO","def":"§7[§8Breaker§7]§f ","desc":"Prefixo das mensagens"}
 ,{"plugin":"GoldBuild","key":"prefixo","kind":"TEXTO","def":"§6[§eWE§6]§f ","desc":"Prefixo das mensagens"}
 ,{"plugin":"GoldChat","key":"entrada_saida","kind":"NUMERO","def":"1","desc":"1 = mostra quem entrou e saiu; 0 = esconde (como o OcultJoinQuit)"}
+,{"plugin":"GoldChat","key":"filtro","kind":"NUMERO","def":"1","desc":"1 = troca palavroes e ofensas por asteriscos no chat e no tell; 0 = desliga"}
+,{"plugin":"GoldChat","key":"filtro.caractere","kind":"TEXTO","def":"*","desc":"Caractere usado para esconder a palavra"}
 ,{"plugin":"GoldChat","key":"prefixo","kind":"TEXTO","def":"§b[§3Chat§b]§f ","desc":"Prefixo das mensagens"}
 ,{"plugin":"GoldComandos","key":"mensagem_bloqueado","kind":"TEXTO","def":"&cEsse comando nao esta disponivel aqui.","desc":"Mensagem quando o comando nao e liberado no mundo"}
 ,{"plugin":"GoldComandos","key":"prefixo","kind":"TEXTO","def":"§6[Comandos]§f ","desc":"Prefixo das mensagens"}
@@ -135,6 +137,8 @@
 ,{"plugin":"GoldStaff","key":"suporte_espera","kind":"NUMERO","def":"60","desc":"Segundos entre um ticket e outro do mesmo jogador"}
 ,{"plugin":"GoldStaff","key":"suporte_prefixo","kind":"TEXTO","def":"&b[Suporte]&f ","desc":"Prefixo das mensagens do /suporte"}
 ,{"plugin":"GoldStaff","key":"triagem_perguntas","kind":"NUMERO","def":"2","desc":"Perguntas que a IA pode fazer antes de mandar para a equipe (1 a 6)"}
+,{"plugin":"GoldTags","key":"prefixo","kind":"TEXTO","def":"§e[§6Tags§e]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldTags","key":"tag_padrao","kind":"TEXTO","def":"&7[Jogador]","desc":"Tag de quem nao tem cargo com tag (todo jogador tem e pode voltar para ela)"}
 ,{"plugin":"GoldVault","key":"prefixo","kind":"TEXTO","def":"§5[§dBau§5]§f ","desc":"Prefixo das mensagens"}
 ,{"plugin":"GoldVip","key":"prefixo","kind":"TEXTO","def":"§6[§eVIP§6]§f ","desc":"Prefixo das mensagens"}
 ,{"plugin":"GoldWorld","key":"prefixo","kind":"TEXTO","def":"§2[§aMundos§2]§f ","desc":"Prefixo das mensagens"}
@@ -190,12 +194,13 @@
 ,{"plugin":"GoldChat","name":"tell","desc":"Mensagem privada","usage":"/tell <jogador> <mensagem>","perm":null,"aliases":"msg,w"}
 ,{"plugin":"GoldChat","name":"r","desc":"Responde a ultima mensagem privada","usage":"/r <mensagem>","perm":null,"aliases":"responder"}
 ,{"plugin":"GoldChat","name":"tellon","desc":"Liga ou desliga mensagens privadas","usage":"/tellon","perm":null,"aliases":"desativartell"}
-,{"plugin":"GoldChat","name":"chat","desc":"Liga ou desliga o chat e edita formatos, entrada/saida e anuncios","usage":"/chat on|off|formatos|formato|entrada|saida|anuncio","perm":"goldchat.staff","aliases":""}
+,{"plugin":"GoldChat","name":"chat","desc":"Liga ou desliga o chat e edita formatos, entrada/saida e anuncios","usage":"/chat on|off|formatos|formato|entrada|saida|anuncio|palavra","perm":"goldchat.staff","aliases":""}
 ,{"plugin":"GoldChat","name":"limparchat","desc":"Limpa o chat","usage":"/limparchat","perm":"goldchat.staff","aliases":"cc"}
 ,{"plugin":"GoldChat","name":"mute","desc":"Silencia um jogador","usage":"/mute <jogador> [minutos, 0 = sempre]","perm":"goldchat.staff","aliases":""}
 ,{"plugin":"GoldChat","name":"desmute","desc":"Tira o silencio","usage":"/desmute <jogador>","perm":"goldchat.staff","aliases":""}
 ,{"plugin":"GoldChat","name":"aviso","desc":"Aviso grande no chat e no meio da tela","usage":"/aviso <texto>","perm":"goldchat.staff","aliases":""}
 ,{"plugin":"GoldChat","name":"anuncio","desc":"Anuncio para todos","usage":"/anuncio <texto>","perm":"goldchat.staff","aliases":"bc"}
+,{"plugin":"GoldTags","name":"tag","desc":"Escolhe qual das suas tags aparece no chat","usage":"/tag [nome|automatica] | criar | apagar | dar | tirar | lista | ver","perm":null,"aliases":"tags,minhastags"}
 ,{"plugin":"GoldKits","name":"kit","desc":"Resgata ou cria kits","usage":"/kit <nome> | criar <nome> <minutos> [restrito] | apagar <nome>","perm":null,"aliases":""}
 ,{"plugin":"GoldKits","name":"kits","desc":"Menu de kits","usage":"/kits","perm":null,"aliases":""}
 ,{"plugin":"GoldVault","name":"ec","desc":"Abre seu bau pessoal","usage":"/ec [jogador]","perm":"goldvault.usar","aliases":"bau,enderchest"}
@@ -285,6 +290,8 @@
 ,{"plugin":"GoldChat","name":"goldchat.staff","desc":"Ignora anti-spam e modera o chat","def":"op"}
 ,{"plugin":"GoldChat","name":"goldchat.cores","desc":"Usa & para cores no chat","def":"op"}
 ,{"plugin":"GoldChat","name":"goldchat.links","desc":"Pode enviar links","def":"op"}
+,{"plugin":"GoldChat","name":"goldchat.semfiltro","desc":"Fala sem passar pelo filtro de palavroes","def":"false"}
+,{"plugin":"GoldTags","name":"goldtags.admin","desc":"Cria tags de evento e da ou tira tags dos jogadores","def":"op"}
 ,{"plugin":"GoldKits","name":"goldkits.admin","desc":"Cria e apaga kits e usa todos","def":"op"}
 ,{"plugin":"GoldVault","name":"goldvault.usar","desc":"Usa o bau pessoal","def":"true"}
 ,{"plugin":"GoldVault","name":"goldvault.admin","desc":"Abre o bau de outros jogadores","def":"op"}
