@@ -104,8 +104,8 @@ public final class GoldMarket extends PluginBase {
             icons.put(i, icon);
             ids.add(e.getKey());
         }
-        if (current > 0) { icons.put(21, named(Item.get(262), M.t("pagina_anterior"))); }
-        if (current < pages - 1) { icons.put(26, named(Item.get(262), M.t("proxima_pagina"))); }
+        if (current > 0) { icons.put(21, named(Item.get(262), M.t("pagina_anterior", current, pages))); }
+        if (current < pages - 1) { icons.put(26, named(Item.get(262), M.t("proxima_pagina", current + 2, pages))); }
         MenuService menus = getServer().getServiceManager().load(MenuService.class);
         menus.open(p, M.t("leilao_2", (current + 1), pages), icons, (who, slot) -> {
             if (slot == 21 && current > 0) { menu(who, current - 1); return; }

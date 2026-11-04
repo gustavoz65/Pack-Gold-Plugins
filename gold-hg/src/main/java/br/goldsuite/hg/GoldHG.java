@@ -393,8 +393,8 @@ public final class GoldHG extends PluginBase {
         Map<Integer, Item> icons = new HashMap<>();
         Kit chosen = kit(player);
         for (int i = 0; i < PER_PAGE && current * PER_PAGE + i < all.length; i++) { Kit kit = all[current * PER_PAGE + i]; icons.put(i, kit.icon(kit == chosen)); }
-        if (current > 0) { icons.put(21, named(Item.get(262, 0, 1), M.t("pagina_anterior"))); }
-        if (current < pages - 1) { icons.put(26, named(Item.get(262, 0, 1), M.t("proxima_pagina"))); }
+        if (current > 0) { icons.put(21, named(Item.get(262, 0, 1), M.t("pagina_anterior", current, pages))); }
+        if (current < pages - 1) { icons.put(26, named(Item.get(262, 0, 1), M.t("proxima_pagina", current + 2, pages))); }
         menus.open(player, M.t("kits", (current + 1), pages), icons, (p, slot) -> {
             if (slot == 21 && current > 0) { openKits(p, current - 1); return; }
             if (slot == 26 && current < pages - 1) { openKits(p, current + 1); return; }

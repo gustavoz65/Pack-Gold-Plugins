@@ -6,6 +6,20 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 
 ---
 
+## 0.4.3 — correção dos menus no celular (04/11/2026)
+
+### Corrigido
+- **GoldCore (todas as janelas)**: no celular, trocar de tela (próxima página do `/hgkits`, voltar, abrir um submenu) podia deixar a janela vazia, sem abrir ou travada.
+  - Agora, quando um botão abre outra tela, os itens trocam dentro da mesma janela, sem fechar e reabrir o baú.
+  - Quando a tela nova só abre depois (por exemplo, após gravar no banco), o baú novo é criado em outra posição, para não brigar com o anterior.
+  - Limitação do 0.15: o título da janela continua o da primeira tela. Por isso, o número da página foi para as setas.
+- **GoldStaff (boas-vindas)**:
+  - abre 3 s depois de entrar, quando o mapa já carregou no celular;
+  - tocar no livro da página não fecha mais o menu.
+- **GoldHG e GoldMarket**: o número da página aparece nas setas ("Próxima página (2/3)"), e o título fica fixo.
+
+---
+
 ## 0.4.3 — segunda atualização de 04/11/2026
 
 ### Novo

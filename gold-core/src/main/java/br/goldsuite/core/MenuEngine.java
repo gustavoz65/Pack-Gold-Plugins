@@ -31,6 +31,8 @@ final class MenuEngine implements MenuService {
     private final Map<Player, Menu> open = new IdentityHashMap<>();
     /** Tick em que o ultimo menu do jogador fechou: reabrir rapido demais deixava o cliente sem HUD. */
     private final Map<Player, Integer> closedAt = new IdentityHashMap<>();
+    /** Onde ficou o ultimo bau falso do jogador: o proximo, se vier logo, vai para outra altura. */
+    private final Map<Player, Vector3> lastHolder = new IdentityHashMap<>();
 
     MenuEngine(Plugin plugin) { this.plugin = plugin; }
 
@@ -44,9 +46,22 @@ final class MenuEngine implements MenuService {
 
     private boolean show(Player player, String title, Map<Integer, Item> icons, BiConsumer<Player, Integer> onClick, Consumer<Map<Integer, Item>> onChange) {
         if (!player.isOnline() || !player.spawned) { return false; }
+        Menu current = open.get(player);
+        // Botao que abre outra janela (proximo, voltar, pagina 2): troca os itens na MESMA janela. Fechar e abrir
+        // outro bau no mesmo tick deixava o cliente 0.15 do celular com a janela vazia, sem abrir ou travada.
+        if (current != null && current.handling && onChange == null && current.onChange == null && player.getWindowId(current) >= 0) {
+            current.replace(icons, onClick);
+            return true;
+        }
         close(player);
         int x = player.getFloorX(), z = player.getFloorZ();
         int y = player.getFloorY() - 2 >= 1 ? player.getFloorY() - 2 : player.getFloorY() + 3;
+        // Bau logo depois de outro: posicao diferente, para o bloco devolvido do anterior nao apagar o novo.
+        Vector3 last = lastHolder.get(player);
+        if (recentlyClosed(player) && last != null && last.getFloorX() == x && last.getFloorY() == y && last.getFloorZ() == z) {
+            y = y == player.getFloorY() + 3 ? Math.max(1, player.getFloorY() - 2) : player.getFloorY() + 3;
+            if (y == last.getFloorY()) { y = Math.min(126, player.getFloorY() + 4); }
+        }
         Menu menu = new Menu(new Holder(x, y, z), title, onClick, onChange);
         for (Map.Entry<Integer, Item> icon : icons.entrySet()) {
             if (icon.getKey() >= 0 && icon.getKey() < SIZE) { menu.setItem(icon.getKey(), icon.getValue().clone()); }
@@ -76,6 +91,7 @@ final class MenuEngine implements MenuService {
         Menu menu = open.remove(player);
         if (menu == null) { return; }
         closedAt.put(player, plugin.getServer().getTick());
+        lastHolder.put(player, menu.holder);
         if (player.getWindowId(menu) >= 0) { player.removeWindow(menu); }
         restore(player, menu);
     }
@@ -96,8 +112,15 @@ final class MenuEngine implements MenuService {
             int index = slot.slot;
             plugin.getServer().getScheduler().scheduleDelayedTask(new cn.nukkit.scheduler.PluginTask<Plugin>(plugin) {
                 @Override public void onRun(int tick) {
-                    close(player);
-                    if (player.isOnline()) { player.getInventory().sendContents(player); menu.onClick.accept(player, index); }
+                    if (open.get(player) != menu || !player.isOnline()) { close(player); return; }
+                    player.getInventory().sendContents(player);
+                    // Durante o clique a janela continua aberta: se o botao abrir outro menu, ele reaproveita esta.
+                    menu.handling = true;
+                    try { menu.onClick.accept(player, index); }
+                    finally { menu.handling = false; }
+                    boolean replaced = menu.reused; menu.reused = false;
+                    if (replaced && open.get(player) == menu) { return; }
+                    if (open.get(player) == menu) { close(player); }
                     resyncLater(player);
                 }
             }, 1);
@@ -107,7 +130,7 @@ final class MenuEngine implements MenuService {
         return true;
     }
 
-    void forget(Player player) { open.remove(player); closedAt.remove(player); }
+    void forget(Player player) { open.remove(player); closedAt.remove(player); lastHolder.remove(player); }
 
     /**
      * No cliente 0.15, fechar a janela sem abrir outra as vezes deixa a interface sem hotbar. Se nenhum menu abriu
@@ -139,12 +162,21 @@ final class MenuEngine implements MenuService {
 
     private final class Menu extends ContainerInventory {
         final Holder holder;
-        final BiConsumer<Player, Integer> onClick;
+        BiConsumer<Player, Integer> onClick;
         final Consumer<Map<Integer, Item>> onChange;
-        boolean clicked, saveQueued;
+        boolean clicked, saveQueued, handling, reused;
         Menu(Holder holder, String title, BiConsumer<Player, Integer> onClick, Consumer<Map<Integer, Item>> onChange) {
             super(holder, InventoryType.CHEST, new HashMap<>(), SIZE, title);
             this.holder = holder; this.onClick = onClick; this.onChange = onChange;
+        }
+        /** Novos icones e nova acao na janela que ja esta aberta: um pacote so, sem fechar e reabrir. */
+        void replace(Map<Integer, Item> icons, BiConsumer<Player, Integer> next) {
+            slots.clear();
+            for (Map.Entry<Integer, Item> icon : icons.entrySet()) {
+                if (icon.getKey() >= 0 && icon.getKey() < SIZE && icon.getValue() != null) { slots.put(icon.getKey(), icon.getValue().clone()); }
+            }
+            onClick = next; clicked = false; reused = true;
+            for (Player viewer : getViewers()) { sendContents(viewer); }
         }
         /** Varias mudancas no mesmo tick viram uma gravacao so. */
         @Override public void onSlotChange(int index, Item before) {

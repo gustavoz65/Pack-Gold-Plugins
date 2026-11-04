@@ -65,7 +65,8 @@ final class Welcome implements Listener {
                 if (!p.spawned || menus == null || menus.isOpen(p)) { delay(p, attempt + 1); return; }
                 shown.add(p); open(p, 0);
             }
-        }, 20);
+        // No celular o mapa ainda esta carregando logo depois de entrar: janela aberta nessa hora trava.
+        }, attempt <= 1 ? 60 : 20);
     }
     private String page(Player p, int index) {
         String text = pages.isEmpty() ? M.t(index == 0 ? "boasvindas_p1" : index == 1 ? "boasvindas_p2" : "boasvindas_p3") : pages.get(index);
@@ -89,6 +90,8 @@ final class Welcome implements Listener {
         menus.open(p, M.t("boasvindas_titulo"), icons, (who, slot) -> {
             if (slot == 18 && selected > 0) { open(who, selected - 1); }
             else if (slot == 26 && selected + 1 < count) { open(who, selected + 1); }
+            // Tocar no livro (ou em outro icone) mantem a pagina aberta em vez de fechar o menu.
+            else if (slot != 22) { open(who, selected); }
             else if (slot == 22) {
                 // Mesmo caminho do chat: preserva bloqueios e autenticacao dos outros plugins.
                 PlayerCommandPreprocessEvent e = new PlayerCommandPreprocessEvent(who, "/" + support);
