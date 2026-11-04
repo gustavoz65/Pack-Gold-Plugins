@@ -25,6 +25,8 @@ public final class GoldStaff extends PluginBase implements Listener {
     private int minute, clearlagIn, restartIn = -1;
     private final Map<Player, Long> lastReport = new IdentityHashMap<>();
     private Tickets tickets;
+    private Punishments punishments;
+    private Welcome welcome;
     /** Comandos de punicao: o alvo nao pode ter cargo igual ou acima de quem pune. */
     private static final Set<String> PUNISH = new HashSet<>(Arrays.asList("kick", "ban", "ban-ip", "banip", "mute", "tempban", "tempmute", "banir", "expulsar", "silenciar", "jail", "prender"));
 
@@ -36,12 +38,16 @@ public final class GoldStaff extends PluginBase implements Listener {
         data = new PersistentState<>(core.getStore(), "goldstaff", StaffState.class, StaffState::new, StaffState::validate);
         getServer().getPluginManager().registerEvents(this, this);
         tickets = new Tickets(this, core);
+        punishments = new Punishments(this, core);
+        welcome = new Welcome(this);
+        getServer().getPluginManager().registerEvents(welcome, this);
+        getServer().getPluginManager().registerEvents(punishments, this);
         getServer().getPluginManager().registerEvents(tickets, this);
         data.ready().thenRun(() -> { clearlagIn = data.read(s -> s.clearlagMinutes) * 60; int h = data.read(s -> s.restartHours); restartIn = h == 0 ? -1 : h * 3600; });
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldStaff>(this) { @Override public void onRun(int tick) { second(); } }, 20);
     }
 
-    @Override public void onDisable() { lastReport.clear(); if (tickets != null) { tickets.close(); } if (data != null) { data.close(); } }
+    @Override public void onDisable() { lastReport.clear(); if (welcome != null) { welcome.close(); } if (punishments != null) { punishments.close(); } if (tickets != null) { tickets.close(); } if (data != null) { data.close(); } }
 
     /** Linhas do /ajuda (a IA do suporte usa para responder duvidas). */
     List<String> helpLines() { return data != null && data.isLoaded() ? data.read(s -> new ArrayList<>(s.help)) : Collections.emptyList(); }
@@ -107,7 +113,7 @@ public final class GoldStaff extends PluginBase implements Listener {
     }
 
     /** OP manda em todos; fora isso, so pune quem tem cargo (peso) menor. Jogador sem cargo pode ser punido por qualquer staff. */
-    private boolean outranks(Player p, String target) {
+    boolean outranks(Player p, String target) {
         if (p.isOp() || target.equalsIgnoreCase(p.getName())) { return true; }
         if (getServer().isOp(target)) { return false; }
         PermissionService perms = getServer().getServiceManager().load(PermissionService.class);
@@ -115,11 +121,13 @@ public final class GoldStaff extends PluginBase implements Listener {
         try {
             int theirs = perms.getWeight(target);
             return theirs == 0 || theirs < perms.getWeight(p.getName());
-        } catch (RuntimeException e) { return true; }
+        } catch (RuntimeException e) { return false; }
     }
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         switch (command.getName()) {
+            case "welcomebook": return welcome.command(sender, args);
+            case "advertir": case "advertencias": case "banir": case "tempban": case "desbanir": return punishments.command(sender, command.getName(), args);
             case "suporte": case "atender": case "finalizar": case "avaliar": case "tickets": return tickets.onCommand(sender, command.getName(), args);
             default: break;
         }
@@ -148,6 +156,7 @@ public final class GoldStaff extends PluginBase implements Listener {
                 }
                 case "clearlag": sender.sendMessage(PREFIX + M.t("entidades_removidas_2", clearlag())); return true;
                 case "agendar": {
+                    if (sender instanceof Player && !sender.isOp()) { sender.sendMessage(M.t("somente_console_op")); return true; }
                     if (args.length < 2) { sender.sendMessage(PREFIX + M.t("uso_agendar_minutos_remover_comando_atuais", data.<Object>read(s -> s.scheduled.toString()))); return true; }
                     String cmd = String.join(" ", Arrays.copyOfRange(args, 1, args.length)).replaceFirst("^/", "");
                     if (args[0].equalsIgnoreCase("remover")) { change(sender, s -> { if (s.scheduled.remove(cmd) == null) { throw new IllegalArgumentException(M.t("agendamento_inexistente")); } }, () -> M.t("agendamento_removido")); return true; }

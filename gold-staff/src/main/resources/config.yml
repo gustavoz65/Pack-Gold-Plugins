@@ -1,0 +1,9 @@
+# Protocolo 84: menu paginado + chat, sem livro Java nem links clicaveis.
+boasvindas:
+  ativo: true
+  ocultar_entrada: true
+  ip: "seuservidor.com"
+  suporte: "suporte"
+  # Vazio usa boasvindas_p1/p2/p3 do mensagens.yml.
+  # Para personalizar aqui: lista de textos, & para cores, %player%, {ip}, {suporte}.
+  paginas: []

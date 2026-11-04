@@ -139,10 +139,6 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
             p.setOp(false);
             data.change(s -> s.suspended.add(name));
             Settings.alert("Comandos", M.t("op_de_suspenso_entrou_de_um", p.getName(), p.getAddress()));
-        } else if (ok && data.read(s -> s.suspended.contains(name))) {
-            p.setOp(true);
-            data.change(s -> s.suspended.remove(name));
-            p.sendMessage(PREFIX + M.t("seu_op_voltou_ip_autorizado"));
         }
         enter(p, p.level, true, true);
     }

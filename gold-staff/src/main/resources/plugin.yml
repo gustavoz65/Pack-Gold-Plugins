@@ -7,7 +7,13 @@ softdepend: [GoldPerms]
 author: gustavoz65
 description: Suporte com triagem por IA, metricas da equipe, report, ajuda, giveall, bloqueio de comandos, restart, clearlag e comandos agendados
 commands:
- suporte: {description: "Abre um ticket de atendimento com a equipe", usage: "/suporte [mensagem] | /suporte sair | /suporte cancelar", aliases: [ticket, atendimento]}
+ welcomebook: {description: "Boas-vindas, regras e suporte", usage: "/welcomebook [reload]", aliases: [boasvindas]}
+ advertir: {description: "Registra advertencia e aplica a escala de bans", usage: "/advertir <jogador> <motivo>", permission: goldstaff.punir, aliases: [adv]}
+ advertencias: {description: "Consulta historico de punicoes", usage: "/advertencias <jogador>", permission: goldstaff.punir}
+ banir: {description: "Ban permanente por conta e identificadores conhecidos", usage: "/banir <jogador> <motivo>", permission: goldstaff.punir}
+ tempban: {description: "Ban temporario em dias", usage: "/tempban <jogador> <dias> <motivo>", permission: goldstaff.punir}
+ desbanir: {description: "Revoga punicao apos analise da contestacao", usage: "/desbanir <jogador> <motivo da revisao>", permission: goldstaff.desbanir}
+ suporte: {description: "Abre um ticket de atendimento com a equipe", usage: "/suporte [mensagem] | /suporte sair | /suporte cancelar", aliases: [ticket, atendimento, suport]}
  atender: {description: "Atende um ticket do suporte", usage: "/atender [numero]", permission: goldstaff.suporte}
  finalizar: {description: "Finaliza o atendimento atual", usage: "/finalizar [resultado]"}
  avaliar: {description: "Avalia o ultimo atendimento", usage: "/avaliar <1 a 5>"}
@@ -30,3 +36,8 @@ permissions:
  goldstaff.reports: {default: op, description: "Recebe e fecha denuncias"}
  goldstaff.suporte: {default: op, description: "Recebe os avisos de ticket e atende o /suporte"}
  goldstaff.metricas: {default: op, description: "Ve as metricas de atendimento da equipe"}
+
+ goldstaff.punir: {default: op, description: "Aplica advertencias e bans respeitando hierarquia"}
+ goldstaff.desbanir: {default: op, description: "Revoga bans apos contestacao no Discord"}
+
+ welcomebook.admin: {default: op, description: "Recarrega o menu de boas-vindas"}

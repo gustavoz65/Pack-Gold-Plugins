@@ -20,6 +20,7 @@ public final class GoldChat extends PluginBase implements Listener {
     private static final long MIN_INTERVAL_MS = 1500, REPEAT_WINDOW_MS = 30_000;
 
     private PersistentState<ChatState> data;
+    private Polls polls;
     private final Map<Player, long[]> lastAt = new IdentityHashMap<>();
     private final Map<Player, String> lastText = new IdentityHashMap<>();
     private final Map<Player, Player> lastTell = new IdentityHashMap<>();
@@ -31,6 +32,7 @@ public final class GoldChat extends PluginBase implements Listener {
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
         CoreService core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
+        polls = new Polls(this, core);
         data = new PersistentState<>(core.getStore(), "goldchat", ChatState.class, ChatState::new, ChatState::validate);
         Settings.number(this, "filtro", 1, M.t("filtro_descricao"), v -> filterOn = v != 0);
         Settings.text(this, "filtro.caractere", "*", M.t("filtro_caractere_descricao"), v -> { String c = v.replaceAll("\u00a7.", ""); filterMask = c.isEmpty() ? '*' : c.charAt(0); });
@@ -61,9 +63,10 @@ public final class GoldChat extends PluginBase implements Listener {
         return wordFilter().filter(message, filterMask);
     }
 
-    @Override public void onDisable() { lastAt.clear(); lastText.clear(); lastTell.clear(); if (data != null) { data.close(); } }
+    @Override public void onDisable() { if (polls != null) { polls.close(); } lastAt.clear(); lastText.clear(); lastTell.clear(); if (data != null) { data.close(); } }
 
     private void announce() {
+        polls.tick();
         if (!data.isLoaded() || getServer().getOnlinePlayers().isEmpty()) { return; }
         announceElapsed += 10;
         List<String> list = data.read(s -> s.announcements);
@@ -169,6 +172,7 @@ public final class GoldChat extends PluginBase implements Listener {
     // ---------- comandos ----------
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (command.getName().equals("enquete") || command.getName().equals("entrar")) { return polls.command(sender, command.getName(), args); }
         try {
             switch (command.getName()) {
                 case "tell": {

@@ -46,7 +46,10 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         final String name;
         Phase phase = Phase.ESPERANDO;
         int seconds, elapsed;
-        boolean forced;
+        boolean forced, editing;
+        String lootMode = "normal";
+        final MatchOptions options = new MatchOptions();
+        final Set<Long> placedOres = new HashSet<>();
         long noFallUntil;
         final Map<Player, Integer> players = new IdentityHashMap<>();
         final Set<Player> spectators = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -66,7 +69,10 @@ public final class GoldSkyWars extends PluginBase implements Listener {
     MapStore maps;
     final Map<String, Game> games = new HashMap<>();
     final Map<Player, Game> inGame = new IdentityHashMap<>();
-    final Map<Player, SwState.Stats> stats = new IdentityHashMap<>();
+    Progression progress;
+    Perks perks;
+    OreEditor ores;
+    final Map<Player, Map<Integer, Item>> lobbyItems = new IdentityHashMap<>();
     /** Bolas de neve que sao Perolas do Fim (pelo id da entidade). */
     final Set<Long> pearls = new HashSet<>();
     final Set<Player> flying = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -87,6 +93,10 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         for (Kits.Kit k : Kits.ALL.values()) { if (k.price > 0) { Settings.number(this, "kit." + k.id, k.price, "Preco do kit " + k.name + " (centavos)", v -> kitPrices.put(k.id, Math.max(0, v))); } }
         core = getServer().getServiceManager().load(CoreService.class);
         if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
+        progress = new Progression(this);
+        perks = new Perks(this); ores = new OreEditor(this);
+        getServer().getPluginManager().registerEvents(perks, this);
+        getServer().getPluginManager().registerEvents(ores, this);
         maps = new MapStore(getServer(), getDataFolder().toPath());
         data = new PersistentState<>(core.getStore(), "goldskywars", SwState.class, SwState::new, SwState::validate);
         getServer().getPluginManager().registerEvents(this, this);
@@ -109,7 +119,9 @@ public final class GoldSkyWars extends PluginBase implements Listener {
 
     @Override public void onDisable() {
         for (Game g : games.values()) { for (Player p : new ArrayList<>(inGame.keySet())) { if (inGame.get(p) == g) { toLobby(p); } } }
-        for (Player p : new ArrayList<>(stats.keySet())) { saveStats(p); }
+        if (progress != null) { progress.close(); }
+        if (ores != null) { ores.close(); }
+        lobbyItems.clear();
         games.clear(); inGame.clear(); pearls.clear();
         if (data != null) { data.close(); }
     }
@@ -127,24 +139,17 @@ public final class GoldSkyWars extends PluginBase implements Listener {
 
     static String key(Player p) { return p.getName().toLowerCase(Locale.ROOT); }
 
-    void loadStats(Player p) {
-        core.getStore().get(STATS, key(p)).thenAccept(v -> {
-            if (!p.isOnline()) { return; }
-            SwState.Stats s = new SwState.Stats();
-            if (v.isPresent()) { try { s = GSON.fromJson(v.get(), SwState.Stats.class); if (s.kits == null) { s.kits = new TreeSet<>(); } if (!Kits.ALL.containsKey(s.kit)) { s.kit = Kits.DEFAULT; } } catch (RuntimeException bad) { s = new SwState.Stats(); } }
-            stats.put(p, s);
-        });
-    }
-
-    void saveStats(Player p) { SwState.Stats s = stats.get(p); if (s != null) { core.getStore().put(STATS, key(p), GSON.toJson(s)); } }
-
-    SwState.Stats stats(Player p) { return stats.computeIfAbsent(p, k -> new SwState.Stats()); }
+    void loadStats(Player p) { progress.load(p); }
+    SwState.Stats stats(Player p) { return progress.get(p); }
 
     // ---------- entrar e sair ----------
 
     static boolean menuItem(Item i) { return i.hasCustomName() && (i.getCustomName().equals(KIT_ITEM) || i.getCustomName().equals(LEAVE_ITEM) || i.getCustomName().equals(AGAIN_ITEM)); }
 
     void join(Player p, int teamSize) {
+        if (!progress.loaded(p)) { throw new IllegalArgumentException(M.t("carregando")); }
+        AuthService auth = getServer().getServiceManager().load(AuthService.class);
+        if (auth != null && !auth.isAuthenticated(p)) { throw new IllegalArgumentException(M.t("sky_login")); }
         if (inGame.containsKey(p)) { throw new IllegalArgumentException(M.t("voce_ja_esta_numa_partida_use")); }
         for (Item i : p.getInventory().getContents().values()) {
             // Itens do lobby (livro do perfil etc.) podem ficar; itens de verdade nao, para ninguem perder nada.
@@ -154,7 +159,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         Game best = null;
         for (Game g : games.values()) {
             SwState.Arena a = g.arena();
-            if (a == null || a.teamSize != teamSize || !g.waiting() || g.level() == null || g.players.size() >= g.capacity()) { continue; }
+            if (a == null || a.teamSize != teamSize || !a.enabled || g.editing || a.spawns.size() < 2 || !maps.hasBackup(a.world) || !g.waiting() || g.level() == null || g.players.size() >= g.capacity()) { continue; }
             if (best == null || g.players.size() > best.players.size()) { best = g; }
         }
         if (best == null) { throw new IllegalArgumentException(M.t("nenhuma_sala_aberta_agora_tente_em", (teamSize == 1 ? M.t("solo") : M.t("de_dupla")))); }
@@ -164,6 +169,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         for (int i = 0; i < a.spawns.size() && slot < 0; i++) { int used = 0; for (int s : g.players.values()) { if (s == i) { used++; } } if (used < a.teamSize) { slot = i; } }
         if (slot < 0) { throw new IllegalArgumentException(M.t("sala_cheia")); }
         double[] sp = a.spawns.get(slot);
+        lobbyItems.put(p, new HashMap<>(p.getInventory().getContents()));
         g.players.put(p, slot);
         inGame.put(p, g);
         p.getInventory().clearAll();
@@ -184,7 +190,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         Game g = inGame.get(p);
         if (g == null) { return; }
         if (g.phase == Phase.JOGANDO && g.players.containsKey(p)) { eliminate(g, p, lastHitter(g, p), false, M.t("saiu_da_partida", p.getName())); }
-        g.players.remove(p); g.spectators.remove(p); g.kills.remove(p); g.lastHit.remove(p);
+        g.players.remove(p); g.spectators.remove(p); g.kills.remove(p); g.lastHit.remove(p); g.options.votes.remove(p);
         toLobby(p);
         if (g.waiting()) { broadcast(g, M.t("saiu", p.getName(), g.players.size(), g.capacity())); }
     }
@@ -193,6 +199,9 @@ public final class GoldSkyWars extends PluginBase implements Listener {
     void toLobby(Player p) {
         inGame.remove(p);
         p.getInventory().clearAll();
+        Map<Integer, Item> original = lobbyItems.remove(p);
+        if (original != null) { p.getInventory().setContents(original); }
+        p.setMaxHealth(20);
         p.removeAllEffects();
         p.setDataFlag(Entity.DATA_FLAGS, Entity.DATA_FLAG_INVISIBLE, false);
         if (flying.remove(p) && !p.isCreative()) { p.setAllowFlight(false); }
@@ -214,9 +223,15 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         for (int dy = 0; dy <= 2; dy++) { for (int[] d : new int[][] {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) { blocks.add(new Vector3(x + d[0], y + dy, z + d[1])); } }
         for (Vector3 v : blocks) {
             if (build && lv.getBlockIdAt(v.getFloorX(), v.getFloorY(), v.getFloorZ()) != 0) { continue; }
-            lv.setBlock(v, Block.get(build ? 20 : 0), true, false);
+            lv.setBlock(v, Block.get(build ? cageBlock(g, sp) : 0), true, false);
             if (build) { g.cages.add(v); }
         }
+    }
+
+    private int cageBlock(Game g, double[] sp) {
+        int slot = g.arena().spawns.indexOf(sp);
+        for (Map.Entry<Player, Integer> entry : g.players.entrySet()) { if (entry.getValue() == slot) { return progress.cage(entry.getKey()); } }
+        return 20;
     }
 
     // ---------- ciclo de 1 segundo ----------
@@ -225,14 +240,14 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         long now = System.currentTimeMillis();
         for (Game g : games.values()) {
             Level lv = g.level();
-            if (lv == null || g.phase == Phase.RESETANDO) { continue; }
+            if (lv == null || g.editing || g.phase == Phase.RESETANDO) { continue; }
             switch (g.phase) {
                 case ESPERANDO:
-                    if (g.players.size() >= Math.min(minPlayers, Math.max(2, g.capacity())) || (g.forced && !g.players.isEmpty())) { g.phase = Phase.CONTAGEM; g.seconds = g.forced ? 5 : (int) countdown; broadcast(g, M.t("partida_comeca_em", g.seconds)); }
+                    if (g.players.size() >= Math.min(Math.max(minPlayers, g.arena().minimum), Math.max(2, g.capacity())) || (g.forced && !g.players.isEmpty())) { g.phase = Phase.CONTAGEM; g.seconds = g.forced ? 5 : (int) countdown; broadcast(g, M.t("partida_comeca_em", g.seconds)); }
                     for (Player p : g.players.keySet()) { p.sendTip(M.t("aguardando_jogadores", g.players.size(), g.capacity())); }
                     break;
                 case CONTAGEM: {
-                    if (g.players.size() < Math.min(minPlayers, Math.max(2, g.capacity())) && !g.forced) { g.phase = Phase.ESPERANDO; broadcast(g, M.t("jogadores_insuficientes_contagem_cancelada")); break; }
+                    if (g.players.size() < Math.min(Math.max(minPlayers, g.arena().minimum), Math.max(2, g.capacity())) && !g.forced) { g.phase = Phase.ESPERANDO; broadcast(g, M.t("jogadores_insuficientes_contagem_cancelada")); break; }
                     if (g.players.size() >= g.capacity() && g.seconds > 10) { g.seconds = 10; }
                     g.seconds--;
                     for (Player p : g.players.keySet()) { p.sendTip(M.t("comeca_em_kit", g.seconds, Kits.ALL.get(stats(p).kit).name)); if (g.seconds <= 5) { lv.addSound(new ClickSound(p), p); } }
@@ -284,6 +299,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         g.noFallUntil = System.currentTimeMillis() + 5000;
         for (Vector3 v : g.cages) { g.level().setBlock(v, Block.get(0), true, false); }
         g.cages.clear();
+        g.options.apply(this, g);
         fillChests(g, false);
         for (Player p : g.players.keySet()) {
             p.getInventory().clearAll();
@@ -294,6 +310,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
             p.getInventory().sendContents(p); p.getInventory().sendArmorContents(p);
             p.setHealth(p.getMaxHealth()); p.getFoodData().setLevel(20);
             g.kills.put(p, 0);
+            perks.start(p);
             p.sendMessage(PREFIX + M.t("lutem_ultimo_vivo_vence", (g.arena().teamSize > 1 ? M.t("time") : M.t("jogador"))));
         }
     }
@@ -306,13 +323,14 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         for (BlockEntity be : new ArrayList<>(g.level().getBlockEntities().values())) {
             if (!(be instanceof BlockEntityChest)) { continue; }
             BlockEntityChest chest = (BlockEntityChest) be;
-            boolean middle = a.center.length == 3 && Math.pow(be.x - a.center[0], 2) + Math.pow(be.z - a.center[2], 2) <= 144;
+            String chestKey = be.getFloorX() + "," + be.getFloorY() + "," + be.getFloorZ();
+            boolean middle = a.chests.containsKey(chestKey) ? a.chests.get(chestKey) : a.center.length == 3 && Math.pow(be.x - a.center[0], 2) + Math.pow(be.z - a.center[2], 2) <= 144;
             if (refill) { boolean empty = true; for (Item i : chest.getInventory().getContents().values()) { if (i.getId() != 0) { empty = false; break; } } if (!empty) { continue; } }
             chest.getInventory().clearAll();
             List<Integer> slots = new ArrayList<>(); for (int i = 0; i < 27; i++) { slots.add(i); }
             Collections.shuffle(slots, r);
             int i = 0;
-            for (Item item : Loot.roll(r, middle, a.insane)) { chest.getInventory().setItem(slots.get(i++), item); }
+            for (Item item : Loot.roll(r, middle && !g.lootMode.equals("basico"), g.lootMode.equals("insano"))) { chest.getInventory().setItem(slots.get(i++), item); }
             filled++;
         }
         if (filled == 0 && !refill) { getLogger().warning("Arena " + g.name + " sem baus: coloque baus no mapa e use /sw salvar."); }
@@ -333,11 +351,12 @@ public final class GoldSkyWars extends PluginBase implements Listener {
             for (Item i : p.getInventory().getContents().values()) { if (i.getId() != 0 && !menuItem(i)) { p.level.dropItem(p, i); } }
             for (Item i : p.getInventory().getArmorContents()) { if (i.getId() != 0) { p.level.dropItem(p, i); } }
         }
-        SwState.Stats ps = stats(p); ps.deaths++; ps.games++; saveStats(p);
+        progress.event(p, ps -> { ps.deaths++; ps.games++; });
         String msg = customMessage;
         if (killer != null && killer != p) {
             int k = g.kills.merge(killer, 1, Integer::sum);
-            SwState.Stats ks = stats(killer); ks.kills++; saveStats(killer);
+            progress.event(killer, ks -> { ks.kills++; ks.souls = Math.min(1000000, ks.souls + 1); ks.xp += progress.killXp; ks.coins += progress.killCoins; });
+            perks.kill(killer);
             reward(killer, killReward);
             if (msg == null) { msg = "§c" + p.getName() + " §7" + (voidDeath ? M.t("foi_jogado_no_vazio_por") : M.t("foi_morto_por")) + " §a" + killer.getName() + (k >= 2 ? " §6(" + k + " abates)" : ""); }
             killer.getLevel().addSound(new ClickSound(killer), killer);
@@ -355,8 +374,8 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         p.setDataFlag(Entity.DATA_FLAGS, Entity.DATA_FLAG_INVISIBLE, true);
         if (!p.getAllowFlight()) { p.setAllowFlight(true); flying.add(p); }
         SwState.Arena a = g.arena();
-        double[] c = a.center.length == 3 ? a.center : a.spawns.get(0);
-        p.teleport(new Location(c[0], c[1] + 12, c[2], 0, 0, g.level()));
+        double[] c = a.spectator.length == 3 ? a.spectator : a.center.length == 3 ? a.center : a.spawns.get(0);
+        p.teleport(new Location(c[0], c[1] + (a.spectator.length == 3 ? 0 : 12), c[2], 0, 0, g.level()));
         p.getInventory().setItem(0, Items.named(Item.get(339, 0, 1), AGAIN_ITEM));
         p.getInventory().setItem(8, Items.named(Item.get(355, 0, 1), LEAVE_ITEM));
         p.getInventory().sendContents(p);
@@ -374,11 +393,12 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         StringBuilder names = new StringBuilder();
         EffectService fx = getServer().getServiceManager().load(EffectService.class);
         for (Player w : winners) {
-            SwState.Stats s = stats(w); s.wins++; s.games++; saveStats(w);
-            String n = key(w); int wins = s.wins;
-            data.change(st -> SwState.offer(st.topWins, n, wins));
+            String n = key(w);
+            progress.change(w, s -> { s.wins++; s.games++; s.xp += progress.winXp; s.coins += progress.winCoins; }).thenAccept(s -> {
+                if (isEnabled() && data.isLoaded()) { data.change(st -> SwState.offer(st.topWins, n, s.wins)); }
+            }).exceptionally(e -> { getLogger().error("Falha ao salvar vitoria", e); return null; });
             reward(w, winReward);
-            if (fx != null) { fx.follow(w, EffectService.Shape.CELEBRACAO, 80); }
+            if (fx != null && !DeviceService.low(w)) { fx.follow(w, EffectService.Shape.CELEBRACAO, 80); }
             w.sendMessage(PREFIX + M.t("vitoria_voce_ganhou_skywars"));
             names.append(names.length() == 0 ? "" : " e ").append(w.getName());
         }
@@ -396,14 +416,14 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         Level lv = g.level();
         for (Player p : new ArrayList<>(inGame.keySet())) { if (inGame.get(p) == g) { toLobby(p); } }
         if (lv != null) { for (Player p : new ArrayList<>(lv.getPlayers().values())) { toLobby(p); } }
-        g.players.clear(); g.spectators.clear(); g.kills.clear(); g.lastHit.clear(); g.cages.clear();
+        g.players.clear(); g.spectators.clear(); g.kills.clear(); g.lastHit.clear(); g.cages.clear(); g.options.votes.clear(); g.placedOres.clear();
         String world = g.arena().world;
-        if (!maps.hasBackup(world)) { g.phase = Phase.ESPERANDO; getLogger().warning("Arena " + g.name + " sem copia do mapa: use /sw salvar."); return; }
-        if (lv != null) { getServer().unloadLevel(lv, true); }
+        if (!maps.hasBackup(world)) { getLogger().warning("Arena " + g.name + " sem copia do mapa: use /sw salvar."); return; }
+        if (lv != null && !getServer().unloadLevel(lv, true)) { getLogger().error("Falha ao descarregar arena " + g.name); return; }
         maps.restore(world).whenComplete((v, e) -> {
-            if (e != null) { getLogger().error(M.t("falha_ao_restaurar", world), e); }
-            getServer().loadLevel(world);
-            g.phase = Phase.ESPERANDO;
+            if (!isEnabled()) { return; }
+            if (e != null) { getLogger().error(M.t("falha_ao_restaurar", world), e); return; }
+            if (getServer().loadLevel(world)) { g.phase = Phase.ESPERANDO; }
         });
     }
 
@@ -429,18 +449,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         menus().open(p, M.t("kits_do_skywars"), icons, (who, slot) -> { if (slot < list.size()) { chooseKit(who, list.get(slot)); } });
     }
 
-    void chooseKit(Player p, Kits.Kit k) {
-        SwState.Stats s = stats(p);
-        if (k.price == 0 || price(k) == 0 || s.kits.contains(k.id)) { s.kit = k.id; saveStats(p); p.sendMessage(PREFIX + M.t("kit_selecionado", k.name)); return; }
-        EconomyService eco = getServer().getServiceManager().load(EconomyService.class);
-        long cost = price(k);
-        if (eco == null || eco.balance(key(p), EconomyService.Currency.MONEY) < cost) { p.sendMessage(PREFIX + M.t("dinheiro_insuficiente_kit_custa", k.name, cost / 100)); return; }
-        eco.debit(key(p), EconomyService.Currency.MONEY, cost).whenComplete((v, e) -> {
-            if (e != null) { p.sendMessage(PREFIX + M.t("compra_nao_concluida")); return; }
-            s.kits.add(k.id); s.kit = k.id; saveStats(p);
-            p.sendMessage(PREFIX + M.t("voce_comprou_selecionou_kit", k.name));
-        });
-    }
+    void chooseKit(Player p, Kits.Kit k) { progress.buyKit(p, k); }
 
     MenuService menus() { return getServer().getServiceManager().load(MenuService.class); }
 
@@ -459,7 +468,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         if (gameAt(p.level) != null) { getServer().getScheduler().scheduleDelayedTask(new PluginTask<GoldSkyWars>(this) { @Override public void onRun(int t) { if (p.isOnline() && !inGame.containsKey(p)) { toLobby(p); } } }, 10); }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR) public void onQuit(PlayerQuitEvent e) { leave(e.getPlayer()); saveStats(e.getPlayer()); stats.remove(e.getPlayer()); flying.remove(e.getPlayer()); }
+    @EventHandler(priority = EventPriority.MONITOR) public void onQuit(PlayerQuitEvent e) { leave(e.getPlayer()); progress.release(e.getPlayer()); flying.remove(e.getPlayer()); }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onDamage(EntityDamageEvent e) {
@@ -562,19 +571,31 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         Player p = (Player) ((EntityProjectile) proj).shootingEntity;
         if (!p.isOnline() || p.level != proj.level || frozen(p)) { return; }
         p.teleport(new Vector3(proj.x, proj.y + 0.5, proj.z));
-        p.attack(new EntityDamageEvent(p, EntityDamageEvent.CAUSE_FALL, 5));
+        p.attack(new EntityDamageEvent(p, EntityDamageEvent.CAUSE_FALL, Math.max(1, 5 - progress.perk(p, "endermastery"))));
     }
 
     // ---------- comandos ----------
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!data.isLoaded()) { sender.sendMessage(PREFIX + M.t("carregando")); return true; }
-        String sub = args.length == 0 ? "ajuda" : args[0].toLowerCase(Locale.ROOT);
+        if (command.getName().equals("gerar")) {
+            if (sender instanceof Player && args.length == 1 && args[0].equalsIgnoreCase("minerios")) { try { ores.generate((Player)sender); } catch (RuntimeException e) { sender.sendMessage(e.getMessage()); } }
+            else { sender.sendMessage(M.t("minerios_instrucoes")); } return true;
+        }
+        if (command.getName().equals("swmap")) { return mapCommand(sender, args); }
+        String sub = args.length == 0 ? "opcoes" : args[0].toLowerCase(Locale.ROOT);
         Player p = sender instanceof Player ? (Player) sender : null;
         try {
             switch (sub) {
-                case "entrar": if (p != null) { join(p, args.length > 1 && args[1].equalsIgnoreCase("dupla") ? 2 : 1); } return true;
-                case "sair": if (p != null) { if (inGame.containsKey(p)) { leave(p); p.sendMessage(PREFIX + M.t("voce_saiu_da_partida")); } else { p.sendMessage(PREFIX + M.t("voce_nao_esta_numa_partida")); } } return true;
+                case "opcoes": case "options": if (p != null) { progress.menu(p); } return true;
+                case "almas": case "soulwell": if (p != null) { progress.well(p); } return true;
+                case "vantagens": case "perks": if (p != null) { progress.perks(p); } return true;
+                case "jaulas": case "glass": if (p != null) { progress.cages(p); } return true;
+                case "prestigio": case "prestige": if (p != null) { progress.prestige(p); } return true;
+                case "votar": if (p != null) { MatchOptions.menu(this, p); } return true;
+                case "ilhas": if (p != null) { if (args.length > 1 && args[1].equalsIgnoreCase("limpar")) { ores.clear(p); } else { ores.tool(p); } } return true;
+                case "join": case "entrar": if (p != null) { join(p, args.length > 1 && args[1].equalsIgnoreCase("dupla") ? 2 : 1); } return true;
+                case "quit": case "leave": case "sair": if (p != null) { if (inGame.containsKey(p)) { leave(p); p.sendMessage(PREFIX + M.t("voce_saiu_da_partida")); } else { p.sendMessage(PREFIX + M.t("voce_nao_esta_numa_partida")); } } return true;
                 case "kits": if (p != null) { kitMenu(p); } return true;
                 case "stats": {
                     Player t = args.length > 1 ? getServer().getPlayerExact(args[1]) : p;
@@ -607,8 +628,8 @@ public final class GoldSkyWars extends PluginBase implements Listener {
                     return true;
                 }
                 case "lista": { for (Game g : games.values()) { SwState.Arena a = g.arena(); sender.sendMessage(M.t("jaulas", g.name, a.world, (a.teamSize == 1 ? M.t("solo") : M.t("dupla")), (a.insane ? M.t("insano") : ""), a.spawns.size(), g.phase, g.players.size(), g.capacity(), (maps.hasBackup(a.world) ? "" : M.t("sem_copia")))); } return true; }
-                case "iniciar": { Game g = games.get(SwState.name(arg(args, 1))); if (g == null || !g.waiting()) { throw new IllegalArgumentException(M.t("arena_inexistente_ou_em_jogo")); } g.forced = true; sender.sendMessage(PREFIX + M.t("comecando_em_5")); return true; }
-                case "remover": { String n = SwState.name(arg(args, 1)); Game g = games.get(n); if (g != null && !g.waiting()) { throw new IllegalArgumentException(M.t("espere_partida_acabar")); } data.change(s -> s.arenas.remove(n)).whenComplete((v, e) -> { games.remove(n); sender.sendMessage(PREFIX + M.t("arena_removida")); }); return true; }
+                case "iniciar": { Game g = games.get(SwState.name(arg(args, 1))); if (g == null || !g.waiting() || g.editing || !maps.hasBackup(g.arena().world)) { throw new IllegalArgumentException(M.t("arena_inexistente_ou_em_jogo")); } g.forced = true; sender.sendMessage(PREFIX + M.t("comecando_em_5")); return true; }
+                case "remover": { String n = SwState.name(arg(args, 1)); Game g = games.get(n); if (g != null && (!g.waiting() || g.editing || !g.players.isEmpty())) { throw new IllegalArgumentException(M.t("espere_partida_acabar")); } if (g != null) { g.editing = true; } data.change(s -> s.arenas.remove(n)).whenComplete((v, e) -> { if (g != null) { g.editing = false; } if (e != null) { sender.sendMessage(M.t("perfil_operacao_falhou", root(e))); return; } games.remove(n); sender.sendMessage(PREFIX + M.t("arena_removida")); }); return true; }
                 default:
                     sender.sendMessage(PREFIX + M.t("admin_sw_criar_nome_solo_dupla"));
                     return true;
@@ -628,10 +649,10 @@ public final class GoldSkyWars extends PluginBase implements Listener {
     }
 
     void edit(Player p, Game g, String sub, String[] args) {
-        if (!g.waiting() || !g.players.isEmpty()) { throw new IllegalArgumentException(M.t("arena_tem_jogadores_espere_esvaziar")); }
+        if (!g.waiting() || !g.players.isEmpty() || g.editing) { throw new IllegalArgumentException(M.t("arena_tem_jogadores_espere_esvaziar")); }
         double[] here = spot(p, args, 1);
         double[] c = g.arena().center;
-        if (args.length >= 4 && c != null) { here[3] = Math.toDegrees(Math.atan2(-(c[0] - here[0]), c[2] - here[2])); }
+        if (args.length >= 4 && c != null && c.length == 3) { here[3] = Math.toDegrees(Math.atan2(-(c[0] - here[0]), c[2] - here[2])); }
         switch (sub) {
             case "jaula": data.change(s -> { SwState.Arena a = s.arenas.get(g.name); if (a.spawns.size() >= 24) { throw new IllegalArgumentException(M.t("maximo_de_24_jaulas")); } a.spawns.add(here); }).whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("jaula_marcada_jaula_de_vidro_aparece", g.arena().spawns.size())))); break;
             case "desfazer": data.change(s -> { List<double[]> l = s.arenas.get(g.name).spawns; if (!l.isEmpty()) { l.remove(l.size() - 1); } }).whenComplete((v, e) -> p.sendMessage(PREFIX + M.t("ultima_jaula_removida"))); break;
@@ -639,8 +660,18 @@ public final class GoldSkyWars extends PluginBase implements Listener {
             case "insano": data.change(s -> s.arenas.get(g.name).insane = !s.arenas.get(g.name).insane).whenComplete((v, e) -> p.sendMessage(PREFIX + M.t("modo_insano", (g.arena().insane ? M.t("ligado") : M.t("desligado"))))); break;
             default: {
                 Level lv = p.level;
+                if (lv == getServer().getDefaultLevel()) { throw new IllegalArgumentException(M.t("use_um_mundo_proprio_para_arena")); }
+                String world = lv.getFolderName();
+                g.editing = true;
+                for (Player visitor : new ArrayList<>(lv.getPlayers().values())) { visitor.teleport(getServer().getDefaultLevel().getSafeSpawn()); }
                 lv.save(true);
-                maps.backup(lv.getFolderName()).whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? M.t("falha_ao_salvar_copia", e.getMessage()) : M.t("copia_do_mapa_salva_ele_volta"))));
+                if (!getServer().unloadLevel(lv, true)) { g.editing = false; throw new IllegalStateException(M.t("mapa_descarregar_falhou")); }
+                maps.backup(world).whenComplete((v, e) -> {
+                    if (!isEnabled()) { return; }
+                    boolean loaded = getServer().loadLevel(world); g.editing = false;
+                    if (!loaded) { g.phase = Phase.RESETANDO; }
+                    p.sendMessage(e != null ? M.t("falha_ao_salvar_copia", root(e)) : M.t("copia_do_mapa_salva_ele_volta"));
+                });
             }
         }
     }
