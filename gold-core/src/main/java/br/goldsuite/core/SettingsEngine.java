@@ -223,7 +223,7 @@ final class SettingsEngine implements SettingsService, Listener {
         icons.put(22, icon(262, 0, M.t("voltar")));
         menus().open(p, M.t("discord"), icons, (who, slot) -> {
             if (slot == 11) { typing.put(who, new Object[] {"#webhook", System.currentTimeMillis() + 90_000}); who.sendMessage(M.t("painel_cole_no_chat_url_do")); }
-            else if (slot == 13) { alert("Painel", M.t("teste_de_aviso_enviado_por", who.getName())); who.sendMessage(M.t("painel_teste_enviado")); }
+            else if (slot == 13) { testDiscord(who); }
             else if (slot == 15) { setWebhook("", who::sendMessage); }
             else if (slot == 22) { open(who); }
         });
@@ -271,7 +271,7 @@ final class SettingsEngine implements SettingsService, Listener {
             }
             case "discord": {
                 if (args.length < 2) { sender.sendMessage(M.t("uso_painel_discord_url_off_teste")); return true; }
-                if (args[1].equalsIgnoreCase("teste")) { alert("Painel", M.t("teste_de_aviso_enviado_por", sender.getName())); return true; }
+                if (args[1].equalsIgnoreCase("teste")) { testDiscord(sender); return true; }
                 setWebhook(args[1].equalsIgnoreCase("off") ? "" : args[1], sender::sendMessage);
                 return true;
             }
@@ -286,6 +286,14 @@ final class SettingsEngine implements SettingsService, Listener {
             }
             default: sender.sendMessage(M.t("painel_painel_ver_plugin_painel_set")); return true;
         }
+    }
+
+    /** Manda um aviso de teste e mostra para quem pediu se o Discord recebeu (ou o motivo de nao ter recebido). */
+    private void testDiscord(CommandSender sender) {
+        String hook = data.isLoaded() ? data.read(s -> s.webhook) : "";
+        sender.sendMessage(M.t("discord_teste_enviando"));
+        discord.test(hook, strip(text(SERVER, "discord.nome")), "**Painel**: " + strip(M.t("teste_de_aviso_enviado_por", sender.getName())))
+                .thenAccept(result -> core.getServer().getScheduler().scheduleTask(new cn.nukkit.scheduler.PluginTask<GoldCore>(core) { @Override public void onRun(int tick) { sender.sendMessage(result); } }));
     }
 
     /** /painel msg [plugin] [chave|busca] [texto|padrao|pagina]: busca e edita as mensagens dos plugins. */

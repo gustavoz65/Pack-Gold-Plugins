@@ -156,7 +156,7 @@
 ,{"plugin":"GoldWorld","name":"fundir","desc":"Funde os itens do inventario na hora","usage":"/fundir","perm":"goldworld.fundir","aliases":"smelt"}
 ,{"plugin":"GoldDevice","name":"fps","desc":"Liga ou desliga o modo leve (menos efeitos)","usage":"/fps","perm":null,"aliases":"leve"}
 ,{"plugin":"GoldDevice","name":"plataforma","desc":"Mostra a plataforma e o limite de CPS","usage":"/plataforma [jogador] | definir <jogador> <windows|android|ios>","perm":null,"aliases":"aparelho"}
-,{"plugin":"GoldBuild","name":"we","desc":"Edicao de mundo","usage":"/we pos1|pos2|set|walls|replace|esfera|undo","perm":"goldbuild.admin","aliases":"worldedit,magicwe"}
+,{"plugin":"GoldBuild","name":"we","desc":"Edicao de mundo","usage":"/we varinha|pos1|pos2|set|walls|replace|esfera|undo","perm":"goldbuild.admin","aliases":"worldedit,magicwe"}
 ,{"plugin":"GoldAuth","name":"registrar","desc":"Cria sua conta neste servidor","usage":"/registrar <senha> <confirmacao>","perm":"goldauth.use","aliases":"register,reg"}
 ,{"plugin":"GoldAuth","name":"login","desc":"Autentica sua conta neste servidor","usage":"/login <senha>","perm":"goldauth.use","aliases":"l"}
 ,{"plugin":"GoldAuth","name":"senha","desc":"Altera a senha da sua conta","usage":"/senha <senha_atual> <nova_senha>","perm":"goldauth.use","aliases":"changepassword"}

@@ -412,11 +412,15 @@ public final class GoldAuth extends PluginBase implements Listener, AuthService 
         switch (sub) {
             case "ativar": {
                 if (on) { player.sendMessage(M.t("verificacao_em_duas_etapas_ja_esta")); return true; }
-                session.pendingSecret = Totp.newSecret();
+                // Repetir o /2fa ativar mostra a MESMA chave: quem ja cadastrou no app nao fica com uma chave que nao vale mais.
+                if (session.pendingSecret == null) { session.pendingSecret = Totp.newSecret(); }
                 String s = session.pendingSecret;
+                StringBuilder grouped = new StringBuilder();
+                for (int i = 0; i < s.length(); i += 4) { grouped.append(i == 0 ? "" : " ").append(s, i, Math.min(s.length(), i + 4)); }
                 player.sendMessage(M.t("1_instale_google_authenticator_authy_ou"));
                 player.sendMessage(M.t("2_toque_em_adicionar_conta_inserir"));
-                player.sendMessage("§a§l" + s.substring(0, 8) + " " + s.substring(8, 16) + " " + s.substring(16, 24) + " " + s.substring(24));
+                player.sendMessage(M.t("chave_2fa", grouped.toString()));
+                player.sendMessage(M.t("chave_2fa_dica"));
                 player.sendMessage(M.t("3_confirme_com_2fa_confirmar_codigo"));
                 return true;
             }

@@ -340,10 +340,16 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
 
     private void confirm(Player p, Cosmetic c) {
         Map<Integer, Item> icons = new HashMap<>();
-        icons.put(11, icon(35, 5, M.t("comprar", c.name, Catalog.price(c, price(c)))));
+        EconomyService economy = getServer().getServiceManager().load(EconomyService.class);
+        long cost = price(c);
+        long have = economy == null ? 0 : economy.balance(key(p.getName()), c.cash ? EconomyService.Currency.CASH : EconomyService.Currency.MONEY);
+        // Sem saldo nem existe o botao de comprar: o jogador ve o quanto falta e volta para a categoria.
+        boolean canPay = economy != null && have >= cost;
+        icons.put(11, canPay ? icon(35, 5, M.t("comprar", c.name, Catalog.price(c, cost)))
+                : icon(35, 14, M.t("sem_saldo_botao", Catalog.price(c, have), Catalog.price(c, cost)) + (c.cash ? "\n" + rechargeHint : "")));
         icons.put(13, icon(c.icon, c.meta, "§f" + c.name + "\n§7" + c.type.title));
         icons.put(15, icon(35, 14, M.t("cancelar")));
-        menus().open(p, M.t("confirmar_compra"), icons, (who, slot) -> { if (slot == 11) { buy(who, c); } else { category(who, c.type); } });
+        menus().open(p, M.t("confirmar_compra"), icons, (who, slot) -> { if (slot == 11 && canPay) { buy(who, c); } else { category(who, c.type); } });
     }
 
     /** Debita, grava o cosmetico e so entao confirma; se a gravacao falhar, devolve o dinheiro. */
@@ -360,6 +366,8 @@ public final class GoldCosmetics extends PluginBase implements Listener, Cosmeti
             buying.remove(name);
             p.sendMessage(PREFIX + noBalance.replace("{item}", c.name).replace("{preco}", Catalog.price(c, cost)));
             if (c.cash) { p.sendMessage(PREFIX + rechargeHint); }
+            // Volta para a categoria em vez de deixar o jogador sem janela nenhuma.
+            category(p, c.type);
             return;
         }
         boolean[] paid = new boolean[1];

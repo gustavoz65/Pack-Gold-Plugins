@@ -98,6 +98,7 @@ final class MenuEngine implements MenuService {
                 @Override public void onRun(int tick) {
                     close(player);
                     if (player.isOnline()) { player.getInventory().sendContents(player); menu.onClick.accept(player, index); }
+                    resyncLater(player);
                 }
             }, 1);
         }
@@ -107,6 +108,21 @@ final class MenuEngine implements MenuService {
     }
 
     void forget(Player player) { open.remove(player); closedAt.remove(player); }
+
+    /**
+     * No cliente 0.15, fechar a janela sem abrir outra as vezes deixa a interface sem hotbar. Se nenhum menu abriu
+     * depois do clique, reenvia inventario, armadura e item da mao para o cliente redesenhar tudo.
+     */
+    private void resyncLater(Player player) {
+        plugin.getServer().getScheduler().scheduleDelayedTask(new cn.nukkit.scheduler.PluginTask<Plugin>(plugin) {
+            @Override public void onRun(int tick) {
+                if (!player.isOnline() || open.containsKey(player)) { return; }
+                player.getInventory().sendContents(player);
+                player.getInventory().sendArmorContents(player);
+                player.getInventory().sendHeldItem(player);
+            }
+        }, 12);
+    }
 
     private static void restore(Player player, Menu menu) {
         if (player.isOnline() && player.level != null) { player.level.sendBlocks(new Player[] {player}, new Vector3[] {menu.holder}); }

@@ -104,3 +104,20 @@ valor_ausente_ou_excessivo: "Valor ausente ou excessivo."
 # {0} = e.getKey()
 valor_invalido: "Valor invalido: {0}"
 voltar: "&fVoltar"
+discord_teste_enviando: "&7Testando o webhook do Discord..."
+discord_teste_sem_webhook: "&cNenhum webhook configurado. Use /painel discord <url do webhook>."
+discord_teste_url_invalida: "&cA URL salva nao e um webhook do Discord valido."
+# {0} = tempo em ms
+discord_teste_ok: "&aDiscord recebeu o teste em {0} ms. Confira a mensagem no canal."
+discord_teste_404: "&cO Discord respondeu 404: esse webhook foi apagado ou a URL esta errada. Crie outro no canal e use /painel discord <url>."
+# {0} = codigo HTTP
+discord_teste_401: "&cO Discord recusou ({0}): token do webhook invalido. Copie a URL de novo no canal."
+discord_teste_429: "&eO Discord pediu para esperar (limite de mensagens). Tente de novo em alguns segundos."
+# {0} = codigo HTTP
+discord_teste_codigo: "&cO Discord respondeu com o codigo {0}."
+discord_teste_dns: "&cA VPS nao conseguiu resolver discord.com (DNS). Confira a internet/DNS da maquina."
+# {0} = tipo do erro
+discord_teste_sem_rede: "&cSem conexao com o Discord ({0}). A VPS esta sem internet de saida ou um firewall bloqueia a porta 443."
+# {0} = erro
+discord_teste_erro: "&cFalha ao falar com o Discord: {0}"
+discord_teste_fila: "&eA fila de avisos do Discord esta cheia. Tente de novo em instantes."

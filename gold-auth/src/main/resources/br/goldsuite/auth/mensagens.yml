@@ -70,3 +70,6 @@ verificacao_em_duas_etapas_ja_esta: "A verificacao em duas etapas ja esta ativa.
 verificacao_em_duas_etapas_nao_esta: "A verificacao em duas etapas nao esta ativa."
 verificando_sua_senha_aguarde_alguns_segundos: "Verificando sua senha, aguarde alguns segundos..."
 voce_ja_esta_autenticado: "Voce ja esta autenticado."
+# {0} = chave em blocos de 4
+chave_2fa: "&a{0}"
+chave_2fa_dica: "&7So existem letras A-Z e numeros 2-7 (nao tem 0, 1, 8 nem 9). Tipo: baseada em tempo. Se repetir /2fa ativar, a chave e a mesma."

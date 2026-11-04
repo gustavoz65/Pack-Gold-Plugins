@@ -65,3 +65,5 @@ voce_tem_toque_para_usar: "&e[VOCE TEM]\n&aToque para USAR"
 voce_tirou: "Voce tirou {0}."
 voce_tirou_todos_os_cosmeticos: "Voce tirou todos os cosmeticos."
 voltar: "&fVoltar"
+# {0} = saldo do jogador, {1} = preco
+sem_saldo_botao: "&cSaldo insuficiente\n&7Voce tem &f{0}&7, custa &f{1}"

@@ -17,7 +17,7 @@ GUIAS = {
     passos=[
         "Entre no servidor como OP e digite /painel. O menu mostra o Servidor (paleta de cores e alertas) e cada plugin.",
         "Em Servidor, defina a paleta: cor.primaria, cor.secundaria, cor.destaque, cor.sucesso, cor.erro e cor.texto. Tudo que usa {primaria}, {erro}... muda junto.",
-        "Ligue o Discord: /painel discord <url do webhook> e teste com /painel discord teste. Alertas da staff e das keys vão para o canal.",
+        "Ligue o Discord: /painel discord <url do webhook> e teste com /painel discord teste. O teste diz se o Discord recebeu (com o tempo) ou o motivo: webhook apagado, token inválido, limite do Discord ou VPS sem internet de saída.",
         "Revise os prefixos de cada plugin (chave prefixo) para combinar com o nome do servidor.",
         "Para trocar qualquer mensagem: /painel msg (veja o capítulo Mensagens).",
     ],
@@ -44,7 +44,7 @@ GUIAS = {
         "- No aparelho confiável basta o /login. Num aparelho novo, depois da senha o servidor pede o código de 6 números (/2fa <codigo> ou digitado no chat).",
         "- /2fa aparelhos mostra os aparelhos; /2fa aparelhos limpar deixa só o atual; /2fa desativar <codigo> desliga.",
     ])],
-    dicas=["As senhas nunca aparecem no console nem nos logs.", "Coloque login, registrar e 2fa nos comandos sempre liberados do GoldComandos (já vêm assim)."],
+    dicas=["2FA dando código incorreto: não precisa de nada no Google. Confira a chave (só letras A-Z e números 2-7), o tipo 'baseada em tempo' no app e a hora automática do celular. Repetir /2fa ativar mostra a mesma chave.", "As senhas nunca aparecem no console nem nos logs.", "Coloque login, registrar e 2fa nos comandos sempre liberados do GoldComandos (já vêm assim)."],
 ),
 "GoldPerms": dict(
     resumo="Grupos com herança, permissões, cargos hierárquicos da equipe (peso e tag) e VIP com prazo.",
@@ -449,9 +449,21 @@ GUIAS = {
     dicas=["blocos_por_tick limita a montagem das arenas somando todas as salas: abrir várias salas não causa lag."],
 ),
 "GoldBuild": dict(
-    resumo="Edição de mundo (estilo WorldEdit) em fatias de até 4000 blocos por tick.",
-    passos=["Marque os cantos: /we pos1 e /we pos2.", "/we set <bloco>, /we walls <bloco>, /we replace <de> <para>, /we esfera <raio> <bloco> (onde você mira), /we undo."],
-    secoes=[], dicas=["Só goldbuild.admin. Limite de 500 mil blocos por operação."],
+    resumo="Edição de mundo (estilo WorldEdit) pensada para o celular: varinha de machado de madeira para marcar a área e menu na hotbar para escolher a operação e o bloco, sem digitar id. Aplica até 4000 blocos por tick, sem travar o servidor.",
+    passos=[
+        "Use /we varinha: você recebe o machado de madeira (varinha) e a vara de blaze (Menu do WE).",
+        "Com o machado na mão, quebre um bloco (no celular, segure no bloco) para marcar o ponto 1 e toque em outro bloco para marcar o ponto 2. O bloco não quebra.",
+        "Selecione a vara de blaze na hotbar: abre o menu com Preencher, Paredes, Trocar, Esfera, Limpar, Desfazer e marcar os pontos onde você está.",
+        "Ao escolher a operação, o menu mostra os blocos do seu inventário: toque no que quer usar. No Trocar, escolha primeiro o bloco que sai e depois o que entra.",
+        "Errou? Desfazer (no menu ou /we undo) volta a última operação.",
+    ],
+    secoes=[("Pelos comandos (opcional)", [
+        "- /we pos1 e /we pos2: marcam o bloco embaixo de você.",
+        "- /we set <id>, /we walls <id>, /we replace <de> <para>, /we esfera <raio> <id>, /we undo. Os blocos são pelo número; :cor depois do número (ex.: 35:14 lã vermelha). /id mostra o id do item na mão.",
+        "$ /we replace 2 1",
+        "$ /we set 0",
+    ])],
+    dicas=["Só goldbuild.admin usa (OP por padrão); para um cargo: /grupo permissao admin goldbuild.admin true.", "O machado de quem não tem a permissão continua sendo um machado normal.", "Limite de 500 mil blocos por operação; o desfazer guarda até 100 mil blocos."],
 ),
 }
 
