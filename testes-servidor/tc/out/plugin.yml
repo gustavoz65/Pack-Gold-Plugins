@@ -1,0 +1,5 @@
+name: TesteComandos
+main: teste.TesteComandos
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldComandos]

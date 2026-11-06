@@ -1,0 +1,5 @@
+name: TesteJogos
+main: teste.TesteJogos
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldSkyWars, GoldBedWars, GoldEconomy]

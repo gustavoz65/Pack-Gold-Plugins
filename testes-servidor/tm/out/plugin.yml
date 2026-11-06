@@ -1,0 +1,5 @@
+name: TesteMensagens
+main: teste.TesteMensagens
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldSkills, GoldComandos, GoldHud, GoldChat, GoldFactions]

@@ -1,0 +1,5 @@
+name: TesteRankup
+main: teste.TesteRankup
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldEconomy, GoldCrates, GoldEssentials, GoldChat, GoldHud]

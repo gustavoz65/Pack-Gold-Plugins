@@ -1,0 +1,5 @@
+name: TesteDevice
+main: teste.TesteDevice
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldDevice]

@@ -1,0 +1,5 @@
+name: TestePunicoes
+main: teste.TestePunicoes
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldStaff, GoldChat]

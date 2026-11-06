@@ -4,3 +4,7 @@
 /dist/
 /lib/nukkit-gold.jar
 *.class
+
+# testes de servidor
+testes-servidor/work/
+testes-servidor/*/out/teste/

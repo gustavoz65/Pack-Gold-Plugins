@@ -1,0 +1,5 @@
+name: TesteSuporte
+main: teste.TesteSuporte
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldStaff, GoldPerms, GoldChat]

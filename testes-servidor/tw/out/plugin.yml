@@ -1,0 +1,5 @@
+name: TesteBuild2
+main: teste.TesteBuild2
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldCosmetics, GoldEconomy, GoldCrates, GoldEssentials, GoldChat, GoldHud]

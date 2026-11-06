@@ -1,0 +1,5 @@
+name: TesteSkyMythic
+main: teste.TesteSkyMythic
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldSkyWars]

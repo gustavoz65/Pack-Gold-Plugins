@@ -1,0 +1,5 @@
+name: TesteTags
+main: teste.TesteTags
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldPerms, GoldTags, GoldChat, GoldWorld, GoldEconomy]

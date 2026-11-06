@@ -1,0 +1,5 @@
+name: TesteParty
+main: teste.TesteParty
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldParty]

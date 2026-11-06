@@ -1,0 +1,6 @@
+name: Dump
+main: teste.Dump
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldAuth, GoldBedWars, GoldBreaker, GoldBuild, GoldChat, GoldComandos, GoldCosmetics, GoldCrates, GoldDevice, GoldEconomy, GoldEnchant, GoldEssentials, GoldFactions, GoldHG, GoldHud, GoldKeys, GoldKits, GoldMarket, GoldNPC, GoldParty, GoldPerms, GoldProtect, GoldPvP, GoldShop, GoldSkills, GoldSkyWars, GoldStaff, GoldVault, GoldVip, GoldWorld, GoldTags, GoldSkills, GoldComandos, GoldParty]

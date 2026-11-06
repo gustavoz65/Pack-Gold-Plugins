@@ -1,0 +1,5 @@
+name: TesteMenus
+main: teste.TesteMenus
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldHG, GoldStaff]

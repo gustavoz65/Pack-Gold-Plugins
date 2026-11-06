@@ -1,0 +1,5 @@
+name: TesteLoginLobby
+main: teste.TesteLoginLobby
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldAuth, GoldStaff]
