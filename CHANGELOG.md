@@ -18,9 +18,12 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 - **GoldEssentials**: `entrar_no_spawn` (padrão 1): todo jogador entra no hub, trocando o mundo salvo antes do Nukkit carregá-lo.
 - **Conversor** (`ferramentas/conversor-pc`): troca blocos que não existem no MCPE 0.15 e derrubam o cliente (sinalizador, ender chest, bloco de comando, jukebox, prismarinho, lanterna do mar, vidro e painel colorido, barreira, estandarte).
 - Testes novos: `ra/TesteRankupAlpha` (ciclo completo, abusos e todas as telas pelo pacote real).
+- **GoldEconomy** e **GoldSkills**: placares `money` e `mctop` para os pódios de NPC (`npc ranking money 1`, `npc ranking mctop 1`).
+- **GoldRankup**: painel `mundos_tag` — o `{rank}` só aparece no chat/HUD dos mundos do rankup (padrão `RankupLobby,minas,plots`).
 
 ### Corrigido
 - **Mapas**: o `FactionsLobby` do pack derrubava o celular (sinalizador, que não existe no 0.15); Submerged e Villa do SkyWars tinham prismarinho e lanterna do mar (também da 0.16); o HG tinha sinalizador, ender chest, bloco de comando e jukebox. Todos saneados, inclusive as cópias de reset.
+- **GoldHud**: o popup do HUD não é mais enviado enquanto um menu está aberto (no celular ele embaralhava a janela de vários plugins).
 - **GoldComandos**: `zona mundo` tira da zona um mundo que já foi apagado.
 - **GoldShop**: mensagens de compra e venda que estavam fixas no código foram para o `mensagens.yml`.
 - **Testes**: `TesteSkyMythic` espera as gravações assíncronas (passa inteiro de novo).

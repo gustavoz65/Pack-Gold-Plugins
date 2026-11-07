@@ -30,6 +30,8 @@ public final class GoldEconomy extends PluginBase implements EconomyService {
             else {
                 getLogger().info(data.size() + " conta(s) carregada(s).");
                 getServer().getServiceManager().register(EconomyService.class, this, this);
+                RankingService ranking = getServer().getServiceManager().load(RankingService.class);
+                if (ranking != null) { ranking.register("money", this::topMoney); }
                 Settings.placeholder(this, "money", p -> PlaceholderService.compact(balance(p.getName(), Currency.MONEY) / 100));
                 Settings.placeholder(this, "money_exato", p -> java.math.BigDecimal.valueOf(balance(p.getName(), Currency.MONEY), 2).toPlainString());
                 Settings.placeholder(this, "cash", p -> PlaceholderService.compact(balance(p.getName(), Currency.CASH)));
@@ -82,6 +84,23 @@ public final class GoldEconomy extends PluginBase implements EconomyService {
     @Override public CompletableFuture<Void> credit(String player, Currency currency, long amount) { Objects.requireNonNull(currency); return data.change(s -> s.credit(player, currency, amount)); }
     @Override public CompletableFuture<Void> debit(String player, Currency currency, long amount) { Objects.requireNonNull(currency); return data.change(s -> s.debit(player, currency, amount)); }
     @Override public CompletableFuture<Void> transfer(String from, String to, Currency currency, long amount) { Objects.requireNonNull(currency); return data.change(s -> s.transfer(from, to, currency, amount)); }
+    private List<RankingService.Entry> topMoney = Collections.emptyList();
+    private long topMoneyAt;
+
+    /** Maiores saldos para o podio dos NPCs: ordena so a cada 60 s (nada por consulta). */
+    private List<RankingService.Entry> topMoney(int limit) {
+        long now = System.currentTimeMillis();
+        if (now - topMoneyAt > 60_000) {
+            topMoneyAt = now;
+            List<Map.Entry<String, Long>> all = data.read(s -> { List<Map.Entry<String, Long>> l = new ArrayList<>(s.accounts.size()); for (Map.Entry<String, Ledger.Account> e : s.accounts.entrySet()) { if (e.getValue().money > 0) { l.add(new AbstractMap.SimpleImmutableEntry<>(e.getKey(), e.getValue().money)); } } return l; });
+            all.sort(Map.Entry.<String, Long>comparingByValue().reversed());
+            List<RankingService.Entry> top = new ArrayList<>();
+            for (int i = 0; i < Math.min(10, all.size()); i++) { top.add(new RankingService.Entry(all.get(i).getKey(), all.get(i).getValue(), M.t("podio_money", Ledger.format(all.get(i).getValue(), Currency.MONEY)))); }
+            topMoney = top;
+        }
+        return topMoney.subList(0, Math.min(limit, topMoney.size()));
+    }
+
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         AuthService auth = getServer().getServiceManager().load(AuthService.class);
         if (sender instanceof Player && auth != null && !auth.isAuthenticated((Player) sender)) { sender.sendMessage(M.t("autentique_se_primeiro")); return true; }

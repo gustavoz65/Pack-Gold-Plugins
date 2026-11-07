@@ -110,3 +110,5 @@ voce_precisa_de_para_reparar: "&cVoce precisa de {0} para reparar."
 voce_prepara: "&eVoce prepara {0}..."
 # {0} = gain, {1} = skill.label, {2} = s.level[i], {3} = percent(s, i)
 xp: "&e+{0} XP &6{1} &7({2}) {3}%"
+# {0} = poder
+podio_mctop: "Poder {0}"

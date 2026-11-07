@@ -66,9 +66,12 @@ public final class GoldHud extends PluginBase implements Listener {
         AuthService auth = getServer().getServiceManager().load(AuthService.class);
         ZoneService zones = getServer().getServiceManager().load(ZoneService.class);
         Set<String> off = data.read(s -> s.off), hidden = data.read(s -> s.hiddenWorlds);
+        MenuService menus = getServer().getServiceManager().load(MenuService.class);
         for (Player p : getServer().getOnlinePlayers().values()) {
             if (!p.spawned || hidden.contains(p.level.getFolderName()) || off.contains(p.getName().toLowerCase(Locale.ROOT))) { continue; }
             if (auth != null && !auth.isAuthenticated(p)) { continue; }
+            // Com um baú de menu aberto, texto por cima atrapalha a janela no cliente 0.15: a barra volta ao fechar.
+            if (menus != null && menus.isOpen(p)) { continue; }
             if (zones != null && !zones.allows(p.level, "goldhud.barra")) { continue; }
             PlaceholderService.Template t1 = line1, t2 = line2;
             String[] custom = zones == null ? null : zones.hud(p.level);

@@ -43,6 +43,7 @@ public final class GoldRankup extends PluginBase implements Listener {
     /** Quem esta no meio de um rankup (cobranca + gravacao): o segundo toque nao cobra de novo. */
     private final Set<String> busy = new HashSet<>();
     private boolean announce = true;
+    private Set<String> tagWorlds = new HashSet<>();
 
     @Override public void onEnable() {
         M.B.attach(this);
@@ -58,7 +59,8 @@ public final class GoldRankup extends PluginBase implements Listener {
         getServer().getPluginManager().registerEvents(mines, this);
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldRankup>(this) { @Override public void onRun(int t) { mines.tick(); } }, 1);
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldRankup>(this) { @Override public void onRun(int t) { mines.second(); } }, 20);
-        Settings.placeholder(this, "rank", p -> { Rank r = current(p); return r == null ? "" : r.tag.replace('&', '§'); });
+        Settings.text(this, "mundos_tag", "RankupLobby,minas,plots", "Mundos onde o {rank} aparece (chat e barra); fora deles fica vazio", v -> { Set<String> w = new HashSet<>(); for (String x : v.split(",")) { if (!x.trim().isEmpty()) { w.add(x.trim().toLowerCase(Locale.ROOT)); } } tagWorlds = w; });
+        Settings.placeholder(this, "rank", p -> { if (!tagWorlds.isEmpty() && !tagWorlds.contains(p.level.getFolderName().toLowerCase(Locale.ROOT))) { return ""; } Rank r = current(p); return r == null ? "" : r.tag.replace('&', '§') + " "; });
         Settings.placeholder(this, "rank_proximo", p -> { Rank r = next(p); return r == null ? M.t("rank_maximo") : r.tag.replace('&', '§'); });
         Settings.placeholder(this, "rank_preco", p -> { Rank r = next(p); return r == null ? "-" : PlaceholderService.compact(r.price / 100); });
         Settings.placeholder(this, "rank_progresso", p -> progressPercent(p) + "%");

@@ -49,3 +49,5 @@ voce_depositou: "&aVoce depositou $"
 voce_nao_tem_esse_valor_na: "Voce nao tem esse valor na carteira."
 voce_nao_tem_esse_valor_no: "Voce nao tem esse valor no banco."
 voce_sacou: "&aVoce sacou $"
+# {0} = saldo
+podio_money: "$ {0}"

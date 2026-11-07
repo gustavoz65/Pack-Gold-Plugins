@@ -100,6 +100,14 @@ public final class GoldSkills extends PluginBase implements Listener {
         core.getStore().all(NS).thenAccept(rows -> {
             for (Map.Entry<String, String> e : rows.entrySet()) { short[] lv = levelsOf(e.getValue()); if (lv != null) { index.put(e.getKey(), lv); } }
             getLogger().info(index.size() + " perfil(is) de habilidades no ranking; " + placed.size() + " bloco(s) colocado(s) rastreado(s).");
+            RankingService ranking = getServer().getServiceManager().load(RankingService.class);
+            if (ranking != null) {
+                ranking.register("mctop", limit -> {
+                    List<RankingService.Entry> out = new ArrayList<>();
+                    for (Map.Entry<String, Integer> e : ranking(null)) { if (out.size() >= limit) { break; } out.add(new RankingService.Entry(e.getKey(), e.getValue(), M.t("podio_mctop", e.getValue()))); }
+                    return out;
+                });
+            }
             refreshTop();
         });
         core.getStore().get(GLOBAL, "xprate").thenAccept(v -> v.ifPresent(s -> { String[] p = s.split(":"); try { globalRate = Double.parseDouble(p[0]); globalUntil = Long.parseLong(p[1]); } catch (RuntimeException ignored) { } }));
