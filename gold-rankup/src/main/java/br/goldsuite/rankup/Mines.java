@@ -13,6 +13,7 @@ import cn.nukkit.event.player.PlayerBucketEmptyEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import java.util.*;
@@ -65,6 +66,10 @@ final class Mines implements Listener {
                     if (!j.loadChunks) { budget = 0; break; }
                     j.level.loadChunk(cx, cz, true);
                 }
+                // Chunk criado sem jogador por perto nunca passou pelo gerador: sem "gerado" o Nukkit grava ele vazio
+                // (os blocos somem ao reiniciar) e ainda o geraria por cima na primeira visita.
+                FullChunk chunk = j.level.getChunk(cx, cz, false);
+                if (chunk != null && (!chunk.isGenerated() || !chunk.isPopulated())) { chunk.setGenerated(); chunk.setPopulated(); }
                 Part part = pick(j.parts, j.total, rnd);
                 j.level.setBlock(new Vector3(j.x, j.y, j.z), Block.get(part.id, part.meta), true, false);
                 budget--;

@@ -141,6 +141,8 @@ public final class TesteRankupAlpha extends PluginBase {
                 int b = lv.getBlockIdAt(27, 50, -13);
                 check(b == 1 || b == 16, "mina de pedra preenchida com a composicao (" + b + ")");
                 check(lv.getBlockIdAt(27, 64, -4) == 98 && lv.getBlockIdAt(27, 43, -13) == 7, "patio, caminho e fundo de bedrock montados");
+                cn.nukkit.level.format.FullChunk ch = lv.getChunk(1, -1, false);
+                check(ch != null && ch.isGenerated() && ch.isPopulated() && blocksSaved(ch), "chunk da mina marcado como gerado (o save grava os blocos) " + (ch == null ? "null" : ch.isGenerated() + "/" + ch.isPopulated()));
                 check(Boolean.TRUE.equals(field(runtime("pedra"), "filled")) && Boolean.TRUE.equals(field(runtime("lendario"), "filled")), "as 10 minas preenchidas");
                 ana = fake("Ana"); bia = fake("Bia"); caio = fake("Caio");
                 // Jogador falso nao segura chunk: um carregador de teste mantem a area das minas (como um jogador la perto).
@@ -315,4 +317,13 @@ public final class TesteRankupAlpha extends PluginBase {
     }
 
     boolean menuSafe(Player p) { try { return menuOf(p) == null; } catch (Exception e) { return false; } }
+    private static boolean blocksSaved(cn.nukkit.level.format.FullChunk ch) {
+        try {
+            byte[] raw = ch.toBinary();
+            java.util.zip.Inflater inf = new java.util.zip.Inflater(); inf.setInput(raw);
+            java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream(); byte[] buf = new byte[8192];
+            while (!inf.finished()) { int n = inf.inflate(buf); if (n == 0 && (inf.needsInput() || inf.needsDictionary())) { break; } out.write(buf, 0, n); }
+            return new String(out.toByteArray(), java.nio.charset.StandardCharsets.ISO_8859_1).contains("Blocks");
+        } catch (Exception e) { return false; }
+    }
 }
