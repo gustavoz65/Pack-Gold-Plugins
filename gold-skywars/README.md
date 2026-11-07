@@ -43,3 +43,20 @@ No mundo do mapa: `/sw criar <nome> [solo|dupla]`, `/sw jaula` (em cada ponto de
 Painel: mínimo de jogadores, contagem, duração, refis, prêmios, mundo do lobby.
 
 Ranking `skywars` (vitórias) disponível para os NPCs: `/npc ranking skywars 1`.
+
+## Fila do lobby (NPC)
+`/npc comando sw fila solo` (ou `dupla`): tocar no NPC coloca o jogador na fila sem sair do lobby.
+- Com `fila.minimo` jogadores (painel, padrão 2) começa a contagem de `fila.contagem` segundos (padrão 10), mostrada acima da hotbar.
+- No fim o grupo vai junto para um mapa sorteado entre as salas vazias. Sem sala vazia, vai para a que tem mais vagas.
+- Cair abaixo do mínimo para a contagem. Tocar de novo, sair do lobby ou entrar numa partida tira da fila.
+
+## Arenas pelo console
+```
+sw criar ilhas solo sw_ilhas      cria e escolhe a arena no console
+swmap arena ilhas                 escolhe outra arena depois
+sw meio 0.5 67 0.5                sw jaula 34.5 68 0.5 [yaw]  (repita)
+swmap espectador 0.5 90 0.5       swmap bau meio|ilha|auto <x> <y> <z>
+swmap nome ...  swmap autor ...  swmap minimo 2  swmap ativar  sw salvar
+```
+Espere a resposta do `sw criar` antes das jaulas: a arena só existe depois de gravada.
+

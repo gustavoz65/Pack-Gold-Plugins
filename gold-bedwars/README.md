@@ -30,3 +30,8 @@ Jogadores: `/bw sair`, `/bw stats [nick]`, `/bw top`.
 Painel: mínimo de jogadores, contagem, prêmios (abate, abate final, cama e vitória) e mundo do lobby.
 
 Ranking `bedwars` (vitórias) disponível para os NPCs: `/npc ranking bedwars 1`.
+
+## Arena pelo console
+`bw criar <nome> <solo|dupla|quarteto> <mundo>` cria e escolhe a arena; `bw arena <nome>` escolhe outra. Depois os mesmos comandos com coordenadas:
+`bw espera <x> <y> <z>`, `bw time <cor> spawn|forja|cama <x> <y> <z>` (a cama é achada até 3 blocos da coordenada), `bw diamante|esmeralda <x> <y> <z>`, `bw salvar`.
+

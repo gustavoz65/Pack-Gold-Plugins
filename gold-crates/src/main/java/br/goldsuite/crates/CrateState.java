@@ -14,6 +14,9 @@ public final class CrateState {
         public List<Reward> rewards = new ArrayList<>();
         /** Nome mostrado na caixa misteriosa (item); vazio = usa o nome da caixa. */
         public String display = "";
+        /** Preco no /caixas: centavos de dinheiro ou unidades de cash (cash = true). 0 = nao esta a venda. */
+        public long price;
+        public boolean cash;
     }
 
     public static final class Reward {
@@ -66,6 +69,7 @@ public final class CrateState {
             name(e.getKey());
             if (e.getValue() == null || e.getValue().rewards == null || e.getValue().rewards.size() > 27) { throw new IllegalArgumentException(M.t("caixa_invalida")); }
             if (e.getValue().display == null || e.getValue().display.length() > 40) { throw new IllegalArgumentException(M.t("nome_de_caixa_invalido")); }
+            if (e.getValue().price < 0 || e.getValue().price > 1_000_000_000_00L) { throw new IllegalArgumentException(M.t("caixa_invalida")); }
             for (Reward r : e.getValue().rewards) {
                 if (r == null || r.item == null || r.weight < 1 || r.weight > 10000 || r.command == null || r.command.length() > 120 || (r.commandOnly && r.command.isEmpty())) { throw new IllegalArgumentException(M.t("premio_invalido")); }
                 r.item.validate();

@@ -204,6 +204,7 @@ public final class GoldShop extends PluginBase implements Listener {
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try {
+            if (command.getName().equals("comprar")) { store(sender, args); return true; }
             if (command.getName().equals("preco")) {
                 if (args.length < 2) { sender.sendMessage(PREFIX + M.t("uso_preco_id_meta_valor_por")); return true; }
                 int[] item = ShopState.item(args[0]);
@@ -245,6 +246,141 @@ public final class GoldShop extends PluginBase implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR) public void quit(PlayerQuitEvent event) { pending.remove(event.getPlayer()); }
+
+    // ---------- /comprar: loja do servidor em menu ----------
+
+    /** Posicoes das categorias no menu principal (duas fileiras centrais) e dos botoes. */
+    private static final int[] CATEGORY_SLOTS = {1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16};
+    private static final int BACK = 18, BALANCE = 22, SELL_ALL = 26;
+
+    private void store(CommandSender sender, String[] args) {
+        String sub = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
+        if (!sub.isEmpty() && !sub.equals("menu")) { storeAdmin(sender, sub, args); return; }
+        if (!(sender instanceof Player)) { sender.sendMessage(PREFIX + M.t("uso_comprar_admin")); return; }
+        categories((Player) sender);
+    }
+
+    private MenuService menus() { return getServer().getServiceManager().load(MenuService.class); }
+
+    private void categories(Player p) {
+        Map<String, ShopState.Category> catalog = data.read(s -> new LinkedHashMap<>(s.catalog));
+        if (catalog.isEmpty()) { p.sendMessage(PREFIX + M.t("loja_do_servidor_vazia")); return; }
+        Map<Integer, Item> icons = new HashMap<>();
+        Map<Integer, String> bySlot = new HashMap<>();
+        int i = 0;
+        for (Map.Entry<String, ShopState.Category> e : catalog.entrySet()) {
+            if (i >= CATEGORY_SLOTS.length) { break; }
+            ShopState.Category c = e.getValue();
+            icons.put(CATEGORY_SLOTS[i], named(Item.get(c.iconId, c.iconMeta, 1), M.t("categoria_icone", (c.title.isEmpty() ? e.getKey() : c.title).replace('&', '§'), c.offers.size())));
+            bySlot.put(CATEGORY_SLOTS[i], e.getKey());
+            i++;
+        }
+        icons.put(SELL_ALL, named(Item.get(266, 0, 1), M.t("botao_vender_tudo")));
+        menus().open(p, M.t("titulo_loja_servidor"), icons, (who, slot) -> {
+            if (slot == SELL_ALL) { getServer().dispatchCommand(who, "vender tudo"); return; }
+            String key = bySlot.get(slot);
+            if (key != null) { offers(who, key); }
+        });
+    }
+
+    private void offers(Player p, String key) {
+        ShopState.Category c = data.read(s -> s.catalog.get(key));
+        if (c == null) { categories(p); return; }
+        List<ShopState.Offer> list = new ArrayList<>(c.offers);
+        Map<Integer, Item> icons = new HashMap<>();
+        for (int i = 0; i < list.size() && i < ShopState.MAX_OFFERS; i++) {
+            ShopState.Offer o = list.get(i);
+            Item it = Item.get(o.id, o.meta, o.amount);
+            icons.put(i, named(it, M.t("oferta_icone", o.amount, it.getName(), ShopState.money(o.price))));
+        }
+        icons.put(BACK, named(Item.get(262, 0, 1), M.t("botao_voltar")));
+        EconomyService eco = getServer().getServiceManager().load(EconomyService.class);
+        if (eco != null) { icons.put(BALANCE, named(Item.get(339, 0, 1), M.t("botao_saldo", "$ " + ShopState.money(eco.balance(p.getName(), Currency.MONEY))))); }
+        icons.put(SELL_ALL, named(Item.get(266, 0, 1), M.t("botao_vender_tudo")));
+        String title = (c.title.isEmpty() ? key : c.title).replace('&', '§');
+        menus().open(p, title, icons, (who, slot) -> {
+            if (slot == BACK) { categories(who); return; }
+            if (slot == SELL_ALL) { getServer().dispatchCommand(who, "vender tudo"); return; }
+            if (slot < 0 || slot >= list.size()) { return; }
+            ShopState.Offer o = list.get(slot);
+            String busyKey = "comprar:" + who.getName().toLowerCase(Locale.ROOT);
+            if (!busy.add(busyKey)) { return; }
+            CompletableFuture<String> result;
+            try {
+                Shop shop = new Shop(); shop.id = o.id; shop.meta = o.meta; shop.amount = o.amount; shop.price = o.price;
+                result = buyFromServer(who, shop, Item.get(o.id, o.meta, o.amount));
+            } catch (RuntimeException e) { result = PersistentState.failed(e); }
+            result.whenComplete((message, error) -> {
+                busy.remove(busyKey);
+                if (!who.isOnline()) { return; }
+                who.sendMessage(PREFIX + (error != null ? "§c" + root(error) : message));
+            });
+        });
+    }
+
+    private static Item named(Item it, String name) { it.setCustomName(name); return it; }
+
+    /** Administracao da loja (console ou goldshop.admin). */
+    private void storeAdmin(CommandSender sender, String sub, String[] a) {
+        if (!sender.hasPermission("goldshop.admin")) { sender.sendMessage(PREFIX + M.t("uso_comprar")); return; }
+        switch (sub) {
+            case "categoria": {
+                if (a.length < 3) { throw new IllegalArgumentException(M.t("uso_comprar_admin")); }
+                String key = ShopState.category(a[1]);
+                int[] icon = ShopState.item(a[2]);
+                String title = a.length > 3 ? String.join(" ", Arrays.copyOfRange(a, 3, a.length)) : "";
+                if (title.length() > 40) { throw new IllegalArgumentException(M.t("titulo_longo")); }
+                data.change(s -> {
+                    ShopState.Category c = s.catalog.get(key);
+                    if (c == null) { if (s.catalog.size() >= ShopState.MAX_CATEGORIES) { throw new IllegalArgumentException(M.t("limite_de_categorias")); } c = new ShopState.Category(); s.catalog.put(key, c); }
+                    c.iconId = icon[0]; c.iconMeta = icon[1]; c.title = title;
+                }).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("categoria_salva", key))));
+                return;
+            }
+            case "add": {
+                if (a.length < 5) { throw new IllegalArgumentException(M.t("uso_comprar_admin")); }
+                String key = ShopState.category(a[1]);
+                int[] item = ShopState.item(a[2]);
+                int amount = ShopState.amount(a[3]);
+                long price = ShopState.price(a[4]);
+                data.change(s -> {
+                    ShopState.Category c = s.catalog.get(key);
+                    if (c == null) { throw new IllegalArgumentException(M.t("categoria_inexistente", key)); }
+                    if (c.offers.size() >= ShopState.MAX_OFFERS) { throw new IllegalArgumentException(M.t("limite_de_ofertas")); }
+                    ShopState.Offer o = new ShopState.Offer(); o.id = item[0]; o.meta = item[1]; o.amount = amount; o.price = price;
+                    c.offers.add(o);
+                }).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("oferta_adicionada", amount, Item.get(item[0], item[1]).getName(), ShopState.money(price), key))));
+                return;
+            }
+            case "remover": {
+                if (a.length < 3) { throw new IllegalArgumentException(M.t("uso_comprar_admin")); }
+                String key = ShopState.category(a[1]);
+                int n = Integer.parseInt(a[2]);
+                data.change(s -> { ShopState.Category c = s.catalog.get(key); if (c == null || n < 1 || n > c.offers.size()) { throw new IllegalArgumentException(M.t("oferta_inexistente")); } c.offers.remove(n - 1); })
+                        .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("oferta_removida"))));
+                return;
+            }
+            case "apagar": {
+                String key = ShopState.category(a.length > 1 ? a[1] : "");
+                data.change(s -> { if (s.catalog.remove(key) == null) { throw new IllegalArgumentException(M.t("categoria_inexistente", key)); } })
+                        .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("categoria_apagada", key))));
+                return;
+            }
+            case "lista": {
+                data.read(s -> {
+                    if (s.catalog.isEmpty()) { sender.sendMessage(PREFIX + M.t("loja_do_servidor_vazia")); }
+                    for (Map.Entry<String, ShopState.Category> e : s.catalog.entrySet()) {
+                        sender.sendMessage(M.t("categoria_linha", e.getKey(), e.getValue().title.replace('&', '§'), e.getValue().offers.size()));
+                        int i = 1;
+                        for (ShopState.Offer o : e.getValue().offers) { sender.sendMessage(M.t("oferta_linha", i++, o.amount, Item.get(o.id, o.meta).getName(), ShopState.money(o.price))); }
+                    }
+                    return null;
+                });
+                return;
+            }
+            default: sender.sendMessage(PREFIX + M.t("uso_comprar_admin"));
+        }
+    }
 
     // ---------- utilitarios ----------
 

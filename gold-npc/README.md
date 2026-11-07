@@ -42,6 +42,7 @@ npc selecionar 3                                 o console tem a sua própria se
 npc mover LobbyRush 12 65 -3 180                 move o NPC selecionado
 npc destino posicao LobbyPvP 128 67 128 0        destino com coordenadas
 npc skin Fulano                                  copia a skin de um jogador online
+npc skin cor vermelho                            skin gerada com camisa da cor (vermelho, azul, verde, amarelo, laranja, roxo, rosa, ciano, branco, preto, cinza, dourado)
 npc comando mundo tp LobbyPvP   npc nome ...   npc transicao portal   npc lista   npc remover
 ```
 `npc item`, `npc tp`, `destino aqui` e `selecionar` sem id precisam de um jogador. Um `npc criar` seguido de `npc selecionar <id>` no mesmo roteiro mantém o id escolhido: a criação só seleciona o NPC novo se ninguém selecionou outro enquanto ele era gravado.

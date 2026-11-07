@@ -117,10 +117,11 @@ public final class TesteSkyMythic extends PluginBase {
 
     void plan() {
         step(5, () -> { at(admin, "sw_ilhas", 0.5, 67, 0.5); cmd(admin, "GoldSkyWars", "sw criar ilhas solo"); });
-        step(3, () -> { at(admin, "sw_ilhas", 0.5, 67, 0.5); cmd(admin, "GoldSkyWars", "swmap meio"); });
+        // As gravacoes do SQLite sao assincronas: espere a arena existir antes de editar.
+        step(60, () -> { at(admin, "sw_ilhas", 0.5, 67, 0.5); cmd(admin, "GoldSkyWars", "swmap meio"); });
         for (double[] cg : cages) { step(3, () -> cmd(admin, "GoldSkyWars", "swmap jaula " + cg[0] + " " + cg[1] + " " + cg[2])); }
         step(3, () -> { cmd(admin, "GoldSkyWars", "swmap espectador 0.5 90 0.5"); cmd(admin, "GoldSkyWars", "swmap minimo 3"); cmd(admin, "GoldSkyWars", "swmap nome Ilhas Gold"); cmd(admin, "GoldSkyWars", "swmap autor gustavoz65"); cmd(a, "GoldSkyWars", "swmap minimo 2"); });
-        step(5, () -> {
+        step(60, () -> {
             try {
                 Object ar = arenaObj();
                 check(((double[]) field(ar, "spectator")).length == 3 && ((double[]) field(ar, "spectator"))[1] == 90, "swmap: ponto do espectador salvo");

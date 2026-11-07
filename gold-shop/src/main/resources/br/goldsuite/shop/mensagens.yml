@@ -46,3 +46,33 @@ vender_2: "&c[Vender]"
 vendeu_itens_por: "Vendeu {0} itens por ${1}."
 # {0} = item.getCount(), {1} = item.getName()
 voce_nao_tem: "Voce nao tem {0}x {1}."
+# ---------- /comprar (loja do servidor em menu) ----------
+titulo_loja_servidor: "&8Loja do servidor"
+loja_do_servidor_vazia: "A loja do servidor ainda nao tem categorias."
+# {0} = nome da categoria, {1} = quantos itens
+categoria_icone: "&e&l{0}\n&7{1} itens - toque para ver"
+# {0} = quantidade, {1} = item, {2} = preco
+oferta_icone: "&f{0}x {1}\n&a$ {2}\n&7Toque para comprar"
+botao_voltar: "&7< Voltar"
+botao_vender_tudo: "&6Vender tudo\n&7Vende os itens do inventario que tem preco"
+# {0} = saldo
+botao_saldo: "&fSeu dinheiro\n&a{0}"
+uso_comprar: "Use /comprar para abrir a loja do servidor."
+uso_comprar_admin: "/comprar categoria <nome> <id[:meta]> [titulo] | add <categoria> <id[:meta]> <qtd> <preco> | remover <categoria> <n> | apagar <categoria> | lista"
+categoria_invalida: "Categoria: ate 16 letras minusculas, numeros, _ ou -."
+catalogo_invalido: "Loja do servidor invalida."
+titulo_longo: "Titulo de ate 40 caracteres."
+limite_de_categorias: "Limite de 14 categorias."
+limite_de_ofertas: "Limite de 18 itens por categoria."
+# {0} = categoria
+categoria_salva: "Categoria {0} salva."
+categoria_inexistente: "Categoria {0} nao existe."
+categoria_apagada: "Categoria {0} apagada."
+# {0} = qtd, {1} = item, {2} = preco, {3} = categoria
+oferta_adicionada: "{0}x {1} por $ {2} em {3}."
+oferta_inexistente: "Item inexistente nessa categoria (veja /comprar lista)."
+oferta_removida: "Item removido."
+# {0} = chave, {1} = titulo, {2} = itens
+categoria_linha: "&e{0}&7 ({1}&7): {2} itens"
+# {0} = numero, {1} = qtd, {2} = item, {3} = preco
+oferta_linha: "  &f{0}. {1}x {2} &a$ {3}"

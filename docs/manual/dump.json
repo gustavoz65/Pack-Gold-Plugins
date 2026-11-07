@@ -109,6 +109,8 @@
 ,{"plugin":"GoldSkyWars","key":"almas.repetido","kind":"NUMERO","def":"100","desc":"Moedas SkyWars por premio repetido"}
 ,{"plugin":"GoldSkyWars","key":"contagem","kind":"NUMERO","def":"20","desc":"Segundos de contagem nas jaulas (cai para 10 com a sala cheia)"}
 ,{"plugin":"GoldSkyWars","key":"duracao","kind":"NUMERO","def":"900","desc":"Duracao maxima da partida em segundos (depois e empate)"}
+,{"plugin":"GoldSkyWars","key":"fila.contagem","kind":"NUMERO","def":"10","desc":"Fila do lobby (NPC): segundos de contagem antes de ir para o mapa"}
+,{"plugin":"GoldSkyWars","key":"fila.minimo","kind":"NUMERO","def":"2","desc":"Fila do lobby (NPC): jogadores para comecar a contagem"}
 ,{"plugin":"GoldSkyWars","key":"kit.armeiro","kind":"NUMERO","def":"150000","desc":"Preco do kit Armeiro (centavos)"}
 ,{"plugin":"GoldSkyWars","key":"kit.arqueiro","kind":"NUMERO","def":"200000","desc":"Preco do kit Arqueiro (centavos)"}
 ,{"plugin":"GoldSkyWars","key":"kit.batedor","kind":"NUMERO","def":"200000","desc":"Preco do kit Batedor (centavos)"}
@@ -183,7 +185,8 @@
 ,{"plugin":"GoldEconomy","name":"topmoney","desc":"Mostra os dez maiores saldos","usage":"/topmoney","perm":null,"aliases":""}
 ,{"plugin":"GoldEconomy","name":"economia","desc":"Administra moedas e cash","usage":"/economia <adicionar/retirar/definir> <money/cash> <jogador> <valor>","perm":"goldeconomy.admin","aliases":""}
 ,{"plugin":"GoldBuild","name":"we","desc":"Edicao de mundo","usage":"/we varinha|pos1|pos2|set|walls|replace|esfera|undo","perm":"goldbuild.admin","aliases":"worldedit,magicwe"}
-,{"plugin":"GoldCrates","name":"caixa","desc":"Gerencia caixas e entrega chaves","usage":"/caixa","perm":"goldcrates.admin","aliases":"crate,caixas"}
+,{"plugin":"GoldCrates","name":"caixa","desc":"Gerencia caixas e entrega chaves","usage":"/caixa","perm":"goldcrates.admin","aliases":"crate"}
+,{"plugin":"GoldCrates","name":"caixas","desc":"Compra caixas misteriosas","usage":"/caixas","perm":null,"aliases":"comprarcaixa"}
 ,{"plugin":"GoldCosmetics","name":"cosmeticos","desc":"Menu de cosmeticos","usage":"/cosmeticos [tirar|lista|dar <jogador> <id>]","perm":null,"aliases":"cosmetico,cos"}
 ,{"plugin":"GoldKits","name":"kit","desc":"Resgata ou cria kits","usage":"/kit <nome> | criar <nome> <minutos> [restrito] | apagar <nome>","perm":null,"aliases":""}
 ,{"plugin":"GoldKits","name":"kits","desc":"Menu de kits","usage":"/kits","perm":null,"aliases":""}
@@ -252,6 +255,7 @@
 ,{"plugin":"GoldBedWars","name":"bw","desc":"BedWars","usage":"/bw [entrar solo|dupla|quarteto|sair|loja|melhorias|stats|top]","perm":null,"aliases":"bedwars"}
 ,{"plugin":"GoldEnchant","name":"encantar","desc":"Abre o encantador para o item da mao","usage":"/encantar | /encantar preco <id> <valor> | /encantar <id> <nivel>","perm":null,"aliases":"mago,enchant"}
 ,{"plugin":"GoldShop","name":"vender","desc":"Vende o item da mao ou tudo pela tabela de precos","usage":"/vender [tudo]","perm":null,"aliases":"venderall,sell"}
+,{"plugin":"GoldShop","name":"comprar","desc":"Abre a loja do servidor (menu)","usage":"/comprar","perm":null,"aliases":"lojaservidor,shop"}
 ,{"plugin":"GoldShop","name":"preco","desc":"Define o preco de venda de um item","usage":"/preco <id[:meta]> <valor|remover>","perm":"goldshop.admin","aliases":""}
 ,{"plugin":"GoldTags","name":"tag","desc":"Escolhe qual das suas tags aparece no chat","usage":"/tag [nome|automatica] | criar | apagar | dar | tirar | lista | ver","perm":null,"aliases":"tags,minhastags"}
 ,{"plugin":"GoldChat","name":"enquete","desc":"Enquetes e resultados","usage":"/enquete lista|criar|encerrar|resultado|anunciar|apagar","perm":null,"aliases":""}

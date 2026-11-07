@@ -67,3 +67,18 @@ voce_nao_tem_essa_caixa: "&cVoce nao tem essa caixa."
 voce_recebeu_caixa_misteriosa_selecione_na: "Voce recebeu {0} caixa(s) misteriosa(s) {1}&f! Selecione na hotbar para abrir."
 # {0} = amount, {1} = name
 voce_recebeu_chave_da_caixa: "Voce recebeu {0} chave(s) da caixa {1}!"
+# ---------- /caixas (compra) ----------
+titulo_caixas: "&8Caixas misteriosas"
+# {0} = nome, {1} = preco, {2} = quantos premios
+caixa_a_venda_icone: "{0}\n&a{1}\n&7{2} premios - toque para comprar"
+nenhuma_caixa_a_venda: "Nenhuma caixa a venda no momento."
+# {0} = preco
+saldo_insuficiente_caixa: "&cSaldo insuficiente: a caixa custa {0}."
+# {0} = caixa, {1} = preco
+caixa_comprada: "&aVoce comprou {0}&a por {1}. Toque no chao com ela para abrir."
+use_dentro_do_jogo_caixas: "Use dentro do jogo."
+preco_invalido_caixa: "Preco invalido (ex.: 5000 ou 10 cash)."
+# {0} = caixa
+caixa_fora_da_venda: "Caixa {0} fora da venda."
+# {0} = caixa, {1} = preco
+caixa_a_venda: "Caixa {0} a venda por {1} no /caixas."

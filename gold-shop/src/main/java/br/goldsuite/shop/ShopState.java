@@ -9,6 +9,26 @@ public final class ShopState {
     public Map<String, Shop> shops = new TreeMap<>();
     /** "id:meta" -> centavos por unidade. */
     public Map<String, Long> sellPrices = new TreeMap<>();
+    /** Loja do servidor em menu (/comprar): categoria -> icone e ofertas, na ordem em que foram criadas. */
+    public Map<String, Category> catalog = new LinkedHashMap<>();
+    public static final int MAX_CATEGORIES = 14, MAX_OFFERS = 18;
+
+    public static final class Category {
+        public int iconId = 54, iconMeta;
+        public String title = "";
+        public List<Offer> offers = new ArrayList<>();
+    }
+
+    public static final class Offer {
+        public int id, meta, amount;
+        public long price;
+    }
+
+    public static String category(String text) {
+        String c = text == null ? "" : text.toLowerCase(Locale.ROOT);
+        if (!c.matches("[a-z0-9_-]{1,16}")) { throw new IllegalArgumentException(M.t("categoria_invalida")); }
+        return c;
+    }
 
     public enum Type { COMPRAR, VENDER, LOJA }
 
@@ -55,6 +75,16 @@ public final class ShopState {
             if (!e.getKey().matches("[A-Za-z0-9_][A-Za-z0-9_.-]{0,31}:-?\\d+:\\d+:-?\\d+") || shop == null || shop.type == null || shop.owner == null
                     || shop.id < 1 || shop.id > 511 || shop.meta < 0 || shop.amount < 1 || shop.amount > 64 || shop.price < 1 || shop.price > MAX_PRICE
                     || (shop.type == Type.LOJA && !shop.owner.matches("[a-z0-9_]{3,16}"))) { throw new IllegalArgumentException(M.t("loja_invalida", e.getKey())); }
+        }
+        if (s.catalog == null) { s.catalog = new LinkedHashMap<>(); }
+        if (s.catalog.size() > MAX_CATEGORIES) { throw new IllegalArgumentException(M.t("catalogo_invalido")); }
+        for (Map.Entry<String, Category> e : s.catalog.entrySet()) {
+            category(e.getKey());
+            Category c = e.getValue();
+            if (c == null || c.title == null || c.offers == null || c.title.length() > 40 || c.offers.size() > MAX_OFFERS || c.iconId < 1 || c.iconId > 511 || c.iconMeta < 0 || c.iconMeta > 32767) { throw new IllegalArgumentException(M.t("catalogo_invalido")); }
+            for (Offer o : c.offers) {
+                if (o == null || o.id < 1 || o.id > 511 || o.meta < 0 || o.meta > 32767 || o.amount < 1 || o.amount > 64 || o.price < 1 || o.price > MAX_PRICE) { throw new IllegalArgumentException(M.t("catalogo_invalido")); }
+            }
         }
         for (Map.Entry<String, Long> e : s.sellPrices.entrySet()) {
             item(e.getKey());

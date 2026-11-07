@@ -6,6 +6,31 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 
 ---
 
+## 0.4.3 — loja do servidor, caixas, fila do SkyWars e arenas pelo console (07/11/2026)
+
+### Novo
+- **GoldShop**: `/comprar` abre a loja do servidor em menu.
+  - Categorias com ícone, até 18 itens cada, compra com dinheiro, botão de saldo e "Vender tudo" (tabela do `/vender`).
+  - Montada pelo console: `comprar categoria|add|remover|apagar|lista`.
+- **GoldCrates**: `/caixas` compra caixas misteriosas em menu, com dinheiro ou cash (`caixa preco <caixa> <valor> [money|cash]`).
+  - Prêmios pelo console: `caixa premioitem <caixa> <peso> <id[:meta]> [qtd]` e `caixa premiocomando`, sem precisar segurar item.
+- **GoldSkyWars**: fila do lobby para o NPC (`/sw fila solo|dupla`).
+  - O jogador espera no lobby e a contagem só começa com o mínimo (`fila.minimo`, padrão 2). Ela dura `fila.contagem` segundos (padrão 10).
+  - No fim, o grupo vai junto para um mapa sorteado entre as salas vazias. Se a fila cai abaixo do mínimo, a contagem para. Tocar de novo sai da fila.
+- **SkyWars, BedWars e HG pelo console**: criar e editar arenas sem ninguém no jogo, com coordenadas.
+  - `sw criar <nome> <solo|dupla> <mundo>`, `swmap arena <nome>`, `sw jaula|meio <x> <y> <z>`, `swmap espectador|bau ...`;
+  - `bw criar <nome> <modo> <mundo>`, `bw arena <nome>`, `bw time <cor> cama <x> <y> <z>` (acha a cama perto da coordenada);
+  - `hg spawn|final <arena> <x> <y> <z>`.
+- **GoldNPC**: `npc skin cor <cor>` gera uma skin com rosto, cabelo e camisa da cor (12 cores). A skin de reserva deixou de ser um boneco marrom liso.
+- **Ferramenta** `ferramentas/conversor-pc`: converte mapas do PC 1.8 para o 0.15 e acha jaulas, ilhas e centro. 11 mapas de SkyWars convertidos (Atuin, Canopy, Congo, DragonIce, Firelink Shrine, Nomad, Redfang, SteamPunk, Submerged, Temple e Villa).
+- Teste de servidor novo: `lj/TesteLojaFila`.
+
+### Corrigido
+- **GoldComandos**: a entrega de itens logo depois de entrar podia apagar as boas-vindas da zona de quem trocava de mundo em seguida.
+- **Testes** `TesteSkyMythic` e `TesteHotbar`: esperam a gravação assíncrona antes de conferir.
+
+---
+
 ## 0.4.3 — hotbar por toque, seletor de lobbies e NPC pelo console (07/11/2026)
 
 ### Novo

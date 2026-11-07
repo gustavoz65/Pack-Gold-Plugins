@@ -180,3 +180,10 @@ voce_nao_esta_numa_partida: "Voce nao esta numa partida."
 voce_nao_pode_quebrar_propria_cama: "&cVoce nao pode quebrar a propria cama!"
 voce_renasceu: "&aVoce renasceu!"
 voce_saiu_da_partida: "Voce saiu da partida."
+# ---------- arena pelo console ----------
+console_escolha_arena_bw: "Pelo console, escolha a arena antes: /bw arena <nome> (ou crie com /bw criar <nome> <solo|dupla|quarteto> <mundo>)."
+console_coordenadas_bw: "Pelo console, informe as coordenadas: <x> <y> <z> [yaw]."
+# {0} = arena
+console_arena_escolhida_bw: "Arena {0} escolhida para os comandos do console."
+# {0} = mundo
+mundo_inexistente_bw: "Mundo {0} nao existe."

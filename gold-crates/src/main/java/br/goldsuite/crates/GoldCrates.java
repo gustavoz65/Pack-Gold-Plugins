@@ -229,12 +229,41 @@ public final class GoldCrates extends PluginBase implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR) public void quit(PlayerQuitEvent event) { linking.remove(event.getPlayer()); lastOpen.remove(event.getPlayer()); lastHeld.remove(event.getPlayer()); }
+    @EventHandler(priority = EventPriority.MONITOR) public void quit(PlayerQuitEvent event) { buying.remove(event.getPlayer()); linking.remove(event.getPlayer()); lastOpen.remove(event.getPlayer()); lastHeld.remove(event.getPlayer()); }
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (command.getName().equals("caixas")) {
+            if (sender instanceof Player) { store((Player) sender); } else { sender.sendMessage(M.t("use_dentro_do_jogo_caixas")); }
+            return true;
+        }
         String sub = args.length == 0 ? "ajuda" : args[0].toLowerCase(Locale.ROOT);
         try {
             switch (sub) {
+                case "preco": {
+                    // /caixa preco <caixa> <valor> [money|cash]; 0 tira da venda.
+                    String name = CrateState.name(arg(args, 1));
+                    boolean cash = args.length > 3 && args[3].equalsIgnoreCase("cash");
+                    String raw = arg(args, 2).replace("$", "").replace(",", ".").trim();
+                    long price;
+                    try { price = cash ? Long.parseLong(raw) : new java.math.BigDecimal(raw).movePointRight(2).longValueExact(); } catch (ArithmeticException | NumberFormatException bad) { throw new IllegalArgumentException(M.t("preco_invalido_caixa")); }
+                    if (price < 0 || price > 1_000_000_000_00L) { throw new IllegalArgumentException(M.t("preco_invalido_caixa")); }
+                    data.change(s -> { CrateState.Crate c = s.crates.get(name); if (c == null) { throw new IllegalArgumentException(M.t("caixa_inexistente")); } c.price = price; c.cash = cash; })
+                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : price == 0 ? M.t("caixa_fora_da_venda", name) : M.t("caixa_a_venda", name, priceText(price, cash)))));
+                    return true;
+                }
+                case "premioitem": {
+                    // Pelo console: /caixa premioitem <caixa> <peso> <id[:meta]> [qtd]
+                    String name = CrateState.name(arg(args, 1));
+                    int weight = Integer.parseInt(arg(args, 2));
+                    String[] idm = arg(args, 3).split(":");
+                    int id = Integer.parseInt(idm[0]), meta = idm.length > 1 ? Integer.parseInt(idm[1]) : 0;
+                    int amount = args.length > 4 ? Math.max(1, Math.min(64, Integer.parseInt(args[4]))) : 1;
+                    if (id < 1 || id > 511 || meta < 0 || meta > 32767) { throw new IllegalArgumentException(M.t("numero_invalido")); }
+                    ItemData item = ItemData.of(Item.get(id, meta, amount));
+                    data.change(s -> { CrateState.Crate c = s.crates.get(name); if (c == null) { throw new IllegalArgumentException(M.t("caixa_inexistente")); } if (c.rewards.size() >= 27) { throw new IllegalArgumentException(M.t("limite_de_27_premios")); } c.rewards.add(new CrateState.Reward(item, Math.max(1, Math.min(10000, weight)))); })
+                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("premio_adicionado_com_peso", weight))));
+                    return true;
+                }
                 case "criar": {
                     String name = CrateState.name(arg(args, 1));
                     data.change(s -> { if (s.crates.size() >= 50) { throw new IllegalArgumentException(M.t("limite_de_caixas")); } s.crates.putIfAbsent(name, new CrateState.Crate()); })
@@ -304,12 +333,12 @@ public final class GoldCrates extends PluginBase implements Listener {
                     return true;
                 }
                 case "premiocomando": {
-                    if (!(sender instanceof Player)) { return true; }
                     String name = CrateState.name(arg(args, 1));
                     int weight = Integer.parseInt(arg(args, 2));
                     String prizeName = arg(args, 3).replace('_', ' ');
                     String cmd = CrateState.command(String.join(" ", Arrays.copyOfRange(args, 4, args.length)));
-                    Item hand = ((Player) sender).getInventory().getItemInHand();
+                    // Pelo console o icone e um papel; no jogo, o item da mao.
+                    Item hand = sender instanceof Player ? ((Player) sender).getInventory().getItemInHand() : Item.get(0);
                     Item icon = hand.getId() == 0 ? Item.get(339, 0, 1) : hand.clone();
                     icon.setCustomName(prizeName.replace('&', '\u00a7'));
                     ItemData item = ItemData.of(icon);
@@ -325,6 +354,52 @@ public final class GoldCrates extends PluginBase implements Listener {
             }
         } catch (NumberFormatException e) { sender.sendMessage(PREFIX + M.t("numero_invalido")); return true; }
         catch (RuntimeException e) { sender.sendMessage(PREFIX + "§c" + root(e)); return true; }
+    }
+
+    // ---------- /caixas: compra de caixas misteriosas ----------
+
+    static String priceText(long price, boolean cash) { return cash ? price + " cash" : "$ " + java.math.BigDecimal.valueOf(price, 2).toPlainString(); }
+
+    private final Set<Player> buying = Collections.newSetFromMap(new IdentityHashMap<>());
+
+    private void store(Player p) {
+        Map<String, CrateState.Crate> forSale = data.read(s -> { Map<String, CrateState.Crate> m = new LinkedHashMap<>(); for (Map.Entry<String, CrateState.Crate> e : s.crates.entrySet()) { if (e.getValue().price > 0 && !e.getValue().rewards.isEmpty()) { m.put(e.getKey(), e.getValue()); } } return m; });
+        if (forSale.isEmpty()) { p.sendMessage(PREFIX + M.t("nenhuma_caixa_a_venda")); return; }
+        MenuService menus = getServer().getServiceManager().load(MenuService.class);
+        if (menus == null) { return; }
+        int[] slots = {10, 11, 12, 13, 14, 15, 16, 1, 2, 3, 4, 5, 6, 7, 19, 20, 21, 22, 23, 24, 25};
+        Map<Integer, Item> icons = new HashMap<>();
+        Map<Integer, String> bySlot = new HashMap<>();
+        int i = 0;
+        for (Map.Entry<String, CrateState.Crate> e : forSale.entrySet()) {
+            if (i >= slots.length) { break; }
+            Item icon = Item.get(54, 0, 1);
+            icon.setCustomName(M.t("caixa_a_venda_icone", display(e.getKey()), priceText(e.getValue().price, e.getValue().cash), e.getValue().rewards.size()));
+            icons.put(slots[i], icon);
+            bySlot.put(slots[i], e.getKey());
+            i++;
+        }
+        menus.open(p, M.t("titulo_caixas"), icons, (who, slot) -> { String name = bySlot.get(slot); if (name != null) { buy(who, name); } });
+    }
+
+    /** Cobra e entrega uma caixa misteriosa; se a entrega falhar, devolve o valor. */
+    private void buy(Player p, String name) {
+        CrateState.Crate c = data.read(s -> s.crates.get(name));
+        EconomyService eco = getServer().getServiceManager().load(EconomyService.class);
+        if (c == null || c.price <= 0 || eco == null) { p.sendMessage(PREFIX + M.t("caixa_inexistente")); return; }
+        if (!buying.add(p)) { return; }
+        EconomyService.Currency currency = c.cash ? EconomyService.Currency.CASH : EconomyService.Currency.MONEY;
+        long price = c.price;
+        if (eco.balance(p.getName(), currency) < price) { buying.remove(p); p.sendMessage(PREFIX + M.t("saldo_insuficiente_caixa", priceText(price, c.cash))); return; }
+        String who = p.getName();
+        eco.debit(who, currency, price).whenComplete((v, error) -> {
+            buying.remove(p);
+            if (error != null) { if (p.isOnline()) { p.sendMessage(PREFIX + "§c" + root(error)); } return; }
+            if (!p.isOnline()) { eco.credit(who, currency, price); return; }
+            for (Item rest : p.getInventory().addItem(box(name, 1))) { p.level.dropItem(p, rest); }
+            p.sendMessage(PREFIX + M.t("caixa_comprada", display(name), priceText(price, c.cash)));
+            getLogger().info(who + " comprou 1 caixa " + name + " por " + priceText(price, c.cash));
+        });
     }
 
     private static String arg(String[] args, int i) { if (args.length <= i) { throw new IllegalArgumentException(M.t("faltam_argumentos_use_caixa")); } return args[i]; }

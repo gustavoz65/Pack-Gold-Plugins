@@ -873,22 +873,31 @@ public final class GoldBedWars extends PluginBase implements Listener {
             if (!sender.hasPermission("goldbedwars.admin")) { sender.sendMessage(PREFIX + M.t("bw_entrar_solo_dupla_quarteto_bw")); return true; }
             switch (sub) {
                 case "criar": {
-                    if (p == null) { return true; }
                     String name = BwState.name(arg(args, 1));
                     String m = args.length > 2 ? args[2].toLowerCase(Locale.ROOT) : "solo";
                     int size = m.startsWith("q") ? 4 : m.startsWith("d") ? 2 : 1;
-                    String world = p.level.getFolderName();
+                    // No console o mundo vem no comando: /bw criar <nome> <solo|dupla|quarteto> <mundo>
+                    String world = p != null ? p.level.getFolderName() : arg(args, 3);
+                    if (p == null && getServer().getLevelByName(world) == null && !getServer().isLevelGenerated(world)) { throw new IllegalArgumentException(M.t("mundo_inexistente_bw", world)); }
                     if (world.equals(getServer().getDefaultLevel().getFolderName())) { throw new IllegalArgumentException(M.t("use_um_mundo_proprio_para_arena")); }
+                    if (p == null) { consoleArena = name; }
                     data.change(s -> { if (s.arenas.containsKey(name)) { throw new IllegalArgumentException(M.t("arena_ja_existe")); } BwState.Arena a = new BwState.Arena(); a.world = world; a.teamSize = size; s.arenas.put(name, a); })
-                            .whenComplete((v, e) -> { if (e == null) { games.put(name, new Game(name)); } p.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("arena_criada_marque_bw_espera_bw", name))); });
+                            .whenComplete((v, e) -> { if (e == null) { games.put(name, new Game(name)); if (p == null) { consoleArena = name; } } sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("arena_criada_marque_bw_espera_bw", name))); });
+                    return true;
+                }
+                case "arena": {
+                    // Console: escolhe a arena dos proximos comandos (o jogador usa o mundo onde esta).
+                    String n = BwState.name(arg(args, 1));
+                    if (!games.containsKey(n)) { throw new IllegalArgumentException(M.t("arena_inexistente_ou_em_jogo")); }
+                    consoleArena = n;
+                    sender.sendMessage(PREFIX + M.t("console_arena_escolhida_bw", n));
                     return true;
                 }
                 case "espera": case "time": case "diamante": case "esmeralda": case "desfazer": case "salvar": {
-                    if (p == null) { return true; }
-                    Game g = gameAt(p.level);
-                    if (g == null) { throw new IllegalArgumentException(M.t("entre_no_mundo_de_uma_arena")); }
+                    Game g = p != null ? gameAt(p.level) : consoleArena == null ? null : games.get(consoleArena);
+                    if (g == null) { throw new IllegalArgumentException(M.t(p != null ? "entre_no_mundo_de_uma_arena" : "console_escolha_arena_bw")); }
                     if (!g.waiting() || !g.team.isEmpty()) { throw new IllegalArgumentException(M.t("arena_tem_jogadores_espere_esvaziar")); }
-                    edit(p, g, sub, args);
+                    edit(sender, p, g, sub, args);
                     return true;
                 }
                 case "lista": { for (Game g : games.values()) { BwState.Arena a = g.arena(); sender.sendMessage(M.t("times_de_diamantes_esmeraldas", g.name, a.world, a.teams.size(), a.teamSize, a.diamonds.size(), a.emeralds.size(), g.phase, (maps.hasBackup(a.world) ? "" : M.t("sem_copia")))); } return true; }
@@ -913,38 +922,56 @@ public final class GoldBedWars extends PluginBase implements Listener {
         return new double[] {Math.floor(p.x) + 0.5, Math.floor(p.y), Math.floor(p.z) + 0.5, p.yaw};
     }
 
-    void edit(Player p, Game g, String sub, String[] args) {
-        double[] here = spot(p, args, sub.equals("time") ? 3 : 1);
+    /** Arena escolhida pelo console com /bw arena <nome> (ou a ultima criada pelo console). */
+    String consoleArena;
+
+    /** Ponto do jogador ou coordenadas; o console precisa das coordenadas (<x> <y> <z> [yaw]). */
+    static double[] here(Player p, String[] args, int from) {
+        if (p != null) { return spot(p, args, from); }
+        if (args.length < from + 3) { throw new IllegalArgumentException(M.t("console_coordenadas_bw")); }
+        double[] v;
+        try { v = new double[] {Double.parseDouble(args[from]), Double.parseDouble(args[from + 1]), Double.parseDouble(args[from + 2]), args.length > from + 3 ? Double.parseDouble(args[from + 3]) : 0}; } catch (NumberFormatException ignored) { v = null; }
+        if (v == null || !(Math.abs(v[0]) < 3e7 && Math.abs(v[2]) < 3e7 && v[1] >= 0 && v[1] < 256 && Double.isFinite(v[3]))) { throw new IllegalArgumentException(M.t("coordenadas_invalidas_use_de_0_255")); }
+        return v;
+    }
+
+    void edit(CommandSender sender, Player p, Game g, String sub, String[] args) {
+        boolean noSpot = sub.equals("salvar") || sub.equals("desfazer");
+        double[] here = noSpot ? new double[4] : here(p, args, sub.equals("time") ? 3 : 1);
         double[] here3 = {here[0], here[1], here[2]};
+        String arenaWorld = g.arena().world;
+        if (getServer().getLevelByName(arenaWorld) == null) { getServer().loadLevel(arenaWorld); }
+        Level arenaLevel = p != null ? p.level : getServer().getLevelByName(arenaWorld);
+        if (arenaLevel == null) { throw new IllegalArgumentException(M.t("mundo_inexistente_bw", arenaWorld)); }
         switch (sub) {
-            case "espera": change(p, s -> s.arenas.get(g.name).waiting = here, M.t("sala_de_espera_marcada")); break;
-            case "diamante": change(p, s -> s.arenas.get(g.name).diamonds.add(here3), M.t("gerador_de_diamante_marcado")); break;
-            case "esmeralda": change(p, s -> s.arenas.get(g.name).emeralds.add(here3), M.t("gerador_de_esmeralda_marcado")); break;
-            case "desfazer": { boolean d = arg(args, 1).startsWith("d"); change(p, s -> { List<double[]> l = d ? s.arenas.get(g.name).diamonds : s.arenas.get(g.name).emeralds; if (!l.isEmpty()) { l.remove(l.size() - 1); } }, M.t("ultimo_gerador_removido")); break; }
+            case "espera": change(sender, s -> s.arenas.get(g.name).waiting = here, M.t("sala_de_espera_marcada")); break;
+            case "diamante": change(sender, s -> s.arenas.get(g.name).diamonds.add(here3), M.t("gerador_de_diamante_marcado")); break;
+            case "esmeralda": change(sender, s -> s.arenas.get(g.name).emeralds.add(here3), M.t("gerador_de_esmeralda_marcado")); break;
+            case "desfazer": { boolean d = arg(args, 1).startsWith("d"); change(sender, s -> { List<double[]> l = d ? s.arenas.get(g.name).diamonds : s.arenas.get(g.name).emeralds; if (!l.isEmpty()) { l.remove(l.size() - 1); } }, M.t("ultimo_gerador_removido")); break; }
             case "time": {
                 String color = arg(args, 1).toLowerCase(Locale.ROOT), what = arg(args, 2).toLowerCase(Locale.ROOT);
                 if (!BwState.COLORS.containsKey(color)) { throw new IllegalArgumentException(M.t("cores", String.join(", ", BwState.COLORS.keySet()))); }
                 int[] bed = null;
                 if (what.equals("cama")) {
-                    for (int dx = -3; dx <= 3 && bed == null; dx++) { for (int dy = -2; dy <= 1 && bed == null; dy++) { for (int dz = -3; dz <= 3 && bed == null; dz++) { int bx = (int) Math.floor(here[0]) + dx, by = (int) Math.floor(here[1]) + dy, bz = (int) Math.floor(here[2]) + dz; if (p.level.getBlockIdAt(bx, by, bz) == 26) { bed = new int[] {bx, by, bz}; } } } }
+                    for (int dx = -3; dx <= 3 && bed == null; dx++) { for (int dy = -2; dy <= 1 && bed == null; dy++) { for (int dz = -3; dz <= 3 && bed == null; dz++) { int bx = (int) Math.floor(here[0]) + dx, by = (int) Math.floor(here[1]) + dy, bz = (int) Math.floor(here[2]) + dz; if (arenaLevel.getBlockIdAt(bx, by, bz) == 26) { bed = new int[] {bx, by, bz}; } } } }
                     if (bed == null) { throw new IllegalArgumentException(M.t("fique_ao_lado_da_cama_do")); }
                 }
                 int[] bedPos = bed;
-                change(p, s -> {
+                change(sender, s -> {
                     BwState.Team t = s.arenas.get(g.name).teams.computeIfAbsent(color, k -> new BwState.Team());
                     switch (what) { case "spawn": t.spawn = here; break; case "forja": t.forge = here3; break; case "cama": t.bed = bedPos; break; default: throw new IllegalArgumentException(M.t("use_spawn_cama_ou_forja")); }
                 }, "Time " + color + ": " + what + " marcado.");
                 break;
             }
             default: {
-                Level lv = p.level;
+                Level lv = arenaLevel;
                 lv.save(true);
-                maps.backup(lv.getFolderName()).whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? M.t("falha_ao_salvar_copia") : M.t("copia_do_mapa_salva"))));
+                maps.backup(lv.getFolderName()).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? M.t("falha_ao_salvar_copia") : M.t("copia_do_mapa_salva"))));
             }
         }
     }
 
-    void change(Player p, java.util.function.Consumer<BwState> m, String ok) { data.change(m).whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? "§c" + root(e) : ok))); }
+    void change(CommandSender p, java.util.function.Consumer<BwState> m, String ok) { data.change(m).whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? "§c" + root(e) : ok))); }
 
     static String cap(String s) { for (String c : Shop.CATEGORIES.keySet()) { if (c.equalsIgnoreCase(s)) { return c; } } return "Blocos"; }
     static String arg(String[] a, int i) { if (a.length <= i) { throw new IllegalArgumentException(M.t("faltam_argumentos_use_bw")); } return a[i]; }

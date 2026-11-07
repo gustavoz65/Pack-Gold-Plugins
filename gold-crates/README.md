@@ -1,5 +1,9 @@
 
 
+## Compra (`/caixas`)
+`/caixa preco <caixa> <valor> [money|cash]` põe a caixa à venda (0 tira). Jogadores abrem `/caixas`, tocam na caixa e recebem a caixa misteriosa na hora.
+Pelo console: `caixa premioitem <caixa> <peso> <id[:meta]> [qtd]` e `caixa premiocomando <caixa> <peso> <nome> <comando>` (ícone de papel).
+
 ## Caixas misteriosas
 Como o yCaixasMisteriosas: a caixa é um item (baú com nome) que o jogador abre quando quiser.
 - `/caixa misteriosa <jogador> <caixa> [qtd]` entrega a caixa. O item é **assinado**: um baú renomeado na bigorna com o mesmo nome não abre nada.

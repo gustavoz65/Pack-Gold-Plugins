@@ -340,6 +340,13 @@ public final class GoldNPC extends PluginBase implements Listener {
                 }
                 case "destino": { Destination destination = destination(player, args); edit(sender, npc -> npc.destination = destination); return true; }
                 case "skin": {
+                    if (args.length > 1 && args[1].equalsIgnoreCase("cor")) {
+                        // Skin gerada (rosto, cabelo e camisa da cor pedida): funciona pelo console, sem copiar ninguem.
+                        Skin generated = DefaultSkin.uniform(DefaultSkin.color(args.length > 2 ? args[2] : ""));
+                        int id = selection(sender);
+                        result(sender, saveSkin(generated).thenCompose(hash -> data.change(s -> s.require(id).skin = hash)), () -> { rebuild(id); sender.sendMessage(M.t("npc_atualizado", id)); });
+                        return true;
+                    }
                     Player source = args.length > 1 ? getServer().getPlayerExact(args[1]) : needPlayer(player);
                     if (source == null) { sender.sendMessage(M.t("jogador_precisa_estar_online")); return true; }
                     int id = selection(sender);

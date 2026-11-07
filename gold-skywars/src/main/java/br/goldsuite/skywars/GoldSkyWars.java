@@ -69,6 +69,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
     MapStore maps;
     final Map<String, Game> games = new HashMap<>();
     final Map<Player, Game> inGame = new IdentityHashMap<>();
+    final LobbyQueue queue = new LobbyQueue(this);
     Progression progress;
     Perks perks;
     OreEditor ores;
@@ -82,6 +83,8 @@ public final class GoldSkyWars extends PluginBase implements Listener {
     @Override public void onEnable() {
         M.B.attach(this);
         Settings.prefix(this, PREFIX, v -> PREFIX = v);
+        Settings.number(this, "fila.minimo", 2, "Fila do lobby (NPC): jogadores para comecar a contagem", v -> queue.minimum = (int) Math.max(1, Math.min(48, v)));
+        Settings.number(this, "fila.contagem", 10, "Fila do lobby (NPC): segundos de contagem antes de ir para o mapa", v -> queue.countdown = (int) Math.max(3, Math.min(120, v)));
         Settings.number(this, "minimo_jogadores", 2, "Jogadores para comecar a contagem", v -> minPlayers = Math.max(2, v));
         Settings.number(this, "contagem", 20, "Segundos de contagem nas jaulas (cai para 10 com a sala cheia)", v -> countdown = Math.max(5, v));
         Settings.number(this, "duracao", 900, "Duracao maxima da partida em segundos (depois e empate)", v -> gameSeconds = Math.max(120, v));
@@ -111,7 +114,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
             if (ranking != null) { ranking.register("skywars", this::topWins); }
         });
         for (Player p : getServer().getOnlinePlayers().values()) { loadStats(p); }
-        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldSkyWars>(this) { @Override public void onRun(int tick) { second(); } }, 20);
+        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldSkyWars>(this) { @Override public void onRun(int tick) { second(); queue.second(); } }, 20);
     }
 
     final Map<String, Long> kitPrices = new HashMap<>();
@@ -147,23 +150,42 @@ public final class GoldSkyWars extends PluginBase implements Listener {
 
     static boolean menuItem(Item i) { return i.hasCustomName() && (i.getCustomName().equals(KIT_ITEM) || i.getCustomName().equals(LEAVE_ITEM) || i.getCustomName().equals(AGAIN_ITEM) || i.getCustomName().equals(VOTE_ITEM)); }
 
-    void join(Player p, int teamSize) {
+    /** Pode entrar numa partida agora? (login, fora de partida, inventario e armadura vazios) */
+    void checkCanJoin(Player p) {
         if (!progress.loaded(p)) { throw new IllegalArgumentException(M.t("carregando")); }
         AuthService auth = getServer().getServiceManager().load(AuthService.class);
         if (auth != null && !auth.isAuthenticated(p)) { throw new IllegalArgumentException(M.t("sky_login")); }
         if (inGame.containsKey(p)) { throw new IllegalArgumentException(M.t("voce_ja_esta_numa_partida_use")); }
         for (Item i : p.getInventory().getContents().values()) {
-            // Itens do lobby (livro do perfil etc.) podem ficar; itens de verdade nao, para ninguem perder nada.
-            if (i.getId() != 0 && !(i.hasCustomName() && i.getCustomName().contains("(toque)"))) { throw new IllegalArgumentException(M.t("esvazie_inventario_antes_de_entrar_no")); }
+            // Itens do lobby (livro do perfil, livro dos lobbies...) podem ficar; itens de verdade nao, para ninguem perder nada.
+            if (i.getId() != 0 && !lobbyItem(i)) { throw new IllegalArgumentException(M.t("esvazie_inventario_antes_de_entrar_no")); }
         }
         for (Item i : p.getInventory().getArmorContents()) { if (i.getId() != 0) { throw new IllegalArgumentException(M.t("tire_armadura_antes_de_entrar_no")); } }
+    }
+
+    /** Item de menu do lobby (nome com "(toque)" ou item de zona do GoldComandos): nao conta como item de verdade. */
+    private static boolean lobbyItem(Item i) {
+        if (!i.hasCustomName()) { return false; }
+        String n = i.getCustomName();
+        return n.contains("(toque)") || i.getId() == 340 || i.getId() == 345;
+    }
+
+    /** Sala aceitando jogadores deste tamanho de time. */
+    boolean open(Game g, int teamSize) {
+        SwState.Arena a = g.arena();
+        return a != null && a.teamSize == teamSize && a.enabled && !g.editing && a.spawns.size() >= 2 && maps.hasBackup(a.world) && g.waiting() && g.level() != null && g.players.size() < g.capacity();
+    }
+
+    void join(Player p, int teamSize) { join(p, teamSize, null); }
+
+    /** Entra na sala indicada (fila do lobby) ou, sem ela, na sala aberta com mais jogadores. */
+    void join(Player p, int teamSize, Game target) {
+        checkCanJoin(p);
         Game best = null;
-        for (Game g : games.values()) {
-            SwState.Arena a = g.arena();
-            if (a == null || a.teamSize != teamSize || !a.enabled || g.editing || a.spawns.size() < 2 || !maps.hasBackup(a.world) || !g.waiting() || g.level() == null || g.players.size() >= g.capacity()) { continue; }
-            if (best == null || g.players.size() > best.players.size()) { best = g; }
-        }
+        if (target != null) { if (open(target, teamSize)) { best = target; } }
+        else { for (Game g : games.values()) { if (open(g, teamSize) && (best == null || g.players.size() > best.players.size())) { best = g; } } }
         if (best == null) { throw new IllegalArgumentException(M.t("nenhuma_sala_aberta_agora_tente_em", (teamSize == 1 ? M.t("solo") : M.t("de_dupla")))); }
+        queue.forget(p);
         Game g = best;
         SwState.Arena a = g.arena();
         int slot = -1;
@@ -483,7 +505,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         if (gameAt(p.level) != null) { getServer().getScheduler().scheduleDelayedTask(new PluginTask<GoldSkyWars>(this) { @Override public void onRun(int t) { if (p.isOnline() && !inGame.containsKey(p)) { toLobby(p); } } }, 10); }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR) public void onQuit(PlayerQuitEvent e) { chestMode.remove(e.getPlayer()); leave(e.getPlayer()); progress.release(e.getPlayer()); flying.remove(e.getPlayer()); }
+    @EventHandler(priority = EventPriority.MONITOR) public void onQuit(PlayerQuitEvent e) { queue.forget(e.getPlayer()); chestMode.remove(e.getPlayer()); leave(e.getPlayer()); progress.release(e.getPlayer()); flying.remove(e.getPlayer()); }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onDamage(EntityDamageEvent e) {
@@ -618,6 +640,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
                 case "votar": if (p != null) { MatchOptions.menu(this, p); } return true;
                 case "ilhas": if (p != null) { if (args.length > 1 && args[1].equalsIgnoreCase("limpar")) { ores.clear(p); } else { ores.tool(p); } } return true;
                 case "join": case "entrar": if (p != null) { join(p, args.length > 1 && args[1].equalsIgnoreCase("dupla") ? 2 : 1); } return true;
+                case "fila": case "jogar": if (p != null) { queue.toggle(p, args.length > 1 && args[1].equalsIgnoreCase("dupla") ? 2 : 1); } return true;
                 case "quit": case "leave": case "sair": if (p != null) { if (inGame.containsKey(p)) { leave(p); p.sendMessage(PREFIX + M.t("voce_saiu_da_partida")); } else { p.sendMessage(PREFIX + M.t("voce_nao_esta_numa_partida")); } } return true;
                 case "kits": if (p != null) { kitMenu(p); } return true;
                 case "stats": {
@@ -634,20 +657,24 @@ public final class GoldSkyWars extends PluginBase implements Listener {
             if (!sender.hasPermission("goldskywars.admin")) { sender.sendMessage(PREFIX + M.t("sw_entrar_solo_dupla_sw_sair")); return true; }
             switch (sub) {
                 case "criar": {
-                    if (p == null) { return true; }
                     String name = SwState.name(arg(args, 1));
                     int size = args.length > 2 && args[2].equalsIgnoreCase("dupla") ? 2 : 1;
-                    String world = p.level.getFolderName();
+                    // No console o mundo vem no comando: /sw criar <nome> <solo|dupla> <mundo>
+                    String world = p != null ? p.level.getFolderName() : arg(args, 3);
+                    if (p == null && getServer().getLevelByName(world) == null && !getServer().isLevelGenerated(world)) { throw new IllegalArgumentException(M.t("mundo_inexistente_sw", world)); }
                     if (world.equals(getServer().getDefaultLevel().getFolderName())) { throw new IllegalArgumentException(M.t("use_um_mundo_proprio_para_arena")); }
+                    if (p == null) { consoleArena = name; }
                     data.change(s -> { if (s.arenas.containsKey(name)) { throw new IllegalArgumentException(M.t("arena_ja_existe")); } SwState.Arena a = new SwState.Arena(); a.world = world; a.teamSize = size; s.arenas.put(name, a); })
-                            .whenComplete((v, e) -> { if (e == null) { games.put(name, new Game(name)); } p.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("arena_criada_em_fique_em_cada", name, world))); });
+                            .whenComplete((v, e) -> {
+                                if (e == null) { games.put(name, new Game(name)); if (p == null) { consoleArena = name; } }
+                                sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t(p == null ? "arena_criada_console" : "arena_criada_em_fique_em_cada", name, world)));
+                            });
                     return true;
                 }
                 case "jaula": case "desfazer": case "meio": case "insano": case "salvar": {
-                    if (p == null) { return true; }
-                    Game g = gameAt(p.level);
+                    Game g = p != null ? gameAt(p.level) : consoleGame();
                     if (g == null) { throw new IllegalArgumentException(M.t("entre_no_mundo_de_uma_arena")); }
-                    edit(p, g, sub, args);
+                    edit(sender, p, g, sub, args);
                     return true;
                 }
                 case "lista": { for (Game g : games.values()) { SwState.Arena a = g.arena(); sender.sendMessage(M.t("jaulas", g.name, a.world, (a.teamSize == 1 ? M.t("solo") : M.t("dupla")), (a.insane ? M.t("insano") : ""), a.spawns.size(), g.phase, g.players.size(), g.capacity(), (maps.hasBackup(a.world) ? "" : M.t("sem_copia")))); } return true; }
@@ -671,23 +698,46 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         return new double[] {Math.floor(p.x) + 0.5, Math.floor(p.y), Math.floor(p.z) + 0.5, p.yaw};
     }
 
-    void edit(Player p, Game g, String sub, String[] args) {
+    /** Arena escolhida pelo console com /swmap arena <nome> (ou a ultima criada pelo console). */
+    String consoleArena;
+
+    Game consoleGame() {
+        Game g = consoleArena == null ? null : games.get(consoleArena);
+        if (g == null) { throw new IllegalArgumentException(M.t("console_escolha_arena")); }
+        return g;
+    }
+
+    /** Ponto do jogador ou coordenadas; o console precisa das coordenadas. */
+    static double[] here(Player p, String[] args, int from) {
+        if (p != null) { return spot(p, args, from); }
+        if (args.length < from + 3) { throw new IllegalArgumentException(M.t("console_coordenadas")); }
+        double[] v;
+        try { v = new double[] {Double.parseDouble(args[from]), Double.parseDouble(args[from + 1]), Double.parseDouble(args[from + 2]), args.length > from + 3 ? Double.parseDouble(args[from + 3]) : 0}; } catch (NumberFormatException ignored) { v = null; }
+        if (v == null || !(Math.abs(v[0]) < 3e7 && Math.abs(v[2]) < 3e7 && v[1] >= 0 && v[1] < 256 && Double.isFinite(v[3]))) { throw new IllegalArgumentException(M.t("coordenadas_invalidas_use_de_0_255")); }
+        return v;
+    }
+
+    void edit(CommandSender sender, Player p, Game g, String sub, String[] args) {
         if (!g.waiting() || !g.players.isEmpty() || g.editing) { throw new IllegalArgumentException(M.t("arena_tem_jogadores_espere_esvaziar")); }
-        double[] here = spot(p, args, 1);
+        boolean needsSpot = sub.equals("jaula") || sub.equals("meio");
+        double[] here = needsSpot || p != null ? here(p, args, 1) : null;
         double[] c = g.arena().center;
-        if (args.length >= 4 && c != null && c.length == 3) { here[3] = Math.toDegrees(Math.atan2(-(c[0] - here[0]), c[2] - here[2])); }
+        if (needsSpot && args.length >= 4 && c != null && c.length == 3) { here[3] = Math.toDegrees(Math.atan2(-(c[0] - here[0]), c[2] - here[2])); }
         switch (sub) {
-            case "jaula": data.change(s -> { SwState.Arena a = s.arenas.get(g.name); if (a.spawns.size() >= 24) { throw new IllegalArgumentException(M.t("maximo_de_24_jaulas")); } a.spawns.add(here); }).whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("jaula_marcada_jaula_de_vidro_aparece", g.arena().spawns.size())))); break;
-            case "desfazer": data.change(s -> { List<double[]> l = s.arenas.get(g.name).spawns; if (!l.isEmpty()) { l.remove(l.size() - 1); } }).whenComplete((v, e) -> p.sendMessage(PREFIX + M.t("ultima_jaula_removida"))); break;
-            case "meio": data.change(s -> s.arenas.get(g.name).center = new double[] {here[0], here[1], here[2]}).whenComplete((v, e) -> p.sendMessage(PREFIX + M.t("centro_marcado_baus_ate_12_blocos"))); break;
-            case "insano": data.change(s -> s.arenas.get(g.name).insane = !s.arenas.get(g.name).insane).whenComplete((v, e) -> p.sendMessage(PREFIX + M.t("modo_insano", (g.arena().insane ? M.t("ligado") : M.t("desligado"))))); break;
+            case "jaula": data.change(s -> { SwState.Arena a = s.arenas.get(g.name); if (a.spawns.size() >= 24) { throw new IllegalArgumentException(M.t("maximo_de_24_jaulas")); } a.spawns.add(here); }).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("jaula_marcada_jaula_de_vidro_aparece", g.arena().spawns.size())))); break;
+            case "desfazer": data.change(s -> { List<double[]> l = s.arenas.get(g.name).spawns; if (!l.isEmpty()) { l.remove(l.size() - 1); } }).whenComplete((v, e) -> sender.sendMessage(PREFIX + M.t("ultima_jaula_removida"))); break;
+            case "meio": data.change(s -> s.arenas.get(g.name).center = new double[] {here[0], here[1], here[2]}).whenComplete((v, e) -> sender.sendMessage(PREFIX + M.t("centro_marcado_baus_ate_12_blocos"))); break;
+            case "insano": data.change(s -> s.arenas.get(g.name).insane = !s.arenas.get(g.name).insane).whenComplete((v, e) -> sender.sendMessage(PREFIX + M.t("modo_insano", (g.arena().insane ? M.t("ligado") : M.t("desligado"))))); break;
             default: {
-                Level lv = p.level;
+                String arenaWorld = g.arena().world;
+                if (p == null && getServer().getLevelByName(arenaWorld) == null) { getServer().loadLevel(arenaWorld); }
+                Level lv = p != null ? p.level : getServer().getLevelByName(arenaWorld);
+                if (lv == null) { throw new IllegalArgumentException(M.t("mundo_inexistente_sw", arenaWorld)); }
                 if (lv == getServer().getDefaultLevel()) { throw new IllegalArgumentException(M.t("use_um_mundo_proprio_para_arena")); }
                 String world = lv.getFolderName();
-                double[] back = {p.x, p.y, p.z, p.yaw, p.pitch};
+                double[] back = p == null ? null : new double[] {p.x, p.y, p.z, p.yaw, p.pitch};
                 g.editing = true;
-                chestMode.remove(p);
+                if (p != null) { chestMode.remove(p); }
                 for (Player visitor : new ArrayList<>(lv.getPlayers().values())) { visitor.teleport(getServer().getDefaultLevel().getSafeSpawn()); }
                 lv.save(true);
                 if (!getServer().unloadLevel(lv, true)) { g.editing = false; throw new IllegalStateException(M.t("mapa_descarregar_falhou")); }
@@ -696,8 +746,8 @@ public final class GoldSkyWars extends PluginBase implements Listener {
                     boolean loaded = getServer().loadLevel(world); g.editing = false;
                     if (!loaded) { g.phase = Phase.RESETANDO; }
                     Level again = getServer().getLevelByName(world);
-                    if (loaded && again != null && p.isOnline() && !inGame.containsKey(p)) { p.teleport(new Location(back[0], back[1], back[2], back[3], back[4], again)); }
-                    p.sendMessage(e != null ? M.t("falha_ao_salvar_copia", root(e)) : M.t("copia_do_mapa_salva_ele_volta"));
+                    if (p != null && loaded && again != null && p.isOnline() && !inGame.containsKey(p)) { p.teleport(new Location(back[0], back[1], back[2], back[3], back[4], again)); }
+                    sender.sendMessage(e != null ? M.t("falha_ao_salvar_copia", root(e)) : M.t("copia_do_mapa_salva_ele_volta"));
                 });
             }
         }
@@ -709,26 +759,34 @@ public final class GoldSkyWars extends PluginBase implements Listener {
     /** /swmap: edicao do mapa em que o admin esta (jaulas, espectador, baus, time, minimo, nome). */
     boolean mapCommand(CommandSender sender, String[] args) {
         if (!sender.hasPermission("goldskywars.admin")) { sender.sendMessage(PREFIX + M.t("sw_entrar_solo_dupla_sw_sair")); return true; }
-        if (!(sender instanceof Player)) { sender.sendMessage(PREFIX + M.t("swmap_ajuda")); return true; }
-        Player p = (Player) sender;
+        Player p = sender instanceof Player ? (Player) sender : null;
         String sub = args.length == 0 ? "info" : args[0].toLowerCase(Locale.ROOT);
         try {
-            Game g = gameAt(p.level);
+            // Console: /swmap arena <nome> escolhe a arena; depois os mesmos comandos, com coordenadas onde o jogador usaria a posicao.
+            if (p == null && sub.equals("arena")) {
+                String n = SwState.name(arg(args, 1));
+                if (!games.containsKey(n)) { throw new IllegalArgumentException(M.t("arena_inexistente_ou_em_jogo")); }
+                consoleArena = n;
+                sender.sendMessage(PREFIX + M.t("console_arena_escolhida", n));
+                return true;
+            }
+            Game g = p != null ? gameAt(p.level) : consoleGame();
             if (g == null) { throw new IllegalArgumentException(M.t("entre_no_mundo_de_uma_arena")); }
             SwState.Arena a = g.arena();
             switch (sub) {
                 case "info": {
-                    p.sendMessage(PREFIX + M.t("swmap_info", g.name, a.world, a.display.isEmpty() ? "-" : a.display, a.author.isEmpty() ? "-" : a.author, a.teamSize, a.minimum, a.spawns.size(), a.spectator.length == 3 ? M.t("sim") : M.t("nao"), a.chests.size(), a.enabled ? M.t("ligado") : M.t("desligado"), maps.hasBackup(a.world) ? M.t("sim") : M.t("nao")));
-                    p.sendMessage(M.t("swmap_ajuda"));
+                    sender.sendMessage(PREFIX + M.t("swmap_info", g.name, a.world, a.display.isEmpty() ? "-" : a.display, a.author.isEmpty() ? "-" : a.author, a.teamSize, a.minimum, a.spawns.size(), a.spectator.length == 3 ? M.t("sim") : M.t("nao"), a.chests.size(), a.enabled ? M.t("ligado") : M.t("desligado"), maps.hasBackup(a.world) ? M.t("sim") : M.t("nao")));
+                    sender.sendMessage(M.t("swmap_ajuda"));
+                    if (p == null) { sender.sendMessage(M.t("swmap_ajuda_console")); }
                     return true;
                 }
-                case "jaula": case "spawn": edit(p, g, "jaula", args); return true;
-                case "desfazer": case "meio": case "salvar": edit(p, g, sub, args); return true;
+                case "jaula": case "spawn": edit(sender, p, g, "jaula", args); return true;
+                case "desfazer": case "meio": case "salvar": edit(sender, p, g, sub, args); return true;
                 case "espectador": {
                     editable(g);
-                    double[] here = spot(p, args, 1);
+                    double[] here = here(p, args, 1);
                     data.change(s -> s.arenas.get(g.name).spectator = new double[] {here[0], here[1], here[2]})
-                            .whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? M.t("perfil_operacao_falhou", root(e)) : M.t("swmap_espectador"))));
+                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? M.t("perfil_operacao_falhou", root(e)) : M.t("swmap_espectador"))));
                     return true;
                 }
                 case "time": case "minimo": {
@@ -738,14 +796,14 @@ public final class GoldSkyWars extends PluginBase implements Listener {
                     boolean team = sub.equals("time");
                     if (team ? n < 1 || n > 4 : n < 2 || n > 96) { throw new IllegalArgumentException(M.t("swmap_numero")); }
                     data.change(s -> { SwState.Arena x = s.arenas.get(g.name); if (team) { x.teamSize = n; } else { x.minimum = n; } })
-                            .whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? M.t("perfil_operacao_falhou", root(e)) : M.t(team ? "swmap_time" : "swmap_minimo", n))));
+                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? M.t("perfil_operacao_falhou", root(e)) : M.t(team ? "swmap_time" : "swmap_minimo", n))));
                     return true;
                 }
                 case "ativar": case "desativar": {
                     boolean on = sub.equals("ativar");
                     if (!on) { editable(g); }
                     data.change(s -> s.arenas.get(g.name).enabled = on)
-                            .whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? M.t("perfil_operacao_falhou", root(e)) : M.t("swmap_estado", on ? M.t("ligado") : M.t("desligado")))));
+                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? M.t("perfil_operacao_falhou", root(e)) : M.t("swmap_estado", on ? M.t("ligado") : M.t("desligado")))));
                     return true;
                 }
                 case "nome": case "autor": {
@@ -755,11 +813,22 @@ public final class GoldSkyWars extends PluginBase implements Listener {
                     if (value.length() > 32) { throw new IllegalArgumentException(M.t("swmap_texto_longo")); }
                     boolean name = sub.equals("nome");
                     data.change(s -> { SwState.Arena x = s.arenas.get(g.name); if (name) { x.display = value; } else { x.author = value; } })
-                            .whenComplete((v, e) -> p.sendMessage(PREFIX + (e != null ? M.t("perfil_operacao_falhou", root(e)) : M.t("swmap_texto", value.isEmpty() ? "-" : value))));
+                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? M.t("perfil_operacao_falhou", root(e)) : M.t("swmap_texto", value.isEmpty() ? "-" : value))));
                     return true;
                 }
                 case "bau": {
                     String type = args.length > 1 ? args[1].toLowerCase(Locale.ROOT) : "";
+                    if (p == null) {
+                        // Console: /swmap bau meio|ilha|auto <x> <y> <z> marca um bau pela posicao.
+                        if (!type.equals("meio") && !type.equals("ilha") && !type.equals("auto")) { throw new IllegalArgumentException(M.t("swmap_bau_uso")); }
+                        double[] at = here(null, args, 2);
+                        String key = (int) Math.floor(at[0]) + "," + (int) Math.floor(at[1]) + "," + (int) Math.floor(at[2]);
+                        editable(g);
+                        Boolean mode = type.equals("auto") ? null : type.equals("meio");
+                        data.change(s -> { Map<String, Boolean> chests = s.arenas.get(g.name).chests; if (mode != null) { if (!chests.containsKey(key) && chests.size() >= 256) { throw new IllegalArgumentException(M.t("swmap_bau_limite")); } chests.put(key, mode); } else { chests.remove(key); } })
+                                .whenComplete((v, x) -> sender.sendMessage(PREFIX + (x != null ? M.t("perfil_operacao_falhou", root(x)) : M.t("swmap_bau_marcado", key, mode == null ? M.t("swmap_bau_auto") : mode ? M.t("swmap_bau_meio") : M.t("swmap_bau_ilha")))));
+                        return true;
+                    }
                     switch (type) {
                         case "meio": chestMode.put(p, Optional.of(true)); break;
                         case "ilha": chestMode.put(p, Optional.of(false)); break;
@@ -770,9 +839,9 @@ public final class GoldSkyWars extends PluginBase implements Listener {
                     p.sendMessage(PREFIX + M.t("swmap_bau_modo", type));
                     return true;
                 }
-                default: p.sendMessage(M.t("swmap_ajuda")); return true;
+                default: sender.sendMessage(M.t("swmap_ajuda")); return true;
             }
-        } catch (RuntimeException e) { p.sendMessage(PREFIX + e.getMessage()); return true; }
+        } catch (RuntimeException e) { sender.sendMessage(PREFIX + e.getMessage()); return true; }
     }
 
     private void editable(Game g) { if (!g.waiting() || !g.players.isEmpty() || g.editing) { throw new IllegalArgumentException(M.t("arena_tem_jogadores_espere_esvaziar")); } }

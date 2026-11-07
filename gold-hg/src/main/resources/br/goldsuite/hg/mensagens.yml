@@ -195,3 +195,4 @@ voce_precisa_estar_dentro_de_uma: "Voce precisa estar dentro de uma arena."
 # {0} = GoldHG.PREFIX
 voce_saiu_no_meio_do_hg: "{0}Voce saiu no meio do HG; os itens da partida foram removidos."
 voo_acabou: "&cVoo acabou"
+uso_hg_console: "Pelo console: /hg spawn <arena> <x> <y> <z> [yaw], /hg final <arena> <x> <y> <z>, /hg desfazer <arena>."

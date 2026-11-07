@@ -319,7 +319,7 @@ GUIAS = {
         "$ 50",
         "- Jogadores tocam na placa para comprar ou vender. /vender vende o item da mão; /vender tudo vende o inventário.",
     ])],
-    dicas=["Use /id para descobrir o id do item na mão."],
+    dicas=["/comprar: loja do servidor em menu (comprar categoria <nome> <id> [titulo], comprar add <categoria> <id> <qtd> <preco>, comprar lista).", "Use /id para descobrir o id do item na mão."],
 ),
 "GoldMarket": dict(
     resumo="Leilão de itens entre jogadores (/leilao).",
@@ -388,7 +388,7 @@ GUIAS = {
         "$ /caixa misteriosa Gustavo basica 3",
         "- /caixa lista, /caixa limpar <caixa>, /caixa apagar <caixa>.",
     ])],
-    dicas=["A caixa misteriosa é assinada: um baú renomeado na bigorna com o mesmo nome não abre nada."],
+    dicas=["/caixas: compra de caixas em menu; ponha a venda com /caixa preco <caixa> <valor> [money|cash]. Pelo console: caixa premioitem <caixa> <peso> <id> [qtd].", "A caixa misteriosa é assinada: um baú renomeado na bigorna com o mesmo nome não abre nada."],
 ),
 "GoldEnchant": dict(
     resumo="Encantador por menu (/encantar) com preço por nível.",
@@ -468,7 +468,7 @@ GUIAS = {
         "- Na sala de espera o papel 'Votar' da hotbar abre a votação: baús (básico, normal, insano), hora, clima, vida dupla e modificador (velocidade ou pulo). Empate fica no padrão.",
         "- Kits são comprados com moedas do SkyWars. Placeholders para o HUD: {sw_nivel}, {sw_moedas}, {sw_almas} e {sw_prestigio}.",
     ]), ("ArenaBuilder", ["- jaula, meio e espectador aceitam x y z no fim: cole os comandos do pontos.txt do mapa pronto sw_ilhas."])],
-    dicas=["/sw lista, /sw iniciar <arena>, /sw remover <arena>. Ranking skywars para NPC.", "Efeitos do Poço das Almas e da vitória não aparecem para quem usa /fps.", "Para editar uma arena ela precisa estar vazia; durante a geração de minérios ninguém entra."],
+    dicas=["Fila do lobby para o NPC: /npc comando sw fila solo; a contagem comeca com fila.minimo jogadores (painel) e o grupo vai junto para um mapa sorteado. Arenas pelo console: sw criar <nome> <solo|dupla> <mundo>, sw jaula/meio <x> <y> <z>, swmap arena <nome>.", "/sw lista, /sw iniciar <arena>, /sw remover <arena>. Ranking skywars para NPC.", "Efeitos do Poço das Almas e da vitória não aparecem para quem usa /fps.", "Para editar uma arena ela precisa estar vazia; durante a geração de minérios ninguém entra."],
 ),
 "GoldBedWars": dict(
     resumo="BedWars com até 8 times, forja, diamante e esmeralda, loja por categorias, melhorias do time e eventos.",
@@ -482,7 +482,7 @@ GUIAS = {
         "NPCs: /npc comando bw entrar solo, /npc comando bw loja e /npc comando bw melhorias.",
     ],
     secoes=[("Cores", ["- vermelho, azul, verde, amarelo, ciano, branco, rosa e cinza."])],
-    dicas=["Os comandos de ponto aceitam x y z no fim (pontos.txt do mapa pronto bw_quatro)."],
+    dicas=["Arena pelo console: bw criar <nome> <modo> <mundo>, bw arena <nome> e os comandos de marcar com <x> <y> <z>.", "Os comandos de ponto aceitam x y z no fim (pontos.txt do mapa pronto bw_quatro)."],
 ),
 "GoldParty": dict(
     resumo="Party de minigames: cada partida sorteia 5 provas entre 10, com pontos por colocação e ranking final. Várias salas jogam ao mesmo tempo.",

@@ -26,7 +26,7 @@ npc_inexistente: "NPC inexistente: {0}"
 npc_invalido: "NPC invalido."
 # {0} = entry.getKey()
 npc_invalido_2: "NPC {0} invalido."
-npc_npc_criar_tipo_nome_selecionar: "NPC: /npc criar <tipo> [nome], selecionar [id], lista, info, nome <texto, | quebra linha>, tipo <tipo>, skin [jogador], item, mover [<mundo> <x> <y> <z> [yaw]], olhar sim|nao, ranking <quadro> <posicao>|nenhum, destino mundo <m>|aqui|posicao <m> <x> <y> <z>|servidor <s>|nenhum, transicao <instantanea|portal|espiral|escurecer|contagem|explosao>, comando <cmd>|limpar, tp [id], remover"
+npc_npc_criar_tipo_nome_selecionar: "NPC: /npc criar <tipo> [nome], selecionar [id], lista, info, nome <texto, | quebra linha>, tipo <tipo>, skin [jogador] | skin cor <cor>, item, mover [<mundo> <x> <y> <z> [yaw]], olhar sim|nao, ranking <quadro> <posicao>|nenhum, destino mundo <m>|aqui|posicao <m> <x> <y> <z>|servidor <s>|nenhum, transicao <instantanea|portal|espiral|escurecer|contagem|explosao>, comando <cmd>|limpar, tp [id], remover"
 # {0} = id
 npc_removido: "NPC #{0} removido."
 # {0} = view.id, {1} = describe(view.id, view.data)
@@ -47,7 +47,7 @@ uso_npc_criar_tipo_nome: "Uso: /npc criar <tipo> [nome]"
 uso_npc_destino_mundo_mundo_aqui: "Uso: /npc destino mundo <mundo> | aqui | posicao <mundo> <x> <y> <z> [yaw] | servidor <nome> | nenhum"
 # {0} = rankingBoards()
 uso_npc_ranking_quadro_posicao_1: "Uso: /npc ranking <quadro> <posicao 1-10> | nenhum. Quadros: {0}"
-vago: "&7(vago)"
+vago: "&7Ainda sem campeao"
 # Console (sem jogador no lugar): posicao como <mundo> <x> <y> <z> [yaw]
 npc_ajuda_console: "Pelo console: /npc criar <tipo> <mundo> <x> <y> <z> [yaw] [nome], /npc selecionar <id> e depois os outros comandos; /npc mover <mundo> <x> <y> <z> [yaw]."
 uso_npc_criar_console: "Uso pelo console: /npc criar <tipo> <mundo> <x> <y> <z> [yaw] [nome] (nome com | quebra linha)"
@@ -57,3 +57,5 @@ selecione_um_npc_console: "Selecione um NPC com /npc selecionar <id> (veja os id
 mundo_inexistente: "Mundo {0} nao existe."
 # {0} = id do NPC (criado sem trocar a selecao, porque outro NPC foi selecionado enquanto gravava)
 npc_criado: "NPC #{0} criado."
+# {0} = lista de cores
+cores_de_skin: "Cores: {0}"

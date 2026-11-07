@@ -50,7 +50,7 @@ Admin (`goldhg.admin`):
 
 ```text
 /hg criar <mundo>      salva uma cópia do mapa (worlds/<mundo>) e cria a arena
-/hg spawn              salva sua posição como próximo spawn (até 24)
+/hg spawn              salva sua posição como próximo spawn (até 24); console: /hg spawn <arena> <x> <y> <z> [yaw]
 /hg desfazer           remove o último spawn
 /hg final              centro do feast e da batalha final
 /hg salvar [arena]     atualiza a cópia do mapa depois de editar

@@ -125,7 +125,7 @@ final class OreEditor implements Listener {
             j.player.sendMessage(M.t("minerios_gerados", j.scans.size(), j.changes.size()));
             stop();
             // Faz a copia padrao pelo mesmo fluxo seguro do editor.
-            plugin.edit(j.player, j.game, "salvar", new String[] {"salvar"});
+            plugin.edit(j.player, j.player, j.game, "salvar", new String[] {"salvar"});
         } catch (RuntimeException error) { j.player.sendMessage(error.getMessage()); stop(); }
     }
     private void stop() {

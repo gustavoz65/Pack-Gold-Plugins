@@ -147,7 +147,14 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
 
     /** Entrega de novo os itens da zona onde o jogador esta (depois de nascer, renascer ou fazer login). */
     private void regive(Player p, int ticks) {
-        getServer().getScheduler().scheduleDelayedTask(() -> { if (isEnabled() && p.isOnline() && data.isLoaded()) { enter(p, p.level, true, false); } }, ticks);
+        getServer().getScheduler().scheduleDelayedTask(() -> {
+            if (!isEnabled() || !p.isOnline() || !data.isLoaded()) { return; }
+            // So entrega os itens da zona em que ele ja esta: a troca de zona (boas-vindas, tirar itens) fica com o enter.
+            String now = zoneName(p.level);
+            if (now == null || !now.equals(zoneOf.get(p))) { return; }
+            CmdState.Zone z = data.read(s -> s.zones.get(now));
+            if (z != null) { giveItems(p, z); }
+        }, ticks);
     }
 
     /** Morrer limpa o inventario e renascer no mesmo mundo nao troca de zona: os itens precisam voltar. */

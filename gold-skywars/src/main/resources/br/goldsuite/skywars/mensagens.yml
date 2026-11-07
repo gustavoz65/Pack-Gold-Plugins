@@ -8,7 +8,7 @@
 64_de_pedregulho_picareta_de_pedra: "64 de pedregulho e picareta de pedra"
 6_tnts_que_acendem_sozinhas_botas: "6 TNTs que acendem sozinhas e botas de couro"
 8_teias_8_bolas_de_neve: "8 teias e 8 bolas de neve"
-admin_sw_criar_nome_solo_dupla: "Admin: /sw criar <nome> [solo|dupla], jaula [x y z], desfazer, meio [x y z], insano, salvar, lista, iniciar <arena>, remover <arena>"
+admin_sw_criar_nome_solo_dupla: "Admin: /sw criar <nome> [solo|dupla] (no console: + <mundo>), jaula [x y z], desfazer, meio [x y z], insano, salvar, lista, iniciar <arena>, remover <arena>"
 # {0} = g.players.size(), {1} = g.capacity()
 aguardando_jogadores: "&eAguardando jogadores &f{0}/{1}"
 arco_12_flechas_capacete_de_couro: "Arco, 12 flechas e capacete de couro"
@@ -245,3 +245,23 @@ minerios_gerados: "&aMinerios gerados em {0} ilhas ({1} blocos). Salvando o mapa
 minerios_ilha_grande: "&cIsso nao parece uma ilha (grande demais ou ligada ao chao)."
 minerios_sem_ilha: "&cNao achei ilha nesse bloco."
 sala_falhou: "&cNao deu para entrar na sala agora. Tente de novo."
+# ---------- arena pelo console ----------
+console_escolha_arena: "Pelo console, escolha a arena antes: /swmap arena <nome> (ou crie com /sw criar <nome> <solo|dupla> <mundo>)."
+console_coordenadas: "Pelo console, informe as coordenadas: <x> <y> <z> [yaw]."
+# {0} = arena
+console_arena_escolhida: "Arena {0} escolhida para os comandos do console."
+# {0} = arena, {1} = mundo
+arena_criada_console: "Arena {0} criada em {1} e escolhida no console. Marque as jaulas com /sw jaula <x> <y> <z>."
+# {0} = mundo
+mundo_inexistente_sw: "Mundo {0} nao existe."
+swmap_ajuda_console: "Console: /swmap arena <nome> escolhe a arena; jaula, meio e espectador com <x> <y> <z> [yaw]; /swmap bau meio|ilha|auto <x> <y> <z>."
+# ---------- fila do lobby (NPC) ----------
+fila_solo: "SkyWars Solo"
+fila_dupla: "SkyWars Dupla"
+# {0} = modo, {1} = na fila, {2} = minimo
+fila_entrou: "&aVoce entrou na fila do {0} ({1}/{2}). Toque de novo no NPC para sair."
+fila_saiu: "&7Voce saiu da fila."
+# {0} = modo, {1} = na fila, {2} = minimo
+fila_aguardando: "&e{0}&7: aguardando jogadores &f({1}/{2})"
+# {0} = modo, {1} = segundos, {2} = na fila
+fila_contagem: "&e{0}&7: indo para o mapa em &a{1}s &7({2} jogadores)"

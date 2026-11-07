@@ -7,6 +7,7 @@ author: gustavoz65
 description: Placas de compra e venda, lojas de bau de jogadores e /vender
 commands:
  vender: {description: "Vende o item da mao ou tudo pela tabela de precos", usage: "/vender [tudo]", aliases: [venderall, sell]}
+ comprar: {description: "Abre a loja do servidor (menu)", usage: "/comprar", aliases: [lojaservidor, shop]}
  preco: {description: "Define o preco de venda de um item", usage: "/preco <id[:meta]> <valor|remover>", permission: goldshop.admin}
 permissions:
  goldshop.admin: {default: op, description: "Cria placas de compra e venda e gerencia lojas"}

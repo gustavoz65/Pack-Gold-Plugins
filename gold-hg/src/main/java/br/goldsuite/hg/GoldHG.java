@@ -484,10 +484,18 @@ public final class GoldHG extends PluginBase {
                 return true;
             }
             case "spawn": case "desfazer": case "final": {
-                if (player == null) { return true; }
-                String name = player.level.getFolderName();
-                if (!games.containsKey(name)) { throw new IllegalArgumentException(M.t("voce_precisa_estar_dentro_de_uma")); }
-                double[] here = {player.x, player.y, player.z, player.yaw};
+                // Console: /hg spawn|final <arena> <x> <y> <z> [yaw] e /hg desfazer <arena>.
+                String name = player != null ? player.level.getFolderName() : HgState.arenaName(args.length > 1 ? args[1] : "");
+                if (!games.containsKey(name)) { throw new IllegalArgumentException(M.t(player != null ? "voce_precisa_estar_dentro_de_uma" : "uso_hg_console")); }
+                double[] here;
+                if (player != null) { here = new double[] {player.x, player.y, player.z, player.yaw}; }
+                else if (sub.equals("desfazer")) { here = new double[4]; }
+                else {
+                    if (args.length < 5) { throw new IllegalArgumentException(M.t("uso_hg_console")); }
+                    try { here = new double[] {Double.parseDouble(args[2]), Double.parseDouble(args[3]), Double.parseDouble(args[4]), args.length > 5 ? Double.parseDouble(args[5]) : 0}; }
+                    catch (NumberFormatException bad) { throw new IllegalArgumentException(M.t("uso_hg_console")); }
+                    if (!(Math.abs(here[0]) < 3e7 && Math.abs(here[2]) < 3e7 && here[1] >= 0 && here[1] < 256 && Double.isFinite(here[3]))) { throw new IllegalArgumentException(M.t("uso_hg_console")); }
+                }
                 if (sub.equals("spawn")) {
                     result(sender, data.change(s -> { List<double[]> list = s.require(name).spawns; if (list.size() >= HgState.MAX_SPAWNS) { throw new IllegalArgumentException(M.t("limite_de_24_spawns")); } list.add(here); }),
                             null, () -> sender.sendMessage(PREFIX + M.t("spawn_salvo", spawns(games.get(name)).size())));

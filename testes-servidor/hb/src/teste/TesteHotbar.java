@@ -202,7 +202,8 @@ public final class TesteHotbar extends PluginBase {
             console("mundoprotecao lobby movimento off");
             console("mundoprotecao lobby dano off");
         });
-        step(30, () -> {
+        // Gravacao assincrona: espere as tres flags estarem salvas.
+        step(80, () -> {
             // Lobby protegido: sem fome, sem puxao de movimento e sem dano de queda.
             PlayerFoodLevelChangeEvent fome = new PlayerFoodLevelChangeEvent(ana, ana.getFoodData().getLevel() - 1, 0);
             getServer().getPluginManager().callEvent(fome);

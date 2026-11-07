@@ -1,0 +1,5 @@
+name: TesteLojaFila
+main: teste.TesteLojaFila
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldEconomy, GoldShop, GoldCrates, GoldSkyWars, GoldBedWars, GoldNPC]
