@@ -119,7 +119,7 @@ public final class TesteJogos extends PluginBase {
             kill(a, c);
         });
         step(5, () -> { try { check(phase("GoldSkyWars", "ilhas").equals("FIM"), "SkyWars: ultimo vivo venceu"); } catch (Exception e) { errors.add(e.toString()); } });
-        step(220, () -> {
+        step(320, () -> {
             try {
                 check(!b.getAllowFlight() && !b.getDataFlag(Entity.DATA_FLAGS, Entity.DATA_FLAG_INVISIBLE), "SkyWars: espectador volta ao lobby sem voo nem invisibilidade (falha do original)");
                 boolean onlyLobbyItems = true; for (Item i : b.getInventory().getContents().values()) { if (!(i.hasCustomName() && i.getCustomName().contains("(toque)"))) { onlyLobbyItems = false; } }

@@ -39,7 +39,7 @@ final class Kits {
         add(new Kit("cavaleiro", "Cavaleiro", 283, 0, 250_000, M.t("espada_de_ouro_afiada_ii_calca"), "283:0:1/9:2", "304"));
         add(new Kit("sapo", "Sapo", 111, 0, 100_000, M.t("2_pocoes_de_salto_8_vitorias"), "373:11:2", "111:0:8"));
         add(new Kit("princesa", "Princesa", 261, 0, 350_000, M.t("arco_forca_16_flechas_capacete_de"), "261:0:1/19:1", "262:0:16", "314:0:1/0:1"));
-        add(new Kit("granadeiro", "Granadeiro", 438, 23, 300_000, M.t("3_pocoes_arremessaveis_de_dano"), "438:23:3"));
+        add(new Kit("granadeiro", "Granadeiro", 46, 0, 300_000, M.t("3_pocoes_arremessaveis_de_dano"), "438:23:3"));
         add(new Kit("construtor", "Construtor", 4, 0, 100_000, M.t("64_de_pedregulho_picareta_de_pedra"), "4:0:64", "274"));
     }
 

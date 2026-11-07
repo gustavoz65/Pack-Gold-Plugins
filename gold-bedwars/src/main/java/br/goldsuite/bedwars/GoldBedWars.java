@@ -177,7 +177,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
     }
 
     void clean(Player p) {
-        p.getInventory().clearAll(); p.removeAllEffects(); p.extinguish();
+        p.getInventory().clearAll(); for (int hb = 0; hb < 9; hb++) { p.getInventory().setHotbarSlotIndex(hb, hb); } p.removeAllEffects(); p.extinguish();
         p.setHealth(p.getMaxHealth()); p.getFoodData().setLevel(20); p.setGamemode(Player.SURVIVAL);
         p.setDataFlag(Entity.DATA_FLAGS, Entity.DATA_FLAG_INVISIBLE, false);
         if (flying.remove(p) && !p.isCreative()) { p.setAllowFlight(false); }
@@ -448,7 +448,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
 
     /** Fantasma: invisivel, voando, sem itens, sobre a base do time. */
     void ghost(Game g, Player p) {
-        p.getInventory().clearAll(); p.removeAllEffects(); p.extinguish();
+        p.getInventory().clearAll(); for (int hb = 0; hb < 9; hb++) { p.getInventory().setHotbarSlotIndex(hb, hb); } p.removeAllEffects(); p.extinguish();
         p.setHealth(p.getMaxHealth()); p.getFoodData().setLevel(20);
         p.setDataFlag(Entity.DATA_FLAGS, Entity.DATA_FLAG_INVISIBLE, true);
         if (!p.getAllowFlight()) { p.setAllowFlight(true); flying.add(p); }

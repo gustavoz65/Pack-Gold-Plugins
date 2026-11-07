@@ -74,6 +74,12 @@ public final class TesteSkyMythic extends PluginBase {
     void kill(Player killer, Player victim) { victim.attack(new EntityDamageByEntityEvent(killer, victim, EntityDamageEvent.CAUSE_ENTITY_ATTACK, 500)); }
 
 
+    Object menuOf(Player p) throws Exception {
+        Object menus = getServer().getServiceManager().load(br.goldsuite.api.MenuService.class);
+        Field f = menus.getClass().getDeclaredField("open"); f.setAccessible(true);
+        return ((Map<?, ?>) f.get(menus)).get(p);
+    }
+
     Object menuClick(Player p, int slot) throws Exception {
         Object menus = getServer().getServiceManager().load(br.goldsuite.api.MenuService.class);
         Field f = menus.getClass().getDeclaredField("open"); f.setAccessible(true);
@@ -239,6 +245,19 @@ public final class TesteSkyMythic extends PluginBase {
                 check(b.level.getBlockIdAt(b.getFloorX(), b.getFloorY() - 1, b.getFloorZ()) == 20, "jaulas: vidro para quem nao escolheu");
                 boolean vote = false; for (Item i : a.getInventory().getContents().values()) { if (i.getId() == 339 && i.getCustomName().contains("Votar")) { vote = true; } }
                 check(vote, "votacao: item de votar na hotbar");
+                // Kits: toque no chao com o bau da hotbar abre o menu com todos os kits.
+                a.getInventory().setHeldItemIndex(0);
+                check(a.getInventory().getItemInHand().getId() == 54, "kits: o bau dos kits fica na mao ao selecionar o slot 1 da hotbar");
+                getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerInteractEvent(a, a.getInventory().getItem(0), a.level.getBlock(a.add(0, -1, 0)), 1, cn.nukkit.event.player.PlayerInteractEvent.RIGHT_CLICK_BLOCK));
+
+            } catch (Exception e) { errors.add(e.toString()); }
+        });
+        step(10, () -> {
+            try {
+                Object menu = menuOf(a);
+                int n = menu == null ? -1 : ((cn.nukkit.inventory.Inventory) menu).getContents().size();
+                check(n >= 19, "kits: bau da hotbar abre o menu com os 19 kits (" + n + ")");
+                getServer().getServiceManager().load(br.goldsuite.api.MenuService.class).close(a);
                 cmd(a, "GoldSkyWars", "sw votar");
             } catch (Exception e) { errors.add(e.toString()); }
         });
@@ -262,7 +281,17 @@ public final class TesteSkyMythic extends PluginBase {
                 check(Math.abs(b.y - 90) < 1.5, "espectador: vai para o ponto marcado (y=" + b.y + ")");
                 check(num(a, "kills") == 1 && num(a, "souls") == 16 && num(a, "xp") >= 10, "progresso: abate deu alma e XP (almas " + num(a, "souls") + ")");
             } catch (Exception e) { errors.add(e.toString()); }
-            kill(a, c);
+            // Ultimo adversario cai no vazio: a vitoria tem que sair em menos de 1 s depois de passar da altura de corte.
+            c.attack(new EntityDamageByEntityEvent(a, c, EntityDamageEvent.CAUSE_ENTITY_ATTACK, 1));
+            c.teleport(new cn.nukkit.math.Vector3(c.x, c.y - 30, c.z));
+        });
+        step(8, () -> {
+            try {
+                check(phase("GoldSkyWars", "ilhas").equals("FIM"), "partida: queda no vazio da a vitoria na hora");
+                boolean again = false, leave = false;
+                for (Item i : a.getInventory().getContents().values()) { if (i.getId() == 339 && i.hasCustomName()) { again = true; } if (i.getId() == 355 && i.hasCustomName()) { leave = true; } }
+                check(again && leave, "fim: vencedor recebe jogar de novo e sair");
+            } catch (Exception e) { errors.add(e.toString()); }
         });
         // O XP da vitoria tambem e gravado de forma assincrona.
         step(40, () -> { try { check(phase("GoldSkyWars", "ilhas").equals("FIM"), "partida: ultimo vivo venceu"); check(num(a, "wins") == 1 && num(a, "xp") >= 120, "progresso: vitoria deu XP (" + num(a, "xp") + ")"); } catch (Exception e) { errors.add(e.toString()); } });

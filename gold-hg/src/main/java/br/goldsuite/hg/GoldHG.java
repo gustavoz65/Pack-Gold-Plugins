@@ -140,7 +140,7 @@ public final class GoldHG extends PluginBase {
         lateKit.remove(p);
         Kit kit = kit(p);
         if (kit == Kit.SURPRESA) { kit = Kit.random(); kits.put(p, kit); p.sendMessage(PREFIX + M.t("seu_kit_surpresa", kit.title)); }
-        p.getInventory().clearAll();
+        p.getInventory().clearAll(); for (int hb = 0; hb < 9; hb++) { p.getInventory().setHotbarSlotIndex(hb, hb); }
         p.setGamemode(Player.SURVIVAL);
         p.setHealth(p.getMaxHealth());
         p.getFoodData().setLevel(20);
@@ -358,7 +358,7 @@ public final class GoldHG extends PluginBase {
 
     /** Limpa tudo o que a partida deu ao jogador. */
     void strip(Player player) {
-        player.getInventory().clearAll();
+        player.getInventory().clearAll(); for (int hb = 0; hb < 9; hb++) { player.getInventory().setHotbarSlotIndex(hb, hb); }
         player.removeAllEffects();
         player.setOnFire(0);
         if (player.getAdventureSettings().canFly() && player.getGamemode() == Player.SURVIVAL) { player.setAllowFlight(false); }

@@ -265,3 +265,4 @@ fila_saiu: "&7Voce saiu da fila."
 fila_aguardando: "&e{0}&7: aguardando jogadores &f({1}/{2})"
 # {0} = modo, {1} = segundos, {2} = na fila
 fila_contagem: "&e{0}&7: indo para o mapa em &a{1}s &7({2} jogadores)"
+fim_escolha_jogar_ou_sair: "&eFim de jogo! &fToque no chao com o &apapel&f para jogar de novo ou com a &ccama&f para voltar ao lobby."

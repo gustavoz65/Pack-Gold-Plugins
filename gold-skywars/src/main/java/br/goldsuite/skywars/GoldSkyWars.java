@@ -115,6 +115,8 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         });
         for (Player p : getServer().getOnlinePlayers().values()) { loadStats(p); }
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldSkyWars>(this) { @Override public void onRun(int tick) { second(); queue.second(); } }, 20);
+        // Queda no vazio conferida 4x por segundo: a vitoria sai assim que o ultimo adversario cai.
+        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldSkyWars>(this) { @Override public void onRun(int tick) { voidCheck(); } }, 5);
     }
 
     final Map<String, Long> kitPrices = new HashMap<>();
@@ -205,13 +207,13 @@ public final class GoldSkyWars extends PluginBase implements Listener {
     }
 
     private void enter(Player p, Game g, SwState.Arena a, double[] sp) {
-        p.getInventory().clearAll();
+        p.getInventory().clearAll(); for (int hb = 0; hb < 9; hb++) { p.getInventory().setHotbarSlotIndex(hb, hb); }
         p.removeAllEffects();
         p.setHealth(p.getMaxHealth());
         p.getFoodData().setLevel(20);
         p.setGamemode(Player.SURVIVAL);
         cage(g, sp, true);
-        p.teleport(new Location(sp[0], sp[1], sp[2], sp[3], 0, g.level()));
+        p.teleport(new Location(sp[0], sp[1], sp[2], facingCenter(a, sp), 0, g.level()));
         p.getInventory().setItem(0, Items.named(Item.get(54, 0, 1), KIT_ITEM));
         p.getInventory().setItem(1, Items.named(Item.get(339, 0, 1), VOTE_ITEM));
         p.getInventory().setItem(8, Items.named(Item.get(355, 0, 1), LEAVE_ITEM));
@@ -233,7 +235,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
     /** Volta ao lobby limpo: sem itens da partida, sem voo e sem invisibilidade de espectador. */
     void toLobby(Player p) {
         inGame.remove(p);
-        p.getInventory().clearAll();
+        p.getInventory().clearAll(); for (int hb = 0; hb < 9; hb++) { p.getInventory().setHotbarSlotIndex(hb, hb); }
         Map<Integer, Item> original = lobbyItems.remove(p);
         if (original != null) { p.getInventory().setContents(original); }
         p.setMaxHealth(20);
@@ -296,9 +298,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
                     if (g.elapsed == refill1 || g.elapsed == refill2) { loadArena(g); fillChests(g, true); broadcast(g, M.t("os_baus_foram_reabastecidos")); }
                     if (g.elapsed == gameSeconds - 60) { broadcast(g, M.t("falta_1_minuto_sem_vencedor_partida")); }
                     if (g.elapsed >= gameSeconds) { broadcast(g, M.t("tempo_esgotado_ninguem_venceu")); finish(g, Collections.emptyList()); break; }
-                    double voidY = voidY(g);
                     for (Player p : new ArrayList<>(g.players.keySet())) {
-                        if (p.y < voidY) { eliminate(g, p, lastHitter(g, p), true, null); continue; }
                         long next = Math.min(refill1 > g.elapsed ? refill1 : Long.MAX_VALUE, refill2 > g.elapsed ? refill2 : Long.MAX_VALUE);
                         p.sendTip(M.t("skywars_vivos_abates", g.players.size(), g.kills.getOrDefault(p, 0), (next == Long.MAX_VALUE ? M.t("fim", clock(gameSeconds - g.elapsed)) : M.t("refil", clock(next - g.elapsed)))));
                     }
@@ -315,9 +315,28 @@ public final class GoldSkyWars extends PluginBase implements Listener {
 
     static String clock(long s) { return String.format("%d:%02d", s / 60, s % 60); }
 
+    /** Abaixo disso o jogador ja caiu: 25 blocos sob a jaula mais baixa (as ilhas nao descem tanto). */
     double voidY(Game g) {
         double min = 1000; for (double[] sp : g.arena().spawns) { min = Math.min(min, sp[1]); }
-        return min - 40;
+        return min - 25;
+    }
+
+    void voidCheck() {
+        for (Game g : games.values()) {
+            if (g.phase != Phase.JOGANDO || g.players.isEmpty()) { continue; }
+            double voidY = voidY(g);
+            for (Player p : new ArrayList<>(g.players.keySet())) { if (g.phase == Phase.JOGANDO && p.y < voidY) { eliminate(g, p, lastHitter(g, p), true, null); } }
+        }
+    }
+
+    /** Direcao da jaula: olhando para o meio do mapa (centro, ou a media das jaulas). */
+    static float facingCenter(SwState.Arena a, double[] sp) {
+        double cx, cz;
+        if (a.center.length == 3) { cx = a.center[0]; cz = a.center[2]; }
+        else { cx = 0; cz = 0; for (double[] s : a.spawns) { cx += s[0]; cz += s[2]; } cx /= a.spawns.size(); cz /= a.spawns.size(); }
+        double dx = cx - sp[0], dz = cz - sp[2];
+        if (dx * dx + dz * dz < 1) { return (float) sp[3]; }
+        return (float) Math.toDegrees(Math.atan2(-dx, dz));
     }
 
     /** Carrega todos os chunks da arena (jaulas e meio, com folga): baus de ilhas longe dos jogadores tambem sao preenchidos. */
@@ -339,7 +358,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         g.options.apply(this, g);
         fillChests(g, false);
         for (Player p : g.players.keySet()) {
-            p.getInventory().clearAll();
+            p.getInventory().clearAll(); for (int hb = 0; hb < 9; hb++) { p.getInventory().setHotbarSlotIndex(hb, hb); }
             Kits.Kit kit = Kits.ALL.get(stats(p).kit);
             for (Item it : Kits.items(kit)) {
                 if (Items.armor(it.getId())) { p.getInventory().setArmorItem(Items.armorSlot(it.getId()), it); } else { p.getInventory().addItem(it); }
@@ -405,7 +424,7 @@ public final class GoldSkyWars extends PluginBase implements Listener {
 
     void spectate(Game g, Player p) {
         g.spectators.add(p);
-        p.getInventory().clearAll();
+        p.getInventory().clearAll(); for (int hb = 0; hb < 9; hb++) { p.getInventory().setHotbarSlotIndex(hb, hb); }
         p.removeAllEffects(); p.extinguish();
         p.setHealth(p.getMaxHealth()); p.getFoodData().setLevel(20);
         p.setDataFlag(Entity.DATA_FLAGS, Entity.DATA_FLAG_INVISIBLE, true);
@@ -425,7 +444,16 @@ public final class GoldSkyWars extends PluginBase implements Listener {
     }
 
     void finish(Game g, List<Player> winners) {
-        g.phase = Phase.FIM; g.seconds = 8;
+        g.phase = Phase.FIM; g.seconds = 12;
+        // Todos (vencedor e espectadores) escolhem: papel = jogar de novo, cama = voltar ao lobby. Sem escolha, voltam em 12 s.
+        for (Player p : new ArrayList<>(g.players.keySet())) {
+            p.getInventory().clearAll(); for (int hb = 0; hb < 9; hb++) { p.getInventory().setHotbarSlotIndex(hb, hb); }
+            p.getInventory().setItem(0, Items.named(Item.get(339, 0, 1), AGAIN_ITEM));
+            p.getInventory().setItem(8, Items.named(Item.get(355, 0, 1), LEAVE_ITEM));
+            p.getInventory().setHeldItemIndex(4);
+            p.getInventory().sendContents(p);
+            p.sendMessage(PREFIX + M.t("fim_escolha_jogar_ou_sair"));
+        }
         if (winners.isEmpty()) { return; }
         StringBuilder names = new StringBuilder();
         EffectService fx = getServer().getServiceManager().load(EffectService.class);
