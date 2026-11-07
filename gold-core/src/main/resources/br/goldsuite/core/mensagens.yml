@@ -121,3 +121,4 @@ discord_teste_sem_rede: "&cSem conexao com o Discord ({0}). A VPS esta sem inter
 # {0} = erro
 discord_teste_erro: "&cFalha ao falar com o Discord: {0}"
 discord_teste_fila: "&eA fila de avisos do Discord esta cheia. Tente de novo em instantes."
+console_reaberto: "A leitura do console do Nukkit caiu (bug do jline); o GoldCore reabriu o console. Os comandos do painel voltam a funcionar."

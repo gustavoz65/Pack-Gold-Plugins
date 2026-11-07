@@ -52,6 +52,7 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
         getServer().getServiceManager().register(RankingService.class, new RankingRegistry(), this);
         getServer().getServiceManager().register(PlaceholderService.class, new PlaceholderRegistry(), this);
         getServer().getPluginManager().registerEvents(this, this);
+        new ConsoleGuard(this).start();
         this.dispatcher.submit(() -> {
             this.backend.initialize();
             Path keyFile = directory.resolve("assinatura.key");
