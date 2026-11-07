@@ -51,6 +51,7 @@ public final class GoldEssentials extends PluginBase implements Listener {
         if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         places = new PersistentState<>(core.getStore(), "goldessentials", Places.class, Places::new, Places::validate);
         Settings.number(this, "luz.espera", 0, "Segundos entre um /luz e outro (0 = sem espera)", v -> luzDelay = Math.max(0, v));
+        Settings.number(this, "entrar_no_spawn", 1, "1 = todo jogador entra no spawn do servidor (hub), nao onde saiu", v -> joinAtSpawn = v != 0);
         Settings.number(this, "loja.espera", 30, "Segundos entre um /loja e outro", v -> shopCooldown = Math.max(0, v));
         Settings.text(this, "mundovip.sem_vip", "&cOpa, este e o mundo VIP. Para acessa-lo adquira um VIP no nosso site.", "Mensagem para quem nao e VIP (| quebra a linha)", v -> vipOnly = v);
         getServer().getPluginManager().registerEvents(this, this);
@@ -178,6 +179,28 @@ public final class GoldEssentials extends PluginBase implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true) public void teleport(PlayerTeleportEvent event) {
         Location from = event.getFrom(), to = event.getTo();
         if (from.level != to.level || from.distanceSquared(to) > 25) { back.put(event.getPlayer(), from); }
+    }
+
+    private boolean joinAtSpawn = true;
+
+    /**
+     * Entrar sempre no spawn (hub): o mundo e a posicao salvos do jogador sao trocados ANTES do Nukkit carrega-los
+     * (pre-login), entao o cliente nunca recebe os chunks de onde ele saiu (ex.: um mapa que travava o celular).
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void spawnOnJoin(PlayerPreLoginEvent event) {
+        if (!joinAtSpawn) { return; }
+        String name = event.getPlayer().getName();
+        if (name == null || !name.matches("[A-Za-z0-9_]{3,16}")) { return; }
+        Location spawn = spawnLocation();
+        cn.nukkit.level.Level level = spawn != null && spawn.level != null ? spawn.level : getServer().getDefaultLevel();
+        if (level == null) { return; }
+        cn.nukkit.math.Vector3 pos = spawn != null ? spawn : level.getSafeSpawn();
+        cn.nukkit.nbt.tag.CompoundTag nbt = getServer().getOfflinePlayerData(name);
+        if (nbt == null) { return; }
+        nbt.putString("Level", level.getFolderName());
+        nbt.putList(new cn.nukkit.nbt.tag.ListTag<cn.nukkit.nbt.tag.DoubleTag>("Pos").add(new cn.nukkit.nbt.tag.DoubleTag("0", pos.x)).add(new cn.nukkit.nbt.tag.DoubleTag("1", pos.y)).add(new cn.nukkit.nbt.tag.DoubleTag("2", pos.z)));
+        getServer().saveOfflinePlayerData(name, nbt);
     }
 
     /** Spawn salvo pelo /setspawn tambem vale ao renascer. */

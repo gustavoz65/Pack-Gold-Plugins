@@ -63,7 +63,7 @@ categoria_invalida: "Categoria: ate 16 letras minusculas, numeros, _ ou -."
 catalogo_invalido: "Loja do servidor invalida."
 titulo_longo: "Titulo de ate 40 caracteres."
 limite_de_categorias: "Limite de 14 categorias."
-limite_de_ofertas: "Limite de 18 itens por categoria."
+limite_de_ofertas: "Limite de 135 itens por categoria."
 # {0} = categoria
 categoria_salva: "Categoria {0} salva."
 categoria_inexistente: "Categoria {0} nao existe."
@@ -76,3 +76,23 @@ oferta_removida: "Item removido."
 categoria_linha: "&e{0}&7 ({1}&7): {2} itens"
 # {0} = numero, {1} = qtd, {2} = item, {3} = preco
 oferta_linha: "  &f{0}. {1}x {2} &a$ {3}"
+# {0} = pagina, {1} = total
+pagina_anterior: "&f< Pagina anterior &7({0}/{1})"
+# {0} = pagina, {1} = total
+proxima_pagina: "&fProxima pagina > &7({0}/{1})"
+titulo_quantidade: "&8Quantos?"
+# {0} = quantidade, {1} = item, {2} = preco
+quantidade_icone: "&f{0}x {1}\n&a$ {2}\n&7Toque para escolher"
+titulo_confirmar: "&8Confirmar compra"
+# {0} = quantidade, {1} = item, {2} = total
+confirmar_item: "&f{0}x {1}\n&fTotal: &a$ {2}"
+# {0} = total
+botao_confirmar_compra: "&a&lComprar\n&7Pagar $ {0}"
+botao_cancelar_compra: "&c&lCancelar\n&7Voltar aos itens"
+# {0} = quantidade, {1} = item
+comprou_itens: "&aComprou {0}x {1}."
+# {0} = quantidade, {1} = item, {2} = preco
+vendeu_itens_placa: "&aVendeu {0}x {1} por $ {2}."
+# {0} = quantidade, {1} = item, {2} = dono
+comprou_itens_de: "&aComprou {0}x {1} de {2}."
+

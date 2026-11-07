@@ -11,7 +11,7 @@ public final class ShopState {
     public Map<String, Long> sellPrices = new TreeMap<>();
     /** Loja do servidor em menu (/comprar): categoria -> icone e ofertas, na ordem em que foram criadas. */
     public Map<String, Category> catalog = new LinkedHashMap<>();
-    public static final int MAX_CATEGORIES = 14, MAX_OFFERS = 18;
+    public static final int MAX_CATEGORIES = 14, MAX_OFFERS = 135;
 
     public static final class Category {
         public int iconId = 54, iconMeta;

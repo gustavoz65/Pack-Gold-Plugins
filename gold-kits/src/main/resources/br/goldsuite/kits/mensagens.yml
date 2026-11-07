@@ -36,3 +36,6 @@ sem_recarga: "sem recarga"
 use_dentro_do_jogo: "Use dentro do jogo."
 uso_kit_criar_nome_minutos_de: "Uso: /kit criar <nome> <minutos de recarga> [restrito]"
 voce_nao_tem_permissao_para_este: "Voce nao tem permissao para este kit."
+uso_kit_criaritens: "Uso: /kit criaritens <nome> <minutos> <id[:meta]:qtd,...> [restrito] (ex.: 274:1,273:1,297:16)"
+sem_permissao_kits: "Sem permissao."
+

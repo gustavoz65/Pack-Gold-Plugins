@@ -372,7 +372,9 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
             case "apagar": change(sender, s -> { if (s.zones.remove(z) == null) { throw new IllegalArgumentException(M.t("zona_inexistente_2")); } }, "Zona " + z + " apagada."); return;
             case "mundo": {
                 String w = a.length > 2 ? a[2] : "";
-                if (w.isEmpty() || getServer().getLevelByName(w) == null && !new java.io.File(getServer().getDataPath() + "worlds/" + w).isDirectory()) { throw new IllegalArgumentException(M.t("mundo_inexistente", w)); }
+                boolean exists = getServer().getLevelByName(w) != null || new java.io.File(getServer().getDataPath() + "worlds/" + w).isDirectory();
+                // Mundo apagado ou renomeado ainda pode sair da zona; so nao pode entrar um que nao existe.
+                if (w.isEmpty() || !exists && !data.read(s -> s.zones.containsKey(z) && s.zones.get(z).worlds.contains(w))) { throw new IllegalArgumentException(M.t("mundo_inexistente", w)); }
                 change(sender, s -> {
                     CmdState.Zone zone = need(s, z);
                     if (!zone.worlds.remove(w)) {

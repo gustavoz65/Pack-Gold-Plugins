@@ -82,6 +82,10 @@ Serviços registrados pelo GoldCore e pelos plugins (pegue com `getServer().getS
 - Mapas do PC: o bloco 95 (vidro colorido no PC) vira **bedrock invisível** no 0.15. Converter nos lobbies (fase 2).
 - Placas "HytaleMC" trocadas por "Rush MC"; placas impróprias apagadas (Evento, ArenaGladiadores, HN).
 
+- Rankup alpha (07/11): GoldRankup (ranks + minas no mundo `minas`) e GoldPlots (mundo `plots` = plotworld do pack). Economia: primeiro rank ~10 min, metade ~5 h, último ~20 h (tabela no CHANGELOG/relatório).
+- **Blocos que derrubam o cliente 0.15**: 84, 119, 122, 130, 137, 138, 160, 166, 168, 169, 176, 177, 188–192. Todo mapa novo passa pelo `ferramentas/conversor-pc/sanear.py`.
+- Jogador falso não pede chunk: nos testes, gere com `level.populateChunk(cx, cz, true)` e segure chunks com um `ChunkLoader` de teste.
+
 ## Pendências (ordem sugerida)
 1. **Estrutura de lobbies do servidor** (configuração + o que faltar de código) — detalhada no pedido do dono que acompanha este arquivo:
    LobbyRush (hub), lobby PvP (HG, NoDebuff, UHC, Practice, Ranked; livro do perfil só aqui), lobby Minigames (SkyWars, BedWars, Party),

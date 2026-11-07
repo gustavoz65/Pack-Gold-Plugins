@@ -167,7 +167,7 @@ public final class GoldShop extends PluginBase implements Listener {
         return economy().debit(who, Currency.MONEY, shop.price).thenApply(v -> {
             if (!p.isOnline()) { economy().credit(who, Currency.MONEY, shop.price); throw new IllegalStateException(M.t("jogador_saiu_valor_devolvido")); }
             give(p, item.clone());
-            return "Comprou " + shop.amount + "x " + item.getName() + ".";
+            return M.t("comprou_itens", shop.amount, item.getName());
         });
     }
 
@@ -177,7 +177,7 @@ public final class GoldShop extends PluginBase implements Listener {
         p.getInventory().removeItem(item.clone());
         return economy().credit(p.getName(), Currency.MONEY, price).handle((v, error) -> {
             if (error != null) { if (p.isOnline()) { give(p, item.clone()); } throw new IllegalStateException(root(error)); }
-            return "Vendeu " + item.getCount() + "x " + item.getName() + " por $" + ShopState.money(price) + ".";
+            return M.t("vendeu_itens_placa", item.getCount(), item.getName(), ShopState.money(price));
         });
     }
 
@@ -196,7 +196,7 @@ public final class GoldShop extends PluginBase implements Listener {
             if (p.isOnline()) { give(p, item.clone()); } else { for (Item rest : chest.addItem(item.clone())) { p.level.dropItem(new Vector3(shop.chestX + 0.5, shop.chestY + 1, shop.chestZ + 0.5), rest); } }
             Player owner = getServer().getPlayerExact(shop.owner);
             if (owner != null) { owner.sendMessage(PREFIX + M.t("comprou_da_sua_loja", p.getName(), shop.amount, item.getName(), ShopState.money(shop.price))); }
-            return "Comprou " + shop.amount + "x " + item.getName() + " de " + shop.owner + ".";
+            return M.t("comprou_itens_de", shop.amount, item.getName(), shop.owner);
         });
     }
 
@@ -283,38 +283,88 @@ public final class GoldShop extends PluginBase implements Listener {
         });
     }
 
-    private void offers(Player p, String key) {
+    static final int PAGE = 18, PREV = 20, NEXT = 24;
+
+    private void offers(Player p, String key) { offers(p, key, 0); }
+
+    /** Itens da categoria, 18 por pagina; tocar num item abre a escolha de quantidade. */
+    private void offers(Player p, String key, int page) {
         ShopState.Category c = data.read(s -> s.catalog.get(key));
         if (c == null) { categories(p); return; }
         List<ShopState.Offer> list = new ArrayList<>(c.offers);
+        int pages = Math.max(1, (list.size() + PAGE - 1) / PAGE);
+        int pg = Math.max(0, Math.min(page, pages - 1));
         Map<Integer, Item> icons = new HashMap<>();
-        for (int i = 0; i < list.size() && i < ShopState.MAX_OFFERS; i++) {
-            ShopState.Offer o = list.get(i);
-            Item it = Item.get(o.id, o.meta, o.amount);
+        for (int i = 0; i < PAGE && pg * PAGE + i < list.size(); i++) {
+            ShopState.Offer o = list.get(pg * PAGE + i);
+            Item it = Item.get(o.id, o.meta, Math.max(1, Math.min(64, o.amount)));
             icons.put(i, named(it, M.t("oferta_icone", o.amount, it.getName(), ShopState.money(o.price))));
         }
         icons.put(BACK, named(Item.get(262, 0, 1), M.t("botao_voltar")));
-        EconomyService eco = getServer().getServiceManager().load(EconomyService.class);
-        if (eco != null) { icons.put(BALANCE, named(Item.get(339, 0, 1), M.t("botao_saldo", "$ " + ShopState.money(eco.balance(p.getName(), Currency.MONEY))))); }
+        if (pg > 0) { icons.put(PREV, named(Item.get(262, 0, 1), M.t("pagina_anterior", pg, pages))); }
+        if (pg + 1 < pages) { icons.put(NEXT, named(Item.get(262, 0, 1), M.t("proxima_pagina", pg + 2, pages))); }
+        icons.put(BALANCE, named(Item.get(339, 0, 1), M.t("botao_saldo", "$ " + ShopState.money(balance(p)))));
         icons.put(SELL_ALL, named(Item.get(266, 0, 1), M.t("botao_vender_tudo")));
         String title = (c.title.isEmpty() ? key : c.title).replace('&', '§');
         menus().open(p, title, icons, (who, slot) -> {
             if (slot == BACK) { categories(who); return; }
+            if (slot == PREV && pg > 0) { offers(who, key, pg - 1); return; }
+            if (slot == NEXT && pg + 1 < pages) { offers(who, key, pg + 1); return; }
             if (slot == SELL_ALL) { getServer().dispatchCommand(who, "vender tudo"); return; }
-            if (slot < 0 || slot >= list.size()) { return; }
-            ShopState.Offer o = list.get(slot);
+            int index = pg * PAGE + slot;
+            if (slot < 0 || slot >= PAGE || index >= list.size()) { return; }
+            quantity(who, key, pg, list.get(index));
+        });
+    }
+
+    private long balance(Player p) { EconomyService eco = getServer().getServiceManager().load(EconomyService.class); return eco == null ? 0 : eco.balance(p.getName(), Currency.MONEY); }
+
+    /** Preco de n unidades a partir do preco do pacote (arredonda o centavo para cima). */
+    static long cost(ShopState.Offer o, int n) { return (o.price * n + o.amount - 1) / o.amount; }
+
+    /** Escolha da quantidade: 1, 16 ou 64 (o que couber na pilha do item). */
+    private void quantity(Player p, String key, int page, ShopState.Offer o) {
+        Item base = Item.get(o.id, o.meta, 1);
+        int stack = Math.max(1, base.getMaxStackSize());
+        int[] options = stack >= 64 ? new int[] {1, 16, 64} : stack >= 16 ? new int[] {1, 16} : new int[] {1};
+        int[] slots = {11, 13, 15};
+        Map<Integer, Item> icons = new HashMap<>();
+        for (int i = 0; i < options.length; i++) {
+            icons.put(slots[i], named(Item.get(o.id, o.meta, options[i]), M.t("quantidade_icone", options[i], base.getName(), ShopState.money(cost(o, options[i])))));
+        }
+        icons.put(BACK, named(Item.get(262, 0, 1), M.t("botao_voltar")));
+        icons.put(BALANCE, named(Item.get(339, 0, 1), M.t("botao_saldo", "$ " + ShopState.money(balance(p)))));
+        menus().open(p, M.t("titulo_quantidade"), icons, (who, slot) -> {
+            if (slot == BACK) { offers(who, key, page); return; }
+            for (int i = 0; i < options.length; i++) { if (slot == slots[i]) { confirm(who, key, page, o, options[i]); return; } }
+        });
+    }
+
+    /** Confirmar ou cancelar; confirmar compra e volta para a mesma pagina, para continuar comprando. */
+    private void confirm(Player p, String key, int page, ShopState.Offer o, int n) {
+        Item base = Item.get(o.id, o.meta, Math.min(64, n));
+        long total = cost(o, n);
+        Map<Integer, Item> icons = new HashMap<>();
+        icons.put(13, named(base, M.t("confirmar_item", n, Item.get(o.id, o.meta).getName(), ShopState.money(total))));
+        icons.put(11, named(Item.get(35, 5, 1), M.t("botao_confirmar_compra", ShopState.money(total))));
+        icons.put(15, named(Item.get(35, 14, 1), M.t("botao_cancelar_compra")));
+        icons.put(BALANCE, named(Item.get(339, 0, 1), M.t("botao_saldo", "$ " + ShopState.money(balance(p)))));
+        menus().open(p, M.t("titulo_confirmar"), icons, (who, slot) -> {
+            if (slot == 15) { offers(who, key, page); return; }
+            if (slot != 11) { return; }
             String busyKey = "comprar:" + who.getName().toLowerCase(Locale.ROOT);
             if (!busy.add(busyKey)) { return; }
             CompletableFuture<String> result;
             try {
-                Shop shop = new Shop(); shop.id = o.id; shop.meta = o.meta; shop.amount = o.amount; shop.price = o.price;
-                result = buyFromServer(who, shop, Item.get(o.id, o.meta, o.amount));
+                Shop shop = new Shop(); shop.id = o.id; shop.meta = o.meta; shop.amount = n; shop.price = total;
+                result = buyFromServer(who, shop, Item.get(o.id, o.meta, n));
             } catch (RuntimeException e) { result = PersistentState.failed(e); }
             result.whenComplete((message, error) -> {
                 busy.remove(busyKey);
                 if (!who.isOnline()) { return; }
                 who.sendMessage(PREFIX + (error != null ? "§c" + root(error) : message));
             });
+            offers(who, key, page);
         });
     }
 

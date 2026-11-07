@@ -1,0 +1,98 @@
+# Mensagens do GoldRankup. & = cor, {0} {1} = valores, | no nome de item = nao usado aqui (\n quebra linha nos icones).
+prefixo: "&8[&aRankup&8] &r"
+carregando: "&7Carregando seu rank, tente em instantes."
+goldcore_precisa_estar_ativo: "O GoldCore precisa estar ativo antes do GoldRankup."
+progresso_invalido: "Progresso de rank invalido."
+configuracao_invalida: "Configuracao do Rankup invalida."
+nome_invalido: "Nome invalido: ate 24 letras minusculas, numeros ou _."
+composicao_invalida: "Composicao invalida. Use id[:meta]=peso separados por virgula (ex.: 1=80,16=20)."
+# {0} = permissao
+permissao_proibida: "Permissao proibida num rank: {0} (sem curinga, OP, staff ou bypass)."
+# {0} = mina
+mina_invalida: "Mina invalida: {0}."
+numero_invalido: "Numero invalido."
+jogador_invalido: "Jogador invalido."
+# {0} = jogador
+falha_ao_carregar_rank: "Nao foi possivel carregar o rank de {0}."
+# ---------- placeholders ----------
+rank_maximo: "&e&lMaximo"
+# ---------- /rankup ----------
+titulo_rankup: "&8Rankup"
+# {0} = rank
+menu_rank_atual: "&7Seu rank\n{0}"
+# {0} = rank, {1} = preco, {2} = mina liberada
+menu_rank_proximo: "&aProximo rank\n{0}\n&fPreco: &a{1}{2}"
+# {0} = mina
+libera_mina: "\n&7Libera a mina {0}"
+# {0} = saldo, {1} = progresso
+menu_seu_saldo: "&fSeu dinheiro\n&a{0}\n&7Progresso: &e{1}%"
+# {0} = preco
+botao_confirmar_rankup: "&a&lConfirmar\n&7Pagar {0} e subir"
+# {0} = quanto falta
+botao_faltam: "&c&lSem dinheiro\n&7Faltam {0}"
+botao_cancelar: "&c&lCancelar"
+voce_ja_esta_no_rank_maximo: "&eVoce ja esta no rank maximo."
+# {0} = quanto falta
+dinheiro_insuficiente: "&cDinheiro insuficiente: faltam {0}."
+rank_mudou: "Seu rank mudou enquanto pagava."
+rankup_falhou_dinheiro_devolvido: "&cNao foi possivel subir de rank agora. O dinheiro foi devolvido."
+# {0} = rank
+voce_subiu_para: "&aVoce subiu para {0}&a!"
+# {0} = mina
+mina_liberada: "&aMina liberada: &f{0}&a. Use /minas."
+# {0} = jogador, {1} = rank
+anuncio_rankup: "&e{0} &7subiu para {1}&7!"
+# ---------- /ranks ----------
+titulo_ranks: "&8Ranks"
+# {0} = rank, {1} = preco, {2} = estado
+rank_icone: "{0}\n&7Preco: &f{1}\n{2}"
+rank_conquistado: "&aConquistado"
+rank_atual: "&e&lSeu rank"
+# {0} = progresso
+rank_proximo_pct: "&fProximo: &e{0}%\n&7Toque para subir"
+rank_bloqueado: "&8Bloqueado"
+botao_ir_para_rankup: "&a&lRankup\n&7Toque para subir de rank"
+# ---------- /minas ----------
+titulo_minas: "&8Minas"
+# {0} = mina, {1} = estado
+mina_icone: "&f&l{0}\n{1}"
+mina_liberada_toque: "&aLiberada - toque para ir"
+# {0} = rank necessario
+mina_bloqueada_precisa: "&cBloqueada: precisa de {0}"
+mina_em_construcao: "&7Em construcao"
+# {0} = rank necessario
+mina_precisa_do_rank: "&cEsta mina precisa de {0}"
+so_dentro_das_minas: "&cAqui so se quebra dentro das minas."
+nao_pode_colocar_nas_minas: "&cNao da para colocar blocos nas minas."
+mina_regenerando: "&eA mina esta regenerando..."
+# {0} = mina
+mina_regenera_em_10s: "&eA mina {0} regenera em 10 segundos!"
+# {0} = mina
+mina_regenerada: "&aMina {0} regenerada."
+voce_foi_para_o_topo: "&eA mina vai regenerar: voce foi para a borda."
+# ---------- /mina e /rankadmin (admin) ----------
+uso_mina: "/mina lista | gerarmundo <mundo> | criar <id> <mundo> <x1> <y1> <z1> <x2> <y2> <z2> | composicao <id> <id[:meta]=peso,...> | rank <id> <rank> | tempo <id> <min> | porcentagem <id> <pct> | topo <id> <x> <y> <z> [yaw] | nome <id> <nome> | resetar <id> | apagar <id>"
+uso_rankadmin: "/rankadmin set <jogador> <rank> | reset <jogador>"
+limite_de_minas: "Limite de minas atingido."
+# {0} = mina
+mina_inexistente: "Mina {0} nao existe."
+# {0} = mina
+mina_salva: "Mina {0} salva."
+# {0} = mina
+mina_apagada: "Mina {0} apagada."
+# {0} = mina
+mina_regenerando_agora: "Mina {0} regenerando."
+# {0} = mina
+mina_nao_regenerou: "Mina {0} nao regenerou (sem lugar, mundo ou ja regenerando)."
+# {0} = linha
+mina_montada: "Mina montada: {0}"
+# {0} = id, {1} = nome, {2} = lugar, {3} = rank, {4} = minutos, {5} = %, {6} = % minerado agora
+mina_linha: "&e{0} &f{1} &7{2} &frank {3} &7{4} min / {5}% &8(minerado {6}%)"
+# {0} = mundo
+mundo_inexistente: "Mundo {0} nao existe."
+# {0} = rank
+rank_inexistente: "Rank {0} nao existe."
+# {0} = jogador, {1} = rank
+rank_definido: "Rank de {0}: {1}"
+# {0} = rank
+seu_rank_agora: "&aSeu rank agora e {0}&a."

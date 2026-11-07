@@ -7,7 +7,7 @@ ORDEM = [
     ("Lobby e jogadores", ["GoldEssentials", "GoldChat", "GoldHud", "GoldNPC", "GoldProtect", "GoldWorld", "GoldDevice", "GoldCosmetics"]),
     ("Equipe e suporte", ["GoldStaff"]),
     ("Economia, loja e VIP", ["GoldTags", "GoldShop", "GoldMarket", "GoldKits", "GoldVault", "GoldVip", "GoldKeys", "GoldCrates", "GoldEnchant", "GoldBreaker"]),
-    ("Modos de jogo", ["GoldPvP", "GoldFactions", "GoldSkills", "GoldHG", "GoldSkyWars", "GoldBedWars", "GoldParty"]),
+    ("Modos de jogo", ["GoldPvP", "GoldFactions", "GoldSkills", "GoldRankup", "GoldPlots", "GoldHG", "GoldSkyWars", "GoldBedWars", "GoldParty"]),
     ("Ferramentas", ["GoldBuild"]),
 ]
 
@@ -494,6 +494,28 @@ GUIAS = {
     secoes=[("Provas", ["- corrida_mortal, grappler, kangaroo, color_floor, tnt_run, pvp_mlg, fisherman, sumo, water_drop, arqueiro (ids para provas_desligadas)."]),
             ("Comandos", ["- /party entrar, sair, top, stats [nick], salas. Admin: /party iniciar e /party reconstruir."])],
     dicas=["blocos_por_tick limita a montagem das arenas somando todas as salas: abrir várias salas não causa lag."],
+),
+"GoldRankup": dict(
+    resumo="Rankup: 20 ranks pagos com money (Pedra I a Lendário II), cada um com tag, permissões e a mina que libera, e minas que se regeneram sozinhas.",
+    passos=[
+        "Crie o mundo das minas e monte as 10 minas de uma vez: mundo criar minas void e depois mina gerarmundo minas (pátio, avenida e minas 15x15 com 20 de fundo).",
+        "Ajuste os preços no /painel (GoldRankup, preco.<rank>, em reais) e a tabela de venda dos minérios no GoldShop (/preco).",
+        "Coloque {rank} no formato do chat da zona e {rank} {rank_progresso} na barra (zona hud).",
+        "Crie os kits de ferramenta por grupo: kit criaritens ferramentas_pedra 60 274:1,273:1,275:1,297:16 restrito (os ranks já dão goldkits.kit.ferramentas_<grupo>).",
+    ],
+    secoes=[("Jogadores", ["- /rankup: confirmação com preço e saldo; toque duplo não cobra duas vezes.", "- /ranks: todos os ranks e o progresso em %.", "- /minas: as liberadas levam até a mina; as bloqueadas mostram o rank necessário."]),
+            ("Minas", ["- Regeneram a cada N minutos ou quando N% foi minerado, com aviso 10 s antes; quem está dentro vai para a borda.", "- Só se quebram os blocos da mina; colocar bloco não. Fortuna multiplica os minérios.", "$ mina composicao pedra 1=80,16=20", "$ mina tempo pedra 10", "$ mina porcentagem pedra 70", "$ mina resetar pedra"])],
+    dicas=["As permissões dos ranks nunca podem ser OP, staff, curinga ou bypass: o plugin recusa.", "Admin: /rankadmin set <jogador> <rank> e /rankadmin reset <jogador> (só OP)."],
+),
+"GoldPlots": dict(
+    resumo="Terrenos infinitos para o Rankup com as medidas do plotworld do pack (plot 42x42, borda com laje, rua de 11), comprados com money e protegidos.",
+    passos=[
+        "O mundo plots é o plotworld do pack convertido; além dele o gerador goldplots continua a mesma grade. Não mude grade.* no painel depois de criar o mundo.",
+        "Preço e limite no painel (preco, limite_padrao). O GoldRankup dá goldplots.limite.1 a 4 pelo rank; dê mais ao VIP com /grupo permissao vip goldplots.limite.6 true.",
+        "Sem PvP no mundo: mundoprotecao plots pvp off.",
+    ],
+    secoes=[("Jogadores", ["- /plot abre o menu: comprar este, automático, meus plots, informações, membros, limpar e ir aos plots.", "- /plot auto compra o livre mais perto do centro e leva até ele.", "- /plot add <jogador> e /plot remover <jogador>: quem pode construir."])],
+    dicas=["Dois jogadores comprando o mesmo plot ao mesmo tempo: só um leva, e o outro não paga.", "/plot limpar repõe o chão original aos poucos, sem travar."],
 ),
 "GoldBuild": dict(
     resumo="Edição de mundo (estilo WorldEdit) pensada para o celular: varinha de machado de madeira para marcar a área e menu na hotbar para escolher a operação e o bloco, sem digitar id. Aplica até 4000 blocos por tick, sem travar o servidor.",

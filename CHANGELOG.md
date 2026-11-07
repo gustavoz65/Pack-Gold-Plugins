@@ -6,6 +6,27 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 
 ---
 
+## 0.4.3 — Rankup alpha: ranks, minas, plots e loja completa (07/11/2026)
+
+### Novo
+- **GoldRankup** (plugin novo): 20 ranks com preço em money, tag, permissões e mina; `/rankup` com confirmação, `/ranks` com progresso, `/minas` em menu, placeholders `{rank}` `{rank_proximo}` `{rank_preco}` `{rank_progresso}` e `/rankadmin`.
+- **Minas que se regeneram** (no GoldRankup): composição em %, regeneração por tempo ou por %, aviso 10 s antes, quem está dentro vai para a borda, reposição por tick, proteção (só os blocos da mina), fortuna e `/mina gerarmundo`.
+- **GoldPlots** (plugin novo): mundo de plots do pack convertido e continuado pela grade, `/plot` em menu, compra segura, limite por rank/VIP, membros, limpar aos poucos e proteção.
+- **GoldShop**: `/comprar` com páginas (até 135 itens por categoria), escolha de 1, 16 ou 64 e tela de confirmação, tudo na mesma janela; volta para a página depois de comprar.
+- **GoldKits**: `kit criaritens <nome> <min> <id[:meta]:qtd,...> [restrito]` pelo console.
+- **GoldWorld**: gerador `void` (mapas convertidos do PC dizem "void"; sem ele o Nukkit criaria terreno), `mundo dia|sol <mundo>` e `mundo borda <mundo> <raio>`.
+- **GoldEssentials**: `entrar_no_spawn` (padrão 1): todo jogador entra no hub, trocando o mundo salvo antes do Nukkit carregá-lo.
+- **Conversor** (`ferramentas/conversor-pc`): troca blocos que não existem no MCPE 0.15 e derrubam o cliente (sinalizador, ender chest, bloco de comando, jukebox, prismarinho, lanterna do mar, vidro e painel colorido, barreira, estandarte).
+- Testes novos: `ra/TesteRankupAlpha` (ciclo completo, abusos e todas as telas pelo pacote real).
+
+### Corrigido
+- **Mapas**: o `FactionsLobby` do pack derrubava o celular (sinalizador, que não existe no 0.15); Submerged e Villa do SkyWars tinham prismarinho e lanterna do mar (também da 0.16); o HG tinha sinalizador, ender chest, bloco de comando e jukebox. Todos saneados, inclusive as cópias de reset.
+- **GoldComandos**: `zona mundo` tira da zona um mundo que já foi apagado.
+- **GoldShop**: mensagens de compra e venda que estavam fixas no código foram para o `mensagens.yml`.
+- **Testes**: `TesteSkyMythic` espera as gravações assíncronas (passa inteiro de novo).
+
+---
+
 ## 0.4.3 — loja do servidor, caixas, fila do SkyWars e arenas pelo console (07/11/2026)
 
 ### Novo

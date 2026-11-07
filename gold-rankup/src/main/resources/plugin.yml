@@ -1,0 +1,16 @@
+name: GoldRankup
+main: br.goldsuite.rankup.GoldRankup
+version: "0.4.3"
+api: ["1.0.0"]
+depend: [GoldCore, GoldEconomy]
+softdepend: [GoldWorld]
+author: gustavoz65
+description: "Rankup: escada de ranks pagos com money, permissoes por rank e minas que se regeneram"
+commands:
+ rankup: {description: "Sobe para o proximo rank (menu de confirmacao)", usage: "/rankup", aliases: [upar]}
+ ranks: {description: "Lista os ranks e o seu progresso", usage: "/ranks"}
+ minas: {description: "Abre o menu das minas", usage: "/minas [mina]", aliases: [mine]}
+ mina: {description: "Administra as minas", usage: "/mina lista|gerarmundo|criar|composicao|rank|tempo|porcentagem|topo|nome|resetar|apagar", permission: goldrankup.admin}
+ rankadmin: {description: "Define ou zera o rank de um jogador", usage: "/rankadmin set <jogador> <rank> | reset <jogador>", permission: goldrankup.admin}
+permissions:
+ goldrankup.admin: {default: op, description: "Administra ranks e minas e quebra blocos fora das minas"}

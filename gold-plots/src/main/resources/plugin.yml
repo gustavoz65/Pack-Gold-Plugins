@@ -1,0 +1,11 @@
+name: GoldPlots
+main: br.goldsuite.plots.GoldPlots
+version: "0.4.3"
+api: ["1.0.0"]
+depend: [GoldCore, GoldEconomy]
+author: gustavoz65
+description: "Terrenos infinitos: mundo gerado pela grade, compra com money, membros, limite por permissao e limpeza aos poucos"
+commands:
+ plot: {description: "Terrenos: menu, comprar, auto, home, info, add, remover, limpar", usage: "/plot [comprar|auto|home [n]|info|add <jogador>|remover <jogador>|limpar|ir]", aliases: [plots, terreno, p]}
+permissions:
+ goldplots.admin: {default: op, description: "Constroi e limpa em qualquer plot"}

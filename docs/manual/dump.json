@@ -56,6 +56,7 @@
 ,{"plugin":"GoldDevice","key":"prefixo","kind":"TEXTO","def":"§b[§3Aparelho§b]§f ","desc":"Prefixo das mensagens"}
 ,{"plugin":"GoldEconomy","key":"banco.valores","kind":"TEXTO","def":"5000,25000,50000,100000,500000","desc":"Valores dos botoes de deposito e saque do /banco (ate 5, separados por virgula)"}
 ,{"plugin":"GoldEnchant","key":"prefixo","kind":"TEXTO","def":"§5[§dEncantar§5]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldEssentials","key":"entrar_no_spawn","kind":"NUMERO","def":"1","desc":"1 = todo jogador entra no spawn do servidor (hub), nao onde saiu"}
 ,{"plugin":"GoldEssentials","key":"loja.espera","kind":"NUMERO","def":"30","desc":"Segundos entre um /loja e outro"}
 ,{"plugin":"GoldEssentials","key":"luz.espera","kind":"NUMERO","def":"0","desc":"Segundos entre um /luz e outro (0 = sem espera)"}
 ,{"plugin":"GoldEssentials","key":"mundovip.sem_vip","kind":"TEXTO","def":"&cOpa, este e o mundo VIP. Para acessa-lo adquira um VIP no nosso site.","desc":"Mensagem para quem nao e VIP (| quebra a linha)"}
@@ -84,6 +85,15 @@
 ,{"plugin":"GoldParty","key":"premio_3","kind":"NUMERO","def":"7500","desc":"Premio do 3o lugar (centavos)"}
 ,{"plugin":"GoldParty","key":"provas_desligadas","kind":"TEXTO","def":"nenhuma","desc":"Provas fora do sorteio, separadas por virgula (ex.: sumo,water_drop)"}
 ,{"plugin":"GoldParty","key":"provas_por_partida","kind":"NUMERO","def":"5","desc":"Quantas provas sao sorteadas por partida"}
+,{"plugin":"GoldPlots","key":"grade.altura","kind":"NUMERO","def":"64","desc":"Altura do chao (NAO mude depois de criar o mundo)"}
+,{"plugin":"GoldPlots","key":"grade.deslocamento","kind":"NUMERO","def":"5","desc":"Deslocamento da grade (5 = casa com o plotworld do pack; NAO mude depois)"}
+,{"plugin":"GoldPlots","key":"grade.rua","kind":"NUMERO","def":"11","desc":"Largura da rua (NAO mude depois de criar o mundo)"}
+,{"plugin":"GoldPlots","key":"grade.tamanho","kind":"NUMERO","def":"42","desc":"Lado do plot (NAO mude depois de criar o mundo)"}
+,{"plugin":"GoldPlots","key":"limite_padrao","kind":"NUMERO","def":"1","desc":"Plots de quem nao tem goldplots.limite.<n>"}
+,{"plugin":"GoldPlots","key":"limpar.blocos_por_tick","kind":"NUMERO","def":"2000","desc":"Blocos repostos por tick ao limpar um plot"}
+,{"plugin":"GoldPlots","key":"mundo","kind":"TEXTO","def":"plots","desc":"Mundo de plots (crie com: mundo criar plots goldplots)"}
+,{"plugin":"GoldPlots","key":"preco","kind":"NUMERO","def":"1500","desc":"Preco do plot em money"}
+,{"plugin":"GoldPlots","key":"prefixo","kind":"TEXTO","def":"§8[§aPlots§8] §r","desc":"Prefixo das mensagens"}
 ,{"plugin":"GoldProtect","key":"antidupe.avisar_staff","kind":"NUMERO","def":"0","desc":"1 = avisa a staff quando alguem tenta"}
 ,{"plugin":"GoldProtect","key":"antidupe.barco","kind":"NUMERO","def":"1","desc":"1 = ninguem sobe em barco"}
 ,{"plugin":"GoldProtect","key":"antidupe.carrinho","kind":"NUMERO","def":"1","desc":"1 = ninguem sobe em carrinho (dupe classico)"}
@@ -94,6 +104,29 @@
 ,{"plugin":"GoldPvP","key":"fraude.advertencias_para_expulsar","kind":"NUMERO","def":"3","desc":"Advertencias em 24 h que expulsam"}
 ,{"plugin":"GoldPvP","key":"fraude.expulsao","kind":"TEXTO","def":"Fraude no PvP detectada ({motivo}).","desc":"Motivo da expulsao ({motivo})"}
 ,{"plugin":"GoldPvP","key":"prefixo","kind":"TEXTO","def":"§4[§cPvP§4]§f ","desc":"Prefixo das mensagens"}
+,{"plugin":"GoldRankup","key":"anuncio","kind":"NUMERO","def":"1","desc":"1 = anuncia no chat quando alguem sobe de rank"}
+,{"plugin":"GoldRankup","key":"minas.blocos_por_tick","kind":"NUMERO","def":"2000","desc":"Blocos repostos por tick somando todas as minas"}
+,{"plugin":"GoldRankup","key":"preco.carvao_1","kind":"NUMERO","def":"950","desc":"Preco em money para chegar no rank Carvao I"}
+,{"plugin":"GoldRankup","key":"preco.carvao_2","kind":"NUMERO","def":"2400","desc":"Preco em money para chegar no rank Carvao II"}
+,{"plugin":"GoldRankup","key":"preco.diamante_1","kind":"NUMERO","def":"34700","desc":"Preco em money para chegar no rank Diamante I"}
+,{"plugin":"GoldRankup","key":"preco.diamante_2","kind":"NUMERO","def":"62600","desc":"Preco em money para chegar no rank Diamante II"}
+,{"plugin":"GoldRankup","key":"preco.esmeralda_1","kind":"NUMERO","def":"66500","desc":"Preco em money para chegar no rank Esmeralda I"}
+,{"plugin":"GoldRankup","key":"preco.esmeralda_2","kind":"NUMERO","def":"109100","desc":"Preco em money para chegar no rank Esmeralda II"}
+,{"plugin":"GoldRankup","key":"preco.ferro_1","kind":"NUMERO","def":"3000","desc":"Preco em money para chegar no rank Ferro I"}
+,{"plugin":"GoldRankup","key":"preco.ferro_2","kind":"NUMERO","def":"6100","desc":"Preco em money para chegar no rank Ferro II"}
+,{"plugin":"GoldRankup","key":"preco.lapis_1","kind":"NUMERO","def":"15250","desc":"Preco em money para chegar no rank Lapis I"}
+,{"plugin":"GoldRankup","key":"preco.lapis_2","kind":"NUMERO","def":"22600","desc":"Preco em money para chegar no rank Lapis II"}
+,{"plugin":"GoldRankup","key":"preco.lendario_1","kind":"NUMERO","def":"219900","desc":"Preco em money para chegar no rank Lendario I"}
+,{"plugin":"GoldRankup","key":"preco.lendario_2","kind":"NUMERO","def":"537700","desc":"Preco em money para chegar no rank Lendario II"}
+,{"plugin":"GoldRankup","key":"preco.obsidiana_1","kind":"NUMERO","def":"115150","desc":"Preco em money para chegar no rank Obsidiana I"}
+,{"plugin":"GoldRankup","key":"preco.obsidiana_2","kind":"NUMERO","def":"204350","desc":"Preco em money para chegar no rank Obsidiana II"}
+,{"plugin":"GoldRankup","key":"preco.ouro_1","kind":"NUMERO","def":"7250","desc":"Preco em money para chegar no rank Ouro I"}
+,{"plugin":"GoldRankup","key":"preco.ouro_2","kind":"NUMERO","def":"13200","desc":"Preco em money para chegar no rank Ouro II"}
+,{"plugin":"GoldRankup","key":"preco.pedra_1","kind":"NUMERO","def":"0","desc":"Preco em money para chegar no rank Pedra I"}
+,{"plugin":"GoldRankup","key":"preco.pedra_2","kind":"NUMERO","def":"650","desc":"Preco em money para chegar no rank Pedra II"}
+,{"plugin":"GoldRankup","key":"preco.redstone_1","kind":"NUMERO","def":"24500","desc":"Preco em money para chegar no rank Redstone I"}
+,{"plugin":"GoldRankup","key":"preco.redstone_2","kind":"NUMERO","def":"32400","desc":"Preco em money para chegar no rank Redstone II"}
+,{"plugin":"GoldRankup","key":"prefixo","kind":"TEXTO","def":"§8[§aRankup§8] §r","desc":"Prefixo das mensagens"}
 ,{"plugin":"GoldShop","key":"prefixo","kind":"TEXTO","def":"§2[§aLoja§2]§f ","desc":"Prefixo das mensagens"}
 ,{"plugin":"GoldSkills","key":"anuncio.mensagem","kind":"TEXTO","def":"&6&lHABILIDADES: &f{jogador} &eatingiu o nivel &6{nivel} &ena habilidade de &6{habilidade}&e!","desc":"Anuncio de nivel ({jogador}, {nivel}, {habilidade})"}
 ,{"plugin":"GoldSkills","key":"anuncio.niveis","kind":"TEXTO","def":"50,100,200,300,400,500,600,700,800,900,1000","desc":"Niveis anunciados para todos (separados por virgula; vazio = nenhum)"}
@@ -184,6 +217,11 @@
 ,{"plugin":"GoldEconomy","name":"trocarcash","desc":"Troca cada cash por 100 moedas","usage":"/trocarcash <quantidade>","perm":null,"aliases":""}
 ,{"plugin":"GoldEconomy","name":"topmoney","desc":"Mostra os dez maiores saldos","usage":"/topmoney","perm":null,"aliases":""}
 ,{"plugin":"GoldEconomy","name":"economia","desc":"Administra moedas e cash","usage":"/economia <adicionar/retirar/definir> <money/cash> <jogador> <valor>","perm":"goldeconomy.admin","aliases":""}
+,{"plugin":"GoldRankup","name":"rankup","desc":"Sobe para o proximo rank (menu de confirmacao)","usage":"/rankup","perm":null,"aliases":"upar"}
+,{"plugin":"GoldRankup","name":"ranks","desc":"Lista os ranks e o seu progresso","usage":"/ranks","perm":null,"aliases":""}
+,{"plugin":"GoldRankup","name":"minas","desc":"Abre o menu das minas","usage":"/minas [mina]","perm":null,"aliases":"mine"}
+,{"plugin":"GoldRankup","name":"mina","desc":"Administra as minas","usage":"/mina lista|gerarmundo|criar|composicao|rank|tempo|porcentagem|topo|nome|resetar|apagar","perm":"goldrankup.admin","aliases":""}
+,{"plugin":"GoldRankup","name":"rankadmin","desc":"Define ou zera o rank de um jogador","usage":"/rankadmin set <jogador> <rank> | reset <jogador>","perm":"goldrankup.admin","aliases":""}
 ,{"plugin":"GoldBuild","name":"we","desc":"Edicao de mundo","usage":"/we varinha|pos1|pos2|set|walls|replace|esfera|undo","perm":"goldbuild.admin","aliases":"worldedit,magicwe"}
 ,{"plugin":"GoldCrates","name":"caixa","desc":"Gerencia caixas e entrega chaves","usage":"/caixa","perm":"goldcrates.admin","aliases":"crate"}
 ,{"plugin":"GoldCrates","name":"caixas","desc":"Compra caixas misteriosas","usage":"/caixas","perm":null,"aliases":"comprarcaixa"}
@@ -211,6 +249,7 @@
 ,{"plugin":"GoldEssentials","name":"mundovip","desc":"Vai ao mundo VIP","usage":"/mundovip | /mundovip definir|remover","perm":null,"aliases":""}
 ,{"plugin":"GoldEssentials","name":"tpall","desc":"Traz todos ate voce","usage":"/tpall","perm":"goldessentials.admin","aliases":""}
 ,{"plugin":"GoldNPC","name":"npc","desc":"Cria e configura NPCs","usage":"/npc","perm":"goldnpc.admin","aliases":"slapper"}
+,{"plugin":"GoldPlots","name":"plot","desc":"Terrenos: menu, comprar, auto, home, info, add, remover, limpar","usage":"/plot [comprar|auto|home [n]|info|add <jogador>|remover <jogador>|limpar|ir]","perm":null,"aliases":"plots,terreno,p"}
 ,{"plugin":"GoldHG","name":"hg","desc":"Hunger Games","usage":"/hg entrar [arena] | sair | lista","perm":null,"aliases":""}
 ,{"plugin":"GoldHG","name":"hgkit","desc":"Escolhe o kit do HG","usage":"/hgkit [nome]","perm":null,"aliases":""}
 ,{"plugin":"GoldHG","name":"hgkits","desc":"Abre o menu de kits do HG","usage":"/hgkits","perm":null,"aliases":""}
@@ -227,7 +266,7 @@
 ,{"plugin":"GoldPvP","name":"topkills","desc":"Ranking de abates","usage":"/topkills","perm":null,"aliases":"topabates"}
 ,{"plugin":"GoldPvP","name":"topranked","desc":"Ranking do ranked","usage":"/topranked","perm":null,"aliases":"toprank"}
 ,{"plugin":"GoldPvP","name":"ranked","desc":"Modo ranked 1v1","usage":"/ranked [fila|sair]","perm":null,"aliases":"rank,x1"}
-,{"plugin":"GoldPvP","name":"elos","desc":"Lista de elos do ranked","usage":"/elos","perm":null,"aliases":"ranks"}
+,{"plugin":"GoldPvP","name":"elos","desc":"Lista de elos do ranked","usage":"/elos","perm":null,"aliases":""}
 ,{"plugin":"GoldPvP","name":"elochat","desc":"Mostra ou esconde o elo no chat","usage":"/elochat","perm":null,"aliases":""}
 ,{"plugin":"GoldKeys","name":"key","desc":"Loja de keys","usage":"/key [produtos|comprar <produto>|resgatar <codigo>]","perm":null,"aliases":"keys,chave"}
 ,{"plugin":"GoldStaff","name":"welcomebook","desc":"Boas-vindas, regras e suporte","usage":"/welcomebook [reload]","perm":null,"aliases":"boasvindas"}
@@ -302,6 +341,7 @@
 ,{"plugin":"GoldVault","name":"goldvault.usar","desc":"Usa o bau pessoal","def":"true"}
 ,{"plugin":"GoldVault","name":"goldvault.admin","desc":"Abre o bau de outros jogadores","def":"op"}
 ,{"plugin":"GoldEconomy","name":"goldeconomy.admin","desc":"Altera os saldos de outras contas","def":"op"}
+,{"plugin":"GoldRankup","name":"goldrankup.admin","desc":"Administra ranks e minas e quebra blocos fora das minas","def":"op"}
 ,{"plugin":"GoldBuild","name":"goldbuild.admin","desc":"Usa a edicao de mundo","def":"op"}
 ,{"plugin":"GoldCrates","name":"goldcrates.admin","desc":"Cria caixas e da chaves","def":"op"}
 ,{"plugin":"GoldCosmetics","name":"goldcosmetics.admin","desc":"Entrega cosmeticos","def":"op"}
@@ -317,6 +357,7 @@
 ,{"plugin":"GoldEssentials","name":"goldessentials.setloja","desc":"Marca a propria loja com /setloja (dar ao VIP)","def":"op"}
 ,{"plugin":"GoldEssentials","name":"goldessentials.mundovip","desc":"Entra no mundo VIP (dar ao VIP)","def":"op"}
 ,{"plugin":"GoldNPC","name":"goldnpc.admin","desc":"Cria, edita e remove NPCs","def":"op"}
+,{"plugin":"GoldPlots","name":"goldplots.admin","desc":"Constroi e limpa em qualquer plot","def":"op"}
 ,{"plugin":"GoldHG","name":"goldhg.admin","desc":"Cria arenas e controla partidas","def":"op"}
 ,{"plugin":"GoldPerms","name":"goldperms.admin","desc":"Administra grupos e permissoes","def":"op"}
 ,{"plugin":"GoldPerms","name":"goldperms.cargo","desc":"Da cargos abaixo do proprio","def":"op"}
@@ -363,7 +404,9 @@
 ,"nivel_desarmado"
 ,"mctop"
 ,"nivel_herbalismo"
+,"rank_progresso"
 ,"sw_prestigio"
+,"rank"
 ,"nivel_reparacao"
 ,"armadura"
 ,"tag"
@@ -373,6 +416,7 @@
 ,"nivel_mineracao"
 ,"nivel_escavacao"
 ,"max"
+,"rank_preco"
 ,"money_exato"
 ,"mundo"
 ,"banco"
@@ -385,9 +429,10 @@
 ,"x"
 ,"kdr"
 ,"clan"
-,"online"
 ,"y"
+,"online"
 ,"z"
 ,"nivel_machado"
 ,"nivel_espadas"
+,"rank_proximo"
 ]}

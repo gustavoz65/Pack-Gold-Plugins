@@ -40,3 +40,14 @@ nao_carregados: "&eNao carregados: {0}"
 mundo_nao_carregado: "&7{0}"
 nenhum_mundo: "&7nenhum"
 dica_mundo_tp: "&7Use /mundo tp <nome> para ir (carrega o mapa na hora)."
+# {0} = mundo
+sempre_dia_ligado: "Mundo {0}: sempre de dia."
+sempre_dia_desligado: "Mundo {0}: o tempo volta a passar."
+sempre_sol_ligado: "Mundo {0}: nunca chove."
+sempre_sol_desligado: "Mundo {0}: chuva liberada."
+fim_do_mapa: "&cFim do mapa."
+borda_de_50_a_100000: "Raio da borda de 50 a 100000 blocos."
+# {0} = mundo, {1} = raio
+borda_definida: "Borda de {0}: {1} blocos a partir do spawn."
+# {0} = mundo
+borda_removida: "Borda de {0} removida."

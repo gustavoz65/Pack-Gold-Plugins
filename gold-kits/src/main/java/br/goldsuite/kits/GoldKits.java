@@ -26,6 +26,7 @@ public final class GoldKits extends PluginBase {
     @Override public void onDisable() { claiming.clear(); if (data != null) { data.close(); } }
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length > 0 && args[0].equalsIgnoreCase("criaritens")) { createFromList(sender, args); return true; }
         if (!(sender instanceof Player)) { sender.sendMessage(M.t("use_dentro_do_jogo")); return true; }
         Player p = (Player) sender;
         AuthService auth = getServer().getServiceManager().load(AuthService.class);
@@ -122,6 +123,29 @@ public final class GoldKits extends PluginBase {
         if (minutes < 60) { return minutes + " min"; }
         if (minutes < 1440) { return (minutes / 60) + " h " + (minutes % 60) + " min"; }
         return (minutes / 1440) + " d " + ((minutes % 1440) / 60) + " h";
+    }
+
+    /** Kit sem inventario (console): /kit criaritens <nome> <minutos> <id[:meta]:qtd,...> [restrito] */
+    private void createFromList(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("goldkits.admin")) { sender.sendMessage(PREFIX + M.t("sem_permissao_kits")); return; }
+        try {
+            if (args.length < 4) { sender.sendMessage(PREFIX + M.t("uso_kit_criaritens")); return; }
+            String name = KitState.name(args[1]);
+            int minutes = Integer.parseInt(args[2]);
+            KitState.KitDef kit = new KitState.KitDef();
+            kit.cooldownMinutes = minutes;
+            kit.restricted = args.length > 4 && args[4].equalsIgnoreCase("restrito");
+            for (String piece : args[3].split(",")) {
+                String[] f = piece.trim().split(":");
+                int id = Integer.parseInt(f[0]), meta = f.length > 2 ? Integer.parseInt(f[1]) : 0, count = Integer.parseInt(f[f.length - 1]);
+                if (f.length < 2 || id < 1 || id > 511 || meta < 0 || meta > 32767 || count < 1 || count > 64) { throw new IllegalArgumentException(M.t("uso_kit_criaritens")); }
+                kit.items.add(ItemData.of(Item.get(id, meta, count)));
+            }
+            if (kit.items.isEmpty() || kit.items.size() > 36) { throw new IllegalArgumentException(M.t("uso_kit_criaritens")); }
+            data.change(s -> { if (s.kits.size() >= 54 && !s.kits.containsKey(name)) { throw new IllegalArgumentException(M.t("limite_de_kits")); } s.kits.put(name, kit); })
+                    .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("kit_salvo_com_itens", name, kit.items.size(), (kit.restricted ? M.t("exige_goldkits_kit", name) : "")))));
+        } catch (NumberFormatException e) { sender.sendMessage(PREFIX + M.t("numero_invalido")); }
+        catch (RuntimeException e) { sender.sendMessage(PREFIX + "§c" + root(e)); }
     }
 
     private void save(Player p, java.util.concurrent.CompletableFuture<?> op, String message) {

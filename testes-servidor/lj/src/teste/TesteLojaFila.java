@@ -150,6 +150,9 @@ public final class TesteLojaFila extends PluginBase {
         step(10, () -> {
             try { menuClick(ana, 0); } catch (Exception e) { errors.add("comprar item: " + e); }
         });
+        // Fluxo do celular: item -> quantidade (64x) -> confirmar.
+        step(10, () -> { try { menuClick(ana, 15); } catch (Exception e) { errors.add("quantidade: " + e); } });
+        step(10, () -> { try { menuClick(ana, 11); } catch (Exception e) { errors.add("confirmar: " + e); } });
         step(20, () -> {
             check(count(ana, 1) == 64 && money(ana) == 100000 - 5000, "Compra na loja: 64 pedras por $50 (" + count(ana, 1) + ", " + money(ana) + ")");
             ((br.goldsuite.api.MenuService) engine()).close(ana);

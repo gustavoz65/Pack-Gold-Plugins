@@ -120,7 +120,7 @@ class Doc(BaseDocTemplate):
         c.setFont('Sans', 16); c.setFillColor(GOLD); c.drawString(2 * cm, h * 0.58, 'Nukkit Gold 0.4.3  ·  MCPE 0.15.10')
         c.setFont('Sans', 11); c.setFillColor(colors.HexColor('#C9D1D9'))
         y = h * 0.45
-        for line in ['Os 31 plugins Gold: o que configurar, em que ordem e com quais comandos.',
+        for line in ['Os 34 plugins Gold: o que configurar, em que ordem e com quais comandos.',
                      'Comandos, permissões e chaves do /painel extraídos de um servidor rodando esta versão.',
                      'Inclui mensagens editáveis, placeholders, receitas de lobby e solução de problemas.']:
             c.drawString(2 * cm, y, line); y -= 0.65 * cm

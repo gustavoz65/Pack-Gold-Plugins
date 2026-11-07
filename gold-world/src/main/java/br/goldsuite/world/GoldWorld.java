@@ -44,13 +44,27 @@ public final class GoldWorld extends PluginBase implements Listener {
     public static final class WorldState {
         public Set<String> realTime = new TreeSet<>();
         public Set<String> autoInv = new TreeSet<>();
+        /** Mundos sempre de dia (meio-dia parado) e sempre sem chuva (lobbies). */
+        public Set<String> alwaysDay = new TreeSet<>();
+        public Set<String> clearWeather = new TreeSet<>();
+        /** Mundo -> raio da borda em blocos a partir do spawn (mundo de terreno gerado, ex.: factions). */
+        public Map<String, Integer> borders = new TreeMap<>();
         public boolean stackMobs = true;
         static void validate(WorldState s) {
-            if (s == null || s.realTime == null || s.autoInv == null || s.realTime.size() > 64 || s.autoInv.size() > 64) { throw new IllegalArgumentException(M.t("configuracao_de_mundos_invalida")); }
+            if (s != null && s.alwaysDay == null) { s.alwaysDay = new TreeSet<>(); }
+            if (s != null && s.clearWeather == null) { s.clearWeather = new TreeSet<>(); }
+            if (s != null && s.borders == null) { s.borders = new TreeMap<>(); }
+            if (s != null) { for (Map.Entry<String, Integer> b : s.borders.entrySet()) { Destination.world(b.getKey()); if (b.getValue() == null || b.getValue() < 50 || b.getValue() > 100000) { throw new IllegalArgumentException(M.t("configuracao_de_mundos_invalida")); } } }
+            if (s == null || s.realTime == null || s.autoInv == null || s.realTime.size() > 64 || s.autoInv.size() > 64 || s.alwaysDay.size() > 64 || s.clearWeather.size() > 64) { throw new IllegalArgumentException(M.t("configuracao_de_mundos_invalida")); }
+            for (String w : s.alwaysDay) { Destination.world(w); }
+            for (String w : s.clearWeather) { Destination.world(w); }
             for (String w : s.realTime) { Destination.world(w); }
             for (String w : s.autoInv) { Destination.world(w); }
         }
     }
+
+    /** O gerador precisa existir antes dos mundos carregarem (mapas "void" convertidos do PC). */
+    @Override public void onLoad() { Generator.addGenerator(VoidGenerator.class, "void", VoidGenerator.TYPE); }
 
     @Override public void onEnable() {
         M.B.attach(this);
@@ -59,7 +73,8 @@ public final class GoldWorld extends PluginBase implements Listener {
         if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new PersistentState<>(core.getStore(), "goldworld", WorldState.class, WorldState::new, WorldState::validate);
         getServer().getPluginManager().registerEvents(this, this);
-        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldWorld>(this) { @Override public void onRun(int tick) { realTime(); } }, 20 * 60);
+        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldWorld>(this) { @Override public void onRun(int tick) { realTime(); dayAndWeather(); } }, 20 * 60);
+        data.ready().thenRun(() -> getServer().getScheduler().scheduleTask(this::dayAndWeather));
     }
 
     @Override public void onDisable() { stacks.clear(); if (data != null) { data.close(); } }
@@ -81,6 +96,49 @@ public final class GoldWorld extends PluginBase implements Listener {
             Level level = getServer().getLevelByName(name);
             if (level != null) { level.setTime(ticks); level.stopTime(); }
         }
+    }
+
+    // ---------- dia e sol fixos ----------
+
+    private void dayAndWeather() {
+        if (!data.isLoaded()) { return; }
+        for (Level level : getServer().getLevels().values()) { apply(level); }
+    }
+
+    private void apply(Level level) {
+        if (!data.isLoaded() || level == null) { return; }
+        String name = level.getFolderName();
+        if (data.read(s -> s.alwaysDay.contains(name))) { level.setTime(6000); level.stopTime(); }
+        if (data.read(s -> s.clearWeather.contains(name)) && level.isRaining()) { level.setRaining(false); level.setThundering(false); }
+    }
+
+    /** Mundo que carrega depois (arena, lobby aberto pelo NPC) ja entra de dia e sem chuva. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void loaded(cn.nukkit.event.level.LevelLoadEvent event) { apply(event.getLevel()); }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void rain(cn.nukkit.event.level.WeatherChangeEvent event) {
+        if (event.toWeatherState() && data.isLoaded() && data.read(s -> s.clearWeather.contains(event.getLevel().getFolderName()))) { event.setCancelled(); }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void thunder(cn.nukkit.event.level.ThunderChangeEvent event) {
+        if (event.toThunderState() && data.isLoaded() && data.read(s -> s.clearWeather.contains(event.getLevel().getFolderName()))) { event.setCancelled(); }
+    }
+
+    // ---------- borda do mundo ----------
+
+    /** Fora da borda o passo e cancelado: o servidor nao precisa gerar terreno novo sem fim (cada chunk novo pesa). */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void border(cn.nukkit.event.player.PlayerMoveEvent event) {
+        if (!data.isLoaded()) { return; }
+        cn.nukkit.level.Location to = event.getTo();
+        Integer radius = data.read(s -> s.borders.isEmpty() ? null : s.borders.get(to.level.getFolderName()));
+        if (radius == null) { return; }
+        cn.nukkit.math.Vector3 spawn = to.level.getSpawnLocation();
+        if (Math.abs(to.x - spawn.x) <= radius && Math.abs(to.z - spawn.z) <= radius) { return; }
+        event.setCancelled();
+        event.getPlayer().sendPopup(M.t("fim_do_mapa"));
     }
 
     // ---------- mobs empilhados ----------
@@ -204,6 +262,28 @@ public final class GoldWorld extends PluginBase implements Listener {
                     if (level == null || level == getServer().getDefaultLevel()) { throw new IllegalArgumentException(M.t("mundo_nao_carregado_ou_principal")); }
                     for (Player p : new ArrayList<>(level.getPlayers().values())) { p.teleport(getServer().getDefaultLevel().getSafeSpawn()); }
                     sender.sendMessage(PREFIX + (getServer().unloadLevel(level) ? M.t("descarregado") : M.t("nao_foi_possivel_descarregar")));
+                    return true;
+                }
+                case "borda": {
+                    // /mundo borda <mundo> <raio> | /mundo borda <mundo> off
+                    String name = Destination.world(arg(args, 1)).target;
+                    String raw = arg(args, 2);
+                    Integer radius = raw.equalsIgnoreCase("off") ? null : Integer.valueOf(raw);
+                    if (radius != null && (radius < 50 || radius > 100000)) { throw new IllegalArgumentException(M.t("borda_de_50_a_100000")); }
+                    data.change(s -> { if (radius == null) { s.borders.remove(name); } else { s.borders.put(name, radius); } })
+                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : radius == null ? M.t("borda_removida", name) : M.t("borda_definida", name, radius))));
+                    return true;
+                }
+                case "dia": case "sol": {
+                    // Alterna: /mundo dia <mundo> (meio-dia parado), /mundo sol <mundo> (nunca chove).
+                    String name = Destination.world(arg(args, 1)).target;
+                    boolean day = sub.equals("dia");
+                    boolean[] on = new boolean[1];
+                    data.change(s -> { Set<String> set = day ? s.alwaysDay : s.clearWeather; on[0] = set.add(name); if (!on[0]) { set.remove(name); } })
+                            .whenComplete((v, e) -> {
+                                if (e == null) { Level l = getServer().getLevelByName(name); if (l != null) { if (day && !on[0]) { l.startTime(); } else { apply(l); } } }
+                                sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t(day ? (on[0] ? "sempre_dia_ligado" : "sempre_dia_desligado") : (on[0] ? "sempre_sol_ligado" : "sempre_sol_desligado"), name)));
+                            });
                     return true;
                 }
                 case "horareal": case "autoinv": {
