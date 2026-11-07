@@ -155,7 +155,7 @@ public final class GoldBedWars extends PluginBase implements Listener {
 
     void join(Player p, int size) {
         if (inGame.containsKey(p)) { throw new IllegalArgumentException(M.t("voce_ja_esta_numa_partida_use")); }
-        for (Item i : p.getInventory().getContents().values()) { if (i.getId() != 0 && !(i.hasCustomName() && i.getCustomName().contains("(toque)"))) { throw new IllegalArgumentException(M.t("esvazie_inventario_antes_de_entrar_no")); } }
+        for (Item i : p.getInventory().getContents().values()) { if (i.getId() != 0 && !(i.hasCustomName() && (i.getCustomName().contains("(toque)") || i.getId() == 340 || i.getId() == 345 || i.getId() == 347))) { throw new IllegalArgumentException(M.t("esvazie_inventario_antes_de_entrar_no")); } }
         for (Item i : p.getInventory().getArmorContents()) { if (i.getId() != 0) { throw new IllegalArgumentException(M.t("tire_armadura_antes_de_entrar_no")); } }
         Game best = null;
         for (Game g : games.values()) {

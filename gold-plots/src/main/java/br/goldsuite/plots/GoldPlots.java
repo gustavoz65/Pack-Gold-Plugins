@@ -152,6 +152,17 @@ public final class GoldPlots extends PluginBase implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void bucketFill(PlayerBucketFillEvent e) { if (denied(e.getPlayer(), e.getBlockClicked())) { e.setCancelled(); } }
 
+    /** Explosao (TNT) so destroi blocos do mesmo terreno onde explodiu: nunca rua, borda ou o terreno do vizinho. */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void explode(cn.nukkit.event.entity.EntityExplodeEvent e) {
+        PW w = worldOf(e.getPosition().level);
+        if (w == null) { return; }
+        String origin = w.grid().id(e.getPosition().getFloorX(), e.getPosition().getFloorZ());
+        List<Block> keep = new ArrayList<>();
+        for (Block b : e.getBlockList()) { if (origin != null && origin.equals(w.grid().id(b.getFloorX(), b.getFloorZ()))) { keep.add(b); } }
+        e.setBlockList(keep);
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void quit(PlayerQuitEvent e) { String k = key(e.getPlayer()); for (PW w : worlds) { w.pending.values().removeIf(k::equals); } lastPlot.remove(e.getPlayer()); }
 

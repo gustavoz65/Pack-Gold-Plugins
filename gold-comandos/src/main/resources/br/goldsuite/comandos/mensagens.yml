@@ -133,3 +133,9 @@ posicao_de_1_27: "Posicao de 1 a 27."
 # {0} = posicao, {1} = comando
 icone_do_seletor_executa: "Icone na posicao {0} do seletor executa /{1}."
 use_dentro_do_jogo: "Use dentro do jogo."
+grupo_de_inventario_invalido: "Grupo de inventario invalido (letras minusculas, numeros e _, ate 16)."
+# {0} = jogador, {1} = motivo
+inventario_nao_separado: "Inventario de {0} nao foi separado: {1}"
+inventario_nao_trocado: "&cNao foi possivel trocar o seu inventario agora; seus itens continuam com voce."
+# {0} = zona, {1} = grupo
+grupo_de_inventario_da_zona: "Inventario da zona {0}: grupo {1} (zonas do mesmo grupo dividem o inventario)."

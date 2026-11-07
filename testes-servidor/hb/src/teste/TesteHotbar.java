@@ -21,7 +21,7 @@ public final class TesteHotbar extends PluginBase {
     final List<Runnable> steps = new ArrayList<>();
     final List<String> errors = new ArrayList<>();
     final Map<String, List<String>> got = new ConcurrentHashMap<>();
-    Player ana;
+    Player ana, bia;
 
     void step(int delayTicks, Runnable r) { steps.add(() -> getServer().getScheduler().scheduleDelayedTask(() -> { try { r.run(); } catch (Throwable t) { errors.add(t.toString()); getLogger().error("passo", t); } next(); }, delayTicks)); }
     void next() { if (!steps.isEmpty()) { steps.remove(0).run(); } else { getLogger().info(errors.isEmpty() ? "HOTBAR_OK" : "HOTBAR_FALHOU " + errors); getLogger().info("FIM_TESTE"); } }
@@ -233,8 +233,51 @@ public final class TesteHotbar extends PluginBase {
             Item book = Item.get(340, 0, 1); book.setCustomName("\u00a7eLobbies"); ana.getInventory().setItem(0, book);
             getServer().getPluginManager().callEvent(new PlayerJoinEvent(ana, ""));
         });
-        step(30, () -> { check(!hasLobbyItem(ana), "item de menu velho sai ao entrar no servidor dentro do mundo de jogo"); });
+        step(30, () -> {
+            check(!hasLobbyItem(ana), "item de menu velho sai ao entrar no servidor dentro do mundo de jogo");
+            // Inventario por grupo: lobby, rankup (jogo) e factions (outro) nao se misturam.
+            getServer().generateLevel("outro");
+            console("zona criar outro"); console("zona mundo outro outro");
+            console("zona inventario hub lobby"); console("zona inventario jogo rankup"); console("zona inventario outro factions");
+        });
+        step(40, () -> { ana.teleport(getServer().getLevelByName("lobby").getSafeSpawn()); });
+        step(30, () -> {
+            check(hasZoneItems(ana), "lobby: itens de menu");
+            ana.teleport(getServer().getLevelByName("jogo").getSafeSpawn());
+        });
+        step(30, () -> {
+            check(!hasLobbyItem(ana) && count(ana, 276) == 0, "rankup: comeca vazio, sem itens do lobby");
+            ana.getInventory().addItem(Item.get(276, 0, 1), Item.get(3, 0, 10));
+            ana.getInventory().setArmorItem(0, Item.get(306, 0, 1));
+            ana.teleport(getServer().getLevelByName("lobby").getSafeSpawn());
+        });
+        step(30, () -> {
+            check(hasZoneItems(ana) && count(ana, 276) == 0 && count(ana, 3) == 0 && ana.getInventory().getArmorItem(0).getId() == 0, "lobby: itens e armadura do rankup ficam guardados");
+            ana.teleport(getServer().getLevelByName("outro").getSafeSpawn());
+        });
+        step(30, () -> {
+            check(count(ana, 276) == 0 && !hasLobbyItem(ana), "factions: inventario proprio, vazio");
+            ana.getInventory().addItem(Item.get(4, 0, 5));
+            ana.teleport(getServer().getLevelByName("jogo").getSafeSpawn());
+        });
+        step(30, () -> {
+            check(count(ana, 276) == 1 && count(ana, 3) == 10 && ana.getInventory().getArmorItem(0).getId() == 306 && count(ana, 4) == 0, "rankup: espada, terra e capacete voltam; nada do factions");
+            ana.teleport(getServer().getLevelByName("outro").getSafeSpawn());
+        });
+        step(30, () -> {
+            check(count(ana, 4) == 5 && count(ana, 276) == 0, "factions: pedregulho de volta, sem itens do rankup");
+            try { bia = fake("Bia", false); } catch (Exception e) { errors.add(e.toString()); }
+        });
+        // Quem ja tinha itens antes da separacao e chega num lobby: os itens vao para o grupo antigo (rankup), nada se perde.
+        step(10, () -> { bia.getInventory().addItem(Item.get(264, 0, 7)); bia.teleport(getServer().getLevelByName("lobby").getSafeSpawn()); });
+        step(40, () -> {
+            check(count(bia, 264) == 0, "item de antes da separacao sai do lobby");
+            bia.teleport(getServer().getLevelByName("jogo").getSafeSpawn());
+        });
+        step(40, () -> { check(count(bia, 264) == 7, "e volta no rankup (grupo antigo)"); });
     }
+
+    int count(Player p, int id) { int n = 0; for (Item i : p.getInventory().getContents().values()) { if (i.getId() == id) { n += i.getCount(); } } return n; }
 
     boolean hasLobbyItem(Player p) { for (Item i : p.getInventory().getContents().values()) { if ((i.getId() == 340 || i.getId() == 345) && i.hasCustomName()) { return true; } } return false; }
 }

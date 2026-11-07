@@ -259,6 +259,15 @@ public final class TesteRankupAlpha extends PluginBase {
             check(placeAt(ana, plots(), 30, 65, 30), "dono constroi no plot");
             check(!placeAt(ana, plots(), 0, 65, 0), "ninguem constroi na rua");
             check(!placeAt(bia, plots(), 30, 65, 30), "outro jogador nao constroi no plot dele");
+            // Nem o OP quebra rua de quartzo, laje da borda ou terreno dos outros (goldplots.admin nao vem com o OP).
+            caio.setOp(true);
+            check(!breakAt(caio, plots(), 0, 64, 0) && !breakAt(caio, plots(), 3, 65, 30) && !breakAt(caio, plots(), 30, 64, 30), "OP sem permissao nao quebra rua, borda nem terreno alheio");
+            caio.setOp(false);
+            // TNT no terreno da Ana: so os blocos do terreno dela entram na explosao.
+            List<Block> blocos = new ArrayList<>(Arrays.asList(plots().getBlock(new Vector3(30, 64, 30)), plots().getBlock(new Vector3(0, 64, 0)), plots().getBlock(new Vector3(3, 65, 30)), plots().getBlock(new Vector3(-10, 64, 30))));
+            cn.nukkit.event.entity.EntityExplodeEvent boom = new cn.nukkit.event.entity.EntityExplodeEvent(ana, new cn.nukkit.level.Position(30, 65, 30, plots()), blocos, 4);
+            getServer().getPluginManager().callEvent(boom);
+            check(boom.getBlockList().size() == 1 && boom.getBlockList().get(0).getFloorX() == 30, "explosao nao passa do terreno (" + boom.getBlockList().size() + ")");
             got(ana).clear();
             cmd(ana, "plot auto");
             // Andar da rua para dentro do terreno da Ana: aparece o dono uma vez; andar dentro dele nao repete.

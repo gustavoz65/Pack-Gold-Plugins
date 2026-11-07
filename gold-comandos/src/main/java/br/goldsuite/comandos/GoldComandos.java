@@ -10,6 +10,7 @@ import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.entity.EntityLevelChangeEvent;
 import cn.nukkit.event.player.*;
+import cn.nukkit.inventory.PlayerInventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.plugin.PluginBase;
@@ -28,6 +29,10 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
     private Map<String, String> index = new HashMap<>();
     private final Map<Player, Integer> lastHeld = new IdentityHashMap<>();
     private final Map<Player, String> zoneOf = new IdentityHashMap<>();
+    /** Inventario guardado por grupo de zonas (carregado enquanto o jogador esta online). */
+    private RecordStore<InvBags> invs;
+    private final Set<Player> switching = Collections.newSetFromMap(new IdentityHashMap<>());
+    private String legacyGroup = "rankup";
 
     @Override public void onEnable() {
         M.B.attach(this);
@@ -37,11 +42,20 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
         if (core == null) { throw new IllegalStateException(M.t("goldcore_precisa_estar_ativo_antes_do")); }
         data = new PersistentState<>(core.getStore(), "goldcomandos", CmdState.class, CmdState::new, CmdState::validate);
         data.ready().thenRun(this::reindex);
+        Settings.text(this, "inventario.grupo_antigo", "rankup", "Grupo do inventario de quem ainda nao tinha grupo e entra num lobby (itens de antes da separacao)", v -> legacyGroup = InvBags.group(v.trim()));
+        invs = new RecordStore<>(core.getStore(), "goldcomandos-inventarios", InvBags.class, InvBags::new, InvBags::validate);
+        for (Player p : getServer().getOnlinePlayers().values()) { invs.retain(invKey(p)); }
         getServer().getServiceManager().register(ZoneService.class, this, this);
         getServer().getPluginManager().registerEvents(this, this);
     }
 
-    @Override public void onDisable() { if (data != null) { data.close(); } lastHeld.clear(); zoneOf.clear(); }
+    @Override public void onDisable() { if (data != null) { data.close(); } if (invs != null) { invs.close(); } lastHeld.clear(); zoneOf.clear(); switching.clear(); }
+
+    static String invKey(Player p) { return p.getName().toLowerCase(Locale.ROOT); }
+
+    /** Carrega o inventario separado antes de tudo (a troca so acontece com ele carregado). */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void preJoin(PlayerJoinEvent e) { if (invs != null) { invs.retain(invKey(e.getPlayer())); } }
 
     private void reindex() { if (data.isLoaded()) { index = data.read(CmdState::worldIndex); } }
 
@@ -151,7 +165,7 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
             if (!isEnabled() || !p.isOnline() || !data.isLoaded()) { return; }
             // So entrega os itens da zona em que ele ja esta: a troca de zona (boas-vindas, tirar itens) fica com o enter.
             String now = zoneName(p.level);
-            if (now == null || !now.equals(zoneOf.get(p))) { return; }
+            if (now == null || !now.equals(zoneOf.get(p)) || switching.contains(p)) { return; }
             CmdState.Zone z = data.read(s -> s.zones.get(now));
             if (z != null) { giveItems(p, z); }
         }, ticks);
@@ -190,7 +204,7 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void quit(PlayerQuitEvent e) { lastHeld.remove(e.getPlayer()); zoneOf.remove(e.getPlayer()); }
+    public void quit(PlayerQuitEvent e) { lastHeld.remove(e.getPlayer()); zoneOf.remove(e.getPlayer()); switching.remove(e.getPlayer()); if (invs != null) { invs.release(invKey(e.getPlayer())); } }
 
     // ---------- entrada nas zonas ----------
 
@@ -215,7 +229,8 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
         // os menus da hotbar so existem nos lobbies que os configuram.
         removeForeign(p, z);
         if (z == null) { return; }
-        giveItems(p, z);
+        // Mudou de grupo de inventario (lobby -> rankup...): troca primeiro; os itens da zona vem depois da troca.
+        if (z.inventory.isEmpty() || !switchInventory(p, z, 0)) { giveItems(p, z); }
         if (!greet || z.welcome.isEmpty()) { return; }
         String name = p.getName().toLowerCase(Locale.ROOT);
         boolean first = !data.read(s -> s.visited.getOrDefault(name, Collections.emptySet()).contains(now));
@@ -225,6 +240,94 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
             p.sendMessage(text);
             p.sendPopup(text);
         }
+    }
+
+    // ---------- inventario por grupo de zonas ----------
+
+    /** Item que nao entra no inventario guardado: menus de zona e itens "(toque)" que os plugins entregam no lobby. */
+    private boolean menuItem(Item it) {
+        if (it == null || it.getId() == 0 || !it.hasCustomName()) { return false; }
+        if (it.getCustomName().contains("(toque)")) { return true; }
+        return data.read(st -> { for (CmdState.Zone o : st.zones.values()) { for (CmdState.HubItem h : o.items.values()) { if (same(it, h)) { return true; } } } return false; });
+    }
+
+    /**
+     * Troca o inventario se o grupo da zona e outro. Devolve true quando a troca vai acontecer (ou ja esta acontecendo):
+     * nesse caso quem entrega os itens da zona e a propria troca, depois de gravar.
+     * Durante a gravacao o inventario fica vazio (nada pode ser usado nem duplicado); se a gravacao falhar, tudo volta.
+     */
+    private boolean switchInventory(Player p, CmdState.Zone z, int attempt) {
+        if (invs == null) { return false; }
+        if (switching.contains(p)) { return true; }
+        String key = invKey(p), target = z.inventory;
+        InvBags rec;
+        try { rec = invs.peek(key); }
+        catch (IllegalStateException loading) {
+            if (attempt >= 40) { return false; }
+            getServer().getScheduler().scheduleDelayedTask(() -> { if (isEnabled() && p.isOnline()) { reconcile(p, attempt + 1); } }, 5);
+            return true;
+        }
+        String current = rec.group;
+        if (current.isEmpty()) {
+            // Primeira vez com inventario separado: os itens de antes sao do grupo antigo se ele chegou num lobby; senao, deste grupo.
+            if (!target.equals("lobby") || legacyGroup.isEmpty() || legacyGroup.equals(target)) { invs.change(key, r -> r.group = target); return false; }
+            current = legacyGroup;
+        }
+        if (current.equals(target)) { return false; }
+        PlayerInventory inv = p.getInventory();
+        Map<Integer, Item> contents = new HashMap<>(inv.getContents());
+        Item[] armor = new Item[4];
+        InvBags.Bag bag = new InvBags.Bag();
+        try {
+            for (Map.Entry<Integer, Item> e : contents.entrySet()) {
+                Item it = e.getValue();
+                if (e.getKey() < 0 || e.getKey() > 35 || it == null || it.getId() == 0 || it.getCount() < 1 || menuItem(it)) { continue; }
+                bag.items.put(e.getKey(), ItemData.of(it));
+            }
+            for (int i = 0; i < 4; i++) { armor[i] = inv.getArmorItem(i); if (armor[i] != null && armor[i].getId() != 0) { bag.armor.put(i, ItemData.of(armor[i])); } }
+        } catch (RuntimeException bad) { getLogger().warning(M.t("inventario_nao_separado", p.getName(), bad.getMessage())); return false; }
+        switching.add(p);
+        inv.clearAll();
+        inv.sendContents(p); inv.sendArmorContents(p);
+        String from = current;
+        invs.change(key, r -> { r.bags.put(from, bag); r.group = target; }).whenComplete((r, error) -> getServer().getScheduler().scheduleTask(() -> {
+            switching.remove(p);
+            if (!p.isOnline()) { return; }
+            if (error != null) {
+                // Nada gravado: devolve exatamente o que ele tinha.
+                inv.setContents(contents);
+                for (int i = 0; i < 4; i++) { if (armor[i] != null) { inv.setArmorItem(i, armor[i]); } }
+                inv.sendContents(p); inv.sendArmorContents(p);
+                p.sendMessage(PREFIX + M.t("inventario_nao_trocado"));
+                reconcileItems(p);
+                return;
+            }
+            InvBags.Bag next = r.bags.get(target);
+            if (next != null) {
+                for (Map.Entry<Integer, ItemData> e : next.items.entrySet()) { inv.setItem(e.getKey(), e.getValue().toItem()); }
+                for (Map.Entry<Integer, ItemData> e : next.armor.entrySet()) { inv.setArmorItem(e.getKey(), e.getValue().toItem()); }
+            }
+            inv.sendContents(p); inv.sendArmorContents(p);
+            reconcile(p, 0);
+            // Grava o .dat ja com o inventario novo (um travamento agora nao devolve o inventario antigo junto do guardado).
+            try { p.save(); } catch (RuntimeException ignored) { }
+        }));
+        return true;
+    }
+
+    /** Depois de uma troca (ou de esperar o carregamento): confere a zona atual e troca de novo ou entrega os itens dela. */
+    private void reconcile(Player p, int attempt) {
+        if (!data.isLoaded()) { return; }
+        String zn = zoneOf.get(p);
+        CmdState.Zone z = zn == null ? null : data.read(s -> s.zones.get(zn));
+        if (z == null) { return; }
+        if (z.inventory.isEmpty() || !switchInventory(p, z, attempt)) { giveItems(p, z); }
+    }
+
+    private void reconcileItems(Player p) {
+        String zn = zoneOf.get(p);
+        CmdState.Zone z = zn == null ? null : data.read(s -> s.zones.get(zn));
+        if (z != null) { giveItems(p, z); }
     }
 
     // ---------- itens da hotbar ----------
@@ -382,6 +485,7 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
                 CmdState.Zone zone = data.read(s -> need(s, z));
                 sender.sendMessage(M.t("zona", z));
                 sender.sendMessage(M.t("mundos", zone.worlds));
+                sender.sendMessage(M.t("grupo_de_inventario_da_zona", z, zone.inventory.isEmpty() ? "nenhum" : zone.inventory));
                 sender.sendMessage(M.t("modo", (zone.whitelist ? M.t("so_os_comandos_da_lista_funcionam") : M.t("os_comandos_da_lista_ficam_bloqueados")), zone.commands));
                 sender.sendMessage(M.t("boas_vindas", (zone.welcomeAlways ? M.t("sempre") : M.t("primeira_vez")), zone.welcome.replace('&', '§')));
                 for (Map.Entry<Integer, CmdState.HubItem> e : zone.items.entrySet()) { sender.sendMessage(M.t("slot", e.getKey() + 1, e.getValue().name.replace('&', '§'), e.getValue().id, e.getValue().meta, e.getValue().command)); }
@@ -424,6 +528,12 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
             case "recurso": {
                 String f = CmdState.feature(a.length > 2 ? a[2] : "");
                 change(sender, s -> { Set<String> set = need(s, z).features; if (!set.remove(f)) { set.add(f); } }, M.t("recursos_desligados_na_zona_atualizados", z));
+                return;
+            }
+            case "inventario": {
+                // /zona inventario <zona> <grupo|nenhum>: zonas do mesmo grupo dividem o inventario.
+                String g = a.length > 2 && !a[2].equalsIgnoreCase("nenhum") ? InvBags.group(a[2]) : "";
+                change(sender, s -> need(s, z).inventory = g, M.t("grupo_de_inventario_da_zona", z, g.isEmpty() ? "nenhum" : g));
                 return;
             }
             case "recursos": {

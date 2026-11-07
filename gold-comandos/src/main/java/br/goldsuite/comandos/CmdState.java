@@ -38,6 +38,8 @@ public final class CmdState {
         public Set<String> features = new TreeSet<>();
         /** Linhas da barra nesta zona (vazio = as do painel do GoldHud; "nenhuma" esconde). */
         public String hud1 = "", hud2 = "";
+        /** Grupo de inventario: zonas do mesmo grupo dividem o inventario; ao mudar de grupo ele e trocado ("" = nao troca). */
+        public String inventory = "";
     }
 
     /** Recursos que os plugins da Gold consultam (para o /zona recursos). */
@@ -132,6 +134,8 @@ public final class CmdState {
             if (z != null && z.features == null) { z.features = new TreeSet<>(); }
             if (z != null && z.hud1 == null) { z.hud1 = ""; }
             if (z != null && z.hud2 == null) { z.hud2 = ""; }
+            if (z != null && z.inventory == null) { z.inventory = ""; }
+            if (z != null) { InvBags.group(z.inventory); }
             if (z == null || z.worlds == null || z.commands == null || z.welcome == null || z.help == null || z.items == null || z.commands.size() > MAX_COMMANDS
                     || z.plugins.size() > 100 || z.features.size() > 200 || z.hud1.length() > 200 || z.hud2.length() > 200
                     || z.worlds.size() > 100 || z.welcome.length() > 200 || z.help.size() > 15 || z.items.size() > 9) { throw new IllegalArgumentException(M.t("zona_invalida", e.getKey())); }

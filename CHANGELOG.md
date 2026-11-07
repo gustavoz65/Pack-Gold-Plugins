@@ -9,6 +9,7 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 ## 0.4.3 — Rankup alpha: ranks, minas, plots e loja completa (07/11/2026)
 
 ### Novo
+- **GoldComandos**: inventário por grupo de zonas (`/zona inventario <zona> <grupo|nenhum>`): lobbies, Rankup e Factions não misturam itens; ao mudar de grupo os itens e a armadura são guardados no banco e voltam quando o jogador retorna (itens de menu nunca entram). Quem tinha itens de antes vai para o grupo do painel `inventario.grupo_antigo`.
 - **GoldPlots**: ao entrar num terreno aparece no meio da tela, uma vez, de quem ele é (ou que está livre, com o preço).
 - **GoldRankup** (plugin novo): 20 ranks com preço em money, tag, permissões e mina; `/rankup` com confirmação, `/ranks` com progresso, `/minas` em menu, placeholders `{rank}` `{rank_proximo}` `{rank_preco}` `{rank_progresso}` e `/rankadmin`.
 - **Minas que se regeneram** (no GoldRankup): composição em %, regeneração por tempo ou por %, aviso 10 s antes, quem está dentro vai para a borda, reposição por tick, proteção (só os blocos da mina), fortuna e `/mina gerarmundo`.
@@ -23,6 +24,8 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 - **GoldRankup**: painel `mundos_tag` — o `{rank}` só aparece no chat/HUD dos mundos do rankup (padrão `RankupLobby,minas,plots`).
 
 ### Corrigido
+- **GoldHG** e **GoldBedWars**: aceitam entrar com os itens de menu do lobby (antes pediam inventário vazio).
+- **GoldPlots**: `goldplots.admin` não vem mais com o OP (a proteção vale para todos); explosões só destroem blocos do próprio terreno.
 - **GoldPlots**: só o mapa de terrenos fica; `/plot`, `/plots` e `/p` são apelidos de `/terreno` e as mensagens falam "terreno".
 - **GoldComandos**: itens de menu da hotbar de uma zona (livro de lobbies, atalhos do Rankup) saem do inventário em qualquer outro mundo, inclusive para quem entra no servidor já dentro do mundo de jogo. No Rush MC as zonas viraram lobby (com itens) e jogo (`rankupjogo`: minas/plots/terrenos; `factionsjogo`: factions), com os mesmos comandos e barra.
 - **GoldPlots**: `/plot` agora **leva ao mapa de plots** (ao seu plot, se tiver); o menu abre quando você já está no mapa (`/plot menu` em qualquer lugar). Novo `/terreno` com o mapa *terrenos* do pack (terreno 42, rua de quartzo de 5, gerador `goldterrenos` que continua a grade), com registros próprios.

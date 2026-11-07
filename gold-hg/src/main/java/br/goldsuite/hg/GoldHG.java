@@ -264,9 +264,12 @@ public final class GoldHG extends PluginBase {
 
     // ---------- entrar, sair, eliminar ----------
 
+    static boolean lobbyItem(Item i) { return i.hasCustomName() && (i.getCustomName().contains("(toque)") || i.getId() == 340 || i.getId() == 345 || i.getId() == 347); }
+
     void join(Player player, String wanted) {
         if (inGame.containsKey(player)) { throw new IllegalArgumentException(M.t("voce_ja_esta_numa_partida_use")); }
-        for (Item item : player.getInventory().getContents().values()) { if (item.getId() != 0) { throw new IllegalArgumentException(M.t("esvazie_inventario_antes_de_entrar_no")); } }
+        // Itens de menu do lobby (livros, "(toque)") podem ficar: somem ao entrar na arena e voltam no lobby.
+        for (Item item : player.getInventory().getContents().values()) { if (item.getId() != 0 && !lobbyItem(item)) { throw new IllegalArgumentException(M.t("esvazie_inventario_antes_de_entrar_no")); } }
         for (Item item : player.getInventory().getArmorContents()) { if (item.getId() != 0) { throw new IllegalArgumentException(M.t("tire_armadura_antes_de_entrar_no")); } }
         Game game = null;
         if (wanted != null) {

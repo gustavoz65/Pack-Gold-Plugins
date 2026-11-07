@@ -8,4 +8,4 @@ description: "Terrenos infinitos: mundo gerado pela grade, compra com money, mem
 commands:
  terreno: {description: "Vai para o mapa de terrenos (no mapa: menu)", usage: "/terreno [menu|comprar|auto|home [n]|info|add <jogador>|remover <jogador>|limpar|ir|spawn]", aliases: [terrenos, plot, plots, p]}
 permissions:
- goldplots.admin: {default: op, description: "Constroi e limpa em qualquer plot"}
+ goldplots.admin: {default: false, description: "Constroi e limpa em qualquer terreno (nem o OP tem sem receber; de com /grupo permissao)"}
