@@ -52,7 +52,11 @@ public final class GoldWorld extends PluginBase implements Listener {
         public boolean stackMobs = true;
         /** Mundo -> para onde o jogador olha ao chegar no spawn (0 = sul, 90 = oeste, 180 = norte, 270 = leste). */
         public Map<String, Integer> spawnYaw = new TreeMap<>();
+        /** Portal de queda: mundo -> "y;destino" (quem cai abaixo de y vai para o spawn do mundo destino). */
+        public Map<String, String> fallPortals = new TreeMap<>();
         static void validate(WorldState s) {
+            if (s != null && s.fallPortals == null) { s.fallPortals = new TreeMap<>(); }
+            if (s != null) { for (Map.Entry<String, String> f : s.fallPortals.entrySet()) { Destination.world(f.getKey()); String[] v = f.getValue() == null ? new String[0] : f.getValue().split(";"); if (v.length != 2) { throw new IllegalArgumentException(M.t("configuracao_de_mundos_invalida")); } Integer.parseInt(v[0]); Destination.world(v[1]); } }
             if (s != null && s.spawnYaw == null) { s.spawnYaw = new TreeMap<>(); }
             if (s != null) { for (Map.Entry<String, Integer> y : s.spawnYaw.entrySet()) { Destination.world(y.getKey()); if (y.getValue() == null || y.getValue() < 0 || y.getValue() >= 360) { throw new IllegalArgumentException(M.t("configuracao_de_mundos_invalida")); } } }
             if (s != null && s.alwaysDay == null) { s.alwaysDay = new TreeSet<>(); }
@@ -142,6 +146,29 @@ public final class GoldWorld extends PluginBase implements Listener {
         cn.nukkit.math.Vector3 spawn = to.level.getSpawnLocation();
         if (Math.abs(to.x - (spawn.x + 0.5)) > 3 || Math.abs(to.z - (spawn.z + 0.5)) > 3) { return; }
         to.yaw = yaw; to.pitch = 0;
+    }
+
+    // ---------- portal de queda ----------
+
+    private final Map<Player, Long> lastFall = new WeakHashMap<>();
+
+    /** Quem cai abaixo da altura configurada (ex.: do alto da ponte do lobby) vai para o spawn do mundo destino. */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void fall(cn.nukkit.event.player.PlayerMoveEvent event) {
+        if (!data.isLoaded()) { return; }
+        cn.nukkit.level.Location to = event.getTo();
+        if (to.level == null) { return; }
+        String portal = data.read(s -> s.fallPortals.isEmpty() ? null : s.fallPortals.get(to.level.getFolderName()));
+        if (portal == null) { return; }
+        String[] v = portal.split(";");
+        if (to.y >= Integer.parseInt(v[0])) { return; }
+        Player p = event.getPlayer();
+        long now = System.currentTimeMillis();
+        Long last = lastFall.get(p);
+        if (last != null && now - last < 3000) { return; }
+        lastFall.put(p, now);
+        TravelService travel = getServer().getServiceManager().load(TravelService.class);
+        if (travel != null) { travel.travel(p, Destination.world(v[1]), Transition.PORTAL); }
     }
 
     // ---------- borda do mundo ----------
@@ -299,6 +326,15 @@ public final class GoldWorld extends PluginBase implements Listener {
                     Integer yaw = raw.equalsIgnoreCase("off") ? null : Integer.valueOf(Math.floorMod(Integer.parseInt(raw), 360));
                     data.change(s -> { if (yaw == null) { s.spawnYaw.remove(name); } else { s.spawnYaw.put(name, yaw); } })
                             .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("direcao_definida", name, yaw == null ? "off" : String.valueOf(yaw)))));
+                    return true;
+                }
+                case "portal": {
+                    // /mundo portal <mundo> <y|off> [destino]: quem cai abaixo de y vai para o spawn do destino.
+                    String name = Destination.world(arg(args, 1)).target;
+                    String raw = arg(args, 2);
+                    String value = raw.equalsIgnoreCase("off") ? null : Integer.parseInt(raw) + ";" + Destination.world(arg(args, 3)).target;
+                    data.change(s -> { if (value == null) { s.fallPortals.remove(name); } else { s.fallPortals.put(name, value); } })
+                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : value == null ? M.t("portal_removido", name) : M.t("portal_definido", name, raw, args[3]))));
                     return true;
                 }
                 case "preencher": {

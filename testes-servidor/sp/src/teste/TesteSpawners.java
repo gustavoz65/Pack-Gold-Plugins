@@ -193,6 +193,14 @@ public final class TesteSpawners extends PluginBase {
         });
         step(10, () -> {
             try { check(menuOf(ana) != null, "/loja abre a loja do servidor " + got(ana)); } catch (Exception e) { errors.add(e.toString()); }
+            console("mundo criar destino void");
+            console("mundo portal " + lv.getFolderName() + " 40 destino");
         });
+        step(40, () -> {
+            Location from = new Location(5, 45, 5, 0, 0, lv), to = new Location(5, 39, 5, 0, 0, lv);
+            ana.teleport(from);
+            getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerMoveEvent(ana, from, to));
+        });
+        step(60, () -> { check(ana.level.getFolderName().equals("destino"), "portal de queda leva ao mundo destino (" + ana.level.getFolderName() + ")"); });
     }
 }

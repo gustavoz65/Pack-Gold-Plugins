@@ -57,3 +57,7 @@ bloco_invalido: "Bloco invalido."
 area_grande_demais: "Area grande demais (maximo 100 mil blocos por vez)."
 # {0} = blocos, {1} = mundo
 preenchido: "{0} blocos colocados em {1}."
+# {0} = mundo
+portal_removido: "Portal de queda de {0} removido."
+# {0} = mundo, {1} = altura, {2} = destino
+portal_definido: "Em {0}, quem cair abaixo de y={1} vai para {2}."
