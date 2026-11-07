@@ -261,6 +261,16 @@ public final class TesteRankupAlpha extends PluginBase {
             check(!placeAt(bia, plots(), 30, 65, 30), "outro jogador nao constroi no plot dele");
             got(ana).clear();
             cmd(ana, "plot auto");
+            // Andar da rua para dentro do terreno da Ana: aparece o dono uma vez; andar dentro dele nao repete.
+            got(bia).clear();
+            cn.nukkit.level.Location rua = new cn.nukkit.level.Location(0.5, 65, 0.5, 0, 0, plots()), dentro = new cn.nukkit.level.Location(10.5, 65, 10.5, 0, 0, plots()), dentro2 = new cn.nukkit.level.Location(11.5, 65, 10.5, 0, 0, plots());
+            getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerMoveEvent(bia, rua, dentro));
+            getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerMoveEvent(bia, dentro, dentro2));
+            long vezes = got(bia).stream().filter(t -> t.contains("Terreno de ana")).count();
+            check(vezes == 1, "ao entrar no terreno aparece o dono uma vez (" + vezes + ")");
+            getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerMoveEvent(bia, dentro2, rua));
+            getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerMoveEvent(bia, rua, new cn.nukkit.level.Location(-10.5, 65, 10.5, 0, 0, plots())));
+            check(got(bia).stream().anyMatch(t -> t.contains("Terreno livre")), "terreno sem dono mostra que esta livre e o preco");
         });
         step(30, () -> {
             check(saw(ana, "maximo de terrenos") && owner("1;0").isEmpty() && owner("0;1").isEmpty(), "limite de plots (1 no rank Carvao)");

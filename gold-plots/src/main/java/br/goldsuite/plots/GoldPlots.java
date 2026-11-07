@@ -153,7 +153,25 @@ public final class GoldPlots extends PluginBase implements Listener {
     public void bucketFill(PlayerBucketFillEvent e) { if (denied(e.getPlayer(), e.getBlockClicked())) { e.setCancelled(); } }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void quit(PlayerQuitEvent e) { String k = key(e.getPlayer()); for (PW w : worlds) { w.pending.values().removeIf(k::equals); } }
+    public void quit(PlayerQuitEvent e) { String k = key(e.getPlayer()); for (PW w : worlds) { w.pending.values().removeIf(k::equals); } lastPlot.remove(e.getPlayer()); }
+
+    /** Ultimo terreno onde o jogador estava (mundo + id); null = rua ou fora do mapa. */
+    private final Map<Player, String> lastPlot = new WeakHashMap<>();
+
+    /** Ao entrar num terreno, mostra uma vez no meio da tela de quem ele e (ou que esta livre e o preco). */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void walk(cn.nukkit.event.player.PlayerMoveEvent e) {
+        cn.nukkit.level.Location to = e.getTo(), from = e.getFrom();
+        if (to.getFloorX() == from.getFloorX() && to.getFloorZ() == from.getFloorZ() && to.level == from.level) { return; }
+        Player p = e.getPlayer();
+        PW w = worldOf(to.level);
+        String id = w == null || !w.plots.isLoaded() ? null : w.grid().id(to.getFloorX(), to.getFloorZ());
+        String now = id == null ? null : w.key + ":" + id;
+        String before = now == null ? lastPlot.remove(p) : lastPlot.put(p, now);
+        if (now == null || now.equals(before)) { return; }
+        String o = owner(w, id);
+        p.sendPopup(o.isEmpty() ? M.t("entrou_terreno_livre", money(w.price), w.command) : M.t("entrou_terreno_de", o));
+    }
 
     // ---------- compra ----------
 

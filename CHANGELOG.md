@@ -9,6 +9,7 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 ## 0.4.3 — Rankup alpha: ranks, minas, plots e loja completa (07/11/2026)
 
 ### Novo
+- **GoldPlots**: ao entrar num terreno aparece no meio da tela, uma vez, de quem ele é (ou que está livre, com o preço).
 - **GoldRankup** (plugin novo): 20 ranks com preço em money, tag, permissões e mina; `/rankup` com confirmação, `/ranks` com progresso, `/minas` em menu, placeholders `{rank}` `{rank_proximo}` `{rank_preco}` `{rank_progresso}` e `/rankadmin`.
 - **Minas que se regeneram** (no GoldRankup): composição em %, regeneração por tempo ou por %, aviso 10 s antes, quem está dentro vai para a borda, reposição por tick, proteção (só os blocos da mina), fortuna e `/mina gerarmundo`.
 - **GoldPlots** (plugin novo): mundo de plots do pack convertido e continuado pela grade, `/plot` em menu, compra segura, limite por rank/VIP, membros, limpar aos poucos e proteção.

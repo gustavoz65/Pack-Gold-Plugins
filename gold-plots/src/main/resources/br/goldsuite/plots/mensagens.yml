@@ -75,3 +75,8 @@ botao_cancelar: "&a&lCancelar"
 titulo_terrenos: "&8Terrenos"
 # {0} = comando (plot ou terreno)
 chegou_sem_plot: "&eVoce ainda nao tem um. Use &f/{0} auto&e para comprar o livre mais perto, ou ande ate um e use &f/{0} comprar&e."
+
+# Ao entrar num terreno (uma vez, no meio da tela). {0} = dono
+entrou_terreno_de: "&fTerreno de &e{0}"
+# {0} = preco, {1} = comando
+entrou_terreno_livre: "&aTerreno livre &7- {0} &8(/{1} comprar)"
