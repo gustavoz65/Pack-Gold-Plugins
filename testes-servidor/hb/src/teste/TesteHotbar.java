@@ -219,6 +219,22 @@ public final class TesteHotbar extends PluginBase {
             getServer().getPluginManager().callEvent(queda);
             check(queda.isCancelled(), "dano off no mundo: sem dano de queda fora de areas");
         });
-        step(50, () -> { check(ana.getFoodData().getLevel() == 20, "fome off: quem chega com fome fica com a barra cheia (" + ana.getFoodData().getLevel() + ")"); });
+        step(50, () -> {
+            check(ana.getFoodData().getLevel() == 20, "fome off: quem chega com fome fica com a barra cheia (" + ana.getFoodData().getLevel() + ")");
+            // Mundo de jogo (outra zona, sem itens): os menus do lobby nao vao junto.
+            getServer().generateLevel("jogo");
+            console("zona criar jogo");
+            console("zona mundo jogo jogo");
+        });
+        step(30, () -> { ana.teleport(getServer().getLevelByName("jogo").getSafeSpawn()); });
+        step(20, () -> {
+            check(ana.level.getFolderName().equals("jogo") && !hasLobbyItem(ana), "itens de menu do lobby saem ao ir para o mundo de jogo");
+            // Itens velhos salvos no inventario (entrou no servidor ja no mundo de jogo) tambem saem.
+            Item book = Item.get(340, 0, 1); book.setCustomName("\u00a7eLobbies"); ana.getInventory().setItem(0, book);
+            getServer().getPluginManager().callEvent(new PlayerJoinEvent(ana, ""));
+        });
+        step(30, () -> { check(!hasLobbyItem(ana), "item de menu velho sai ao entrar no servidor dentro do mundo de jogo"); });
     }
+
+    boolean hasLobbyItem(Player p) { for (Item i : p.getInventory().getContents().values()) { if ((i.getId() == 340 || i.getId() == 345) && i.hasCustomName()) { return true; } } return false; }
 }

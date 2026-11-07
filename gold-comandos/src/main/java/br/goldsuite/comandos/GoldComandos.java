@@ -211,6 +211,9 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
         CmdState.Zone old = before == null ? null : data.read(s -> s.zones.get(before));
         CmdState.Zone z = now == null ? null : data.read(s -> s.zones.get(now));
         if (old != null && old != z) { removeItems(p, old); }
+        // Itens de menu de outras zonas que ficaram salvos no inventario (ex.: entrou no servidor ja nas minas) tambem saem:
+        // os menus da hotbar so existem nos lobbies que os configuram.
+        removeForeign(p, z);
         if (z == null) { return; }
         giveItems(p, z);
         if (!greet || z.welcome.isEmpty()) { return; }
@@ -250,6 +253,23 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
     private void removeItems(Player p, CmdState.Zone z) {
         for (Map.Entry<Integer, Item> e : new HashMap<>(p.getInventory().getContents()).entrySet()) {
             for (CmdState.HubItem h : z.items.values()) { if (same(e.getValue(), h)) { p.getInventory().clear(e.getKey()); } }
+        }
+    }
+
+    private void removeForeign(Player p, CmdState.Zone current) {
+        List<CmdState.HubItem> foreign = data.read(s -> {
+            List<CmdState.HubItem> out = new ArrayList<>();
+            for (CmdState.Zone other : s.zones.values()) { if (other != current) { out.addAll(other.items.values()); } }
+            return out;
+        });
+        if (foreign.isEmpty()) { return; }
+        for (Map.Entry<Integer, Item> e : new HashMap<>(p.getInventory().getContents()).entrySet()) {
+            Item it = e.getValue();
+            if (!it.hasCustomName()) { continue; }
+            boolean mine = false;
+            if (current != null) { for (CmdState.HubItem h : current.items.values()) { if (same(it, h)) { mine = true; break; } } }
+            if (mine) { continue; }
+            for (CmdState.HubItem h : foreign) { if (same(it, h)) { p.getInventory().clear(e.getKey()); break; } }
         }
     }
 

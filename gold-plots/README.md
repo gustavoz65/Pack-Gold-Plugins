@@ -10,3 +10,8 @@ Terrenos infinitos para o Rankup, com as medidas do plotworld do pack: plot 42x4
 - Só dono e membros constroem, mexem em blocos e usam baldes; na rua e na borda ninguém. PvP: `mundoprotecao plots pvp off`.
 - `/plot limpar` repõe o plot como o gerador, `limpar.blocos_por_tick` por tick.
 - Só os plots comprados são guardados (um registro por id `x;z`).
+
+
+## Dois mapas: plots e terrenos
+- `/plot` leva ao mapa de plots (ao seu primeiro plot, se tiver); já no mapa abre o menu. `/plot menu` abre em qualquer lugar.
+- `/terreno` faz o mesmo no mapa de terrenos (gerador `goldterrenos`: terreno 42, borda de pedra com laje, rua de quartzo de 5), com compra e registros próprios. Painel: `terrenos.mundo`, `terrenos.preco`.
