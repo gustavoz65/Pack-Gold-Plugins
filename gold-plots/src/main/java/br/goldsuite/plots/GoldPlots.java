@@ -385,7 +385,8 @@ public final class GoldPlots extends PluginBase implements Listener {
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) { sender.sendMessage(M.t("use_dentro_do_jogo")); return true; }
         Player p = (Player) sender;
-        PW w = command.getName().equals("terreno") ? terrenosWorld : plotsWorld;
+        // So o mapa de terrenos e usado: /plot, /plots e /p sao apelidos de /terreno.
+        PW w = terrenosWorld;
         AuthService auth = getServer().getServiceManager().load(AuthService.class);
         if (auth != null && !auth.isAuthenticated(p)) { p.sendMessage(M.t("autentique_se_primeiro")); return true; }
         if (!w.plots.isLoaded()) { p.sendMessage(PREFIX + M.t("carregando")); return true; }

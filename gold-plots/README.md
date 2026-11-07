@@ -12,6 +12,7 @@ Terrenos infinitos para o Rankup, com as medidas do plotworld do pack: plot 42x4
 - Só os plots comprados são guardados (um registro por id `x;z`).
 
 
-## Dois mapas: plots e terrenos
+## Mapa de terrenos (o único em uso no Rush MC)
 - `/plot` leva ao mapa de plots (ao seu primeiro plot, se tiver); já no mapa abre o menu. `/plot menu` abre em qualquer lugar.
 - `/terreno` faz o mesmo no mapa de terrenos (gerador `goldterrenos`: terreno 42, borda de pedra com laje, rua de quartzo de 5), com compra e registros próprios. Painel: `terrenos.mundo`, `terrenos.preco`.
+- No Rush MC só o mapa *terrenos* é usado: `/plot`, `/plots` e `/p` são apelidos de `/terreno`. O código do mapa de plots continua (painel `mundo`), sem comando.

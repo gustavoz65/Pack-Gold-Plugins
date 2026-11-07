@@ -6,7 +6,6 @@ depend: [GoldCore, GoldEconomy]
 author: gustavoz65
 description: "Terrenos infinitos: mundo gerado pela grade, compra com money, membros, limite por permissao e limpeza aos poucos"
 commands:
- plot: {description: "Vai para o mapa de plots (no mapa: menu)", usage: "/plot [menu|comprar|auto|home [n]|info|add <jogador>|remover <jogador>|limpar|ir|spawn]", aliases: [plots, p]}
- terreno: {description: "Vai para o mapa de terrenos (no mapa: menu)", usage: "/terreno [menu|comprar|auto|home [n]|info|add <jogador>|remover <jogador>|limpar|ir|spawn]", aliases: [terrenos]}
+ terreno: {description: "Vai para o mapa de terrenos (no mapa: menu)", usage: "/terreno [menu|comprar|auto|home [n]|info|add <jogador>|remover <jogador>|limpar|ir|spawn]", aliases: [terrenos, plot, plots, p]}
 permissions:
  goldplots.admin: {default: op, description: "Constroi e limpa em qualquer plot"}

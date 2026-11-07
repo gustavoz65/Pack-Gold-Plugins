@@ -1,76 +1,76 @@
 # Mensagens do GoldPlots. & = cor, {0} {1} = valores, \n quebra linha nos icones dos menus.
-prefixo: "&8[&aPlots&8] &r"
-carregando: "&7Carregando os plots, tente em instantes."
+prefixo: "&8[&aTerrenos&8] &r"
+carregando: "&7Carregando os terrenos, tente em instantes."
 goldcore_precisa_estar_ativo: "O GoldCore precisa estar ativo antes do GoldPlots."
-grade_invalida: "Grade de plots invalida."
+grade_invalida: "Grade de terrenos invalida."
 grade_invalida_usando_padrao: "Grade do painel invalida; usando 42/11/64."
-plot_invalido: "Plot invalido."
+plot_invalido: "Terreno invalido."
 use_dentro_do_jogo: "Use dentro do jogo."
 autentique_se_primeiro: "Autentique-se primeiro."
 numero_invalido: "Numero invalido."
 jogador_invalido: "Jogador invalido."
-uso_plot: "/plot (vai ao mapa) | menu | comprar | auto | home [n] | info | add <jogador> | remover <jogador> | limpar | spawn"
+uso_plot: "/terreno (vai ao mapa) | menu | comprar | auto | home [n] | info | add <jogador> | remover <jogador> | limpar | spawn"
 # ---------- compra ----------
-fique_dentro_de_um_plot: "&cFique dentro de um plot (na grama, nao na rua)."
-plot_ja_tem_dono: "&cEsse plot ja tem dono."
+fique_dentro_de_um_plot: "&cFique dentro de um terreno (na grama, nao na rua)."
+plot_ja_tem_dono: "&cEsse terreno ja tem dono."
 # {0} = limite
-limite_de_plots: "&cVoce ja tem o maximo de plots ({0}). Suba de rank ou vire VIP para ter mais."
+limite_de_plots: "&cVoce ja tem o maximo de terrenos ({0}). Suba de rank ou vire VIP para ter mais."
 # {0} = preco
-dinheiro_insuficiente: "&cDinheiro insuficiente: o plot custa {0}."
+dinheiro_insuficiente: "&cDinheiro insuficiente: o terreno custa {0}."
 compra_falhou_devolvido: "&cNao foi possivel comprar agora. O dinheiro foi devolvido."
 # {0} = plot, {1} = preco
-plot_comprado: "&aPlot {0} comprado por {1}! Construa a vontade."
-voce_nao_tem_plot: "&cVoce ainda nao tem plot. Use /plot auto."
+plot_comprado: "&aTerreno {0} comprado por {1}! Construa a vontade."
+voce_nao_tem_plot: "&cVoce ainda nao tem terreno. Use /terreno auto."
 # {0} = quantos
-voce_tem_plots: "&7Voce tem {0} plot(s). Use /plot home <1-{0}>."
+voce_tem_plots: "&7Voce tem {0} terreno(s). Use /terreno home <1-{0}>."
 # {0} = mundo
-mundo_de_plots_nao_existe: "&cO mundo de plots ({0}) ainda nao existe."
-plot_de_outro: "&cEsse plot nao e seu."
+mundo_de_plots_nao_existe: "&cO mundo de terrenos ({0}) ainda nao existe."
+plot_de_outro: "&cEsse terreno nao e seu."
 # ---------- membros ----------
-limite_de_membros: "Limite de 16 membros por plot."
+limite_de_membros: "Limite de 16 membros por terreno."
 # {0} = jogador, {1} = plot
-membro_adicionado: "&a{0} agora constroi no plot {1}."
+membro_adicionado: "&a{0} agora constroi no terreno {1}."
 # {0} = jogador, {1} = plot
-membro_removido: "&e{0} saiu do plot {1}."
+membro_removido: "&e{0} saiu do terreno {1}."
 # ---------- limpar ----------
 # {0} = plot
-limpando_plot: "&eLimpando o plot {0}..."
+limpando_plot: "&eLimpando o terreno {0}..."
 # {0} = plot
-plot_limpo: "&aPlot {0} limpo."
-plot_ja_limpando: "&eEsse plot ja esta sendo limpo."
+plot_limpo: "&aTerreno {0} limpo."
+plot_ja_limpando: "&eEsse terreno ja esta sendo limpo."
 # ---------- info ----------
 # {0} = plot, {1} = preco
-info_livre: "&fPlot {0}: &alivre &7- custa {1} (/plot comprar)."
+info_livre: "&fTerreno {0}: &alivre &7- custa {1} (/terreno comprar)."
 # {0} = plot, {1} = dono, {2} = membros
-info_dono: "&fPlot {0}: dono &e{1}&f, membros: &7{2}"
+info_dono: "&fTerreno {0}: dono &e{1}&f, membros: &7{2}"
 # ---------- menus ----------
 titulo_plots: "&8Plots"
-menu_fora_de_plot: "&7Voce nao esta em um plot\n&8Va ate um na grama"
+menu_fora_de_plot: "&7Voce nao esta em um terreno\n&8Va ate um na grama"
 # {0} = plot, {1} = preco
-menu_comprar_este: "&a&lComprar este plot\n&7Plot {0}\n&fPreco: &a{1}"
+menu_comprar_este: "&a&lComprar este terreno\n&7Terreno {0}\n&fPreco: &a{1}"
 # {0} = plot, {1} = dono
-menu_plot_de: "&fPlot {0}\n&7Dono: &e{1}"
+menu_plot_de: "&fTerreno {0}\n&7Dono: &e{1}"
 # {0} = preco
-menu_auto: "&a&lPlot automatico\n&7Compra o livre mais perto\n&fPreco: &a{0}"
+menu_auto: "&a&lTerreno automatico\n&7Compra o livre mais perto\n&fPreco: &a{0}"
 # {0} = quantos, {1} = limite
-menu_meus_plots: "&e&lMeus plots\n&7{0} de {1}\n&7Toque para ir"
-menu_info: "&f&lInformacoes\n&7Do plot onde voce esta"
+menu_meus_plots: "&e&lMeus terrenos\n&7{0} de {1}\n&7Toque para ir"
+menu_info: "&f&lInformacoes\n&7Do terreno onde voce esta"
 menu_membros: "&b&lMembros\n&7Quem pode construir"
-menu_limpar: "&c&lLimpar plot\n&7Volta ao chao original"
-menu_ir_para_plots: "&f&lIr para os plots"
-titulo_meus_plots: "&8Meus plots"
+menu_limpar: "&c&lLimpar terreno\n&7Volta ao chao original"
+menu_ir_para_plots: "&f&lIr para os terrenos"
+titulo_meus_plots: "&8Meus terrenos"
 # {0} = numero, {1} = plot
-menu_plot_home: "&a&lPlot {0}\n&7{1} - toque para ir"
+menu_plot_home: "&a&lTerreno {0}\n&7{1} - toque para ir"
 botao_voltar: "&7< Voltar"
 # {0} = plot
-titulo_membros: "&8Membros do plot {0}"
+titulo_membros: "&8Membros do terreno {0}"
 # {0} = jogador
 menu_membro_remover: "&e{0}\n&cToque para tirar"
 # {0} = jogador
 menu_membro_adicionar: "&f{0}\n&aToque para adicionar"
-titulo_limpar: "&8Limpar plot?"
+titulo_limpar: "&8Limpar terreno?"
 # {0} = plot
-botao_confirmar_limpar: "&c&lLimpar o plot {0}\n&7Apaga tudo que foi construido"
+botao_confirmar_limpar: "&c&lLimpar o terreno {0}\n&7Apaga tudo que foi construido"
 botao_cancelar: "&a&lCancelar"
 titulo_terrenos: "&8Terrenos"
 # {0} = comando (plot ou terreno)

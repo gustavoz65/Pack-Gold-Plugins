@@ -103,7 +103,7 @@ public final class TesteRankupAlpha extends PluginBase {
     Object runtime(String mine) throws Exception { Object mines = field(plugin("GoldRankup"), "mines"); return call(mines, "rt", new Class<?>[] {String.class}, mine); }
     int mined(String mine) throws Exception { return (Integer) field(runtime(mine), "mined"); }
     Object pw(String field) { try { Field f = plugin("GoldPlots").getClass().getDeclaredField(field); f.setAccessible(true); return f.get(plugin("GoldPlots")); } catch (Exception e) { errors.add(e.toString()); return null; } }
-    String owner(String id) { return owner("plotsWorld", id); }
+    String owner(String id) { return owner("terrenosWorld", id); }
     String owner(String world, String id) { try { Object w = pw(world); return (String) call(plugin("GoldPlots"), "owner", new Class<?>[] {w.getClass(), String.class}, w, id); } catch (Exception e) { errors.add(e.toString()); return "?"; } }
     boolean breakAt(Player p, Level lv, int x, int y, int z) {
         BlockBreakEvent ev = new BlockBreakEvent(p, lv.getBlock(new Vector3(x, y, z)), Item.get(274), false);
@@ -117,7 +117,7 @@ public final class TesteRankupAlpha extends PluginBase {
         return !ev.isCancelled();
     }
     Level minas() { return getServer().getLevelByName("minas"); }
-    Level plots() { return getServer().getLevelByName("plots"); }
+    Level plots() { return getServer().getLevelByName("terrenos"); }
 
     @Override public void onEnable() {
         getServer().getScheduler().scheduleDelayedTask(() -> { plan(); next(); }, 80);
@@ -250,24 +250,24 @@ public final class TesteRankupAlpha extends PluginBase {
         step(10, () -> { for (int cx = -2; cx <= 4; cx++) { for (int cz = -2; cz <= 4; cz++) { plots().populateChunk(cx, cz, true); } } });
         step(100, () -> { for (int cx = -2; cx <= 4; cx++) { for (int cz = -2; cz <= 4; cz++) { plots().populateChunk(cx, cz, true); } } });
         step(30, () -> { cmd(ana, "plot"); });
-        step(60, () -> { check(ana.level == plots() && saw(ana, "ainda nao tem"), "/plot fora do mapa leva ao mapa de plots"); cmd(ana, "plot"); });
+        step(60, () -> { check(ana.level == plots() && saw(ana, "ainda nao tem"), "/plot fora do mapa leva ao mapa de terrenos"); cmd(ana, "plot"); });
         step(10, () -> { try { check(windowId(ana) >= 0 && slot(ana, 11).getId() == 345, "/plot abre o menu"); } catch (Exception e) { errors.add(e.toString()); } before = money(ana); tap(ana, 11); });
         step(120, () -> {
             check(owner("0;0").equals("ana") && before - money(ana) == 1500_00, "plot auto: comprou o 0;0 por $1.500");
             check(ana.level == plots(), "plot auto leva ao plot");
-            check(plots().getBlockIdAt(30, 64, 30) == 2 && plots().getBlockIdAt(6, 65, 30) == 158 && plots().getBlockIdAt(0, 64, 0) == 3, "mundo de plots: grama no plot, laje na borda, rua de terra (" + plots().getBlockIdAt(30, 64, 30) + "/" + plots().getBlockIdAt(6, 65, 30) + "/" + plots().getBlockIdAt(0, 64, 0) + ")");
+            check(plots().getBlockIdAt(30, 64, 30) == 2 && plots().getBlockIdAt(3, 65, 30) == 44 && plots().getBlockIdAt(0, 64, 0) == 155, "mapa de terrenos: grama no terreno, laje de pedra na borda, rua de quartzo (" + plots().getBlockIdAt(30, 64, 30) + "/" + plots().getBlockIdAt(3, 65, 30) + "/" + plots().getBlockIdAt(0, 64, 0) + ")");
             check(placeAt(ana, plots(), 30, 65, 30), "dono constroi no plot");
-            check(!placeAt(ana, plots(), 5, 65, 5), "ninguem constroi na rua");
+            check(!placeAt(ana, plots(), 0, 65, 0), "ninguem constroi na rua");
             check(!placeAt(bia, plots(), 30, 65, 30), "outro jogador nao constroi no plot dele");
             got(ana).clear();
             cmd(ana, "plot auto");
         });
         step(30, () -> {
-            check(saw(ana, "maximo de plots") && owner("1;0").isEmpty() && owner("0;1").isEmpty(), "limite de plots (1 no rank Carvao)");
+            check(saw(ana, "maximo de terrenos") && owner("1;0").isEmpty() && owner("0;1").isEmpty(), "limite de plots (1 no rank Carvao)");
             try {
                 // Dois comprando o mesmo plot no mesmo tick: so um leva.
                 Object pl = plugin("GoldPlots");
-                Object w = pw("plotsWorld");
+                Object w = pw("terrenosWorld");
                 Method buy = pl.getClass().getDeclaredMethod("buy", Player.class, w.getClass(), String.class, boolean.class); buy.setAccessible(true);
                 buy.invoke(pl, bia, w, "5;5", false); buy.invoke(pl, caio, w, "5;5", false);
             } catch (Exception e) { errors.add(e.toString()); }
@@ -276,19 +276,17 @@ public final class TesteRankupAlpha extends PluginBase {
             String o = owner("5;5");
             check(o.equals("bia") && money(bia) == 3500_00 && money(caio) == 5000_00, "dois compradores do mesmo plot: so um leva e o outro nao paga (dono " + o + ")");
             plots().setBlock(new Vector3(30, 70, 30), Block.get(1), true, false);
-            try { Object pl = plugin("GoldPlots"); Object w = pw("plotsWorld"); Method c = pl.getClass().getDeclaredMethod("clear", Player.class, w.getClass(), String.class); c.setAccessible(true); c.invoke(pl, ana, w, "0;0"); } catch (Exception e) { errors.add(e.toString()); }
+            try { Object pl = plugin("GoldPlots"); Object w = pw("terrenosWorld"); Method c = pl.getClass().getDeclaredMethod("clear", Player.class, w.getClass(), String.class); c.setAccessible(true); c.invoke(pl, ana, w, "0;0"); } catch (Exception e) { errors.add(e.toString()); }
         });
         step(200, () -> {
             check(plots().getBlockIdAt(30, 70, 30) == 0 && plots().getBlockIdAt(30, 64, 30) == 2, "/plot limpar repoe o plot");
-            cmd(caio, "terreno auto");
+            cmd(caio, "p auto");
         });
         // Terrenos: outro mundo, outra grade (rua de quartzo de 5), compra separada dos plots.
         step(10, () -> { Level t = getServer().getLevelByName("terrenos"); for (int cx = -2; cx <= 3; cx++) { for (int cz = -2; cz <= 3; cz++) { t.populateChunk(cx, cz, true); } } });
         step(120, () -> {
             Level t = getServer().getLevelByName("terrenos");
-            check(owner("terrenosWorld", "0;0").equals("caio") && caio.level == t, "/terreno auto compra no mapa de terrenos e leva ate la");
-            check(t.getBlockIdAt(0, 64, 0) == 155 && t.getBlockIdAt(10, 64, 10) == 2 && t.getBlockIdAt(3, 65, 10) == 44, "terrenos: rua de quartzo, grama e laje de pedra na borda (" + t.getBlockIdAt(0, 64, 0) + "/" + t.getBlockIdAt(10, 64, 10) + "/" + t.getBlockIdAt(3, 65, 10) + ")");
-            check(placeAt(caio, t, 10, 65, 10) && !placeAt(bia, t, 10, 65, 10), "terrenos: dono constroi, outro nao");
+            check(owner("-1;-1").equals("caio") && caio.level == t, "/p auto (apelido) compra o terreno livre mais perto e leva ate la (" + owner("-1;-1") + ")");
             quit(ana);
         });
         step(40, () -> { try { ana = fake("Ana"); } catch (Exception e) { errors.add(e.toString()); } });

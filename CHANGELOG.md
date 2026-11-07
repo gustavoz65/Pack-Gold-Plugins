@@ -22,6 +22,7 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 - **GoldRankup**: painel `mundos_tag` — o `{rank}` só aparece no chat/HUD dos mundos do rankup (padrão `RankupLobby,minas,plots`).
 
 ### Corrigido
+- **GoldPlots**: só o mapa de terrenos fica; `/plot`, `/plots` e `/p` são apelidos de `/terreno` e as mensagens falam "terreno".
 - **GoldComandos**: itens de menu da hotbar de uma zona (livro de lobbies, atalhos do Rankup) saem do inventário em qualquer outro mundo, inclusive para quem entra no servidor já dentro do mundo de jogo. No Rush MC as zonas viraram lobby (com itens) e jogo (`rankupjogo`: minas/plots/terrenos; `factionsjogo`: factions), com os mesmos comandos e barra.
 - **GoldPlots**: `/plot` agora **leva ao mapa de plots** (ao seu plot, se tiver); o menu abre quando você já está no mapa (`/plot menu` em qualquer lugar). Novo `/terreno` com o mapa *terrenos* do pack (terreno 42, rua de quartzo de 5, gerador `goldterrenos` que continua a grade), com registros próprios.
 - **GoldRankup**: minas são principalmente do minério delas (70-80%); preços de venda e dos ranks rebalanceados (1º rank ~10 min, metade ~5 h, último ~20 h).
