@@ -22,6 +22,10 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 - **GoldRankup**: painel `mundos_tag` — o `{rank}` só aparece no chat/HUD dos mundos do rankup (padrão `RankupLobby,minas,plots`).
 
 ### Corrigido
+- **GoldPlots**: `/plot` agora **leva ao mapa de plots** (ao seu plot, se tiver); o menu abre quando você já está no mapa (`/plot menu` em qualquer lugar). Novo `/terreno` com o mapa *terrenos* do pack (terreno 42, rua de quartzo de 5, gerador `goldterrenos` que continua a grade), com registros próprios.
+- **GoldRankup**: minas são principalmente do minério delas (70-80%); preços de venda e dos ranks rebalanceados (1º rank ~10 min, metade ~5 h, último ~20 h).
+- **GoldWorld**: lobby do Factions trocado pelo lobby da ponte de madeira do pack (o anterior era um mapa de mina); cair da ponte leva ao Factions (`mundo portal`).
+- **Minigames**: NPCs do Hubw na frente do JOIN.
 - **GoldSkyWars**: o baú dos kits não aparecia/abria no celular — o 0.15 liga cada slot da hotbar a um slot do inventário e a partida não ligava os slots 0-8 (o mesmo no **GoldBedWars** e no **GoldHG**). A vitória sai na hora em que o último cai (queda conferida 4x por segundo, 25 blocos abaixo da jaula), o boneco nasce na jaula olhando para o meio do mapa, e no fim todos recebem *Jogar de novo* e *Sair* (12 s para escolher). Ícone do kit Granadeiro trocado por TNT.
 - **Mapas**: o `FactionsLobby` do pack derrubava o celular (sinalizador, que não existe no 0.15); Submerged e Villa do SkyWars tinham prismarinho e lanterna do mar (também da 0.16); o HG tinha sinalizador, ender chest, bloco de comando e jukebox. Todos saneados, inclusive as cópias de reset.
 - **GoldCore**: o console do painel parava de aceitar comandos depois de um tempo (bug do jline do Nukkit: a thread "Console" morre quando o log escreve no meio de uma linha digitada). O GoldCore agora vigia essa thread e reabre a leitura do console sozinho.

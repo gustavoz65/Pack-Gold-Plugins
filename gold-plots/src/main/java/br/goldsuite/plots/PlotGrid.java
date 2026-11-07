@@ -24,6 +24,9 @@ public final class PlotGrid {
         this.roadBlock = roadBlock; this.borderBlock = borderBlock; this.slabBlock = slabBlock; this.topBlock = topBlock; this.fillBlock = fillBlock; this.roadFill = roadFill;
     }
 
+    /** Mapa "terrenos" do pack: terreno 42, borda de pedra com laje de pedra, rua de quartzo de 5 (rua de x=-2 a 2). */
+    public static PlotGrid terrenos() { return new PlotGrid(42, 5, 64, 2, 155, 1, 44, 2, 1, 155); }
+
     public int cell() { return size + 2 + road; }
 
     public Kind kind(int v) {

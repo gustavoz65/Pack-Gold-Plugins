@@ -19,6 +19,10 @@ public final class PlotsTest {
         check(pack.kind(-158) == PlotGrid.Kind.PLOT && pack.kind(-117) == PlotGrid.Kind.PLOT && pack.kind(-159) == PlotGrid.Kind.BORDER && pack.kind(-116) == PlotGrid.Kind.BORDER && pack.kind(-160) == PlotGrid.Kind.ROAD, "grade casa com o pack");
         int i = pack.index(-130);
         check(pack.min(i) == -158 && pack.max(i) == -117 && pack.id(-130, -130).equals(i + ";" + i), "limites com deslocamento");
+        // Mapa "terrenos" do pack: terreno de x=4 a 45, borda (laje de pedra) em 3 e 46, rua de quartzo de -2 a 2.
+        PlotGrid t = PlotGrid.terrenos();
+        check(t.cell() == 49 && t.kind(4) == PlotGrid.Kind.PLOT && t.kind(45) == PlotGrid.Kind.PLOT && t.kind(3) == PlotGrid.Kind.BORDER && t.kind(46) == PlotGrid.Kind.BORDER && t.kind(-2) == PlotGrid.Kind.ROAD && t.kind(2) == PlotGrid.Kind.ROAD && t.kind(47) == PlotGrid.Kind.ROAD, "grade casa com o terrenos");
+        check(t.id(10, 20).equals("0;0") && t.min(0) == 4 && t.min(-1) == -45 && t.block(PlotGrid.Kind.ROAD, 64) == 155 && t.block(PlotGrid.Kind.BORDER, 65) == 44 && t.block(PlotGrid.Kind.PLOT, 63) == 1, "ids e blocos do terrenos");
         int[] ij = PlotGrid.parse("-3;7");
         check(ij[0] == -3 && ij[1] == 7, "parse");
         for (String bad : new String[] {"", "1", "a;b", "1;2;3"}) { try { PlotGrid.parse(bad); check(false, "id invalido aceito"); } catch (IllegalArgumentException expected) { } }

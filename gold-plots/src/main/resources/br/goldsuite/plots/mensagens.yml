@@ -9,7 +9,7 @@ use_dentro_do_jogo: "Use dentro do jogo."
 autentique_se_primeiro: "Autentique-se primeiro."
 numero_invalido: "Numero invalido."
 jogador_invalido: "Jogador invalido."
-uso_plot: "/plot (menu) | comprar | auto | home [n] | info | add <jogador> | remover <jogador> | limpar | ir"
+uso_plot: "/plot (vai ao mapa) | menu | comprar | auto | home [n] | info | add <jogador> | remover <jogador> | limpar | spawn"
 # ---------- compra ----------
 fique_dentro_de_um_plot: "&cFique dentro de um plot (na grama, nao na rua)."
 plot_ja_tem_dono: "&cEsse plot ja tem dono."
@@ -72,3 +72,6 @@ titulo_limpar: "&8Limpar plot?"
 # {0} = plot
 botao_confirmar_limpar: "&c&lLimpar o plot {0}\n&7Apaga tudo que foi construido"
 botao_cancelar: "&a&lCancelar"
+titulo_terrenos: "&8Terrenos"
+# {0} = comando (plot ou terreno)
+chegou_sem_plot: "&eVoce ainda nao tem um. Use &f/{0} auto&e para comprar o livre mais perto, ou ande ate um e use &f/{0} comprar&e."

@@ -23,7 +23,7 @@ final class Types {
         new Type(7, "aranha", 35, 0.9f, new int[][] {{287, 0, 2}, {375, 0, 1}}),
         new Type(8, "creeper", 33, 1.7f, new int[][] {{289, 0, 2}}),
         new Type(9, "blaze", 43, 1.8f, new int[][] {{369, 0, 1}, {377, 0, 1}}),
-        new Type(10, "golem", 20, 2.7f, new int[][] {{265, 0, 6}, {38, 0, 1}}),
+        new Type(10, "golem", 20, 2.7f, new int[][] {{42, 0, 1}, {38, 0, 1}}),
     };
 
     static Type get(int id) { return id >= 1 && id <= ALL.length ? ALL[id - 1] : null; }
