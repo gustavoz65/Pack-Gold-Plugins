@@ -40,6 +40,16 @@ public final class NpcTest {
         back.skin = "";
         reopened.npcs.put(99, back);
         rejects(() -> NpcState.validate(reopened));
+        // Posicao pelo console: <mundo> <x> <y> <z> [yaw]
+        br.goldsuite.api.Destination d = br.goldsuite.api.Destination.parse(new String[] {"criar", "humano", "LobbyRush", "10.5", "65", "-3", "90", "&aPvP"}, 2);
+        check(d != null && d.target.equals("LobbyRush") && d.x == 10.5 && d.y == 65 && d.z == -3 && d.yaw == 90, "posicao com yaw");
+        check(br.goldsuite.api.Destination.parsedLength(new String[] {"criar", "humano", "LobbyRush", "10.5", "65", "-3", "90", "&aPvP"}, 2) == 5, "yaw consome 5 argumentos");
+        check(br.goldsuite.api.Destination.parsedLength(new String[] {"criar", "humano", "LobbyRush", "1", "2", "3", "&aPvP"}, 2) == 4, "sem yaw consome 4");
+        check(br.goldsuite.api.Destination.parse(new String[] {"criar", "humano", "Fulano"}, 2) == null, "sem coordenadas devolve null");
+        check(br.goldsuite.api.Destination.parse(new String[] {"m", "1", "x", "3"}, 0) == null, "coordenada nao numerica devolve null");
+        check(br.goldsuite.api.Destination.parse(new String[] {"m", "1", "NaN", "3"}, 0) == null, "NaN recusado");
+        try { br.goldsuite.api.Destination.parse(new String[] {"m", "1", "999", "3"}, 0); check(false, "y fora do mundo"); } catch (IllegalArgumentException expected) { }
+        try { br.goldsuite.api.Destination.parse(new String[] {"../x", "1", "2", "3"}, 0); check(false, "nome de mundo invalido"); } catch (IllegalArgumentException expected) { }
         System.out.println("GoldNPC: nomes, tipos, destinos, transicoes, comandos e serializacao aprovados.");
     }
     private static void check(boolean condition, String message) { if (!condition) { throw new AssertionError(message); } }

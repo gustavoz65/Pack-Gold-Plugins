@@ -1,0 +1,5 @@
+name: TesteNpcConsole
+main: teste.TesteNpcConsole
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldNPC, GoldEssentials]

@@ -30,7 +30,7 @@ GUIAS = {
             "- No jogo, toque numa opção do menu e digite o valor no chat: padrao restaura, cancelar sai.",
         ]),
     ],
-    dicas=["Chaves de API (ex.: groq_chave) aparecem mascaradas no painel.", "As permissões goldcore.painel e goldcore.alertas são só de OP por padrão; dê goldcore.alertas aos cargos da staff que devem receber avisos."],
+    dicas=["Itens de menu da hotbar (livros, caixas, seletor de lobbies, itens das partidas): por padrão agem ao tocar no chão com o item; só selecionar o slot não faz nada. painel set GoldCore hotbar.ao_selecionar 1 volta ao jeito antigo. O espectador do SkyWars e do BedWars, que voa sem chão, usa Jogar de novo e Sair só de selecionar.", "Chaves de API (ex.: groq_chave) aparecem mascaradas no painel.", "As permissões goldcore.painel e goldcore.alertas são só de OP por padrão; dê goldcore.alertas aos cargos da staff que devem receber avisos."],
 ),
 "GoldAuth": dict(
     resumo="Registro e login obrigatórios (inclusive para OP), com senha forte (PBKDF2), limite de tentativas por IP e verificação em duas etapas (2FA) com aparelhos confiáveis.",
@@ -94,7 +94,8 @@ GUIAS = {
         "Escolha o modo: /zona modo <zona> liberar (só os comandos da lista funcionam) ou bloquear (os da lista não funcionam).",
         "Monte a lista: /zona cmd <zona> <comando> [comando...] (alterna cada um).",
         "Boas-vindas e ajuda: /zona boasvindas <zona> <texto com {nome}> e /zona ajuda <zona> <linha> (aparece no topo do /help).",
-        "Itens da hotbar que executam comandos: /zona item <zona> <slot 1-9> <id> <nome> <comando>.",
+        "Itens da hotbar que executam comandos: /zona item <zona> <slot 1-9> <id> <nome> <comando>. O jogador toca no chão com o item para usar; os itens voltam ao renascer e ao entrar, e não caem ao morrer.",
+        "Seletor de lobbies (/lobbies): /zona seletor <posição 1-27> <id> <nome> <comando> monta o menu; dê o livro em cada zona com /zona item <zona> <slot> 340 &e&lLobbies lobbies.",
         "Desligue plugins e recursos que não fazem sentido ali: /zona plugin <zona> <Plugin> e /zona recurso <zona> <plugin.recurso> (lista em /zona recursos).",
         "Barra própria da zona: /zona hud <zona> <1|2> <texto|padrao|nenhuma>.",
         "Proteja o OP pelo console: opseguro add <nick> <ip>.",
@@ -114,6 +115,11 @@ GUIAS = {
         "$ /zona recurso rankup goldpvp.perfil",
         "$ /zona recurso rankup goldskills.xp",
         "$ /zona hud rankup 1 &a&lRANKUP &7| &fMoney: &a{money}",
+    ]), ("Exemplo: seletor de lobbies", [
+        "$ /zona seletor 11 276 &c&lPvP|&7{mundo:LobbyPvP}_jogando mundo tp LobbyPvP",
+        "$ /zona seletor 13 261 &b&lMinigames|&7{mundo:Hubw}_jogando mundo tp Hubw",
+        "$ /zona item hub 5 340 &e&lLobbies lobbies",
+        "- No nome, _ vira espaço, | quebra a linha e {mundo:Nome} mostra quantos jogam lá. /zona seletor lista e /zona seletor remover <posição>.",
     ]), ("Recursos por zona", [
         "- goldpvp.perfil: livro do perfil do PvP/ranked na hotbar.",
         "- goldfactions.territorio: aviso de território e mini mapa das facções.",
@@ -134,7 +140,7 @@ GUIAS = {
     resumo="Comandos do dia a dia: spawn, homes, warps, tpa, back, fly, preferências (/config), lanterna (/luz), lojas de jogadores (/setloja e /loja) e mundo VIP.",
     passos=[
         "Vá ao ponto de nascimento do lobby e use /setspawn.",
-        "Crie warps: /setwarp <nome> (apague com /delwarp). Jogadores usam /warp para ver e ir.",
+        "Crie warps: /setwarp <nome> (apague com /delwarp). Jogadores usam /warp para ver e ir. Pelo console: setwarp <nome> <mundo> <x> <y> <z> [yaw].",
         "Dê ao VIP as permissões dos extras pelo GoldPerms: goldessentials.fly, goldessentials.luz, goldessentials.setloja, goldessentials.mundovip e goldessentials.homes.vip (5 homes em vez de 2).",
         "Mundo VIP: vá ao local e use /mundovip definir. Quem não é VIP recebe a mensagem do painel (mundovip.sem_vip; | quebra a linha).",
         "Ajuste as esperas no painel: loja.espera e luz.espera.",
@@ -190,6 +196,7 @@ GUIAS = {
     passos=[
         "Fique no lugar e crie: /npc criar humano &6HG|&f{mundo:hg} jogando (| quebra a linha, até 5 linhas). Para criaturas: /npc criar villager Loja.",
         "O NPC criado fica selecionado. Para outro: /npc selecionar e toque nele (ou /npc selecionar <id>).",
+        "Sem ninguém no jogo, pelo console: npc criar <tipo> <mundo> <x> <y> <z> [yaw] [nome], npc selecionar <id>, npc mover <mundo> <x> <y> <z> [yaw] e npc destino posicao <mundo> <x> <y> <z>. O console tem a sua própria seleção.",
         "Defina o clique: /npc comando <comando> (roda como o jogador; {jogador} vira o nick) ou /npc destino mundo <mundo> com /npc transicao <efeito>.",
         "Ajustes: /npc nome, /npc skin [jogador], /npc item, /npc mover, /npc olhar sim|nao, /npc tipo <tipo>.",
     ],
@@ -209,7 +216,7 @@ GUIAS = {
 "GoldProtect": dict(
     resumo="Áreas protegidas, proteção de mundos inteiros, anti-void, alerta de X-ray e anti-dupe.",
     passos=[
-        "Proteja o lobby inteiro: /mundoprotecao <mundo> construir off, /mundoprotecao <mundo> pvp off, /mundoprotecao <mundo> dano off (off = bloqueado).",
+        "Proteja o lobby inteiro: /mundoprotecao <mundo> construir off, pvp off, dano off, fome off (a fome não cai) e movimento off (o servidor não puxa o jogador de volta na beira dos blocos). off = bloqueado; nas arenas deixe movimento ligado.",
         "Para um pedaço do mapa: /area pos1 e /area pos2 nos cantos, depois /area criar <nome>.",
         "Ajuste a área: /area flag <area> <construir|pvp|interagir|dano> <on|off>, /area membro <area> adicionar <jogador>, /area efeito <area> <id> [nivel], /area mensagem <area> <texto>.",
         "Lobbies sobre o vazio: /antivoid [mundo] salva quem cai.",
@@ -493,7 +500,7 @@ GUIAS = {
     passos=[
         "Use /we varinha: você recebe o machado de madeira (varinha) e a vara de blaze (Menu do WE).",
         "Com o machado na mão, quebre um bloco (no celular, segure no bloco) para marcar o ponto 1 e toque em outro bloco para marcar o ponto 2. O bloco não quebra.",
-        "Selecione a vara de blaze na hotbar: abre o menu com Preencher, Paredes, Trocar, Esfera, Limpar, Desfazer e marcar os pontos onde você está.",
+        "Toque no chão com a vara de blaze: abre o menu com Preencher, Paredes, Trocar, Esfera, Limpar, Desfazer e marcar os pontos onde você está.",
         "Ao escolher a operação, o menu mostra os blocos do seu inventário: toque no que quer usar. No Trocar, escolha primeiro o bloco que sai e depois o que entra.",
         "Errou? Desfazer (no menu ou /we undo) volta a última operação.",
     ],

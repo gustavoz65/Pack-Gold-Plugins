@@ -11,10 +11,10 @@ SkyWars no estilo do MythicSkyWars, refeito do zero a partir da lógica do plugi
 
 ## Partida
 1. `/sw entrar [solo|dupla]` (ou NPC com `/npc comando sw entrar`): o jogador vai direto para uma **jaula de vidro** na ilha.
-2. Com o mínimo de jogadores, contagem de 20 s (10 s com a sala cheia). Na jaula: baú da hotbar = **kits**, cama = sair.
+2. Com o mínimo de jogadores, contagem de 20 s (10 s com a sala cheia). Na jaula: baú da hotbar = **kits**, cama = sair (toque no chão com o item).
 3. As jaulas somem, cada um recebe o kit e os baús são preenchidos. 5 s sem dano de queda.
 4. Refil dos baús em 3:00 e 6:00. Até 15:00; sem vencedor, empate.
-5. Morte: itens caem (no vazio, não), vira **espectador** invisível voando sobre o centro (papel = jogar de novo, cama = sair). O abate vai para quem bateu por último (15 s), inclusive quem empurrou no vazio.
+5. Morte: itens caem (no vazio, não), vira **espectador** invisível voando sobre o centro (papel = jogar de novo, cama = sair; o espectador voa sem chão, então esses dois agem só de selecionar). O abate vai para quem bateu por último (15 s), inclusive quem empurrou no vazio.
 6. Vitória: dinheiro, efeito, anúncio global; todos voltam ao lobby e o mapa é restaurado em segundo plano.
 
 ## Baús

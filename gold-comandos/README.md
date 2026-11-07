@@ -15,7 +15,18 @@ Uma **zona** é um grupo de mundos com as mesmas regras (ex.: `pvp`, `minigames`
 
 **Boas-vindas:** na primeira vez que o jogador entra na zona (`{nome}` vira o nick), no chat e no meio da tela. `/zona boasvindas_sempre <zona> on` mostra a cada entrada.
 
-**Itens da hotbar:** cada zona pode ter itens que executam comandos (ex.: bússola "Jogos" que abre `/sw entrar solo`). Basta selecionar o item na hotbar, que a seleção volta para o slot anterior. Os itens não caem no chão e somem ao sair da zona. O livro do perfil do ranked continua pelo `/ranked lobby <mundo>` do GoldPvP.
+**Itens da hotbar:** cada zona pode ter itens que executam comandos (ex.: livro "Lobbies" que abre `/lobbies`). O item age quando o jogador **toca no chão** com ele na mão; selecionar o slot não faz nada (com `hotbar.ao_selecionar = 1` no painel do GoldCore volta o jeito antigo: selecionar já executa e a hotbar volta ao slot anterior). Os itens não caem no chão (nem ao morrer), somem ao sair da zona e voltam ao renascer, ao entrar no servidor e depois do login. O livro do perfil do ranked continua pelo `/ranked lobby <mundo>` do GoldPvP.
+
+**Seletor de lobbies (`/lobbies`, também `/jogos`):** um menu único, igual em todas as zonas, com um ícone por lobby. Funciona em qualquer zona (não precisa estar na lista).
+```
+/zona seletor 11 276 &c&lPvP|&7{mundo:LobbyPvP}_jogando mundo tp LobbyPvP
+/zona seletor 13 261 &b&lMinigames|&7{mundo:Hubw}_jogando mundo tp Hubw
+/zona seletor 5 2 &e&lHub spawn
+/zona seletor                       lista os ícones
+/zona seletor remover 11
+/zona item hub 5 340 &e&lLobbies lobbies    livro que abre o seletor (repita em cada zona)
+```
+Posição de 1 a 27 no baú; no nome, `_` vira espaço, `|` quebra a linha e `{mundo:Nome}` mostra quantos jogam naquele mundo (também `{online}` e `{max}`). O comando roda como o jogador.
 
 ### Exemplo: lobby de PvP
 ```

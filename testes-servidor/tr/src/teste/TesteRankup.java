@@ -150,7 +150,10 @@ public final class TesteRankup extends PluginBase {
             try {
                 bia.getInventory().setHotbarSlotIndex(0, slot); bia.getInventory().setHeldItemIndex(0);
                 getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerItemHeldEvent(bia, bia.getInventory().getItem(slot), 0, slot));
-                menuClick(bia, 11);
+                check(money(bia) == before, "Selecionar a caixa nao abre (padrao: tocar no chao)");
+                // Tocar no chao com a caixa na mao abre direto.
+                cn.nukkit.block.Block chao = bia.level.getBlock(new cn.nukkit.math.Vector3(bia.getFloorX(), bia.getFloorY() - 1, bia.getFloorZ()));
+                getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerInteractEvent(bia, bia.getInventory().getItemInHand(), chao, 1, cn.nukkit.event.player.PlayerInteractEvent.RIGHT_CLICK_BLOCK));
             } catch (Exception e) { errors.add("abrir caixa: " + e); }
             check(money(bia) == before + 100_000 && saw(bia, "Voce ganhou") && saw(bia, "MUITO RARO") && saw(ana, "ganhou um item"), "Abrir a caixa paga o premio de comando e anuncia a raridade");
             int left = 0; for (cn.nukkit.item.Item it : bia.getInventory().getContents().values()) { if (it.getId() == 54) { left += it.getCount(); } }
@@ -159,7 +162,8 @@ public final class TesteRankup extends PluginBase {
             cn.nukkit.item.Item fake = cn.nukkit.item.Item.get(54, 0, 1); fake.setCustomName(bia.getInventory().getItem(slot).getCustomName());
             bia.getInventory().setItem(5, fake);
             long b2 = money(bia);
-            getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerItemHeldEvent(bia, fake, 1, 5));
+            bia.getInventory().setHotbarSlotIndex(1, 5); bia.getInventory().setHeldItemIndex(1);
+            getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerInteractEvent(bia, fake, bia.level.getBlock(new cn.nukkit.math.Vector3(bia.getFloorX(), bia.getFloorY() - 1, bia.getFloorZ())), 1, cn.nukkit.event.player.PlayerInteractEvent.RIGHT_CLICK_BLOCK));
             check(money(bia) == b2, "Bau com o mesmo nome mas sem assinatura nao vira caixa");
         });
         step(10, () -> {

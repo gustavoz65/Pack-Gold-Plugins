@@ -202,7 +202,7 @@ public final class GoldEssentials extends PluginBase implements Listener {
     // ---------- comandos ----------
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) { sender.sendMessage(M.t("use_dentro_do_jogo")); return true; }
+        if (!(sender instanceof Player)) { return console(sender, command.getName(), args); }
         Player p = (Player) sender;
         AuthService auth = getServer().getServiceManager().load(AuthService.class);
         if (auth != null && !auth.isAuthenticated(p)) { p.sendMessage(M.t("autentique_se_primeiro")); return true; }
@@ -217,8 +217,8 @@ public final class GoldEssentials extends PluginBase implements Listener {
                 case "home": home(p, args.length > 0 ? args[0] : null); return true;
                 case "delhome": delHome(p, args.length > 0 ? args[0] : "casa"); return true;
                 case "warp": warp(p, args.length > 0 ? args[0] : null); return true;
-                case "setwarp": { String name = Places.name(args.length > 0 ? args[0] : ""); Destination here = here(p); save(p, places.change(s -> { if (s.warps.size() >= Places.MAX_WARPS && !s.warps.containsKey(name)) { throw new IllegalArgumentException(M.t("limite_de_warps")); } s.warps.put(name, here); }), "Warp " + name + " salva."); return true; }
-                case "delwarp": { String name = Places.name(args.length > 0 ? args[0] : ""); save(p, places.change(s -> { if (s.warps.remove(name) == null) { throw new IllegalArgumentException(M.t("warp_inexistente")); } }), M.t("warp_removida")); return true; }
+                case "setwarp": setWarp(p, args); return true;
+                case "delwarp": delWarp(p, args); return true;
                 case "spawn": { Location spawn = spawnLocation(); go(p, spawn == null ? Destination.world(getServer().getDefaultLevel().getFolderName()) : here(spawn)); return true; }
                 case "setspawn": { Destination here = here(p); save(p, places.change(s -> s.spawn = here), M.t("spawn_do_servidor_salvo")); getServer().getDefaultLevel().setSpawnLocation(p); return true; }
                 case "tpa": case "tpahere": request(p, args, command.getName().equals("tpahere")); return true;
@@ -247,6 +247,39 @@ public final class GoldEssentials extends PluginBase implements Listener {
                 default: return false;
             }
         } catch (RuntimeException error) { p.sendMessage(PREFIX + "§c" + root(error)); return true; }
+    }
+
+    /** Pelo console so faz sentido o que nao depende de onde o jogador esta: warps com coordenadas e a lista. */
+    private boolean console(CommandSender sender, String command, String[] args) {
+        try {
+            switch (command) {
+                case "setwarp": setWarp(sender, args); return true;
+                case "delwarp": delWarp(sender, args); return true;
+                case "warp": sender.sendMessage(PREFIX + M.t("warps", places.<String>read(s -> s.warps.isEmpty() ? "nenhuma" : warpList(s)))); return true;
+                default: sender.sendMessage(M.t("use_dentro_do_jogo")); return true;
+            }
+        } catch (RuntimeException error) { sender.sendMessage(PREFIX + "§c" + root(error)); return true; }
+    }
+
+    private static String warpList(Places s) {
+        StringBuilder out = new StringBuilder();
+        for (Map.Entry<String, Destination> e : s.warps.entrySet()) { out.append(out.length() == 0 ? "" : ", ").append(e.getKey()).append(" (").append(e.getValue()).append(')'); }
+        return out.toString();
+    }
+
+    /** /setwarp <nome> (onde o jogador esta) ou /setwarp <nome> <mundo> <x> <y> <z> [yaw] (jogador ou console). */
+    private void setWarp(CommandSender sender, String[] args) {
+        String name = Places.name(args.length > 0 ? args[0] : "");
+        Destination at = Destination.parse(args, 1);
+        if (at == null && args.length > 1 || at == null && !(sender instanceof Player)) { throw new IllegalArgumentException(M.t("uso_setwarp")); }
+        if (at != null && getServer().getLevelByName(at.target) == null && !getServer().isLevelGenerated(at.target)) { throw new IllegalArgumentException(M.t("mundo_inexistente", at.target)); }
+        Destination target = at != null ? at : here((Player) sender);
+        save(sender, places.change(s -> { if (s.warps.size() >= Places.MAX_WARPS && !s.warps.containsKey(name)) { throw new IllegalArgumentException(M.t("limite_de_warps")); } s.warps.put(name, target); }), M.t("warp_salva", name, target));
+    }
+
+    private void delWarp(CommandSender sender, String[] args) {
+        String name = Places.name(args.length > 0 ? args[0] : "");
+        save(sender, places.change(s -> { if (s.warps.remove(name) == null) { throw new IllegalArgumentException(M.t("warp_inexistente")); } }), M.t("warp_removida"));
     }
 
     private int maxHomes(Player p) {
@@ -347,13 +380,14 @@ public final class GoldEssentials extends PluginBase implements Listener {
     private static Destination here(Location l) { return Destination.position(l.level.getFolderName(), l.x, l.y, l.z, (float) l.yaw, (float) l.pitch); }
     private static Places.Homes copy(Places.Homes h) { Places.Homes c = new Places.Homes(); c.homes.putAll(h.homes); return c; }
 
-    private void save(Player p, CompletableFuture<?> op, String message) { save(p, op, message, null); }
-    private void save(Player p, CompletableFuture<?> op, String message, Runnable then) {
+    private void save(CommandSender p, CompletableFuture<?> op, String message) { save(p, op, message, null); }
+    private void save(CommandSender p, CompletableFuture<?> op, String message, Runnable then) {
         op.whenComplete((v, error) -> {
             if (!isEnabled()) { return; }
-            if (error != null) { if (p.isOnline()) { p.sendMessage(PREFIX + "§c" + root(error)); } return; }
+            boolean online = !(p instanceof Player) || ((Player) p).isOnline();
+            if (error != null) { if (online) { p.sendMessage(PREFIX + "§c" + root(error)); } return; }
             if (then != null) { then.run(); }
-            if (p.isOnline()) { p.sendMessage(PREFIX + message); }
+            if (online) { p.sendMessage(PREFIX + message); }
         });
     }
 

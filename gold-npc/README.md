@@ -32,6 +32,20 @@ NPCs no estilo Slapper das versões novas: humanos com skin ou criaturas, nome e
 /npc ranking nenhum
 ```
 
+### Pelo console (sem ninguém no jogo)
+
+Tudo que não depende de "onde estou" ou "o que seguro" funciona pelo console, com a posição como `<mundo> <x> <y> <z> [yaw]`:
+
+```text
+npc criar humano LobbyRush 10.5 65 -3 90 &c&lPvP|&7{mundo:LobbyPvP} jogando    cria e seleciona (humano com a skin padrão)
+npc selecionar 3                                 o console tem a sua própria seleção (por id)
+npc mover LobbyRush 12 65 -3 180                 move o NPC selecionado
+npc destino posicao LobbyPvP 128 67 128 0        destino com coordenadas
+npc skin Fulano                                  copia a skin de um jogador online
+npc comando mundo tp LobbyPvP   npc nome ...   npc transicao portal   npc lista   npc remover
+```
+`npc item`, `npc tp`, `destino aqui` e `selecionar` sem id precisam de um jogador. Um `npc criar` seguido de `npc selecionar <id>` no mesmo roteiro mantém o id escolhido: a criação só seleciona o NPC novo se ninguém selecionou outro enquanto ele era gravado.
+
 ## NPCs de ranking (top 3)
 
 Ligado a uma posicao de um ranking (`ranked` ou `pvp`, publicados pelo GoldPvP), o NPC mostra a medalha, o nome e o valor (ex.: "#1 Gustavo / 1620 Platina") e veste a skin de quem esta naquela posicao. A cada 30 s o ranking e consultado; o NPC so e reconstruido quando o dono da posicao muda. A skin de cada jogador e guardada ao entrar no servidor (uma copia por conteudo), entao o NPC mostra a skin certa mesmo com o jogador offline. Exemplo de podio: tres NPCs com `/npc ranking ranked 1`, `2` e `3`.

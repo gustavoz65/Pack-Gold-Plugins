@@ -1,7 +1,7 @@
 # GoldPvP
 
 ## Perfil
-Livro "Perfil e Ranked" no slot 9 da hotbar (mundos de lobby). **Basta selecionar o livro** para abrir o perfil; a hotbar volta para o slot anterior, então é só tocar nele de novo para reabrir (no 0.15 tocar no ar com um livro não chega ao servidor).
+Livro "Perfil e Ranked" no slot 9 da hotbar (mundos de lobby). **Toque no chão com o livro** para abrir o perfil (no 0.15 tocar no ar com um livro não chega ao servidor). Com `hotbar.ao_selecionar = 1` no painel do GoldCore, só selecionar o livro já abre.
 O perfil mostra abates, mortes, KDR, sequência, elo e pontos, pico, posição, V/D/E, dano, e tem botões para: jogar ranked, **elo no chat** (liga/desliga), **lista de elos**, top 10 e cosméticos.
 `/perfil [jogador]`, `/elos`, `/elochat`.
 

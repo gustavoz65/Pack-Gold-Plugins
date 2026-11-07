@@ -543,15 +543,22 @@ public final class GoldSkyWars extends PluginBase implements Listener {
         Player p = e.getPlayer();
         Game g = inGame.get(p);
         if (g == null) { return; }
-        if (useMenuItem(p, p.getInventory().getItemInHand())) { e.setCancelled(); return; }
+        Item hand = p.getInventory().getItemInHand();
+        if (menuItem(hand)) { e.setCancelled(); if (HotbarAction.tap(p)) { useMenuItem(p, hand); } return; }
         if (frozen(p)) { e.setCancelled(); }
     }
 
-    /** No 0.15 tocar no ar com bau/cama nao chega ao servidor: selecionar o item ja age, e a hotbar volta ao slot 4. */
+    /**
+     * Por padrao os itens da partida agem ao tocar no chao com eles (onInteract). Selecionar o slot so age com
+     * hotbar.ao_selecionar = 1 no painel do GoldCore ou para o espectador, que voa e nao tem chao para tocar
+     * ("Jogar de novo" e "Sair"). A hotbar volta ao slot 4.
+     */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onHeld(PlayerItemHeldEvent e) {
         Player p = e.getPlayer();
-        if (!inGame.containsKey(p) || !menuItem(e.getItem())) { return; }
+        Game game = inGame.get(p);
+        if (game == null || !menuItem(e.getItem())) { return; }
+        if (!HotbarAction.onSelect() && !game.spectators.contains(p) && !flying.contains(p)) { return; }
         Item item = e.getItem();
         getServer().getScheduler().scheduleDelayedTask(new PluginTask<GoldSkyWars>(this) { @Override public void onRun(int t) {
             if (!p.isOnline()) { return; }

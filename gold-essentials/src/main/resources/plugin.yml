@@ -11,7 +11,7 @@ commands:
  home: {description: "Vai para uma home", usage: "/home [nome]", aliases: [casa]}
  delhome: {description: "Apaga uma home", usage: "/delhome <nome>"}
  warp: {description: "Lista ou usa warps", usage: "/warp [nome]", aliases: [warps]}
- setwarp: {description: "Cria warp", usage: "/setwarp <nome>", permission: goldessentials.admin}
+ setwarp: {description: "Cria warp (no console: com coordenadas)", usage: "/setwarp <nome> [<mundo> <x> <y> <z> [yaw]]", permission: goldessentials.admin}
  delwarp: {description: "Apaga warp", usage: "/delwarp <nome>", permission: goldessentials.admin}
  spawn: {description: "Vai ao spawn", usage: "/spawn", aliases: [lobby]}
  setspawn: {description: "Define o spawn", usage: "/setspawn", permission: goldessentials.admin}

@@ -129,10 +129,14 @@ public final class TesteComandos extends PluginBase {
             check(saw(bia, "/tpa") && !saw(bia, "/gamemode") && !saw(bia, "/op "), "/help fora da zona mostra so o que o jogador tem permissao");
             forget();
             try {
-                cn.nukkit.event.player.PlayerItemHeldEvent ev = new cn.nukkit.event.player.PlayerItemHeldEvent(ana, ana.getInventory().getItem(0), 0, 0);
-                getServer().getPluginManager().callEvent(ev);
+                for (int i = 0; i < 9; i++) { ana.getInventory().setHotbarSlotIndex(i, i); }
+                ana.getInventory().setHeldItemIndex(0);
+                getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerItemHeldEvent(ana, ana.getInventory().getItem(0), 0, 0));
+                check(!saw(ana, "Ajuda"), "Selecionar o item nao executa (padrao: tocar no chao)");
+                cn.nukkit.block.Block chao = ana.level.getBlock(new cn.nukkit.math.Vector3(ana.getFloorX(), ana.getFloorY() - 1, ana.getFloorZ()));
+                getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerInteractEvent(ana, ana.getInventory().getItemInHand(), chao, 1, cn.nukkit.event.player.PlayerInteractEvent.RIGHT_CLICK_BLOCK));
             } catch (Throwable t) { errors.add(t.toString()); }
-            check(saw(ana, "Ajuda"), "Selecionar o item executa o comando dele");
+            check(saw(ana, "Ajuda"), "Tocar no chao com o item executa o comando dele");
             ana.teleport(getServer().getDefaultLevel().getSafeSpawn());
         });
         step(20, () -> {
@@ -158,12 +162,13 @@ public final class TesteComandos extends PluginBase {
             check(!gerente.isOp(), "OP suspenso ao entrar de IP nao autorizado");
             console("opseguro add gerente " + gerente.getAddress());
         });
-        step(20, () -> {
+        // A gravacao do SQLite e assincrona: espere ela terminar antes do proximo login.
+        step(60, () -> {
             getServer().getPluginManager().callEvent(new cn.nukkit.event.player.PlayerJoinEvent(gerente, ""));
             check(!gerente.isOp(), "OP nao volta so por entrar (antes do login)");
             getServer().getPluginManager().callEvent(new br.goldsuite.api.event.PlayerAuthEvent(gerente, br.goldsuite.api.event.PlayerAuthEvent.Method.LOGIN));
         });
-        step(20, () -> {
+        step(60, () -> {
             check(gerente.isOp(), "OP volta depois do login do IP autorizado");
             forget();
             type(gerente, "/op Ana");

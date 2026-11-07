@@ -82,6 +82,10 @@ public final class GoldCore extends PluginBase implements CoreService, AsyncStor
         getServer().getServiceManager().register(SettingsService.class, this.settings, this);
         getServer().getPluginManager().registerEvents(this.settings, this);
         M.B.attach(this);
+        // Vale para os itens de menu de todos os plugins (veja HotbarAction).
+        br.goldsuite.api.Settings.number(this, "hotbar.ao_selecionar", 0,
+                "Itens de menu da hotbar: 0 = agem ao tocar no chao com o item; 1 = agem so de selecionar o slot (antigo)",
+                v -> br.goldsuite.api.HotbarAction.setOnSelect(v == 1));
     }
 
     @Override public CompletableFuture<Void> whenReady() { return this.ready; }

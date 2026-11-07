@@ -73,6 +73,15 @@ Serviços registrados pelo GoldCore e pelos plugins (pegue com `getServer().getS
 - Antes de cada lote de mudanças no servidor: backup pelo painel (ou pela API de backups). Reiniciar só com autorização do dono.
 - O Claude Code roda na VPS com Remote Control dentro do tmux (`tmux attach -t claude`).
 
+## Estado no servidor (07/11/2026)
+- Zonas criadas por console: `hub` (LobbyRush), `pvp` (LobbyPvP = cópia de `mapas/LobbyBM`), `minigames` (Hubw), `factions` (medieval + mundo novo `factions`),
+  `rankup` (RankupLobby = cópia de `mapas/Spawn`) e `party` (mundo `party`, sem barra do HUD). Proteção (construir/pvp/dano off) e anti-void nos lobbies.
+- `Practice` é **arena** do modo Practice, não lobby. `medieval` foi limpo (spawners, baús, vasos e ~930 entidades do PC).
+- Os itens de zona foram tirados (causavam teleporte sem fim ao agir ao selecionar). Depois do deploy desta versão: livro `/lobbies` em cada zona,
+  seletor com `zona seletor` e os NPCs de cada lobby pelo console (`npc criar <tipo> <mundo> <x> <y> <z> [yaw] [nome]`).
+- Mapas do PC: o bloco 95 (vidro colorido no PC) vira **bedrock invisível** no 0.15. Converter nos lobbies (fase 2).
+- Placas "HytaleMC" trocadas por "Rush MC"; placas impróprias apagadas (Evento, ArenaGladiadores, HN).
+
 ## Pendências (ordem sugerida)
 1. **Estrutura de lobbies do servidor** (configuração + o que faltar de código) — detalhada no pedido do dono que acompanha este arquivo:
    LobbyRush (hub), lobby PvP (HG, NoDebuff, UHC, Practice, Ranked; livro do perfil só aqui), lobby Minigames (SkyWars, BedWars, Party),

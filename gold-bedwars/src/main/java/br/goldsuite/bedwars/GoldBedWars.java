@@ -781,15 +781,20 @@ public final class GoldBedWars extends PluginBase implements Listener {
     public void onInteract(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         if (!inGame.containsKey(p)) { return; }
-        if (useMenuItem(p, p.getInventory().getItemInHand())) { e.setCancelled(); return; }
+        Item hand = p.getInventory().getItemInHand();
+        if (menuItem(hand)) { e.setCancelled(); if (HotbarAction.tap(p)) { useMenuItem(p, hand); } return; }
         if (frozen(p)) { e.setCancelled(); }
     }
+
+    static boolean menuItem(Item i) { return i.hasCustomName() && (i.getCustomName().equals(LEAVE) || i.getCustomName().equals(TEAMS)); }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onHeld(PlayerItemHeldEvent e) {
         Player p = e.getPlayer();
         Item item = e.getItem();
         if (!inGame.containsKey(p) || !item.hasCustomName() || !item.getCustomName().contains("(toque)")) { return; }
+        // Por padrao age ao tocar no chao (onInteract); ao selecionar so com hotbar.ao_selecionar = 1 ou para quem voa sem chao (espectador).
+        if (!HotbarAction.onSelect() && !flying.contains(p)) { return; }
         getServer().getScheduler().scheduleDelayedTask(new PluginTask<GoldBedWars>(this) { @Override public void onRun(int t) { if (p.isOnline()) { p.getInventory().setHeldItemIndex(4); p.getInventory().sendHeldItem(p); useMenuItem(p, item); } } }, 2);
     }
 

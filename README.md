@@ -49,6 +49,7 @@ O [roadmap](ROADMAP.md) mostra a origem de cada módulo.
 - Console: `/painel ver <plugin>`, `/painel set <plugin> <chave> <valor|padrao>`.
 - **Discord:** `/painel discord <url do webhook>` (ou pelo menu), `/painel discord teste`, `/painel discord off`. Alertas da staff (ex.: anti-fraude) vão para o canal; só URLs oficiais do Discord são aceitas e menções são bloqueadas.
 - Permissões: `goldcore.painel` (editar) e `goldcore.alertas` (receber alertas), ambas OP por padrão.
+- **Itens de menu da hotbar** (todos os plugins): por padrão agem quando o jogador **toca no chão** com o item; só selecionar o slot não faz nada, então passar o dedo pela hotbar não dispara nada. `painel set GoldCore hotbar.ao_selecionar 1` volta ao jeito antigo (agir ao selecionar). O segundo evento do mesmo toque (até 500 ms) é ignorado. Exceção: o espectador do SkyWars e do BedWars, que voa sem chão, usa "Jogar de novo" e "Sair" só de selecionar.
 
 **Novidades de cada versão:** [CHANGELOG.md](CHANGELOG.md). **Para continuar o desenvolvimento num chat novo:** [docs/CONTEXTO.md](docs/CONTEXTO.md).
 

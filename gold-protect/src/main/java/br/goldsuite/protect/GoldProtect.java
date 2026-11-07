@@ -12,7 +12,9 @@ import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
+import cn.nukkit.event.player.PlayerFoodLevelChangeEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
+import cn.nukkit.event.player.PlayerInvalidMoveEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.level.Level;
 import cn.nukkit.plugin.PluginBase;
@@ -78,7 +80,7 @@ public final class GoldProtect extends PluginBase implements Listener {
             reindex();
         });
         getServer().getPluginManager().registerEvents(this, this);
-        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldProtect>(this) { @Override public void onRun(int tick) { areaTick(); } }, 40);
+        getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldProtect>(this) { @Override public void onRun(int tick) { areaTick(); feed(); } }, 40);
         getServer().getScheduler().scheduleRepeatingTask(new PluginTask<GoldProtect>(this) { @Override public void onRun(int tick) { mining.clear(); } }, 20 * 60 * 10);
     }
 
@@ -170,7 +172,36 @@ public final class GoldProtect extends PluginBase implements Listener {
             if (pvpBlocked(victim.level, x, y, z) || pvpBlocked(attacker.level, attacker.getFloorX(), attacker.getFloorY(), attacker.getFloorZ())) { event.setCancelled(); attacker.sendPopup(M.t("pvp_desativado_aqui")); return; }
         }
         Map.Entry<String, ProtectState.Area> e = areaAt(victim.level, x, y, z);
-        if (e != null && e.getValue().deny.contains("dano")) { event.setCancelled(); }
+        // A area manda dentro dela; fora, vale o "dano off" do mundo (queda, fogo, afogamento...).
+        if (e != null ? e.getValue().deny.contains("dano") : worldDenies(victim.level, "dano")) { event.setCancelled(); }
+    }
+
+    private boolean worldDenies(Level level, String flag) {
+        if (!data.isLoaded() || level == null) { return false; }
+        Set<String> world = data.read(s -> s.worlds.get(level.getFolderName()));
+        return world != null && world.contains(flag);
+    }
+
+    /** "fome off" no mundo: a fome nao cai (lobbies). Comer continua subindo. */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void hunger(PlayerFoodLevelChangeEvent event) {
+        Player p = event.getPlayer();
+        if (event.getFoodLevel() < p.getFoodData().getLevel() && worldDenies(p.level, "fome")) { event.setCancelled(); }
+    }
+
+    /**
+     * "movimento off" no mundo: o Nukkit nao puxa o jogador de volta quando acha que ele andou demais num tick. Na beira dos
+     * blocos e com o lag do celular isso dispara a toda hora ("moveu erradamente"). So para lobbies: nas arenas a checagem fica.
+     */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void invalidMove(PlayerInvalidMoveEvent event) { if (worldDenies(event.getPlayer().level, "movimento")) { event.setCancelled(); } }
+
+    /** Quem chega com fome num mundo "fome off" fica com a barra cheia (a cada 2 s, so le o conjunto do mundo). */
+    private void feed() {
+        if (!data.isLoaded()) { return; }
+        for (Player p : getServer().getOnlinePlayers().values()) {
+            if (p.spawned && p.getFoodData().getLevel() < 20 && worldDenies(p.level, "fome")) { p.getFoodData().setLevel(20); }
+        }
     }
 
     /** PvP vale para todos, inclusive donos e admins: e regra do lugar, nao de quem constroi. */

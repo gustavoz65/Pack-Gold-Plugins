@@ -1,0 +1,5 @@
+name: TesteHotbar
+main: teste.TesteHotbar
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldComandos, GoldEssentials, GoldPvP]

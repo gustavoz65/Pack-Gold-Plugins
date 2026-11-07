@@ -1,5 +1,6 @@
 package br.goldsuite.build;
 
+import br.goldsuite.api.HotbarAction;
 import br.goldsuite.api.MenuService;
 import br.goldsuite.api.Settings;
 import cn.nukkit.Player;
@@ -64,11 +65,12 @@ public final class GoldBuild extends PluginBase implements Listener {
         return item != null && item.getId() == Item.BLAZE_ROD && item.hasCustomName() && item.getCustomName().equals(M.t("menu_item_nome")) && p.hasPermission("goldbuild.admin");
     }
 
-    /** Selecionar o item do menu na hotbar abre as ferramentas e a selecao volta ao slot anterior. */
+    /** Com hotbar.ao_selecionar = 1 (painel do GoldCore), selecionar o item do menu abre as ferramentas; por padrao, so tocando no chao. */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void held(PlayerItemHeldEvent e) {
         Player p = e.getPlayer();
         if (!toolItem(p, e.getItem())) { lastHeld.put(p, p.getInventory().getHeldItemIndex()); return; }
+        if (!HotbarAction.onSelect()) { return; }
         Integer before = lastHeld.get(p);
         int slot = p.getInventory().getHeldItemIndex();
         int back = before == null || before == slot ? (slot == 0 ? 1 : 0) : before;
@@ -83,7 +85,7 @@ public final class GoldBuild extends PluginBase implements Listener {
     /** Tocar no ar ou num bloco com o item do menu tambem abre. */
     @EventHandler(priority = EventPriority.LOWEST)
     public void toolTap(PlayerInteractEvent e) {
-        if (toolItem(e.getPlayer(), e.getItem()) && (e.getAction() == PlayerInteractEvent.RIGHT_CLICK_AIR || e.getAction() == PlayerInteractEvent.RIGHT_CLICK_BLOCK)) { e.setCancelled(); openTools(e.getPlayer()); }
+        if (toolItem(e.getPlayer(), e.getItem()) && (e.getAction() == PlayerInteractEvent.RIGHT_CLICK_AIR || e.getAction() == PlayerInteractEvent.RIGHT_CLICK_BLOCK)) { e.setCancelled(); if (HotbarAction.tap(e.getPlayer())) { openTools(e.getPlayer()); } }
     }
 
     private MenuService menus() { return getServer().getServiceManager().load(MenuService.class); }

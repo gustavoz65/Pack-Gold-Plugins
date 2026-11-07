@@ -92,3 +92,8 @@ warp_removida: "Warp removida."
 # {0} = places.read(s -> s.warps.isEmpty() ? "nenhuma" : String.join(", ", s.warps.keySet()))
 warps: "Warps: {0}"
 warps_invalidas: "Warps invalidas."
+# {0} = nome da warp, {1} = mundo e coordenadas
+warp_salva: "Warp {0} salva em {1}."
+uso_setwarp: "Uso: /setwarp <nome> (onde voce esta) ou /setwarp <nome> <mundo> <x> <y> <z> [yaw]"
+# {0} = nome do mundo
+mundo_inexistente: "Mundo {0} nao existe."

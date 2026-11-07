@@ -3,7 +3,7 @@
 BedWars no estilo dos servidores brasileiros grandes: até 8 times (solo, dupla ou quarteto), forja do time, geradores de diamante e esmeralda, loja por categorias, melhorias do time e camas que podem ser quebradas.
 
 ## Partida
-1. `/bw entrar [solo|dupla|quarteto]` (ou NPC com `/npc comando bw entrar solo`). Na sala de espera: lã = **escolher time**, cama = sair. Quem não escolhe é colocado no time mais vazio.
+1. `/bw entrar [solo|dupla|quarteto]` (ou NPC com `/npc comando bw entrar solo`). Na sala de espera: lã = **escolher time**, cama = sair (toque no chão com o item; o espectador, que voa, usa a cama só de selecionar). Quem não escolhe é colocado no time mais vazio.
 2. Com o mínimo de jogadores, contagem de 20 s (10 s com a sala cheia). Times sem jogadores começam sem cama.
 3. Todos nascem com armadura de couro na cor do time e espada de madeira. A armadura comprada é **permanente**. Picareta e machado caem um nível a cada morte.
 4. Com a cama de pé, a morte renasce em 5 s. Sem cama, a morte é **final** e o jogador vira espectador. Os recursos do morto vão para quem matou.

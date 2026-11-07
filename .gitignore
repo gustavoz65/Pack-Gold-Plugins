@@ -8,3 +8,4 @@
 # testes de servidor
 testes-servidor/work/
 testes-servidor/*/out/teste/
+__pycache__/

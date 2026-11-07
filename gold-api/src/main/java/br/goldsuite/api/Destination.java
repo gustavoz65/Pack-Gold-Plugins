@@ -25,6 +25,23 @@ public final class Destination {
     /** Outra instancia. Na 0.15.10 o cliente nao tem TransferPacket: exige o proxy da GoldSuite. */
     public static Destination server(String server) { return new Destination(Type.SERVER, name(server), 0, 0, 0, 0, 0); }
 
+    /**
+     * Le "&lt;mundo&gt; &lt;x&gt; &lt;y&gt; &lt;z&gt; [yaw]" a partir de args[from], para comandos sem jogador no lugar (console).
+     * Devolve null se ali nao houver mundo e tres numeros. O yaw so e lido se for numero; veja {@link #parsedLength}.
+     */
+    public static Destination parse(String[] args, int from) {
+        if (args == null || from < 0 || args.length < from + 4) { return null; }
+        Double x = number(args[from + 1]), y = number(args[from + 2]), z = number(args[from + 3]);
+        if (x == null || y == null || z == null) { return null; }
+        Double yaw = args.length > from + 4 ? number(args[from + 4]) : null;
+        return position(args[from], x, y, z, yaw == null ? 0 : (float) (yaw % 360), 0);
+    }
+    /** Quantos argumentos o {@link #parse} usou: 4 sem yaw, 5 com yaw. */
+    public static int parsedLength(String[] args, int from) { return args.length > from + 4 && number(args[from + 4]) != null ? 5 : 4; }
+    private static Double number(String text) {
+        try { double d = Double.parseDouble(text); return Double.isFinite(d) ? d : null; } catch (NumberFormatException | NullPointerException e) { return null; }
+    }
+
     private static String name(String value) {
         if (value == null || !value.matches("[A-Za-z0-9_-][A-Za-z0-9_.-]{0,31}")) { throw new IllegalArgumentException("Nome invalido: use ate 32 letras, numeros, _ . ou -."); }
         return value;

@@ -94,7 +94,7 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
             help(p, page);
             return;
         }
-        if (p.hasPermission("goldcomandos.bypass") || p.hasPermission("goldcomandos.cmd." + real)) { return; }
+        if (real.equals("lobbies") || p.hasPermission("goldcomandos.bypass") || p.hasPermission("goldcomandos.cmd." + real)) { return; }
         CmdState.Zone z = zone(p.level);
         if (z != null && (!data.read(s -> s.allowed(z, typed, real)) || (cmd != null && z.plugins.contains(owner(cmd)) && !data.read(s -> s.always.contains(real))))) { e.setCancelled(); p.sendMessage(blockedMessage); }
     }
@@ -141,6 +141,27 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
             Settings.alert("Comandos", M.t("op_de_suspenso_entrou_de_um", p.getName(), p.getAddress()));
         }
         enter(p, p.level, true, true);
+        // O cliente so termina de receber o inventario depois de nascer: entrega de novo em seguida.
+        regive(p, 20);
+    }
+
+    /** Entrega de novo os itens da zona onde o jogador esta (depois de nascer, renascer ou fazer login). */
+    private void regive(Player p, int ticks) {
+        getServer().getScheduler().scheduleDelayedTask(() -> { if (isEnabled() && p.isOnline() && data.isLoaded()) { enter(p, p.level, true, false); } }, ticks);
+    }
+
+    /** Morrer limpa o inventario e renascer no mesmo mundo nao troca de zona: os itens precisam voltar. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void respawn(PlayerRespawnEvent e) { regive(e.getPlayer(), 5); }
+
+    /** Itens da zona nunca caem no chao ao morrer. */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void death(PlayerDeathEvent e) {
+        Player p = e.getEntity();
+        String zn = zoneOf.get(p);
+        CmdState.Zone z = zn == null || !data.isLoaded() ? null : data.read(s -> s.zones.get(zn));
+        if (z == null || z.items.isEmpty() || e.getDrops() == null) { return; }
+        e.setDrops(Arrays.stream(e.getDrops()).filter(i -> z.items.values().stream().noneMatch(h -> same(i, h))).toArray(Item[]::new));
     }
 
     /**
@@ -151,6 +172,7 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
     public void authenticated(br.goldsuite.api.event.PlayerAuthEvent e) {
         Player p = e.getPlayer();
         if (!data.isLoaded() || !p.isOnline()) { return; }
+        regive(p, 10);
         String name = p.getName().toLowerCase(Locale.ROOT);
         if (!data.read(s -> s.suspended.contains(name) && s.opAllowed(name, p.getAddress()))) { return; }
         data.change(s -> s.suspended.remove(name)).whenComplete((v, error) -> {
@@ -232,15 +254,19 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
         CmdState.HubItem h = hubItem(e.getPlayer(), e.getPlayer().getInventory().getItemInHand());
         if (h == null) { return; }
         e.setCancelled();
-        run(e.getPlayer(), h);
+        if (HotbarAction.tap(e.getPlayer())) { run(e.getPlayer(), h); }
     }
 
-    /** No 0.15 tocar no ar com item comum nao chega ao servidor: selecionar o item ja executa e a hotbar volta. */
+    /**
+     * Por padrao o item age ao tocar no chao com ele (interact acima). Com hotbar.ao_selecionar = 1 no painel do GoldCore,
+     * selecionar o slot ja executa e a hotbar volta ao slot anterior (o jeito antigo).
+     */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void held(PlayerItemHeldEvent e) {
         Player p = e.getPlayer();
         CmdState.HubItem h = hubItem(p, e.getItem());
         if (h == null) { lastHeld.put(p, p.getInventory().getHeldItemIndex()); return; }
+        if (!HotbarAction.onSelect()) { return; }
         Integer before = lastHeld.get(p);
         int slot = p.getInventory().getHeldItemIndex();
         int back = before == null || before == slot ? (slot == 0 ? 1 : 0) : before;
@@ -255,12 +281,45 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void drop(PlayerDropItemEvent e) { if (hubItem(e.getPlayer(), e.getItem()) != null) { e.setCancelled(); } }
 
+    // ---------- seletor de lobbies (/lobbies) ----------
+
+    private static final java.util.regex.Pattern WORLD_COUNT = java.util.regex.Pattern.compile("\\{mundo:([A-Za-z0-9_][A-Za-z0-9_.-]{0,31})}");
+
+    /** Abre o menu do seletor; o icone tocado executa o comando dele como o jogador. */
+    private void lobbies(CommandSender sender) {
+        if (!(sender instanceof Player)) { sender.sendMessage(M.t("use_dentro_do_jogo")); return; }
+        Player p = (Player) sender;
+        Map<Integer, CmdState.HubItem> entries = data.read(s -> new TreeMap<>(s.selector));
+        if (entries.isEmpty()) { p.sendMessage(PREFIX + M.t("seletor_vazio")); return; }
+        MenuService menus = getServer().getServiceManager().load(MenuService.class);
+        if (menus == null) { return; }
+        Map<Integer, Item> icons = new HashMap<>();
+        for (Map.Entry<Integer, CmdState.HubItem> e : entries.entrySet()) {
+            Item it = Item.get(e.getValue().id, e.getValue().meta, 1);
+            it.setCustomName(counts(e.getValue().name).replace('&', '§').replace("|", "\n"));
+            icons.put(e.getKey(), it);
+        }
+        menus.open(p, M.t("seletor_titulo"), icons, (who, slot) -> { CmdState.HubItem h = entries.get(slot); if (h != null) { run(who, h); } });
+    }
+
+    /** {mundo:Nome} vira quantos jogadores estao nesse mundo agora; {online} e {max} tambem valem. */
+    private String counts(String text) {
+        if (text.indexOf('{') < 0) { return text; }
+        String out = text.replace("{online}", Integer.toString(getServer().getOnlinePlayers().size())).replace("{max}", Integer.toString(getServer().getMaxPlayers()));
+        java.util.regex.Matcher m = WORLD_COUNT.matcher(out);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) { Level l = getServer().getLevelByName(m.group(1)); m.appendReplacement(sb, Integer.toString(l == null ? 0 : l.getPlayers().size())); }
+        m.appendTail(sb);
+        return sb.toString();
+    }
+
     // ---------- administracao ----------
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!data.isLoaded()) { sender.sendMessage(PREFIX + M.t("carregando")); return true; }
         try {
             if (command.getName().equals("opseguro")) { opseguro(sender, args); return true; }
+            if (command.getName().equals("lobbies")) { lobbies(sender); return true; }
             zona(sender, args);
         } catch (NumberFormatException e) { sender.sendMessage(PREFIX + M.t("numero_invalido")); }
         catch (RuntimeException e) { sender.sendMessage(PREFIX + "§c" + root(e)); }
@@ -298,7 +357,7 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
                 sender.sendMessage(M.t("mundos", zone.worlds));
                 sender.sendMessage(M.t("modo", (zone.whitelist ? M.t("so_os_comandos_da_lista_funcionam") : M.t("os_comandos_da_lista_ficam_bloqueados")), zone.commands));
                 sender.sendMessage(M.t("boas_vindas", (zone.welcomeAlways ? M.t("sempre") : M.t("primeira_vez")), zone.welcome.replace('&', '§')));
-                for (Map.Entry<Integer, CmdState.HubItem> e : zone.items.entrySet()) { sender.sendMessage(M.t("slot", e.getKey(), e.getValue().name.replace('&', '§'), e.getValue().id, e.getValue().meta, e.getValue().command)); }
+                for (Map.Entry<Integer, CmdState.HubItem> e : zone.items.entrySet()) { sender.sendMessage(M.t("slot", e.getKey() + 1, e.getValue().name.replace('&', '§'), e.getValue().id, e.getValue().meta, e.getValue().command)); }
                 for (String h : zone.help) { sender.sendMessage(M.t("ajuda", h.replace('&', '§'))); }
                 return;
             }
@@ -383,6 +442,26 @@ public final class GoldComandos extends PluginBase implements Listener, ZoneServ
             case "itemremover": {
                 int slot = Integer.parseInt(a.length > 2 ? a[2] : "0") - 1;
                 change(sender, s -> { if (need(s, z).items.remove(slot) == null) { throw new IllegalArgumentException(M.t("nao_ha_item_nesse_slot")); } }, M.t("item_removido"));
+                return;
+            }
+            case "seletor": {
+                if (a.length < 2) {
+                    sender.sendMessage(PREFIX + M.t("seletor_lista"));
+                    for (Map.Entry<Integer, CmdState.HubItem> e : data.read(s -> new ArrayList<>(s.selector.entrySet()))) { sender.sendMessage(M.t("seletor_linha", e.getKey() + 1, e.getValue().name.replace('&', '§').replace("|", " / "), e.getValue().id, e.getValue().meta, e.getValue().command)); }
+                    sender.sendMessage(M.t("uso_zona_seletor"));
+                    return;
+                }
+                if (a[1].equalsIgnoreCase("remover")) {
+                    int pos = Integer.parseInt(a.length > 2 ? a[2] : "0") - 1;
+                    change(sender, s -> { if (s.selector.remove(pos) == null) { throw new IllegalArgumentException(M.t("nao_ha_icone_nessa_posicao")); } }, M.t("icone_removido"));
+                    return;
+                }
+                if (a.length < 5) { throw new IllegalArgumentException(M.t("uso_zona_seletor")); }
+                int pos = Integer.parseInt(a[1]) - 1;
+                String[] id = a[2].split(":");
+                CmdState.HubItem h = new CmdState.HubItem(Integer.parseInt(id[0]), id.length > 1 ? Integer.parseInt(id[1]) : 0, a[3].replace('_', ' '), rest(a, 4).replaceFirst("^/", ""));
+                if (pos < 0 || pos >= CmdState.SELECTOR_SIZE) { throw new IllegalArgumentException(M.t("posicao_de_1_27")); }
+                change(sender, s -> { s.selector.put(pos, h); CmdState.validate(s); }, M.t("icone_do_seletor_executa", pos + 1, h.command));
                 return;
             }
             default:

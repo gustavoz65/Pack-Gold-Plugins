@@ -69,12 +69,13 @@ public final class GoldCrates extends PluginBase implements Listener {
         return null;
     }
 
-    /** Selecionar a caixa na hotbar abre a confirmacao (no 0.15 tocar no ar com um bloco nao chega ao servidor). */
+    /** Com hotbar.ao_selecionar = 1 (painel do GoldCore), selecionar a caixa abre a confirmacao; por padrao, so tocando no chao com ela. */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void held(PlayerItemHeldEvent event) {
         Player p = event.getPlayer();
         String crate = boxOf(event.getItem());
         if (crate == null) { lastHeld.put(p, p.getInventory().getHeldItemIndex()); return; }
+        if (!HotbarAction.onSelect()) { return; }
         Integer before = lastHeld.get(p);
         int slot = p.getInventory().getHeldItemIndex(), back = before == null || before == slot ? (slot == 0 ? 1 : 0) : before;
         confirm(p, crate);
@@ -92,7 +93,7 @@ public final class GoldCrates extends PluginBase implements Listener {
         String crate = boxOf(event.getPlayer().getInventory().getItemInHand());
         if (crate == null) { return; }
         event.setCancelled();
-        open(event.getPlayer(), crate);
+        if (HotbarAction.tap(event.getPlayer())) { open(event.getPlayer(), crate); }
     }
 
     @EventHandler(priority = EventPriority.LOW)

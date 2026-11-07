@@ -337,17 +337,18 @@ public final class GoldPvP extends PluginBase implements Listener {
     public void interact(PlayerInteractEvent event) {
         if (event.getAction() == PlayerInteractEvent.PHYSICAL || !isMenuItem(event.getPlayer().getInventory().getItemInHand())) { return; }
         event.setCancelled();
-        menu(event.getPlayer(), event.getPlayer());
+        if (HotbarAction.tap(event.getPlayer())) { menu(event.getPlayer(), event.getPlayer()); }
     }
 
     /**
-     * No 0.15 tocar no ar com um livro nao chega ao servidor: o livro so ficava selecionado.
-     * Agora selecionar o livro ja abre o perfil, e a hotbar volta para o slot anterior; tocar de novo reabre.
+     * Por padrao o livro abre o perfil ao tocar no chao com ele (interact acima). Com hotbar.ao_selecionar = 1 no painel
+     * do GoldCore, selecionar o livro ja abre, e a hotbar volta para o slot anterior (o jeito antigo).
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void held(PlayerItemHeldEvent event) {
         Player p = event.getPlayer();
         if (!isMenuItem(event.getItem())) { lastHeld.put(p, p.getInventory().getHeldItemIndex()); return; }
+        if (!HotbarAction.onSelect()) { return; }
         Integer before = lastHeld.get(p);
         int back = before == null || before == p.getInventory().getHeldItemIndex() ? (p.getInventory().getHeldItemIndex() == 0 ? 1 : 0) : before;
         menu(p, p);

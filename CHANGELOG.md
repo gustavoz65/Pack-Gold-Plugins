@@ -6,6 +6,38 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 
 ---
 
+## 0.4.3 — hotbar por toque, seletor de lobbies e NPC pelo console (07/11/2026)
+
+### Novo
+- **GoldComandos**: seletor de lobbies. `/lobbies` (também `/jogos`) abre um menu único com um ícone por lobby. Ele é montado com `/zona seletor <posição> <id> <nome> <comando>`, aceita o contador `{mundo:Nome}` e funciona em qualquer zona. Na hotbar fica só o livro "Lobbies".
+- **GoldNPC**: NPCs pelo console, sem ninguém no jogo.
+  - `npc criar <tipo> <mundo> <x> <y> <z> [yaw] [nome]`;
+  - `npc mover <mundo> <x> <y> <z> [yaw]` e `npc destino posicao ...`;
+  - o console tem a sua própria seleção (`npc selecionar <id>`) e pode usar nome, comando, transição, ranking, skin de jogador online, lista e remover.
+- **GoldEssentials**: `setwarp <nome> <mundo> <x> <y> <z> [yaw]` e `delwarp` pelo console; `warp` no console lista com as coordenadas.
+- **gold-api**: `Destination.parse` (lê `<mundo> <x> <y> <z> [yaw]`) e `HotbarAction` (quando um item de menu da hotbar age).
+- Testes de servidor novos: `nc/TesteNpcConsole` e `hb/TesteHotbar`.
+
+### Melhorado
+- **Itens de menu da hotbar** (GoldComandos, GoldPvP, GoldCrates, GoldBuild, GoldSkyWars e GoldBedWars):
+  - agora agem quando o jogador **toca no chão** com o item. Só passar o dedo pela hotbar não dispara mais nada;
+  - o segundo evento do mesmo toque (até 500 ms) é ignorado;
+  - `painel set GoldCore hotbar.ao_selecionar 1` volta ao jeito antigo (padrão 0);
+  - exceção: o espectador do SkyWars e do BedWars voa sem chão para tocar, então "Jogar de novo" e "Sair" continuam agindo ao selecionar.
+  - A sopa ao selecionar do GoldHG (`/sopa`) continua como escolha de cada jogador, desligada por padrão.
+- **GoldComandos**: `zona ver` mostra os slots de 1 a 9, como se digita no `zona item`.
+- **GoldProtect**: duas opções novas no `mundoprotecao`, pensadas para os lobbies:
+  - `fome off`: a fome não cai, e quem chega com fome fica com a barra cheia;
+  - `movimento off`: o servidor não puxa mais o jogador de volta na beira dos blocos ("moveu erradamente"). Nas arenas a checagem continua.
+- **Testes de servidor**: o `run-one.sh` sobe o servidor de teste na porta 19140 (`PORT=...`), nunca na 19132 da produção.
+
+### Corrigido
+- **GoldComandos**: teleporte sem fim entre lobbies. O item do slot já selecionado agia ao chegar no lobby e mandava para outro, e lá acontecia o mesmo. Agora o item só age ao tocar no chão.
+- **GoldComandos**: os itens da zona não voltavam depois de morrer (renascer no mesmo mundo não trocava de zona) e caíam no chão junto com o drop da morte. Agora voltam ao renascer, ao entrar no servidor e depois do login, e nunca caem.
+- **GoldProtect**: `mundoprotecao <mundo> dano off` respondia "bloqueado", mas só valia dentro de áreas. O mundo continuava tomando dano de queda, fogo e afogamento.
+- **GoldNPC**: num roteiro de console, `npc criar` seguido de `npc selecionar <id>` podia acabar com o NPC novo selecionado, porque a criação grava de forma assíncrona e selecionava depois. Um `npc remover` em seguida apagava o NPC errado. Agora a criação só seleciona se ninguém selecionou outro no meio tempo.
+- **Testes**: `TesteComandos` espera a gravação assíncrona do `opseguro` antes do próximo login (falhava em máquina com disco mais lento).
+
 ## 0.4.3 — correção dos menus no celular (04/11/2026)
 
 ### Corrigido

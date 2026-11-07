@@ -18,6 +18,9 @@ public final class CmdState {
     public Set<String> suspended = new TreeSet<>();
     /** Jogador -> zonas que ja visitou (boas-vindas so na primeira vez). */
     public Map<String, Set<String>> visited = new HashMap<>();
+    /** Menu do /lobbies (posicao 0 a 26 do bau -> icone e comando). O mesmo menu em todas as zonas. */
+    public Map<Integer, HubItem> selector = new TreeMap<>();
+    public static final int SELECTOR_SIZE = 27, MAX_SELECTOR_NAME = 80;
 
     public static final class Zone {
         public Set<String> worlds = new TreeSet<>();
@@ -140,6 +143,13 @@ public final class CmdState {
                 if (i.getKey() == null || i.getKey() < 0 || i.getKey() > 8 || it == null || it.id <= 0 || it.id > 511 || it.meta < 0 || it.meta > 32767 || it.name == null || it.name.isEmpty()
                         || it.name.length() > 40 || it.command == null || it.command.isEmpty() || it.command.length() > 100) { throw new IllegalArgumentException(M.t("item_de_hotbar_invalido")); }
             }
+        }
+        if (s.selector == null) { s.selector = new TreeMap<>(); }
+        if (s.selector.size() > SELECTOR_SIZE) { throw new IllegalArgumentException(M.t("seletor_invalido")); }
+        for (Map.Entry<Integer, HubItem> i : s.selector.entrySet()) {
+            HubItem it = i.getValue();
+            if (i.getKey() == null || i.getKey() < 0 || i.getKey() >= SELECTOR_SIZE || it == null || it.id <= 0 || it.id > 511 || it.meta < 0 || it.meta > 32767 || it.name == null || it.name.isEmpty()
+                    || it.name.length() > MAX_SELECTOR_NAME || it.command == null || it.command.isEmpty() || it.command.length() > 100) { throw new IllegalArgumentException(M.t("seletor_invalido")); }
         }
         for (String c : s.always) { command(c); }
         for (Map.Entry<String, Set<String>> e : s.opIps.entrySet()) {

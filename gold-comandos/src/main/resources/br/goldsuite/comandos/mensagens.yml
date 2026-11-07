@@ -119,3 +119,17 @@ zona_plugin_zona_plugin_desliga_plugin: "/zona plugin <zona> <Plugin> (desliga o
 # {0} = z, {1} = z
 zona_so_os_comandos_da_lista: "Zona {0}: so os comandos da lista funcionam (/zona cmd {1} <comando>)."
 zonas: "Zonas:"
+# ---------- seletor de lobbies (/lobbies e /zona seletor) ----------
+seletor_titulo: "&8Escolha o lobby"
+seletor_vazio: "O seletor de lobbies ainda nao foi configurado."
+seletor_invalido: "Seletor de lobbies invalido."
+seletor_lista: "Seletor de lobbies (/lobbies):"
+# {0} = posicao 1-27, {1} = nome, {2} = id, {3} = meta, {4} = comando
+seletor_linha: "&e{0}&7: {1} &8({2}:{3}) &7-> /{4}"
+uso_zona_seletor: "Uso: /zona seletor <posicao 1-27> <id[:meta]> <nome_com_underlines> <comando> | /zona seletor remover <posicao>. No nome: | quebra linha e {mundo:Nome} mostra quantos jogam la."
+nao_ha_icone_nessa_posicao: "Nao ha icone nessa posicao."
+icone_removido: "Icone removido do seletor."
+posicao_de_1_27: "Posicao de 1 a 27."
+# {0} = posicao, {1} = comando
+icone_do_seletor_executa: "Icone na posicao {0} do seletor executa /{1}."
+use_dentro_do_jogo: "Use dentro do jogo."

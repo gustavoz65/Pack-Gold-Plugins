@@ -6,7 +6,8 @@ import java.util.*;
 /** Areas, protecoes por mundo e anti-void. Flags ausentes = permitido. */
 public final class ProtectState {
     public static final int MAX_AREAS = 500;
-    public static final List<String> FLAGS = Arrays.asList("construir", "pvp", "interagir", "dano");
+    /** fome: a fome nao cai; movimento: o servidor nao puxa o jogador de volta ("moveu erradamente"). Os dois so valem no mundo inteiro. */
+    public static final List<String> FLAGS = Arrays.asList("construir", "pvp", "interagir", "dano", "fome", "movimento");
     public Map<String, Area> areas = new TreeMap<>();
     /** Mundo -> flags negadas para todos sem goldprotect.admin. */
     public Map<String, Set<String>> worlds = new TreeMap<>();
