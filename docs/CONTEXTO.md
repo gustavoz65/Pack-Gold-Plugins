@@ -50,6 +50,8 @@ Serviços registrados pelo GoldCore e pelos plugins (pegue com `getServer().getS
 - Teleporte para outro mundo com menu aberto fecha o menu já no mundo novo.
 - `Player.getDeviceFingerprint()` = UUID + id da instalação; cliente modificado manda id 0/nulo e a impressão fica igual para todos: ignore nesse caso.
 - `Server.getOnlinePlayers()` devolve uma cópia.
+- Chunk criado sem jogador por perto (comando de console, `loadChunk(..., true)`) nunca passa pelo gerador: sem `setGenerated()` o core grava ele **vazio** e os blocos somem ao reiniciar. Quem escreve bloco assim marca o chunk como gerado e populado (o `Mines` do GoldRankup já faz).
+- O console do Nukkit (jline) morre com `StringIndexOutOfBoundsException` quando o log escreve no meio de uma linha digitada; o GoldCore reabre a leitura sozinho. Mesmo assim, mande comandos pela API devagar (1 por segundo) e só reinicie pelo painel com o console vivo (o `restart` manda `stop` pelo console).
 - Nome de jogador só aceita `[A-Za-z0-9_]{3,16}` (por isso trocar `{jogador}` em comando de console é seguro).
 
 ## Compilar, testar e publicar

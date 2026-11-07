@@ -24,6 +24,7 @@ As notas do core (o servidor em si) ficam em `builds/VERSAO.md` do repositório 
 ### Corrigido
 - **Mapas**: o `FactionsLobby` do pack derrubava o celular (sinalizador, que não existe no 0.15); Submerged e Villa do SkyWars tinham prismarinho e lanterna do mar (também da 0.16); o HG tinha sinalizador, ender chest, bloco de comando e jukebox. Todos saneados, inclusive as cópias de reset.
 - **GoldCore**: o console do painel parava de aceitar comandos depois de um tempo (bug do jline do Nukkit: a thread "Console" morre quando o log escreve no meio de uma linha digitada). O GoldCore agora vigia essa thread e reabre a leitura do console sozinho.
+- **GoldRankup**: as minas montadas pelo console (`mina gerarmundo`) sumiam ao reiniciar — o chunk escrito sem jogador por perto não era marcado como gerado e o Nukkit gravava ele vazio. Agora o chunk é marcado ao receber os blocos; o `TesteRankupAlpha` confere.
 - **GoldHud**: o popup do HUD não é mais enviado enquanto um menu está aberto (no celular ele embaralhava a janela de vários plugins).
 - **GoldComandos**: `zona mundo` tira da zona um mundo que já foi apagado.
 - **GoldShop**: mensagens de compra e venda que estavam fixas no código foram para o `mensagens.yml`.

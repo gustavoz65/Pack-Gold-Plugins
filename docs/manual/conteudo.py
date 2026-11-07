@@ -30,7 +30,7 @@ GUIAS = {
             "- No jogo, toque numa opção do menu e digite o valor no chat: padrao restaura, cancelar sai.",
         ]),
     ],
-    dicas=["Itens de menu da hotbar (livros, caixas, seletor de lobbies, itens das partidas): por padrão agem ao tocar no chão com o item; só selecionar o slot não faz nada. painel set GoldCore hotbar.ao_selecionar 1 volta ao jeito antigo. O espectador do SkyWars e do BedWars, que voa sem chão, usa Jogar de novo e Sair só de selecionar.", "Chaves de API (ex.: groq_chave) aparecem mascaradas no painel.", "As permissões goldcore.painel e goldcore.alertas são só de OP por padrão; dê goldcore.alertas aos cargos da staff que devem receber avisos."],
+    dicas=["Itens de menu da hotbar (livros, caixas, seletor de lobbies, itens das partidas): por padrão agem ao tocar no chão com o item; só selecionar o slot não faz nada. painel set GoldCore hotbar.ao_selecionar 1 volta ao jeito antigo. O espectador do SkyWars e do BedWars, que voa sem chão, usa Jogar de novo e Sair só de selecionar.", "Chaves de API (ex.: groq_chave) aparecem mascaradas no painel.", "Se o console do painel parar de aceitar comandos (bug do jline do Nukkit), o GoldCore reabre a leitura em até 5 s e avisa no log.", "As permissões goldcore.painel e goldcore.alertas são só de OP por padrão; dê goldcore.alertas aos cargos da staff que devem receber avisos."],
 ),
 "GoldAuth": dict(
     resumo="Registro e login obrigatórios (inclusive para OP), com senha forte (PBKDF2), limite de tentativas por IP e verificação em duas etapas (2FA) com aparelhos confiáveis.",
@@ -500,12 +500,12 @@ GUIAS = {
     passos=[
         "Crie o mundo das minas e monte as 10 minas de uma vez: mundo criar minas void e depois mina gerarmundo minas (pátio, avenida e minas 15x15 com 20 de fundo).",
         "Ajuste os preços no /painel (GoldRankup, preco.<rank>, em reais) e a tabela de venda dos minérios no GoldShop (/preco).",
-        "Coloque {rank} no formato do chat da zona e {rank} {rank_progresso} na barra (zona hud).",
+        "Coloque {rank} no formato do chat e {rank} {rank_progresso} na barra (zona hud). O {rank} só aparece nos mundos do painel mundos_tag (padrão RankupLobby,minas,plots).",
         "Crie os kits de ferramenta por grupo: kit criaritens ferramentas_pedra 60 274:1,273:1,275:1,297:16 restrito (os ranks já dão goldkits.kit.ferramentas_<grupo>).",
     ],
     secoes=[("Jogadores", ["- /rankup: confirmação com preço e saldo; toque duplo não cobra duas vezes.", "- /ranks: todos os ranks e o progresso em %.", "- /minas: as liberadas levam até a mina; as bloqueadas mostram o rank necessário."]),
             ("Minas", ["- Regeneram a cada N minutos ou quando N% foi minerado, com aviso 10 s antes; quem está dentro vai para a borda.", "- Só se quebram os blocos da mina; colocar bloco não. Fortuna multiplica os minérios.", "$ mina composicao pedra 1=80,16=20", "$ mina tempo pedra 10", "$ mina porcentagem pedra 70", "$ mina resetar pedra"])],
-    dicas=["As permissões dos ranks nunca podem ser OP, staff, curinga ou bypass: o plugin recusa.", "Admin: /rankadmin set <jogador> <rank> e /rankadmin reset <jogador> (só OP)."],
+    dicas=["As permissões dos ranks nunca podem ser OP, staff, curinga ou bypass: o plugin recusa.", "Admin: /rankadmin set <jogador> <rank> e /rankadmin reset <jogador> (só OP).", "Pódios: npc ranking money 1 (mais ricos, do GoldEconomy) e npc ranking mctop 1 (habilidades, do GoldSkills)."],
 ),
 "GoldPlots": dict(
     resumo="Terrenos infinitos para o Rankup com as medidas do plotworld do pack (plot 42x42, borda com laje, rua de 11), comprados com money e protegidos.",
