@@ -140,7 +140,8 @@ public final class TesteSkyMythic extends PluginBase {
             if (chest != null) { tap(admin, Item.get(0), lv.getBlock(chest)); }
             cmd(admin, "GoldSkyWars", "swmap bau pronto");
         });
-        step(5, () -> { try { check(((Map<?, ?>) field(arenaObj(), "chests")).size() == 1 && ((Map<?, ?>) field(arenaObj(), "chests")).values().iterator().next().equals(Boolean.TRUE), "swmap bau: bau marcado como meio"); } catch (Exception e) { errors.add(e.toString()); } });
+        // A marcacao do bau e gravada de forma assincrona: espere a gravacao terminar.
+        step(40, () -> { try { check(((Map<?, ?>) field(arenaObj(), "chests")).size() == 1 && ((Map<?, ?>) field(arenaObj(), "chests")).values().iterator().next().equals(Boolean.TRUE), "swmap bau: bau marcado como meio"); } catch (Exception e) { errors.add(e.toString()); } });
         // ---------- minerios por ilha ----------
         step(3, () -> {
             for (int i = 0; i < 4; i++) { diamondsBefore[i] = count("sw_ilhas", 56, cages[i][0], cages[i][2]); }
@@ -199,14 +200,15 @@ public final class TesteSkyMythic extends PluginBase {
                 Method spin = progress().getClass().getDeclaredMethod("spin", Player.class); spin.setAccessible(true); spin.invoke(progress(), a);
             } catch (Exception e) { errors.add(e.toString()); }
         });
-        step(10, () -> {
+        // O giro grava o perfil de forma assincrona.
+        step(40, () -> {
             try {
                 check(num(a, "souls") == 15 && num(a, "spins") == 1, "almas: giro gastou 10 almas (" + num(a, "souls") + ")");
                 cmd(a, "GoldSkyWars", "sw vantagens");
             } catch (Exception e) { errors.add(e.toString()); }
         });
         step(5, () -> { try { menuClick(a, 10); } catch (Exception e) { errors.add(e.toString()); } });
-        step(15, () -> {
+        step(40, () -> {
             try {
                 Map<?, ?> perks = (Map<?, ?>) field(stats(a), "perks");
                 check(Integer.valueOf(1).equals(perks.get("speedboost")), "vantagens: velocidade comprada no menu");
@@ -262,7 +264,8 @@ public final class TesteSkyMythic extends PluginBase {
             } catch (Exception e) { errors.add(e.toString()); }
             kill(a, c);
         });
-        step(10, () -> { try { check(phase("GoldSkyWars", "ilhas").equals("FIM"), "partida: ultimo vivo venceu"); check(num(a, "wins") == 1 && num(a, "xp") >= 120, "progresso: vitoria deu XP (" + num(a, "xp") + ")"); } catch (Exception e) { errors.add(e.toString()); } });
+        // O XP da vitoria tambem e gravado de forma assincrona.
+        step(40, () -> { try { check(phase("GoldSkyWars", "ilhas").equals("FIM"), "partida: ultimo vivo venceu"); check(num(a, "wins") == 1 && num(a, "xp") >= 120, "progresso: vitoria deu XP (" + num(a, "xp") + ")"); } catch (Exception e) { errors.add(e.toString()); } });
         step(220, () -> {
             try {
                 check(phase("GoldSkyWars", "ilhas").equals("ESPERANDO"), "reset: mapa restaurado");
