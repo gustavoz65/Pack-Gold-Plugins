@@ -51,3 +51,9 @@ borda_de_50_a_100000: "Raio da borda de 50 a 100000 blocos."
 borda_definida: "Borda de {0}: {1} blocos a partir do spawn."
 # {0} = mundo
 borda_removida: "Borda de {0} removida."
+# {0} = mundo, {1} = graus ou off
+direcao_definida: "Quem chega no spawn de {0} olha para {1} (0 sul, 90 oeste, 180 norte, 270 leste)."
+bloco_invalido: "Bloco invalido."
+area_grande_demais: "Area grande demais (maximo 100 mil blocos por vez)."
+# {0} = blocos, {1} = mundo
+preenchido: "{0} blocos colocados em {1}."

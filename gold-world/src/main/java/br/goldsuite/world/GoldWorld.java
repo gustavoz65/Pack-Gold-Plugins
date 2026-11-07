@@ -50,7 +50,11 @@ public final class GoldWorld extends PluginBase implements Listener {
         /** Mundo -> raio da borda em blocos a partir do spawn (mundo de terreno gerado, ex.: factions). */
         public Map<String, Integer> borders = new TreeMap<>();
         public boolean stackMobs = true;
+        /** Mundo -> para onde o jogador olha ao chegar no spawn (0 = sul, 90 = oeste, 180 = norte, 270 = leste). */
+        public Map<String, Integer> spawnYaw = new TreeMap<>();
         static void validate(WorldState s) {
+            if (s != null && s.spawnYaw == null) { s.spawnYaw = new TreeMap<>(); }
+            if (s != null) { for (Map.Entry<String, Integer> y : s.spawnYaw.entrySet()) { Destination.world(y.getKey()); if (y.getValue() == null || y.getValue() < 0 || y.getValue() >= 360) { throw new IllegalArgumentException(M.t("configuracao_de_mundos_invalida")); } } }
             if (s != null && s.alwaysDay == null) { s.alwaysDay = new TreeSet<>(); }
             if (s != null && s.clearWeather == null) { s.clearWeather = new TreeSet<>(); }
             if (s != null && s.borders == null) { s.borders = new TreeMap<>(); }
@@ -124,6 +128,20 @@ public final class GoldWorld extends PluginBase implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void thunder(cn.nukkit.event.level.ThunderChangeEvent event) {
         if (event.toThunderState() && data.isLoaded() && data.read(s -> s.clearWeather.contains(event.getLevel().getFolderName()))) { event.setCancelled(); }
+    }
+
+    // ---------- direcao ao chegar ----------
+
+    /** Quem chega no spawn de um mundo (NPC, seletor, /spawn, /mundo tp) olha para o lado configurado, ex.: para os NPCs. */
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void arrive(cn.nukkit.event.player.PlayerTeleportEvent event) {
+        cn.nukkit.level.Location to = event.getTo();
+        if (to == null || to.level == null || !data.isLoaded()) { return; }
+        Integer yaw = data.read(s -> s.spawnYaw.isEmpty() ? null : s.spawnYaw.get(to.level.getFolderName()));
+        if (yaw == null) { return; }
+        cn.nukkit.math.Vector3 spawn = to.level.getSpawnLocation();
+        if (Math.abs(to.x - (spawn.x + 0.5)) > 3 || Math.abs(to.z - (spawn.z + 0.5)) > 3) { return; }
+        to.yaw = yaw; to.pitch = 0;
     }
 
     // ---------- borda do mundo ----------
@@ -272,6 +290,42 @@ public final class GoldWorld extends PluginBase implements Listener {
                     if (radius != null && (radius < 50 || radius > 100000)) { throw new IllegalArgumentException(M.t("borda_de_50_a_100000")); }
                     data.change(s -> { if (radius == null) { s.borders.remove(name); } else { s.borders.put(name, radius); } })
                             .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : radius == null ? M.t("borda_removida", name) : M.t("borda_definida", name, radius))));
+                    return true;
+                }
+                case "direcao": {
+                    // /mundo direcao <mundo> <0-359|off>: para onde o jogador olha ao chegar no spawn.
+                    String name = Destination.world(arg(args, 1)).target;
+                    String raw = arg(args, 2);
+                    Integer yaw = raw.equalsIgnoreCase("off") ? null : Integer.valueOf(Math.floorMod(Integer.parseInt(raw), 360));
+                    data.change(s -> { if (yaw == null) { s.spawnYaw.remove(name); } else { s.spawnYaw.put(name, yaw); } })
+                            .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("direcao_definida", name, yaw == null ? "off" : String.valueOf(yaw)))));
+                    return true;
+                }
+                case "preencher": {
+                    // /mundo preencher <mundo> <x1> <y1> <z1> <x2> <y2> <z2> <id[:meta]> (console; ate 100 mil blocos)
+                    String name = Destination.world(arg(args, 1)).target;
+                    int[] v = new int[6];
+                    for (int i = 0; i < 6; i++) { v[i] = Integer.parseInt(arg(args, 2 + i)); }
+                    String[] idm = arg(args, 8).split(":");
+                    int id = Integer.parseInt(idm[0]), meta = idm.length > 1 ? Integer.parseInt(idm[1]) : 0;
+                    if (id < 0 || id > 255 || meta < 0 || meta > 15) { throw new IllegalArgumentException(M.t("bloco_invalido")); }
+                    int x1 = Math.min(v[0], v[3]), x2 = Math.max(v[0], v[3]), y1 = Math.max(0, Math.min(v[1], v[4])), y2 = Math.min(127, Math.max(v[1], v[4])), z1 = Math.min(v[2], v[5]), z2 = Math.max(v[2], v[5]);
+                    long volume = (long) (x2 - x1 + 1) * (y2 - y1 + 1) * (z2 - z1 + 1);
+                    if (volume > 100000) { throw new IllegalArgumentException(M.t("area_grande_demais")); }
+                    Level level = getServer().getLevelByName(name);
+                    if (level == null && getServer().loadLevel(name)) { level = getServer().getLevelByName(name); }
+                    if (level == null) { throw new IllegalArgumentException(M.t("mundo_inexistente")); }
+                    for (int cx = x1 >> 4; cx <= x2 >> 4; cx++) {
+                        for (int cz = z1 >> 4; cz <= z2 >> 4; cz++) {
+                            level.loadChunk(cx, cz, true);
+                            cn.nukkit.level.format.FullChunk c = level.getChunk(cx, cz, true);
+                            // Sem "gerado" o Nukkit grava o chunk vazio e a construcao some ao reiniciar.
+                            if (!c.isGenerated() || !c.isPopulated()) { c.setGenerated(); c.setPopulated(); }
+                        }
+                    }
+                    Block block = Block.get(id, meta);
+                    for (int x = x1; x <= x2; x++) { for (int y = y1; y <= y2; y++) { for (int z = z1; z <= z2; z++) { level.setBlock(new cn.nukkit.math.Vector3(x, y, z), block.clone(), true, false); } } }
+                    sender.sendMessage(PREFIX + M.t("preenchido", volume, name));
                     return true;
                 }
                 case "dia": case "sol": {

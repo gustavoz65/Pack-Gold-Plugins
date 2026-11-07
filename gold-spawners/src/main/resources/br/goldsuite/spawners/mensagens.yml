@@ -1,0 +1,43 @@
+# Mensagens do GoldSpawners. & = cor, {0} {1} = valores.
+prefixo: "&8[&6Spawners&8] &r"
+goldcore_precisa_estar_ativo: "O GoldCore precisa estar ativo antes do GoldSpawners."
+dados_invalidos: "Dados de spawners invalidos."
+carregando: "&7Carregando os spawners, tente em instantes."
+so_nos_plots: "&cSpawner so funciona no seu plot (/plot)."
+limite_do_servidor: "&cO servidor chegou ao limite de spawners."
+# {0} = limite
+limite_de_spawners: "&cVoce ja tem o maximo de spawners ({0})."
+erro_ao_salvar: "&cNao foi possivel salvar o spawner; quebre e coloque de novo."
+# {0} = tipo
+spawner_colocado: "&aSpawner de {0} colocado! Fique perto para os mobs nascerem e toque neles para matar."
+spawner_de_outro: "&cEsse spawner nao e seu."
+# {0} = tipo
+spawner_removido: "&eSpawner {0} voltou para o seu inventario (a pilha de mobs se perdeu)."
+inventario_cheio: "&cInventario cheio! Venda os drops na loja."
+# {0} = quantos, {1} = tipo
+nome_pilha: "&e{0}x &f{1}\n&7Toque para matar"
+# {0} = tipo
+item_spawner: "&eSpawner {0}"
+tipo_invalido: "Tipo invalido: galinha, ovelha, porco, vaca, zumbi, esqueleto, aranha, creeper, blaze ou golem (ou 1 a 10)."
+sem_permissao: "Sem permissao."
+jogador_offline: "Jogador offline."
+uso: "/spawners | /spawners tipos | spawners dar <jogador> <tipo> [qtd]"
+# {0} = qtd, {1} = tipo, {2} = jogador
+spawner_dado: "&a{0}x spawner de {1} para {2}."
+# {0} = numero, {1} = tipo, {2} = drops
+linha_tipo: "&e{0}. &f{1} &7- {2} por mob"
+# {0} = quantos, {1} = limite, {2} = mobs acumulados
+seus_spawners: "&fVoce tem &e{0}&f de {1} spawners e &e{2}&f mobs esperando."
+# {0} = quantos, {1} = tipo
+linha_seu_tipo: "&7- {0}x {1}"
+dica_spawners: "&7Compre spawners e venda os drops na loja fisica (NPC Loja no lobby do Rankup). /spawners tipos mostra os drops."
+mob_galinha: "Galinha"
+mob_ovelha: "Ovelha"
+mob_porco: "Porco"
+mob_vaca: "Vaca"
+mob_zumbi: "Zumbi"
+mob_esqueleto: "Esqueleto"
+mob_aranha: "Aranha"
+mob_creeper: "Creeper"
+mob_blaze: "Blaze"
+mob_golem: "Golem de Ferro"

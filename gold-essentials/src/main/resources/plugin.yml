@@ -24,7 +24,7 @@ commands:
  config: {description: "Preferencias (tell, tpa e recebimento de coins)", usage: "/config", aliases: [preferencias]}
  luz: {description: "Liga ou desliga a lanterna (visao noturna)", usage: "/luz", permission: goldessentials.luz, aliases: [lanterna]}
  setloja: {description: "Marca a sua loja aqui", usage: "/setloja [remover]", permission: goldessentials.setloja}
- loja: {description: "Vai ate a loja de um jogador", usage: "/loja <jogador>"}
+ loja: {description: "Abre a loja do servidor; /loja <jogador> vai ate a loja dele", usage: "/loja [jogador]"}
  mundovip: {description: "Vai ao mundo VIP", usage: "/mundovip | /mundovip definir|remover"}
  tpall: {description: "Traz todos ate voce", usage: "/tpall", permission: goldessentials.admin}
 permissions:

@@ -96,3 +96,12 @@ vendeu_itens_placa: "&aVendeu {0}x {1} por $ {2}."
 # {0} = quantidade, {1} = item, {2} = dono
 comprou_itens_de: "&aComprou {0}x {1} de {2}."
 
+# {0} = item, {1} = preco, {2} = a cada quantos
+vender_tudo_descricao: "todos os seus {0} ($ {1} a cada {2})"
+uso_comprar_placa: "comprar placa <comprar|vender> <mundo> <x> <y> <z> <norte|sul|leste|oeste|chao:0-15> <id[:meta]> <qtd> <preco> [rotulo] | comprar placaremover <mundo> <x> <y> <z>"
+# {0} = quantidade
+placa_vende_tudo: "&7Vende tudo /{0}"
+# {0} = posicao, {1} = nome
+placa_criada: "Placa {1} criada em {0}."
+# {0} = mundo
+mundo_inexistente: "Mundo {0} nao existe."

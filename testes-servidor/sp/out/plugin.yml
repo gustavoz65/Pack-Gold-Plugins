@@ -1,0 +1,5 @@
+name: TesteSpawners
+main: teste.TesteSpawners
+version: "1"
+api: ["1.0.0"]
+depend: [GoldCore, GoldEconomy, GoldShop, GoldSpawners, GoldWorld, GoldEssentials]

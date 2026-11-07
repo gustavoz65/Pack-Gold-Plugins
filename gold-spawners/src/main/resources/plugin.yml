@@ -1,0 +1,12 @@
+name: GoldSpawners
+main: br.goldsuite.spawners.GoldSpawners
+version: "0.4.3"
+api: ["1.0.0"]
+depend: [GoldCore]
+softdepend: [GoldPlots, GoldWorld]
+author: gustavoz65
+description: "Spawners do Rankup: 10 tipos, mobs empilhados so de pacotes (leves), drops direto no inventario"
+commands:
+ spawners: {description: "Seus spawners e a tabela de tipos", usage: "/spawners [tipos] | spawners dar <jogador> <tipo> [qtd] (admin)", aliases: [spawner, geradores]}
+permissions:
+ goldspawners.admin: {default: op, description: "Da spawners e quebra os de qualquer um"}

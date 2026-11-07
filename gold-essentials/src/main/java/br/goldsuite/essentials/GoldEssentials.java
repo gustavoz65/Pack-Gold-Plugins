@@ -234,7 +234,8 @@ public final class GoldEssentials extends PluginBase implements Listener {
                 case "config": config(p); return true;
                 case "luz": luz(p); return true;
                 case "setloja": setShop(p, args.length > 0 && args[0].equalsIgnoreCase("remover")); return true;
-                case "loja": if (args.length == 0) { p.sendMessage(PREFIX + M.t("use_loja_jogador_para_marcar_sua")); return true; } goShop(p, args[0]); return true;
+                // /loja sozinho abre a loja do servidor (/comprar, do GoldShop) de qualquer lugar; /loja <jogador> vai ate a loja dele.
+                case "loja": if (args.length == 0) { if (getServer().getPluginCommand("comprar") != null) { getServer().dispatchCommand(p, "comprar"); } else { p.sendMessage(PREFIX + M.t("use_loja_jogador_para_marcar_sua")); } return true; } goShop(p, args[0]); return true;
                 case "mundovip": vipWorld(p, args); return true;
                 case "sethome": setHome(p, args.length > 0 ? args[0] : "casa"); return true;
                 case "home": home(p, args.length > 0 ? args[0] : null); return true;

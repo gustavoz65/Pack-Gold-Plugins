@@ -39,6 +39,8 @@ public final class ShopState {
         /** Dono (so LOJA) e baú do estoque. */
         public String owner = "";
         public int chestX, chestY, chestZ;
+        /** Nome dado ao item comprado (ex.: "&eSpawner de Zumbi"); vazio = nome normal. So placas do console. */
+        public String label = "";
     }
 
     public static String key(String world, int x, int y, int z) { return world + ":" + x + ":" + y + ":" + z; }
@@ -66,15 +68,23 @@ public final class ShopState {
         return cents;
     }
 
+    /** Texto da linha 2 da placa: o rotulo sem cores; se passar de 15 letras, sem a primeira palavra ("Spawner de Esqueleto" -> "Esqueleto"). */
+    public static String signName(String label, String fallback) {
+        String t = label == null || label.isEmpty() ? fallback : label.replaceAll("[&\u00a7][0-9a-fk-or]", "");
+        while (t.length() > 15 && t.indexOf(' ') > 0) { t = t.substring(t.indexOf(' ') + 1); }
+        return t.length() > 15 ? t.substring(0, 15) : t;
+    }
+
     public static String money(long cents) { return BigDecimal.valueOf(cents, 2).toPlainString(); }
 
     public static void validate(ShopState s) {
         if (s == null || s.shops == null || s.sellPrices == null || s.shops.size() > 5000 || s.sellPrices.size() > 1000) { throw new IllegalArgumentException(M.t("lojas_invalidas")); }
         for (Map.Entry<String, Shop> e : s.shops.entrySet()) {
             Shop shop = e.getValue();
+            if (shop != null && shop.label == null) { shop.label = ""; }
             if (!e.getKey().matches("[A-Za-z0-9_][A-Za-z0-9_.-]{0,31}:-?\\d+:\\d+:-?\\d+") || shop == null || shop.type == null || shop.owner == null
                     || shop.id < 1 || shop.id > 511 || shop.meta < 0 || shop.amount < 1 || shop.amount > 64 || shop.price < 1 || shop.price > MAX_PRICE
-                    || (shop.type == Type.LOJA && !shop.owner.matches("[a-z0-9_]{3,16}"))) { throw new IllegalArgumentException(M.t("loja_invalida", e.getKey())); }
+                    || (shop.type == Type.LOJA && !shop.owner.matches("[a-z0-9_]{3,16}")) || (shop.label != null && shop.label.length() > 40)) { throw new IllegalArgumentException(M.t("loja_invalida", e.getKey())); }
         }
         if (s.catalog == null) { s.catalog = new LinkedHashMap<>(); }
         if (s.catalog.size() > MAX_CATEGORIES) { throw new IllegalArgumentException(M.t("catalogo_invalido")); }

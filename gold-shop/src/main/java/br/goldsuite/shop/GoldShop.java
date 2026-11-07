@@ -135,7 +135,9 @@ public final class GoldShop extends PluginBase implements Listener {
         if (shop == null) { return; }
         event.setCancelled();
         Item item = Item.get(shop.id, shop.meta, shop.amount);
-        String what = shop.amount + "x " + item.getName() + " por $" + ShopState.money(shop.price);
+        if (shop.label != null && !shop.label.isEmpty()) { item.setCustomName(shop.label.replace('&', '\u00a7')); }
+        String what = shop.type == Type.VENDER ? M.t("vender_tudo_descricao", item.getName(), ShopState.money(shop.price), shop.amount)
+                : shop.amount + "x " + item.getName() + " por $" + ShopState.money(shop.price);
         if (shop.type == Type.LOJA && shop.owner.equals(p.getName().toLowerCase(Locale.ROOT))) {
             BaseInventory chest = chestAt(b, shop);
             p.sendMessage(PREFIX + M.t("sua_loja_estoque", what, (chest == null ? M.t("bau_sumiu") : count(chest, shop.id, shop.meta))));
@@ -154,7 +156,7 @@ public final class GoldShop extends PluginBase implements Listener {
         try {
             switch (shop.type) {
                 case COMPRAR: result = buyFromServer(p, shop, item); break;
-                case VENDER: result = sellToServer(p, item, shop.price); break;
+                case VENDER: result = sellAllToServer(p, shop, item); break;
                 default: result = buyFromPlayer(p, shop, item, chestAt(b, shop)); break;
             }
         } catch (RuntimeException e) { result = PersistentState.failed(e); }
@@ -178,6 +180,29 @@ public final class GoldShop extends PluginBase implements Listener {
         return economy().credit(p.getName(), Currency.MONEY, price).handle((v, error) -> {
             if (error != null) { if (p.isOnline()) { give(p, item.clone()); } throw new IllegalStateException(root(error)); }
             return M.t("vendeu_itens_placa", item.getCount(), item.getName(), ShopState.money(price));
+        });
+    }
+
+    /**
+     * Placa de venda: vende TODOS os itens iguais (sem nome nem encanto) do inventario, ao preco da placa por "Qtd" unidades.
+     * Os itens saem antes do credito; se o credito falhar, voltam.
+     */
+    private CompletableFuture<String> sellAllToServer(Player p, Shop shop, Item item) {
+        PlayerInventory inv = p.getInventory();
+        Map<Integer, Item> taken = new LinkedHashMap<>();
+        int units = 0;
+        for (int slot = 0; slot < 36; slot++) {
+            Item it = inv.getItem(slot);
+            if (it.getId() == shop.id && it.getDamage() == shop.meta && !it.hasCompoundTag()) { taken.put(slot, it.clone()); units += it.getCount(); }
+        }
+        if (units == 0) { throw new IllegalArgumentException(M.t("voce_nao_tem", 1, item.getName())); }
+        long value = Math.multiplyExact(shop.price, (long) units) / shop.amount;
+        if (value < 1) { throw new IllegalArgumentException(M.t("voce_nao_tem", shop.amount, item.getName())); }
+        for (int slot : taken.keySet()) { inv.setItem(slot, Item.get(0)); }
+        int sold = units;
+        return economy().credit(p.getName(), Currency.MONEY, value).handle((v, error) -> {
+            if (error != null) { if (p.isOnline()) { for (Item it : taken.values()) { give(p, it); } } throw new IllegalStateException(root(error)); }
+            return M.t("vendeu_itens_placa", sold, item.getName(), ShopState.money(value));
         });
     }
 
@@ -414,6 +439,64 @@ public final class GoldShop extends PluginBase implements Listener {
                 String key = ShopState.category(a.length > 1 ? a[1] : "");
                 data.change(s -> { if (s.catalog.remove(key) == null) { throw new IllegalArgumentException(M.t("categoria_inexistente", key)); } })
                         .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("categoria_apagada", key))));
+                return;
+            }
+            case "placa": {
+                // comprar placa <comprar|vender> <mundo> <x> <y> <z> <norte|sul|leste|oeste|chao:0-15> <id[:meta]> <qtd> <preco> [rotulo]
+                if (a.length < 10) { throw new IllegalArgumentException(M.t("uso_comprar_placa")); }
+                Type type = a[1].equalsIgnoreCase("comprar") ? Type.COMPRAR : a[1].equalsIgnoreCase("vender") ? Type.VENDER : null;
+                if (type == null) { throw new IllegalArgumentException(M.t("uso_comprar_placa")); }
+                String world = Destination.world(a[2]).target;
+                int x = Integer.parseInt(a[3]), y = Integer.parseInt(a[4]), z = Integer.parseInt(a[5]);
+                String face = a[6].toLowerCase(Locale.ROOT);
+                int blockId, blockMeta;
+                switch (face) {
+                    case "norte": blockId = Block.WALL_SIGN; blockMeta = 2; break;
+                    case "sul": blockId = Block.WALL_SIGN; blockMeta = 3; break;
+                    case "oeste": blockId = Block.WALL_SIGN; blockMeta = 4; break;
+                    case "leste": blockId = Block.WALL_SIGN; blockMeta = 5; break;
+                    default:
+                        if (!face.startsWith("chao:")) { throw new IllegalArgumentException(M.t("uso_comprar_placa")); }
+                        blockId = Block.SIGN_POST; blockMeta = Integer.parseInt(face.substring(5)) & 15;
+                }
+                int[] item = ShopState.item(a[7]);
+                int amount = ShopState.amount(a[8]);
+                long price = ShopState.price(a[9]);
+                String labelText = a.length > 10 ? String.join(" ", Arrays.copyOfRange(a, 10, a.length)) : "";
+                if (labelText.length() > 40) { throw new IllegalArgumentException(M.t("titulo_longo")); }
+                cn.nukkit.level.Level level = getServer().getLevelByName(world);
+                if (level == null && getServer().loadLevel(world)) { level = getServer().getLevelByName(world); }
+                if (level == null) { throw new IllegalArgumentException(M.t("mundo_inexistente", world)); }
+                level.loadChunk(x >> 4, z >> 4, true);
+                cn.nukkit.level.format.FullChunk chunk = level.getChunk(x >> 4, z >> 4, true);
+                // Chunk que nunca teve jogador perto: sem "gerado" o Nukkit grava ele vazio (a placa sumiria ao reiniciar).
+                if (!chunk.isGenerated() || !chunk.isPopulated()) { chunk.setGenerated(); chunk.setPopulated(); }
+                Vector3 pos = new Vector3(x, y, z);
+                BlockEntity old = level.getBlockEntity(pos);
+                if (old != null) { old.close(); }
+                level.setBlock(pos, Block.get(blockId, blockMeta), true, false);
+                Shop shop = new Shop();
+                shop.type = type; shop.id = item[0]; shop.meta = item[1]; shop.amount = amount; shop.price = price; shop.label = labelText;
+                String name = ShopState.signName(labelText, Item.get(shop.id, shop.meta).getName());
+                cn.nukkit.nbt.tag.CompoundTag nbt = new cn.nukkit.nbt.tag.CompoundTag().putString("id", BlockEntity.SIGN).putInt("x", x).putInt("y", y).putInt("z", z)
+                        .putString("Text1", type == Type.COMPRAR ? M.t("comprar_2") : M.t("vender_2")).putString("Text2", name)
+                        .putString("Text3", type == Type.VENDER ? M.t("placa_vende_tudo", amount) : "Qtd: " + amount).putString("Text4", "§2$ " + ShopState.money(price));
+                BlockEntity tile = BlockEntity.createBlockEntity(BlockEntity.SIGN, chunk, nbt);
+                if (tile instanceof cn.nukkit.blockentity.BlockEntitySpawnable) { ((cn.nukkit.blockentity.BlockEntitySpawnable) tile).spawnToAll(); }
+                String key = ShopState.key(world, x, y, z);
+                data.change(s -> { if (s.shops.size() >= 5000 && !s.shops.containsKey(key)) { throw new IllegalArgumentException(M.t("limite_de_lojas")); } s.shops.put(key, shop); })
+                        .whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("placa_criada", key, name))));
+                return;
+            }
+            case "placaremover": {
+                // comprar placaremover <mundo> <x> <y> <z>
+                if (a.length < 5) { throw new IllegalArgumentException(M.t("uso_comprar_placa")); }
+                String world = Destination.world(a[1]).target;
+                int x = Integer.parseInt(a[2]), y = Integer.parseInt(a[3]), z = Integer.parseInt(a[4]);
+                String key = ShopState.key(world, x, y, z);
+                cn.nukkit.level.Level level = getServer().getLevelByName(world);
+                if (level != null) { level.setBlock(new Vector3(x, y, z), Block.get(0), true, false); }
+                data.change(s -> s.shops.remove(key)).whenComplete((v, e) -> sender.sendMessage(PREFIX + (e != null ? "§c" + root(e) : M.t("loja_removida"))));
                 return;
             }
             case "lista": {
